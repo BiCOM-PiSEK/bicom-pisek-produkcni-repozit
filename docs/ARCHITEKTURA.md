@@ -604,20 +604,32 @@ graph LR
 
 # 06 · Zástupné definice pro budoucí specifikaci (Gap Analysis)
 
-> Tato sekce obsahuje rezervovaná místa pro architektonická rozhodnutí, která zatím nejsou plně definována a musí být určena před zahájením implementace dotčených částí.
+> Tato sekce obsahuje upřesněná architektonická rozhodnutí na základě diskuse s uživatelem.
 
 ## 6.1 Autentizační mechanismus pro administraci
-*(Určit, jak bude realizováno ověření `ADMIN_TOKEN`. Cloudflare Access pro Zero Trust, nebo vlastní JWT flow s Google OAuth?)*
-**Zatím nedefinováno.**
+*   **Doporučené a zvolené řešení:** **Cloudflare Access (Zero Trust)**.
+*   **Důvod:** Jelikož administrátorky budou maximálně 2–3 (Lenka + případná další operátorka), Firebase Auth je zbytečně komplexní na integraci v kódu. Cloudflare Access filtruje provoz přímo na DNS/Edge úrovni (než se vůbec spustí Worker).
+*   **Implementace:**
+    *   V CF Dashboardu se zapne Cloudflare Access pro subdoménu / cestu `/admin`.
+    *   Nakonfiguruje se Google OAuth (přihlášení přes Google účet) s bílou listinou (whitelist) povolených 2–3 konkrétních e-mailů.
+    *   Vynutí se dvoufázové ověření (2FA) přímo v rozhraní Cloudflare Access.
+    *   Worker v `/api/admin/*` pouze ověřuje přítomnost JWT tokenu z hlavičky `Cf-Access-Jwt-Assertion` (volitelně pro extra bezpečnost).
 
 ## 6.2 Konvence pro MCP (Model Context Protocol)
-*(Určit, zda a jak se mají externí agenti připojovat k infrastruktuře projektu pomocí MCP serveru, např. pro testování D1 dotazů nebo čtení stavů.)*
-**Zatím nedefinováno.**
+*   **Cíl:** Umožnit lokálním vývojovým AI agentům bezpečnou správu D1, R2 a čtení stavů přímo z vývojového prostředí (např. v IDE).
+*   **Navržená architektura:** **Cloudflare Workers MCP Gateway**.
+    *   Vytvoří se speciální zabezpečený endpoint `/api/mcp` (např. chráněný Cloudflare Access service tokenem nebo silným tajným klíčem `MCP_GATEWAY_TOKEN`).
+    *   Tento endpoint bude implementovat specifikaci MCP a překládat JSON-RPC volání na příkazy pro D1 (`run_sql`), R2 (`list_bucket`, `get_object`) a KV.
+    *   Výhoda: Agent nepotřebuje složité SSH tunely, komunikuje standardně přes HTTPS a veškerá oprávnění jsou kontrolována přímo v kódu Workeru na základě tokenu.
 
-## 6.3 AI Guardrails & Fallbacks (Výpadky Llama 3)
-*(Určit strategii, co se má stát v případě nedostupnosti `cf/meta/llama-3-8b-instruct`. Jaké záložní API se použije, a kde bude pevně uložen onen kognitivní "System prompt" pro normalizaci (v DB nebo hardcoded ve Workeru)?)*
-**Zatím nedefinováno.**
+## 6.3 AI Guardrails & Fallbacks (Rotace a zálohy modelů)
+*   **Lokace systémového promptu:** Prompty (pro copywritera i chatbota) budou uloženy v KV / D1 (v tabulce `content_blocks`), nikoliv natvrdo v kódu Workeru. To umožní jejich okamžitou editaci přes administraci bez nutnosti redeploye.
+*   **Zálohovací řetězec (Fallback chain):**
+    1.  **Primární:** Cloudflare Workers AI (`@cf/meta/llama-3-8b-instruct`) — nulové dodatečné náklady, edge inference.
+    2.  **Sekundární (rychlost/kapacita):** Groq API (Llama 3 70B/8B) přes binding `GROQ_API_KEY`.
+    3.  **Terciární (kreativita/komplexnost):** Google Gemini API / GitHub Models (Gemma 2 / Gemini 1.5 Pro) přes API klíč.
+*   **Implementace ve Workeru:** Pokud volání primárního modelu selže (HTTP 5xx / timeout), kód automaticky přepne na sekundární/terciární API s identickým systémovým promptem.
 
 ## 6.4 Konvence testování (Unit / E2E)
-*(Definice testovacího frameworku a spouštěcí logiky pro ověření logiky "preventivní zamykání slotů", idempotence webhooků atd.)*
-**Zatím nedefinováno.**
+*   **Stav:** Rozhodnutí o testovacím stacku (Vitest vs Jest vs playwright) odloženo na pozdější fázi projektu.
+*   **Úkol pro agenta:** Připomenout uživateli před přechodem k fázi ostrého nasazování API a automatických testů.
