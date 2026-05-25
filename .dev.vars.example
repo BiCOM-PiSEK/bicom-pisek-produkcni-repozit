@@ -1,0 +1,11 @@
+# Zkopíruj na .dev.vars a vyplň. .dev.vars je v .gitignore — NIKDY necommitovat na GitHub.
+# Na produkci nastav přes:  wrangler secret put NAZEV
+GOOGLE_CALENDAR_CLIENT_EMAIL="service-account@bicom-pisek.iam.gserviceaccount.com"
+GOOGLE_CALENDAR_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_CALENDAR_ID="primary"
+RESEND_API_KEY="re_xxxxxxxx"
+META_GRAPH_ACCESS_TOKEN="EAAxxxxxxxx"
+META_IG_USER_ID="1784xxxxxxxx"
+SMS_GATEWAY_API_KEY="xxxxxxxx"
+ENCRYPTION_KEY="64znakovy_hex_klic_256bit"
+ADMIN_TOKEN="dlouhy_nahodny_token_pro_admin_endpointy"

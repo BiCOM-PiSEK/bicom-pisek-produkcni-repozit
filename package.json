@@ -1,0 +1,23 @@
+{
+  "name": "bicom-pisek",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bicom Písek — Edge-First ekosystém (Cloudflare Pages + Workers + D1). MEVERIK STUDIO 2026.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public --local --d1=DB --kv=CACHE --r2=MEDIA",
+    "db:init:local": "wrangler d1 execute DB --local --file=db/schema.sql",
+    "db:init:prod": "wrangler d1 execute bicom-db-prod --remote --file=db/schema.sql",
+    "db:migrate": "wrangler d1 migrations apply bicom-db-prod --remote",
+    "seed": "node scripts/seed-services.js",
+    "build:sitemap": "node scripts/build-sitemap.js",
+    "deploy": "wrangler pages deploy public",
+    "lint": "eslint functions public/assets/js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "eslint": "^9.0.0",
+    "vitest": "^1.0.0"
+  }
+}

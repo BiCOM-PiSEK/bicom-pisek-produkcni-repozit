@@ -1,0 +1,14 @@
+# Secrets — NIKDY necommitovat
+.dev.vars
+*.env
+.env*
+
+# Build / nástroje
+node_modules/
+.wrangler/
+dist/
+.DS_Store
+
+# Logy
+*.log
+npm-debug.log*

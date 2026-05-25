@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": ["MedicalBusiness", "HealthAndBeautyBusiness", "LocalBusiness"],
+  "@id": "https://bicompisek.cz/#business",
+  "name": "Bicom Písek – Lenka Limpouchová",
+  "description": "Biorezonanční metoda Bicom Optima v Písku. Komplementární, šetrná podpora pro dospělé i děti. Doplněk klasické medicíny.",
+  "url": "https://bicompisek.cz",
+  "telephone": "+420000000000",
+  "priceRange": "$$",
+  "address": { "@type": "PostalAddress", "streetAddress": "DOPLNIT", "addressLocality": "Písek", "postalCode": "39701", "addressCountry": "CZ" },
+  "geo": { "@type": "GeoCoordinates", "latitude": "49.3088", "longitude": "14.1475" },
+  "areaServed": [
+    { "@type": "City", "name": "Písek" }, { "@type": "City", "name": "Strakonice" },
+    { "@type": "City", "name": "Milevsko" }, { "@type": "City", "name": "Vodňany" },
+    { "@type": "City", "name": "Protivín" }, { "@type": "City", "name": "Blatná" }
+  ],
+  "founder": { "@type": "Person", "@id": "https://bicompisek.cz/#lenka", "name": "Lenka Limpouchová", "jobTitle": "Certifikovaný praktik biorezonance Bicom Optima" }
+}

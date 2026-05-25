@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "projekt": "Bicom-Pisek.cz",
+    "provozovatel": "Lenka Limpouchová",
+    "technologie": "BICOM Optima",
+    "centrum": "Písek, Jihočeský kraj",
+    "spadova_oblast_km": 30,
+    "populace_dosah": 120000,
+    "zdroje": ["ČSÚ", "ÚZIS", "SZÚ", "vlastní rešerše 2024–2025"]
+  },
+  "kpi": {
+    "populace_dosah": 120000,
+    "spadovych_mest": 6,
+    "segmenty_osob": 45800,
+    "konkurentu": 7,
+    "top10_zamestnavatelu": 7331,
+    "prum_nezamestnanost_pct": 3.57,
+    "kuraci_region_odhad": 21500,
+    "trzni_mezera_online_rezervace_pct": 86,
+    "prum_konverzni_potencial": 7.25
+  },
+  "geografie": [
+    {"mesto":"Písek","role":"centrum","obyvatel":29456,"vzdalenost_km":0,"prumerny_vek":43.4},
+    {"mesto":"Strakonice","role":"synergie","obyvatel":22428,"vzdalenost_km":20,"prumerny_vek":43.2},
+    {"mesto":"Milevsko","role":"spádová","obyvatel":8089,"vzdalenost_km":28,"prumerny_vek":46.8},
+    {"mesto":"Vodňany","role":"spádová","obyvatel":7446,"vzdalenost_km":22,"prumerny_vek":42.2},
+    {"mesto":"Blatná","role":"spádová","obyvatel":6500,"vzdalenost_km":25,"prumerny_vek":44.0},
+    {"mesto":"Protivín","role":"spádová","obyvatel":5000,"vzdalenost_km":14,"prumerny_vek":43.0}
+  ],
+  "segmenty": [
+    {"id":"zeny_35_55","nazev":"Ženy 35–55 let","velikost":20000,"konverze":9,"priorita":"Jádro"},
+    {"id":"matky_deti","nazev":"Matky s dětmi","velikost":6700,"konverze":8,"priorita":"Primární"},
+    {"id":"kouraci","nazev":"Závislí na nikotinu","velikost":8100,"konverze":7,"priorita":"Primární"},
+    {"id":"prumysl","nazev":"Průmysloví zaměstnanci","velikost":11000,"konverze":5,"priorita":"Sekundární"}
+  ],
+  "deti_alergie": [
+    {"diagnoza":"Atopický ekzém","prevalence_pct":17.5,"pocet_pisek":855,"trend":"stabilní"},
+    {"diagnoza":"Sezónní alergická rýma","prevalence_pct":12.0,"pocet_pisek":586,"trend":"rostoucí"},
+    {"diagnoza":"Dětské astma","prevalence_pct":10.0,"pocet_pisek":489,"trend":"rostoucí"},
+    {"diagnoza":"Potravinové alergie","prevalence_pct":8.0,"pocet_pisek":390,"trend":"stabilní"}
+  ],
+  "vyhoreni_trend": [
+    {"rok":2014,"pct":20.0},{"rok":2016,"pct":23.5},{"rok":2018,"pct":27.0},{"rok":2022,"pct":16.0}
+  ],
+  "trzni_mezery": [
+    {"prilezitost":"Transparentní ceník online","konkurenti_bez":"5/7","priorita":"vysoká"},
+    {"prilezitost":"Online rezervační systém","konkurenti_bez":"6/7","priorita":"vysoká"},
+    {"prilezitost":"Specializace na dětské alergie","konkurenti_bez":"7/7","priorita":"unikátní"},
+    {"prilezitost":"Aktivní sociální sítě","konkurenti_bez":"5/7","priorita":"střední"}
+  ]
+}

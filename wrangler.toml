@@ -1,0 +1,44 @@
+name = "bicom-pisek"
+compatibility_date = "2026-01-01"
+pages_build_output_dir = "public"
+
+# --- D1 databáze ---
+[[d1_databases]]
+binding = "DB"
+database_name = "bicom-db-prod"
+database_id = "REPLACE_WITH_D1_ID"   # vyplní orchestrátor po `wrangler d1 create`
+
+# --- R2 úložiště médií ---
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "bicom-multimedia"
+
+# --- KV (cache, rate limit, session) ---
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_KV_ID"
+
+# --- Workers AI ---
+[ai]
+binding = "AI"
+
+# --- Queues ---
+[[queues.producers]]
+binding = "BOOKING_QUEUE"
+queue = "booking-jobs"
+[[queues.consumers]]
+queue = "booking-jobs"
+max_batch_size = 10
+
+# --- Cron Triggers ---
+[triggers]
+crons = [
+  "0 */1 * * *",   # reminders-dispatch
+  "0 3 * * *",     # instagram-sync
+  "30 3 * * *",    # gdpr-anonymize
+  "0 4 * * 1",     # geo-insights
+  "0 2 * * 0"      # d1-backup
+]
+
+# Secrets se NIKDY nepíší sem. Nastav je: `wrangler secret put NAZEV`
+# Lokálně: soubor .dev.vars (v .gitignore)
