@@ -83,3 +83,75 @@
 - [x] Queue consumery pro async zpracování
 - [x] 7 Cron workerů pro automatizaci
 - [x] Commitnuté a pushnuté na GitHub
+
+---
+
+## 2026-05-27 Fáze D — Virtual Office Admin SPA (Sprint D.1–D.4)
+**Model:** Antigravity (Claude)
+**Branch:** agent/ag-w2-02-admin-spa
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Design systém** (`admin.css`, 1400+ řádků):
+  - Quiet Luxury paleta (forest, sage, champagne), Cormorant Garamond/Montserrat typografie
+  - 24+ sekcí: reset, grid shell, sidebar, topbar, canvas, activity feed, status bar, cards, KPI, tables, forms, toggles, badges, toasts, modals, empty states, skeletons, scrollbar, animations, responsive breakpoints, print, dashboard components
+- **SPA kostra** (`index.html`):
+  - 3-column CSS Grid (sidebar | topbar+canvas | activity), inline SVG ikony
+  - Mobile overlay, hamburger, breadcrumbs, status bar s live metriky
+- **Router** (`router.js`):
+  - History API, lazy-load ES modulů, fade-in/out přechody, sidebar active state, breadcrumb aktualizace, toast systém
+- **API klient** (`api.js`):
+  - Fetch wrapper s retry (exponential backoff), timeout (AbortController), CF Access JWT, convenience metody pro všechny endpointy
+- **App init** (`app.js`):
+  - Sidebar toggle persistence (localStorage), activity feed polling (30s), status bar health check (60s), keyboard shortcuts (⌘B sidebar, Alt+1-7 navigace)
+- **7 frontend modulů**:
+  - `dashboard.js` — KPI karty s trendy, bookings tabulka, quick actions, GEO bars, system health grid
+  - `calendar.js` — tab-filtrovaná tabulka, potvrdit/zrušit booking akce
+  - `blog.js` — AI generátor (téma + typ + service kontext), draft seznam
+  - `invoices.js` — KPI summary (celkem/uhrazeno/neuhrazeno), tabulka faktur
+  - `messages.js` — eskalované dotazy z AI Rádce, Telegram bot stav
+  - `geo.js` — bar chart měst, AI doporučení kampaní
+  - `settings.js` — toggle switches (SMS, email, Telegram, AI, GDPR), select boxy
+- **Admin middleware** (`_middleware.js`):
+  - CF Access JWT ověření (iss, aud, exp kontroly), operator lookup v DB, dev mode fallback, CORS, static passthrough
+- **7 admin API endpointů**:
+  - `dashboard.js` — 8 parallel D1 queries, PII dešifrování, trend kalkulace, system health
+  - `bookings.js` — GET s filtrací + PII dešifrováním, PUT s audit logem
+  - `copywriter.js` — AI generování (Workers AI → Groq → Gemini), Quiet Luxury system prompt, právní filtr, auto-save draft
+  - `invoices.js` — iDoklad v3 proxy (OAuth2), mock fallback
+  - `settings.js` — CRUD process_states, whitelist klíčů, role-based access
+  - `activity.js` — audit_log → Activity Feed mapování
+  - `geo.js` — geo_leads agregace s PSČ-to-město lookup
+
+### Soubory vytvořené
+- `public/admin/css/admin.css` — design systém
+- `public/admin/index.html` — SPA shell (přepsán)
+- `public/admin/js/router.js` — SPA router
+- `public/admin/js/api.js` — API klient
+- `public/admin/js/app.js` — hlavní inicializace
+- `public/admin/js/modules/dashboard.js`
+- `public/admin/js/modules/calendar.js`
+- `public/admin/js/modules/blog.js`
+- `public/admin/js/modules/invoices.js`
+- `public/admin/js/modules/messages.js`
+- `public/admin/js/modules/geo.js`
+- `public/admin/js/modules/settings.js`
+- `functions/admin/_middleware.js`
+- `functions/admin/dashboard.js`
+- `functions/admin/bookings.js`
+- `functions/admin/copywriter.js`
+- `functions/admin/invoices.js`
+- `functions/admin/settings.js`
+- `functions/admin/activity.js`
+- `functions/admin/geo.js`
+
+### Akceptační kritéria — splněno?
+- [x] Design systém Quiet Luxury, light-only
+- [x] SPA s vanilla JS routerem a lazy-loaded moduly
+- [x] Cloudflare Access JWT autentizace s dev mode
+- [x] 7 admin API endpointů s D1, audit logem a PII dešifrováním
+- [x] AI Copywriter s právním filtrem a trojitým AI fallbackem
+- [x] iDoklad integrace s OAuth2
+- [x] Dashboard s KPI, trendy, GEO, system health
+- [x] Všech 7 frontend modulů kompletních
+- [x] Commitnuté a pushnuté na GitHub (branch: agent/ag-w2-02-admin-spa)
