@@ -261,6 +261,8 @@
   - `bicom-cron-worker` (Cron trigger worker pro pravidelné a denní úkoly)
 - **Oprava Cron Triggers a Routeru:** Vyřešena chyba syntaxe Cloudflare Workers u nedělních a pondělních úloh úpravou na textové zkratky `SUN` / `MON` v `wrangler.cron-worker.toml` a `functions/api/_cron-worker.js`.
 - **Oprava Přesměrování (Redirects):** Upraveny přesměrovací pravidla v `public/_redirects` pro oddělenou podporu SPA routeru na kořeni i v administraci `/admin/*`, čímž se vyřešilo varování o nekonečné smyčce a zajistilo správné načítání obou aplikací po obnovení stránky.
+- **Korekce Domény (Kanonický Název):** Změněny všechny odkazy na doménu `bicompisek.cz` (bez pomlčky) na správnou zakoupenou doménu `bicom-pisek.cz` (s pomlčkou) v celém kódu (meta tagy, canonical linky, sitemap generátor, robots.txt, schema JSON-LD, resend mailer, social queue a GDPR šablonu).
+- **Stránka Údržby (Maintenance):** Vytvořen kořenový middleware `functions/_middleware.js`, který na hlavní doméně `bicom-pisek.cz` (a `www.bicom-pisek.cz`) zobrazuje prémiovou stránku údržby s PIN kódem (1994) a Cloudflare Turnstile ověřením pro přístup na vývojovou verzi.
 
 ### Soubory opravené
 - `wrangler.toml` — Konfigurace KV ID
@@ -268,9 +270,18 @@
 - `wrangler.social-consumer.toml` — Konfigurace KV ID
 - `wrangler.cron-worker.toml` — Konfigurace KV ID a oprava formátu cron
 - `functions/api/_cron-worker.js` — Podpora textových zkratek dní `SUN` / `MON`
+- `functions/_middleware.js` — [NOVÝ] Middleware pro technickou údržbu
 - `package.json` — Oprava názvů databází v D1 příkazech
 - `public/_redirects` — Oprava a optimalizace SPA směrování
 - `package-lock.json` — Přidán pro zafixování verzí závislostí
+- `scripts/build-sitemap.js` — Kanonická doména `bicom-pisek.cz`
+- `public/index.html` — Canonical, OG meta tagy, patička
+- `public/robots.txt` — Odkaz na sitemapu
+- `public/llms.txt` — Kontaktní údaje a web
+- `public/schema/localbusiness.json` — URL a ID strukturovaných dat
+- `functions/api/_queue-social.js` — UTM odkazy příspěvků
+- `functions/lib/connectors/resend.js` — Doména odesílacího e-mailu
+- `public/assets/js/router.js` — GDPR kontaktní e-mail
 
 ### Akceptační kritéria — splněno?
 - [x] Úspěšný build a kompletní nasazení na Cloudflare Pages
@@ -278,6 +289,8 @@
 - [x] Databáze D1 migrována a naočkována reálnými daty služeb
 - [x] Asynchronní a cron pracovníci úspěšně nasazeni s korektní syntaxí
 - [x] SPA přesměrování vyřešeno a otestováno
+- [x] Zavedena stránka údržby s PIN (1994) a Turnstile ověřením na hlavní doméně
+- [x] Kanonická doména opravena na `bicom-pisek.cz` napříč celým projektem
 - [x] Všechny změny čistě commitnuty a pushnuty na GitHub main větev
 
 
