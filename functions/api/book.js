@@ -1,74 +1,166 @@
-// POST /api/book — referenční implementace (vzor pro agenty).
-// Tok: validace -> šifrování -> D1 insert -> enqueue (Calendar+e-mail+reminder).
-import { DataCrypt } from '../lib/crypto.js';
+// POST /api/book
+// Creates a new booking, encrypts PII, stores in D1,
+// and enqueues async processing (calendar, email, Telegram, reminders).
 
-const CORS = {
-  'Access-Control-Allow-Origin': 'https://bicompisek.cz',
+import { DataCrypt } from '../lib/datacrypt.js';
+import { createBooking, addGeoLead, subscribeNewsletter } from '../lib/db.js';
+
+// Allowed service slugs — keep in sync with db/seed/services.sql
+const ALLOWED_SERVICES = [
+  'imunita-a-obranyschopnost',
+  'energie-a-vitalita',
+  'bolest-a-pohybovy-aparat',
+  'psychika-a-emocni-rovnovaha',
+  'hormonalni-system',
+  'metabolismus',
+  'organy-a-detoxikace',
+  'patogeny',
+  'prostredi-a-zateze',
+  'podpora-pri-onkologii',
+  'prevence-a-rekonvalescence',
+];
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\+420\d{9}$/;
+
+const CORS_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type'
+  'Access-Control-Allow-Headers': 'Content-Type',
 };
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { 'Content-Type': 'application/json', ...CORS } });
 
-const PSC_RE = /^\d{3}\s?\d{2}$/;
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+/**
+ * Strips HTML tags from a string to prevent XSS.
+ * @param {string} str
+ * @returns {string}
+ */
+function sanitize(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/<[^>]*>/g, '').trim();
+}
 
-export async function onRequestOptions() { return new Response(null, { headers: CORS }); }
+/**
+ * Handles OPTIONS preflight.
+ */
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
 
-export async function onRequestPost({ request, env }) {
+/**
+ * POST /api/book — Create a new booking.
+ */
+export async function onRequestPost({ request, env, waitUntil }) {
   try {
-    const d = await request.json();
-
-    // 1) validace + sanitizace
-    if (!d.name || !EMAIL_RE.test(d.email || '') || !d.phone || !d.service || !d.preferred_date)
-      return json({ ok: false, error: 'Neúplné nebo neplatné údaje.' }, 400);
-    if (d.consent !== true)
-      return json({ ok: false, error: 'Chybí souhlas se zpracováním (čl. 9 GDPR).' }, 400);
-
-    // 2) rate limit (KV) — max 3 poptávky / 10 min / IP
-    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-    const rlKey = `rl:book:${ip}`;
-    const cnt = parseInt(await env.CACHE.get(rlKey) || '0', 10);
-    if (cnt >= 3) return json({ ok: false, error: 'Příliš mnoho pokusů, zkuste později.' }, 429);
-    await env.CACHE.put(rlKey, String(cnt + 1), { expirationTtl: 600 });
-
-    // 3) šifrování citlivých polí
-    const KEY = env.ENCRYPTION_KEY;
-    const id = crypto.randomUUID();
-    const rec = {
-      id,
-      name_enc: await DataCrypt.encryptText(String(d.name).slice(0, 120), KEY),
-      email_enc: await DataCrypt.encryptText(String(d.email).slice(0, 160), KEY),
-      phone_enc: await DataCrypt.encryptText(String(d.phone).slice(0, 40), KEY),
-      note_enc: await DataCrypt.encryptText(String(d.note || '').slice(0, 2000), KEY),
-      service: String(d.service).slice(0, 80),
-      preferred_date: String(d.preferred_date).slice(0, 30),
-      psc: PSC_RE.test(d.psc || '') ? String(d.psc).replace(/\s/g, '') : null,
-      consent_version: String(d.consent_version || 'v1')
-    };
-
-    // 4) zápis do D1 (parametrizovaně — žádná SQLi)
-    await env.DB.prepare(
-      `INSERT INTO bookings (id,name_enc,email_enc,phone_enc,note_enc,service,preferred_date,psc,status,consent_version)
-       VALUES (?,?,?,?,?,?,?,?, 'pending', ?)`
-    ).bind(rec.id, rec.name_enc, rec.email_enc, rec.phone_enc, rec.note_enc,
-           rec.service, rec.preferred_date, rec.psc, rec.consent_version).run();
-
-    // 5) geo lead (anonymní) + audit
-    if (rec.psc) {
-      await env.DB.prepare(`INSERT INTO geo_leads (id,psc,service,source) VALUES (?,?,?, 'web')`)
-        .bind(crypto.randomUUID(), rec.psc, rec.service).run();
+    // 1. Parse JSON body
+    let data;
+    try {
+      data = await request.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatný formát požadavku.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
     }
-    await env.DB.prepare(`INSERT INTO audit_log (id,entity,entity_id,action,actor) VALUES (?, 'bookings', ?, 'create', 'system')`)
-      .bind(crypto.randomUUID(), id).run();
 
-    // 6) async: Calendar + e-mail + reminder (neblokuje odpověď)
-    await env.BOOKING_QUEUE.send({ bookingId: id, email: d.email, name: d.name,
-      service: rec.service, date: rec.preferred_date });
+    // 2. Validate required fields
+    const { name, email, phone, service, preferred_date, note, psc, consent_marketing } = data;
 
-    return json({ ok: true, id });
-  } catch (e) {
-    // log do Sentry/audit; klientovi neúniká detail
-    return json({ ok: false, error: 'Interní chyba, zkuste to prosím znovu.' }, 500);
+    if (!name || !email || !phone || !service || !preferred_date) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Vyplňte prosím všechna povinná pole.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Sanitize text inputs
+    const cleanName = sanitize(name);
+    const cleanNote = note ? sanitize(note) : null;
+
+    if (!EMAIL_REGEX.test(email)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatný formát e-mailové adresy.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    if (!PHONE_REGEX.test(phone)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatný formát telefonu. Použijte +420XXXXXXXXX.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    if (!ALLOWED_SERVICES.includes(service)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatná služba.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Validate preferred_date is a valid future date
+    const preferredDate = new Date(preferred_date);
+    if (isNaN(preferredDate.getTime()) || preferredDate <= new Date()) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Zvolte prosím budoucí datum.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // 3. Init encryption
+    const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
+
+    // 4. Create booking in D1 (encrypts PII inside createBooking)
+    const bookingId = await createBooking(env.DB, crypt, {
+      name: cleanName,
+      email,
+      phone,
+      service,
+      preferred_date: preferredDate.toISOString(),
+      note: cleanNote,
+    });
+
+    // 5. GEO lead tracking (non-blocking)
+    if (psc) {
+      waitUntil(
+        addGeoLead(env.DB, sanitize(psc), service, 'web').catch((err) =>
+          console.error('[book] GEO lead error:', err)
+        )
+      );
+    }
+
+    // 6. Newsletter subscription (non-blocking)
+    if (consent_marketing) {
+      waitUntil(
+        subscribeNewsletter(env.DB, crypt, email, 'booking').catch((err) =>
+          console.error('[book] Newsletter subscribe error:', err)
+        )
+      );
+    }
+
+    // 7. Enqueue async processing (calendar, email, Telegram, reminders)
+    waitUntil(
+      env.BOOKING_QUEUE.send({
+        bookingId,
+        name: cleanName,
+        email,
+        phone,
+        service,
+        preferred_date: preferredDate.toISOString(),
+        note: cleanNote,
+      }).catch((err) => console.error('[book] Queue send error:', err))
+    );
+
+    // 8. Return success
+    return new Response(
+      JSON.stringify({ success: true, bookingId }),
+      { status: 201, headers: CORS_HEADERS }
+    );
+  } catch (err) {
+    console.error('[book] Unexpected error:', err);
+    return new Response(
+      JSON.stringify({ success: false, error: 'Interní chyba serveru. Zkuste to prosím později.' }),
+      { status: 500, headers: CORS_HEADERS }
+    );
   }
 }
