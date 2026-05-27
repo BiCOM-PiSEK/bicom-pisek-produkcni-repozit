@@ -3,33 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bicom Písek — Management Vrstva</title>
-    <!-- Tailwind převezme styly z projektu -->
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <title>Virtual Office — Bicom Písek</title>
+
     <!-- Ochrana proti indexování -->
     <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Administrační rozhraní Bicom Písek — Virtual Office pro správu rezervací, fakturace a marketingu.">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%233A4A3C'/><text x='50%25' y='55%25' text-anchor='middle' dy='.35em' font-family='Georgia' font-size='18' font-weight='bold' fill='%23C5A880'>B</text></svg>">
+
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Admin Design System -->
+    <link rel="stylesheet" href="/admin/css/admin.css">
+
+    <!-- Mobile status bar color -->
+    <meta name="theme-color" content="#3A4A3C">
 </head>
-<body class="bg-sage-50 text-charcoal min-h-screen">
-    <!-- Zde bude Cloudflare Access nebo JWT Gate -->
-    <div id="auth-gate" class="flex items-center justify-center min-h-screen">
-        <div class="bg-white p-8 rounded-lg shadow-sm border border-sage-200 max-w-md w-full">
-            <h1 class="font-cormorant text-2xl mb-4 text-center text-forest">Management & Provoz</h1>
-            <p class="font-montserrat text-sm text-center mb-6">Autorizační brána. Zde začíná kontrola ekosystému Bicom Písek.</p>
-            
-            <div class="space-y-4 font-montserrat text-sm">
-                <button class="w-full bg-forest text-white py-2 px-4 rounded hover:bg-forest/90 transition-colors">
-                    Přihlásit přes Google Workspace
+<body>
+    <!-- ═══ MOBILE OVERLAY ═══ -->
+    <div id="mobile-overlay" class="mobile-overlay"></div>
+
+    <!-- ═══ TOAST CONTAINER ═══ -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ═══ ADMIN SHELL (3-column grid) ═══ -->
+    <div class="admin-shell" id="admin-shell">
+
+        <!-- ─── SIDEBAR ─────────────────────────────────────── -->
+        <aside class="admin-sidebar" id="admin-sidebar" role="navigation" aria-label="Hlavní navigace">
+            <!-- Logo & Brand -->
+            <div class="sidebar-header">
+                <div class="sidebar-logo" aria-hidden="true">B</div>
+                <div class="sidebar-brand">
+                    Bicom Písek
+                    <small>Virtual Office</small>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">Hlavní</div>
+
+                <a href="/admin" class="sidebar-link" data-path="/" id="nav-dashboard">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span>Přehled</span>
+                </a>
+
+                <a href="/admin/kalendar" class="sidebar-link" data-path="/kalendar" id="nav-calendar">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span>Kalendář</span>
+                    <span class="sidebar-link-badge" id="badge-pending" title="Čekající poptávky">0</span>
+                </a>
+
+                <div class="sidebar-section-label">Obsah</div>
+
+                <a href="/admin/blog" class="sidebar-link" data-path="/blog" id="nav-blog">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>
+                        <circle cx="11" cy="11" r="2"/>
+                    </svg>
+                    <span>Blog &amp; AI</span>
+                </a>
+
+                <a href="/admin/zpravy" class="sidebar-link" data-path="/zpravy" id="nav-messages">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Zprávy</span>
+                </a>
+
+                <div class="sidebar-section-label">Provoz</div>
+
+                <a href="/admin/fakturace" class="sidebar-link" data-path="/fakturace" id="nav-invoices">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/>
+                        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v1"/><path d="M12 5.5v1"/>
+                    </svg>
+                    <span>Fakturace</span>
+                </a>
+
+                <a href="/admin/geo-marketing" class="sidebar-link" data-path="/geo-marketing" id="nav-geo">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span>GEO-Marketing</span>
+                </a>
+
+                <div class="sidebar-section-label">Systém</div>
+
+                <a href="/admin/nastaveni" class="sidebar-link" data-path="/nastaveni" id="nav-settings">
+                    <svg class="sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Nastavení</span>
+                </a>
+            </nav>
+
+            <!-- Operator Info -->
+            <div class="sidebar-footer">
+                <div class="sidebar-operator">
+                    <div class="sidebar-avatar" id="operator-avatar" title="Přihlášený uživatel">?</div>
+                    <div class="sidebar-operator-info">
+                        <div class="sidebar-operator-name" id="operator-name">Nepřihlášena</div>
+                        <div class="sidebar-operator-role" id="operator-role">Čekám na ověření…</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ─── TOPBAR ──────────────────────────────────────── -->
+        <header class="admin-topbar" id="admin-topbar" role="banner">
+            <div class="topbar-left">
+                <!-- Mobile: hamburger -->
+                <button class="topbar-btn" id="btn-mobile-menu" aria-label="Otevřít menu" style="display:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+
+                <!-- Desktop: sidebar toggle -->
+                <button class="topbar-btn" id="btn-toggle-sidebar" aria-label="Sbalit/rozbalit menu" title="⌘B">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                </button>
+
+                <!-- Breadcrumb -->
+                <div class="topbar-breadcrumb">
+                    Virtual Office&nbsp;›&nbsp;<strong id="topbar-breadcrumb-title">Přehled</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <!-- Notifications -->
+                <button class="topbar-btn" id="btn-notifications" aria-label="Notifikace" title="Notifikace">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="topbar-btn-dot" id="notif-dot" style="display:none;"></span>
+                </button>
+
+                <!-- Activity panel toggle -->
+                <button class="topbar-btn" id="btn-toggle-activity" aria-label="Panel aktivit" title="Panel aktivit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
                 </button>
             </div>
-            
-            <p class="text-xs text-center text-gray-400 mt-8">Přístup pouze pro autorizovaný personál.</p>
-        </div>
+        </header>
+
+        <!-- ─── MAIN CANVAS ─────────────────────────────────── -->
+        <main class="admin-canvas" id="admin-canvas" role="main" aria-label="Hlavní obsah">
+            <div id="admin-canvas-content" style="transition: opacity 250ms cubic-bezier(0.22,1,0.36,1), transform 250ms cubic-bezier(0.22,1,0.36,1);">
+                <!-- Modules will be rendered here by router -->
+                <div class="empty-state" style="padding-top: 15vh;">
+                    <div class="spinner" style="margin: 0 auto var(--sp-5);"></div>
+                    <p class="empty-state-text">Načítám Virtual Office…</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- ─── ACTIVITY FEED (RIGHT PANEL) ─────────────────── -->
+        <aside class="admin-activity" id="admin-activity" role="complementary" aria-label="Proud událostí">
+            <div class="activity-header">
+                <h2 class="activity-title">Proud událostí</h2>
+                <button class="btn btn-ghost btn-sm" id="btn-refresh-activity" aria-label="Obnovit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="activity-stream" id="activity-stream">
+                <!-- Placeholder items — nahradí se z API -->
+                <div class="activity-item">
+                    <div class="activity-icon system">⚙️</div>
+                    <div class="activity-body">
+                        <div class="activity-text">Virtual Office spuštěn. Čekám na data…</div>
+                        <div class="activity-time">právě teď</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ─── STATUS BAR (BOTTOM) ─────────────────────────── -->
+        <footer class="admin-statusbar" id="admin-statusbar" role="contentinfo">
+            <div class="statusbar-left">
+                <div class="statusbar-item" id="status-d1">
+                    <span class="statusbar-dot online"></span>
+                    <span class="statusbar-label">D1 online</span>
+                </div>
+                <div class="statusbar-item">
+                    <span id="status-pending">0 čeká</span>
+                </div>
+                <div class="statusbar-item">
+                    <span id="status-revenue">0 Kč dnes</span>
+                </div>
+            </div>
+            <div class="statusbar-right">
+                <div class="statusbar-item">
+                    <span>Bicom Písek · Virtual Office v1.0</span>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <!-- Modulový framework (načte se po autentizaci) -->
-    <script>
-        // Placeholder pro init logiku management vrstvy
-        console.log("Management layer initialized. Waiting for auth...");
-    </script>
+    <!-- ═══ APP ENTRY POINT ═══ -->
+    <script type="module" src="/admin/js/app.js"></script>
+
+    <!-- Mobile overlay style (inline — tiny) -->
+    <style>
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(43, 43, 43, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 109;
+        }
+        .mobile-overlay.active {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            #btn-mobile-menu { display: flex !important; }
+            #btn-toggle-sidebar { display: none !important; }
+        }
+    </style>
 </body>
 </html>
