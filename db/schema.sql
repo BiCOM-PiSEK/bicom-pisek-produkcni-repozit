@@ -20,8 +20,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     estimated_price INTEGER,
     consent_version TEXT,
     consent_marketing INTEGER DEFAULT 0,
+    calendar_event_id TEXT,
+    operator_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    anonymized_at TIMESTAMP
+    updated_at TIMESTAMP,
+    anonymized_at TIMESTAMP,
+    FOREIGN KEY (operator_id) REFERENCES operators(id)
 );
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_created ON bookings(created_at);
@@ -112,6 +116,8 @@ CREATE TABLE IF NOT EXISTS operators (
     calendar_color TEXT,
     email TEXT UNIQUE NOT NULL,
     telegram_user_id TEXT,
+    active INTEGER DEFAULT 1 CHECK(active IN (0, 1)),
+    calendar_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

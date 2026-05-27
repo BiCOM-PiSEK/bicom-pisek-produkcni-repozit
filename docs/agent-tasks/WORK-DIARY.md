@@ -155,3 +155,57 @@
 - [x] Dashboard s KPI, trendy, GEO, system health
 - [x] Všech 7 frontend modulů kompletních
 - [x] Commitnuté a pushnuté na GitHub (branch: agent/ag-w2-02-admin-spa)
+
+---
+
+## 2026-05-27 Fáze E — Veřejný portál a AI Rádce (Sprint E.1–E.5)
+**Model:** Antigravity (Gemini)
+**Branch:** agent/ag-w2-03-public-portal
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Veřejný design systém** (`style.css`):
+  - Quiet Luxury light-only paleta (alabaster, sage, forest green, champagne gold, charcoal text, mist).
+  - Cormorant Garamond (patkové nadpisy pro autoritu) a Montserrat (bezpatkové texty pro čistotu).
+  - Responzivní grid layouty, stylování karet služeb, formulářů a inline SVG ikon.
+- **SPA rozvržení kostry** (`index.html`):
+  - 9 sémantických sekcí (Hero, Průvodce, Jak metoda funguje, Důkaz & bezpečí, Magazín, Rezervační Hub, Kontakt, Patička).
+  - Preload Google písem, meta tagy pro SEO/GEO a propojení na lokální NAP data.
+- **Klientský SPA Router** (`router.js`):
+  - History API + popstate navigace, podpora View Transitions API pro smooth cross-fading.
+  - Dynamické načítání a renderování detailů programů (`/sluzby/:slug`), blogových příspěvků (`/magazin/:slug`) a GDPR podmínek (`/gdpr`).
+  - Programatické směrování focusu (WCAG AA přístupnost).
+  - Cloudflare Pages redirecty (`_redirects`) pro zamezení 404 chyb při obnově stránky.
+- **Interaktivní průvodce** (`guide.js`):
+  - Spojení se `/api/services` a dynamický detail programů podle výběru symptomu.
+  - Odeslání poptávky termínu přes `/api/book` (GDPR šifrování osobních údajů přes DataCrypt, queue).
+- **GDPR Cookie Consent** (`consent.js`): Cookie banner s ukládáním do localStorage a správa nastavení.
+- **AI Rádce chatbot widget** (`chat-widget.js`): Plovoucí chat s napojením na `/api/chat` (Workers AI, markdown, loading skeletons a session persistence).
+- **Veřejný blog API endpoint** (`functions/api/blog.js`): GET `/api/blog` z D1 + KV cache.
+- **SEO/AEO optimalizace**:
+  - `llms.txt` — strojově čitelný markdown brief pro AI vyhledávače.
+  - robots.txt — povoleny AI crawlery (GPTBot, PerplexityBot, atd.).
+  - `build-sitemap.js` — sestavení static `sitemap.xml` obsahující všechny hlavní cesty a služby.
+
+### Soubory vytvořené
+- `public/assets/css/style.css`
+- `public/assets/js/router.js`
+- `public/assets/js/guide.js`
+- `public/assets/js/consent.js`
+- `public/assets/js/chat-widget.js`
+- `public/_redirects`
+- `public/llms.txt`
+- `public/sitemap.xml`
+- `scripts/build-sitemap.js`
+- `functions/api/blog.js`
+
+### Akceptační kritéria — splněno?
+- [x] Design systém Quiet Luxury (light-only, 2 fonty)
+- [x] SPA klientský router s View Transitions a focus managementem
+- [x] Interaktivní průvodce se `/api/services`
+- [x] Objednávkový formulář se šifrováním citlivých údajů
+- [x] Chatbot widget spojený s `/api/chat`
+- [x] GDPR cookie lišta a disclaimery v patičce
+- [x] Veřejné blog API z D1 s KV cache
+- [x] llms.txt, robots.txt a generovaná sitemapa
+- [x] Commitnuté a sloučené na main
