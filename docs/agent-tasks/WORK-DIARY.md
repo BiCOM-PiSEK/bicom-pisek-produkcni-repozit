@@ -241,3 +241,43 @@
 - [x] Lokální ověření funkčnosti SQL kódu na testovací databázi.
 - [x] Vytvoření PR, kontrola a squash merge na main.
 
+---
+
+## 2026-05-27 Produkční Nasazení, Migrace a Konfigurační Opravy
+**Model:** Antigravity (Gemini 3.5 Flash)
+**Branch:** main
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Konfigurační Integrace:** Nahrazeny placeholder hodnoty `REPLACE_WITH_KV_ID` v konfiguracích `wrangler.toml`, `wrangler.booking-consumer.toml`, `wrangler.social-consumer.toml` a `wrangler.cron-worker.toml` skutečným ID KV namespace `57e7c49eaba94dd4ad9ede723ff69aab`.
+- **Opravy Názvu Databáze:** Aktualizována konfigurace v `package.json` tak, aby používala správný název produkční databáze `bicom-pisek-db` namísto neplatného `bicom-db-prod`.
+- **Seeding Databáze:** Úspěšně naimportována a otestována seed data z `db/seed/services.sql` do vzdálené Cloudflare D1 databáze `bicom-pisek-db` (všech 11 biorezonančních programů).
+- **Zprovoznění R2 Úložiště:** Vytvořen chybějící R2 bucket `bicom-multimedia` na Cloudflare účtu přes Wrangler CLI.
+- **Vytvoření Fronty zpráv:** Založeny obě chybějící Cloudflare fronty (Queues) `booking-jobs` a `social-jobs` v prostředí Cloudflare.
+- **Nasazení na Cloudflare Pages:** Provedeno kompletní produkční sestavení sitemap a nasazení celé SPA a Pages API Functions na doménu projektu `https://bicom-pisek.pages.dev`.
+- **Nasazení Asynchronních Pracovníků:** Nasazeni 3 samostatní asynchronní pracovníci (Workers) pro zpracování front a pravidelných úloh:
+  - `bicom-booking-consumer` (Queue consumer pro rezervace a notifikace)
+  - `bicom-social-consumer` (Queue consumer pro příspěvky na sociálních sítích)
+  - `bicom-cron-worker` (Cron trigger worker pro pravidelné a denní úkoly)
+- **Oprava Cron Triggers a Routeru:** Vyřešena chyba syntaxe Cloudflare Workers u nedělních a pondělních úloh úpravou na textové zkratky `SUN` / `MON` v `wrangler.cron-worker.toml` a `functions/api/_cron-worker.js`.
+- **Oprava Přesměrování (Redirects):** Upraveny přesměrovací pravidla v `public/_redirects` pro oddělenou podporu SPA routeru na kořeni i v administraci `/admin/*`, čímž se vyřešilo varování o nekonečné smyčce a zajistilo správné načítání obou aplikací po obnovení stránky.
+
+### Soubory opravené
+- `wrangler.toml` — Konfigurace KV ID
+- `wrangler.booking-consumer.toml` — Konfigurace KV ID
+- `wrangler.social-consumer.toml` — Konfigurace KV ID
+- `wrangler.cron-worker.toml` — Konfigurace KV ID a oprava formátu cron
+- `functions/api/_cron-worker.js` — Podpora textových zkratek dní `SUN` / `MON`
+- `package.json` — Oprava názvů databází v D1 příkazech
+- `public/_redirects` — Oprava a optimalizace SPA směrování
+- `package-lock.json` — Přidán pro zafixování verzí závislostí
+
+### Akceptační kritéria — splněno?
+- [x] Úspěšný build a kompletní nasazení na Cloudflare Pages
+- [x] Všechny chybějící Cloudflare zdroje (R2 bucket, fronty booking-jobs/social-jobs) zřízeny a otestovány
+- [x] Databáze D1 migrována a naočkována reálnými daty služeb
+- [x] Asynchronní a cron pracovníci úspěšně nasazeni s korektní syntaxí
+- [x] SPA přesměrování vyřešeno a otestováno
+- [x] Všechny změny čistě commitnuty a pushnuty na GitHub main větev
+
+
