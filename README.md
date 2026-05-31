@@ -1,6 +1,6 @@
 # 🌿 Bicom Písek — Produkční Repozitář (`bicom-repozit-produkce`)
 
-Hlavní produkční repozitář organizace **BiCOM-PiSEK**. „Single Source of Truth" pro nasazení na Cloudflare a předání klientce (Lenka Limpouchová). Vyvíjeno dle standardu **MEVERIK STUDIO 2026** — strategie **Edge-First** (nulové fixní náklady, < 200 ms latence, AI na okraji sítě).
+Hlavní produkční repozitář organizace **BiCOM-PiSEK**. „Single Source of Truth" pro nasazení na Cloudflare a předání klientovi. Vyvíjeno dle standardu **MEVERIK STUDIO 2026** — strategie **Edge-First** (nulové fixní náklady, < 200 ms latence, AI na okraji sítě).
 
 ## 🏗️ Stack (Cloudflare-only v produkci)
 - **Frontend:** HTML5 / Tailwind / Vanilla ES6 → Cloudflare Pages

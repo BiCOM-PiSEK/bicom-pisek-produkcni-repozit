@@ -3,7 +3,7 @@
 > **Single Source of Truth pro agentický vývoj.** Tento balík obsahuje vše, co potřebuje lidský vývojář i AI agent (Claude Code, Gemini/Antigravity, Nano Banana) k postavení celého ekosystému Bicom Písek pod dohledem orchestrátora (Matěj Kocanda, MEVERIK STUDIO).
 >
 > **Verze:** 1.0 (Master Release) · **Standard:** MEVERIK STUDIO 2026 · **Datum:** 2026-05-25
-> **Klient / provozovatel:** Lenka Limpouchová (biorezonance Bicom Optima, Písek)
+> **Provoz:** Bicom Písek (biorezonance Bicom Optima, Písek)
 > **Doména:** `bicompisek.cz` (primární) + 301 redirect z `bicom-pisek.cz`
 
 ---
@@ -90,8 +90,8 @@ Bicom Písek je **hybridní serverless ekosystém** = prémiový prezentační w
 
 - Doména: `bicompisek.cz` (bez pomlčky) jako kanonická; `bicom-pisek.cz` → 301 redirect.
 - Stack: **Cloudflare-first** uvnitř širší MEVERIK STUDIO architektury (zálohy: Next.js, Neon.tech, GCP AI Garden, NVIDIA NIM).
-- Frontend produkce (předání klientce): čistý HTML5 + Tailwind + Vanilla JS na CF Pages. Komplexní Vue/Nuxt verze zůstává v MEVERIK vývojovém repu.
-- Dva repozitáře: produkční (předatelný klientce) + soukromý (know-how MEVERIK).
+- Frontend produkce (předání klientovi): čistý HTML5 + Tailwind + Vanilla JS na CF Pages. Komplexní Vue/Nuxt verze zůstává v MEVERIK vývojovém repu.
+- Dva repozitáře: produkční (předatelný klientovi) + soukromý (know-how MEVERIK).
 - Zdravotní tvrzení: **vždy** přes právní filtr z `03_GEO_AEO/03_Pravni_ramec_zdravotni_tvrzeni.md`.
 
 ---
@@ -195,15 +195,15 @@ Klient (formulář)
      → validace + sanitizace (XSS, SQLi)
      → DataCrypt.encrypt(citlivé pole)        [AES-GCM, klíč z CF Secrets]
      → INSERT do D1 (bookings, status=pending)
-     → Google Calendar API: vlož „předběžnou" událost (žlutá) do kalendáře Lenky
+     → Google Calendar API: vlož „předběžnou" událost (žlutá) do kalendáře poradny
      → Resend API: transakční e-mail s instrukcemi (24h nepít kávu, pít vodu)
      → zapsat do audit_log
   → klientovi: stránka poděkování
 ```
 
-### Tok B — Potvrzení termínu (Lenka → klient)
+### Tok B — Potvrzení termínu (terapeutka → klient)
 ```
-Lenka v Google Kalendáři změní barvu události na zelenou (potvrzeno)
+Terapeutka v Google Kalendáři změní barvu události na zelenou (potvrzeno)
   → Google Calendar webhook → Worker /api/calendar-hook
      → UPDATE D1 bookings.status = 'confirmed'
      → Resend: potvrzovací e-mail
@@ -221,7 +221,7 @@ Cron (každých 24 h) → Worker sync-instagram
 
 ### Tok D — AI copywriter (hlas → článek)
 ```
-Lenka namluví poznámku → přepis (klávesnice iPhone) → vloží do admin
+Terapeutka namluví poznámku → přepis (klávesnice iPhone) → vloží do admin
   → POST /api/admin/copywriter (Worker, ověřený admin token)
      → Workers AI (Llama 3): surový text → „Quiet Luxury" článek + titulek + meta + JSON-LD
      → návrh ke schválení → na klik publikuj do D1 blog_posts
@@ -247,5 +247,5 @@ Deploy: GitHub Actions → `wrangler pages deploy` (Continuous Deployment z vět
 
 ## 6. Co je „nadřazené" a co „předatelné"
 
-- **Předatelné klientce:** repo `bicom-repozit-produkce` (čistý produkční kód), CF účet, D1, R2, Workers, Google Workspace, doména. Popsáno v `05_HANDOVER`.
+- **Předatelné klientovi:** repo `bicom-repozit-produkce` (čistý produkční kód), CF účet, D1, R2, Workers, Google Workspace, doména. Popsáno v `05_HANDOVER`.
 - **Zůstává v MEVERIK:** soukromý repo s experimentálními funkcemi, univerzální knihovny, komplexní AI orchestrace, Vue/Nuxt varianta, FastAPI enginy.

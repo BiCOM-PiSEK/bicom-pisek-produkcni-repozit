@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const card = document.querySelector(".guide-card");
     if (card) card.style.opacity = "0.4";
 
+    const visualEl = document.querySelector(".guide-placeholder-visual");
+
     setTimeout(() => {
       titleEl.textContent = service.name;
       descEl.textContent = service.short_desc || "Tento program se zaměřuje na vyhodnocení zátěží a obnovu rovnováhy.";
@@ -49,6 +51,13 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update CTA link to go to dynamic SPA route
       ctaEl.setAttribute("href", `/sluzby/${service.slug}`);
       ctaEl.textContent = "Zobrazit detaily programu";
+      
+      // Update icon visual
+      if (visualEl) {
+        visualEl.innerHTML = `
+          <img src="/assets/img/icons/icon-${service.slug}.webp" alt="Ikona ${service.name}" style="width: 55%; height: 55%; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(58,74,60,0.12)); animation: scaleUp 0.3s ease-out;" class="guide-icon-img">
+        `;
+      }
       
       if (card) card.style.opacity = "1";
     }, 150);

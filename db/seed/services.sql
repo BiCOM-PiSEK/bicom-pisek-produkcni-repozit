@@ -1,5 +1,5 @@
 -- Seed: Real Bicom Písek services catalog
--- Source: Official service list from Lenka Limpouchová
+-- Source: Official service list from Bicom Písek
 -- Note: price_avg is approximate, individual pricing determined during booking flow.
 
 INSERT OR REPLACE INTO services (slug, name, category, segment, short_desc, long_desc, price_avg, price_note, sessions_typ, sort_order) VALUES

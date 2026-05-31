@@ -12,3 +12,7 @@ dist/
 # Logy
 *.log
 npm-debug.log*
+
+# Inbox slozka pro importy
+docs/assets/*ke zpracovani*/
+

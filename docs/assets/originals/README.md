@@ -16,6 +16,6 @@ originals/
 ├── hero/         — hero vizuály v plné kvalitě
 ├── og/           — zdrojový OG obrázek (1200×630+)
 ├── icons/        — zdrojový SVG pro favicon sadu
-├── gallery/      — fotky ordinace, Lenka portrét
+├── gallery/      — fotky ordinace v plné kvalitě
 └── certificates/ — skeny/fotky certifikátů
 ```

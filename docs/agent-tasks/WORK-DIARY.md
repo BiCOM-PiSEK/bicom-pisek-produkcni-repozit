@@ -340,3 +340,61 @@
 - [x] Web aktualizován o zobrazení hlavního hero obrázku
 - [x] Vše commitnuto a pushnuto na branch `agent/ag-w2-05-asset-strategy`
 
+
+## 2026-06-01 ag-w2-05 — Mastering a optimalizace assetů, odstranění jmen a sync strategie
+
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w2-05-asset-strategy
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Zpracování a mastering 12 wellness ikon**:
+  - Nařezáno 12 ikon z mřížky `Minimalist_wellness_icons_grid_202606010009.jpeg` (šířka 1200px, 4x3 grid).
+  - Vytvořeny dvě verze každé ikony:
+    1. **Kruhové odznaky (badges)**: Ponecháno tmavě šalvějové pozadí, zaobleno do kruhu a vygenerována průhlednost vně kruhu. Uloženo jako `icon-{slug}.webp` (a `.png` v originálech).
+    2. **Lineární ikony s průhledným pozadím**: Vytaženy zlaté linky, nahrazeny přesnou brandovou barvou champagne gold (`#C5A880`) a okolní pozadí učiněno plně transparentním. Uloženo jako `icon-{slug}-trans.webp` (a `.png` v originálech).
+  - 11 ikon namapováno na reálné biorezonanční programy z katalogu služeb, 12. uložena jako extra ikona.
+- **Zpracování a mastering ambientního video loopu**:
+  - Vybráno 1080p video `Wellness_clinic_room_sunlight_202606010041.mp4`.
+  - Aplikován `delogo` filtr ve ffmpeg pro plné vyhlazení a odstranění hvězdičkového loga Gemini v pravém dolním rohu (`x=1745:y=935:w=60:h=120`).
+  - Video zkomprimováno na vysokou kvalitu a malý datový tok pro web, odstraněn nepotřebný zvuk. Vygenerován MP4 (`1.9 MB`) i WebM (`930 KB`) formát pro maximální kompatibilitu a rychlost načítání.
+- **Zpracování 2 nových fotografií do galerie**:
+  - `Interior_photograph_of_a_boutique_202606010013.jpeg` zkonvertováno do `ordinace-04.webp` (optimalizováno na 1200px šířku).
+  - `Tea_corner_wellness_clinic_interior_202606010012.jpeg` zkonvertováno do `ordinace-05.webp` (optimalizováno na 1200px šířku).
+- **Integrace do webu a UI**:
+  - `public/index.html` — Hero sekce aktualizována tak, aby přehrávala ambientní video na pozadí s fallbackem na statický WebP obrázek a poster.
+  - `public/index.html` — Přidána nová sekce `#galerie` zobrazující 5 fotografií prostředí ordinace v plně responzivním gridu.
+  - `public/index.html` — Přidán odkaz "Ordinace" do hlavního navigačního menu.
+  - `public/assets/css/style.css` — Přidány styly pro galerii se stíny, zaoblením, a plynulými hover animacemi (zoom a lift). Přidána keyframe animace `scaleUp`.
+  - `public/assets/js/guide.js` — Aktualizováno chování interaktivního průvodce. Při volbě programu se v pravé kartě dynamicky zobrazí odpovídající kruhová ikona programu s plynulým zvětšením (`scaleUp`).
+- **Anonymizace brandu a smazání jmen**:
+  - Kompletně smazány všechny zbylé zmínky o jméně "Lenka Limpouchová" v celém repozitáři (přepsáno na obecné role jako terapeutka/provozovatel/poradna), aby prezentace a SEO stály čistě na značce Bicom Písek a nebyly vázány na osobní jména (v souladu s novým zadáním). Upraveny soubory: `README.md`, `WHITE_PAPER.md`, `GITHUB_SETUP_AND_PLANNING.md`, `db/seed/services.sql`, `docs/ARCHITEKTURA.md`, `docs/GEO_AEO.md`, `docs/HANDOVER.md` a `docs/assets/originals/README.md`.
+- **Zabezpečení Git repozitáře**:
+  - `.gitignore` — přidána složka pro importní Inbox `docs/assets/*ke zpracovani*/`, aby se do online repozitáře nikdy necommitovaly surové zdrojové soubory o velkém objemu.
+
+### Soubory vytvořené a distribuované
+- `docs/assets/originals/video/hero-ambient-original.mp4`
+- `public/assets/video/hero-ambient.mp4` & `public/assets/video/hero-ambient.webm`
+- `docs/assets/originals/gallery/ordinace-04.png` & `ordinace-05.png`
+- `public/assets/img/gallery/ordinace-04.webp` & `ordinace-05.webp`
+- 12x originální ikony `.png` (badge & trans) v `docs/assets/originals/icons/`
+- 12x optimalizované ikony `.webp` (badge & trans) v `public/assets/img/icons/`
+
+### Soubory upravené
+- `public/index.html` — přidáno video do Hero, sekce galerie a odkaz v menu
+- `public/assets/css/style.css` — styly pro galerii a animace
+- `public/assets/js/guide.js` — dynamic icon load v průvodci
+- `.gitignore` — ignorování složky importního Inboxu
+- Veškerá textová dokumentace a SQL seed data — odstranění jména "Lenka Limpouchová"
+
+### Akceptační kritéria — splněno?
+- [x] 12 wellness ikon nařezáno z mřížky, zaobleno do kruhu, vyexportováno do WebP/PNG (badge i trans verze)
+- [x] Gemini hvězdička vyhlazena z ambientního videa pomocí delogo filtru a uložena v optimalizovaném WebM/MP4
+- [x] Nové fotky pro ordinaci-04 a ordinace-05 zkonvertovány a uloženy
+- [x] Video integrováno do Hero sekce s poster fallbackem
+- [x] Galerie ordinace přidána na web a plně nastylována
+- [x] Průvodce dynamicky mění ikonu zvoleného programu
+- [x] Jméno Lenky Limpouchové 100% vyčištěno z celého repa (včetně dokumentace a seedů)
+- [x] Inbox složka s originály a zpracovanými verzemi ignorována v .gitignore
+
+

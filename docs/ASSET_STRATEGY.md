@@ -59,7 +59,7 @@ docs/assets/originals/
 ├── gallery/
 │   ├── ordinace-01.jpg
 │   ├── ordinace-02.jpg
-│   └── lenka-portret.jpg
+│   └── ordinace-03.jpg
 └── certificates/
     ├── cert-bicom-regumed.jpg
     └── cert-iso-medical.jpg
@@ -89,7 +89,7 @@ public/assets/img/
 │   └── logo-icon.svg         (ikona pro mobilní/kompaktní zobrazení)
 ├── gallery/
 │   ├── ordinace-01.webp
-│   └── lenka-portret.webp
+│   └── ordinace-03.webp
 └── certificates/
     ├── cert-bicom.webp
     └── cert-iso.webp

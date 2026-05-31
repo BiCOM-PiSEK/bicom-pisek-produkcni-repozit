@@ -58,9 +58,9 @@ Klient (formulář)
   → klientovi: stránka poděkování
 ```
 
-### Tok B — Potvrzení termínu (Lenka → klient)
+### Tok B — Potvrzení termínu (terapeutka → klient)
 ```
-Lenka v Google Kalendáři změní barvu události na zelenou (potvrzeno)
+Terapeutka v Google Kalendáři změní barvu události na zelenou (potvrzeno)
   → Google Calendar webhook → Worker /api/calendar-hook
      → UPDATE D1 bookings.status = 'confirmed'
      → Resend: potvrzovací e-mail
@@ -78,7 +78,7 @@ Cron (každých 24 h) → Worker sync-instagram
 
 ### Tok D — AI copywriter (hlas → článek)
 ```
-Lenka namluví poznámku → přepis (klávesnice iPhone) → vloží do admin
+Terapeutka namluví poznámku → přepis (klávesnice iPhone) → vloží do admin
   → POST /api/admin/copywriter (Worker, ověřený admin token)
      → Workers AI (Llama 3): surový text → „Quiet Luxury" článek + titulek + meta + JSON-LD
      → návrh ke schválení → na klik publikuj do D1 blog_posts
@@ -335,7 +335,7 @@ Lokální dohledatelnost stojí na třech věcech: NAP konzistenci, mapových pr
 ### 5.1 NAP konzistence (Name–Address–Phone)
 **Pravidlo:** identický řetězec N/A/P na všech platformách, znak po znaku.
 ```
-Name:    Bicom Písek – Lenka Limpouchová
+Name:    Bicom Písek
 Address: [přesná ulice č.p.], 397 01 Písek, Česká republika
 Phone:   +420 XXX XXX XXX   (vždy mezinárodní formát)
 ```
@@ -410,7 +410,7 @@ Pravidla:
 
 Web je **hluboký SPA portál** (klientský JS router, žádné přeblikávání). Sekce:
 
-1. **Hero** — příběh + úleva: „Ulevte svému tělu bez chemie." Foto ordinace + Lenka.
+1. **Hero** — příběh + úleva: „Ulevte svému tělu bez chemie." Foto ordinace.
 2. **Interaktivní průvodce „Moje cesta k rovnováze"** — jádro UX. Klient klikne na problém (Únava & vyhoření / Alergie u dětí / Odvykání kouření / Ženské zdraví / Bolesti zad) a obsah se okamžitě přizpůsobí: vysvětlení, co metoda dělá, kolik sezení, transparentní cena, CTA.
 3. **Jak metoda funguje** — srozumitelná biofyzika (pro lidi i pro AI), bez ezoteriky.
 4. **Důkaz & bezpečí** — certifikace (ISO 13485, třída IIa), foto, reálné příběhy z regionu.
@@ -444,7 +444,7 @@ Obsah průvodce se generuje z tabulky `services` v D1 → každý segment má vl
 ## 5. Metadata a sémantika (per stránka/sekce)
 
 Každá veřejná URL/sekce má:
-- `<title>` ve formátu `{Služba/téma} {Město} | Bicom Písek – Lenka Limpouchová`
+- `<title>` ve formátu `{Služba/téma} {Město} | Bicom Písek`
 - `<meta name="description">` 150–160 znaků, jazykem cílovky, s lokalitou.
 - **Open Graph** + **Twitter Card** (titulek, popis, R2 obrázek 1200×630).
 - **Canonical** vždy na `https://bicompisek.cz/...`.
@@ -454,7 +454,7 @@ Každá veřejná URL/sekce má:
 
 ### Příklad meta bloku (vzor pro agenta)
 ```html
-<title>Odvykání kouření Písek a Strakonice | Bicom Písek – Lenka Limpouchová</title>
+<title>Odvykání kouření Písek a Strakonice | Bicom Písek</title>
 <meta name="description" content="Antinikotinový program metodou Bicom v Písku. Šetrná podpora při odvykání kouření i vapingu. Transparentní ceny, objednání online. Dojezd ze Strakonic 20 min.">
 <link rel="canonical" href="https://bicompisek.cz/sluzby/odvykani-koureni">
 ```
@@ -619,7 +619,7 @@ graph LR
 
 ## 6.1 Autentizační mechanismus pro administraci
 *   **Doporučené a zvolené řešení:** **Cloudflare Access (Zero Trust)**.
-*   **Důvod:** Jelikož administrátorky budou maximálně 2–3 (Lenka + případná další operátorka), Firebase Auth je zbytečně komplexní na integraci v kódu. Cloudflare Access filtruje provoz přímo na DNS/Edge úrovni (než se vůbec spustí Worker).
+*   **Důvod:** Jelikož administrátoři budou maximálně 2–3 operátoři, Firebase Auth je zbytečně komplexní na integraci v kódu. Cloudflare Access filtruje provoz přímo na DNS/Edge úrovni (než se vůbec spustí Worker).
 *   **Implementace:**
     *   V CF Dashboardu se zapne Cloudflare Access pro subdoménu / cestu `/admin`.
     *   Nakonfiguruje se Google OAuth (přihlášení přes Google účet) s bílou listinou (whitelist) povolených 2–3 konkrétních e-mailů.

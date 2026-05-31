@@ -1,4 +1,4 @@
-# 05 · Předávací dokumentace (Handover na Lenku Limpouchovou)
+# 05 · Předávací dokumentace (Handover)
 
 > Postup bezpečného převodu celého ekosystému na klientku po dokončení a schválení. Standard MEVERIK STUDIO 2026. Princip: produkční výseč se předává, know-how MEVERIK zůstává u tebe.
 
@@ -73,11 +73,11 @@
 
 ## 4. Google Workspace (doporučeno, volitelné ~8 €/měs)
 - [ ] Workspace na `bicompisek.cz` (Business tarif).
-- [ ] Schránky `info@bicompisek.cz`, `lenka@bicompisek.cz`.
+- [ ] Schránky `info@bicompisek.cz`, `admin@bicompisek.cz`.
 - [ ] Google Cloud projekt + Service Account pro Calendar API (sdílet kalendář se SA e-mailem).
 
 ## 5. Sociální a lokální profily (NAP konzistence — znak po znaku stejné)
-- [ ] Google Business Profile „Bicom Písek – Lenka Limpouchová".
+- [ ] Google Business Profile „Bicom Písek".
 - [ ] Apple Business Connect.
 - [ ] Firmy.cz / Mapy.cz (Seznam).
 - [ ] Bing Places.
@@ -111,7 +111,7 @@
 
 # 05 · Provozní manuál + „Klíčenka" (evidence přístupů)
 
-> Dvě věci v jednom: (A) jednoduchý manuál pro provozovatele (Lenka), (B) „klíčenka" = bezpečná evidence všech účtů, přístupů, API klíčů a vlastnictví. **Klíčenka NEOBSAHUJE samotná hesla/klíče** — jen kde žijí a kdo je vlastní. Skutečné tajné hodnoty patří do správce hesel a Cloudflare Secrets, NIKDY do tohoto souboru ani do repa.
+> Dvě věci v jednom: (A) jednoduchý manuál pro provozovatele, (B) „klíčenka" = bezpečná evidence všech účtů, přístupů, API klíčů a vlastnictví. **Klíčenka NEOBSAHUJE samotná hesla/klíče** — jen kde žijí a kdo je vlastní. Skutečné tajné hodnoty patří do správce hesel a Cloudflare Secrets, NIKDY do tohoto souboru ani do repa.
 
 ---
 
@@ -185,7 +185,7 @@
 ### B5 · Podpora a kontakty
 | Role | Jméno | Kontakt | Odpovědnost |
 |------|-------|---------|-------------|
-| Vlastník/provoz | Lenka Limpouchová | doplnit | obsah, potvrzování |
+| Vlastník/provoz | Provozovatel | doplnit | obsah, potvrzování |
 | Technická podpora | MEVERIK / správce | matejkocanda@icloud.com | infrastruktura, incidenty |
 | Marketing | (Mikeš) | doplnit | kampaně, profily |
 
