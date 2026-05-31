@@ -51,7 +51,7 @@ function getDemoMessages() {
   return [
     { from: 'AI Rádce', text: 'Klientka se ptá na kombinaci biorezonance s homeopatií — eskaluji k operátorce.', icon: '🤖', type: 'ai', time: 'před 2 h' },
     { from: 'Web formulář', text: 'Dotaz na dětský program pro 5letého syna s ekzémem.', icon: '📋', type: 'booking', time: 'před 4 h' },
-    { from: 'Telegram', text: 'Lenka: „Potvrzuji termín pro paní Novákovou na čtvrtek."', icon: '💬', type: 'system', time: 'včera' },
+    { from: 'Telegram', text: 'Jana: „Potvrzuji termín pro paní Novákovou na čtvrtek."', icon: '💬', type: 'system', time: 'včera' },
   ];
 }
 

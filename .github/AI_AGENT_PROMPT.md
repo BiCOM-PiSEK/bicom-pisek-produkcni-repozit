@@ -13,7 +13,16 @@ Před úpravou libovolného kaskádového stylu (CSS) nebo Tailwind třídy v `p
 *   Třídy musí používat výhradně paletu definovanou v Briefu (šalvějová, smetanová, zlatá, forest green).
 *   Žádné tmavé režimy (dark mode), pokud nejsou vysloveně zadány.
 
-## 3. Architektura a Bezpečnost
+## 3. Asset & Imagery Strategy
+Před prací s obrázky, logy, ikonami nebo médii **MUSÍŠ** přečíst `docs/ASSET_STRATEGY.md`.
+*   **Originály** (plné rozlišení, zdrojové soubory) → `docs/assets/originals/`
+*   **Web verze** (optimalizované WebP/AVIF/SVG) → `public/assets/img/`
+*   **Dynamická média** (Instagram sync, blog, admin upload) → R2 bucket `bicom-multimedia`
+*   **NIKDY** necommituj obrázky větší než 5 MB do Gitu.
+*   **NIKDY** nepoužívej obrázky s cizími vodoznaky na produkci.
+*   Statické branding vizuály (logo, OG, favicon) VŽDY do `public/`, nikdy do R2.
+
+## 4. Architektura a Bezpečnost
 *   **Management Vrstva:** Repozitář obsahuje tajnou management vrstvu (`public/admin/` a příslušné endpointy ve `functions/admin/`). Je striktně chráněna proti neautorizovanému přístupu (Cloudflare Access / JWT).
 *   **Zdravotní tvrzení:** Řiď se `docs/GEO_AEO.md`. Nikdy nepiš, že metoda "léčí" – vždy "podporuje", "harmonizuje", atd.
 

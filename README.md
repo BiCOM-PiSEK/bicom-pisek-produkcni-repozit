@@ -21,13 +21,24 @@ npm run db:init:local
 npm run dev
 ```
 
+## 📖 Dokumentace
+| Dokument | Popis |
+|----------|-------|
+| `docs/STYLE_BRIEF.md` | Vizuální zákoník — Quiet Luxury paleta, typografie |
+| `docs/ASSET_STRATEGY.md` | Strategie vizuálních assetů — originály, web verze, R2 |
+| `docs/ARCHITEKTURA.md` | Celková technická architektura |
+| `docs/API_KEYS_CHECKLIST.md` | Seznam API klíčů a secrets pro produkci |
+| `docs/HANDOVER.md` | Postup předání klientovi |
+| `docs/GEO_AEO.md` | Geo/AEO a obsahová strategie |
+
 ## 🤖 Protokol pro AI agenty
 1. **Přečti `.github/AI_AGENT_PROMPT.md`** a plně ho respektuj.
 2. Design se řídí PŘÍSNĚ podle `docs/STYLE_BRIEF.md` (Quiet Luxury). Žádné odchylky v barvách či typografii nejsou povoleny.
-3. **Žádné** externí knihovny mimo definované ve `wrangler.toml`/`package.json`.
-4. Každou změnu zapiš do `agent_journal.md`.
-5. Zdravotní tvrzení **vždy** přes právní filtr (`03_GEO_AEO/03`).
-6. Žádný Secret do kódu — pouze CF Secrets / `.dev.vars`.
+3. **Vizuální assety** se řídí podle `docs/ASSET_STRATEGY.md` — originály v `docs/assets/originals/`, web verze v `public/assets/img/`.
+4. **Žádné** externí knihovny mimo definované ve `wrangler.toml`/`package.json`.
+5. Každou změnu zapiš do `agent_journal.md`.
+6. Zdravotní tvrzení **vždy** přes právní filtr (`03_GEO_AEO/03`).
+7. Žádný Secret do kódu — pouze CF Secrets / `.dev.vars`.
 
 ## 📦 Předání
 Postup převodu domény, CF účtu, Google Workspace, repozitáře → `docs/HANDOVER.md`.

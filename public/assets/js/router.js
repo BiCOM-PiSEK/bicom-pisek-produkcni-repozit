@@ -3,7 +3,7 @@
   Spravuje virtuální navigaci bez přeblikávání, defferované stavy a přístupnost.
 */
 
-const ORIGINAL_TITLE = "Bicom Písek – Lenka Limpouchová | Biorezonanční poradna Písek";
+const ORIGINAL_TITLE = "Bicom Písek | Biorezonanční poradna Písek";
 const ORIGINAL_DESC = "Biorezonanční metoda Bicom Optima v Písku. Šetrná, certifikovaná a neinvazivní komplementární podpora pro děti i dospělé. Objednejte se online.";
 
 // Router state
@@ -214,7 +214,7 @@ async function renderServiceDetail(slug) {
   }
 
   // Update SEO
-  document.title = `${escapeHtml(service.name)} Písek | Bicom Písek – Lenka Limpouchová`;
+  document.title = `${escapeHtml(service.name)} Písek | Bicom Písek`;
   setMetaDescription(escapeHtml(service.short_desc || service.name));
 
   subpageContainer.innerHTML = `
@@ -371,7 +371,7 @@ function renderGdprPage() {
       
       <div style="background-color: var(--c-white); border-radius: var(--radius); padding: 2rem; border: 1px solid rgba(115, 138, 117, 0.1); box-shadow: var(--shadow-sm); line-height: 1.8;">
         <p><strong>1. Základní ustanovení</strong></p>
-        <p>Provozovatel: <strong>Lenka Limpouchová</strong>, se sídlem Písek (dále jen „správce“), prohlašuje, že veškeré osobní údaje zpracovává v souladu s Nařízením Evropského parlamentu a Rady (EU) 2016/679 (GDPR).</p>
+        <p>Provozovatel (dále jen „správce“), se sídlem Písek, prohlašuje, že veškeré osobní údaje zpracovává v souladu s Nařízením Evropského parlamentu a Rady (EU) 2016/679 (GDPR).</p>
         
         <p><strong>2. Jaké osobní a citlivé údaje zpracováváme?</strong></p>
         <p>Při online rezervaci termínu zpracováváme Vaše:</p>
