@@ -295,43 +295,48 @@
 
 ---
 
-## 2026-05-31 Asset & Imagery Strategy
-**Model:** Antigravity (Claude)
+## 2026-05-31 Asset & Imagery Strategy & Processing
+**Model:** Antigravity (Gemini 3.5 Flash)
 **Branch:** agent/ag-w2-05-asset-strategy
 **Status:** ✅ Hotovo
 
 ### Co bylo implementováno
-- **Asset Strategy dokument** (`docs/ASSET_STRATEGY.md`) — kompletní 3-vrstvá architektura vizuálních assetů:
-  - Vrstva 1: Originály v `docs/assets/originals/` (zdrojové soubory, plná kvalita)
-  - Vrstva 2: Web verze v `public/assets/img/` (optimalizované WebP/AVIF/SVG)
-  - Vrstva 3: Dynamická média v R2 bucket `bicom-multimedia` (IG sync, blog, zálohy)
-- **Adresářová struktura** s kategorizovanými podsložkami (logo, hero, og, icons, gallery, certificates)
-- **SVG favicon** (`public/icon.svg`) — minimalistické brandové písmeno B (forest green + champagne gold)
-- **Aktualizace AI_AGENT_PROMPT.md** — přidána sekce 3 (Asset & Imagery Strategy pravidla pro agenty)
-- **Aktualizace README.md** — tabulka dokumentace + odkaz na ASSET_STRATEGY
-- **Sada 6 AI generátorových promptů** (favicon, apple-touch-icon, OG karta, hero, galerie) pro vlastníka
+- **Asset Strategy dokument** (`docs/ASSET_STRATEGY.md`) — kompletní 3-vrstvá architektura vizuálních assetů a zdokumentování schváleného "Inbox" importu.
+- **Zpracování a distribuce vizuálů z Inboxu** (Python Pillow skript):
+  - `favicon.ico` — oříznut z kulatého loga, aplikována průhlednost, vygenerována multi-size ikona (16/32/48px).
+  - `apple-touch-icon.png` — oříznut z čtvercového loga s textem "PÍSEK", vygenerován solid PNG (180x180).
+  - `hero-lifestyle.webp` — zkonvertován z 16:9 RAW fotky ordinace, zmenšen na 1920px šířku, kvalita 80%.
+  - `hero-device.webp` — zkonvertován z produktové fotografie Bicom Optima, zmenšen na 1200px šířku.
+  - `og.jpg` — oříznut a zmenšen přesně na 1200x630 (aspect 1.91:1) jako OG sdílecí karta s integrovanou adresou.
+  - Galerie (`ordinace-01.webp`, `ordinace-02.webp`, `ordinace-03.webp`) — čekárna, detail terapie a doplňkový lifestyle snímek zmenšeny na 1200px šířku.
+- **Integrace do webu**:
+  - `public/index.html` — nahrazena inline SVG ilustrace v Hero sekci reálným obrázkem `hero-lifestyle.webp`.
+  - `public/assets/css/style.css` — přidány `.hero-image` styly s `object-fit: cover` pro zachování responzivity.
+  - `docs/ASSET_STRATEGY.md` — přidána sekce o schváleném "Inbox" workflow pro průběžný import obrázků vlastníkem.
+- **Sitemap**: sitemap.xml aktualizován s datem nasazení.
+- **Pravidla a archivace**: originální verze v plném rozlišení přesunuty do `docs/assets/originals/` pro uchování historie.
 
-### Soubory vytvořené
-- `docs/ASSET_STRATEGY.md` — hlavní strategický dokument
-- `docs/assets/originals/README.md` — popis složky s pravidly
-- `docs/assets/originals/{logo,hero,og,icons,gallery,certificates}/.gitkeep`
-- `public/assets/img/{logo,hero,gallery,certificates}/.gitkeep`
-- `public/icon.svg` — SVG favicon
+### Soubory vytvořené a distribuované
+- `docs/assets/originals/icons/favicon-source.png` (a `public/favicon.ico`)
+- `docs/assets/originals/icons/apple-touch-icon-source.png` (a `public/apple-touch-icon.png`)
+- `docs/assets/originals/hero/hero-lifestyle-main.png` (a `public/assets/img/hero-lifestyle.webp`)
+- `docs/assets/originals/hero/hero-device-bicom-optima.png` (a `public/assets/img/hero-device.webp`)
+- `docs/assets/originals/gallery/ordinace-01.png` (a `public/assets/img/gallery/ordinace-01.webp`)
+- `docs/assets/originals/gallery/ordinace-02.png` (a `public/assets/img/gallery/ordinace-02.webp`)
+- `docs/assets/originals/gallery/ordinace-03.png` (a `public/assets/img/gallery/ordinace-03.webp`)
+- `docs/assets/originals/og/og-card-source.png` (a `public/assets/img/og.jpg`)
 
 ### Soubory upravené
-- `.github/AI_AGENT_PROMPT.md` — přidána sekce 3 (asset pravidla)
-- `README.md` — přidána tabulka dokumentace, aktualizován AI agent protokol
-
-### Identifikované chybějící soubory (TODO pro vlastníka)
-- `public/favicon.ico` — chybí (deklarován v index.html ř. 28)
-- `public/apple-touch-icon.png` — chybí (deklarován v index.html ř. 30)
-- `public/assets/img/og.jpg` — chybí (deklarován v index.html ř. 17, 25)
+- `public/index.html` — vložen obrázek do Hero
+- `public/assets/css/style.css` — styl pro Hero obrázek
+- `docs/ASSET_STRATEGY.md` — popsán Inbox workflow
+- `public/sitemap.xml` — aktualizace datumu
 
 ### Akceptační kritéria — splněno?
-- [x] ASSET_STRATEGY.md vytvořen s kompletní architekturou
-- [x] Adresářová struktura vytvořena a commitována
-- [x] SVG favicon vytvořen v souladu s brand identity
-- [x] AI_AGENT_PROMPT.md aktualizován o asset pravidla
-- [x] README.md aktualizován s dokumentační tabulkou
-- [x] Prompty pro generování vizuálů připraveny
-- [ ] Chybějící vizuály vygenerovány vlastníkem (čeká se)
+- [x] ASSET_STRATEGY.md vytvořen a doplněn o Inbox workflow
+- [x] Všechny chybějící produkční vizuály (favicon, apple-touch, OG karta, hero, galerie) zpracovány a optimalizovány
+- [x] Originály archivovány v docs/assets/originals/
+- [x] Výrobní verze nasazeny do public/ a public/assets/img/
+- [x] Web aktualizován o zobrazení hlavního hero obrázku
+- [x] Vše commitnuto a pushnuto na branch `agent/ag-w2-05-asset-strategy`
+
