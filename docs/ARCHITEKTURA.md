@@ -23,11 +23,55 @@ Produkční web Bicom Písek je **úzká, levná, předatelná** výseč širš�
    │  DevOps:    ANTIGRAVITY (Gemini Flash · Claude Opus/Sonnet · Copilot)  │
    │  CI/CD:     GitHub Pro/Actions ·  QA: Sentry · k6/Locust               │
    └──────────────────────────────────────────────────────────────────────┘
-                                    │
+                                     │
                   ┌─────────────────┴─────────────────┐
                   │   PRODUKČNÍ VÝSEČ — BICOM PÍSEK    │
                   │  (Edge-First, Zero-Cost, předatelná)│
                   └───────────────────────────────────┘
+```
+
+```mermaid
+graph TD
+    Client["💻 Klientský prohlížeč"] -->|HTTP / API| CF_Pages["⚡ Cloudflare Pages (bicom-pisek)"]
+    
+    subgraph Cloudflare Edge Grid
+        CF_Pages -->|Static Files| Frontend["📄 Frontend (public/)"]
+        CF_Pages -->|Routing| Pages_API["⚙️ Pages Functions (functions/api/*)"]
+        
+        Pages_API -->|D1 Query| DB[("🗄️ Cloudflare D1 (bicom-pisek-db)")]
+        Pages_API -->|Read/Write| KV[("🔑 Cloudflare KV (Cache & Session)")]
+        Pages_API -->|Inference| AI_Engine["🧠 Workers AI (Llama 3)"]
+        
+        Pages_API -->|Enqueue Booking| Queue_Booking["📥 Queue: booking-jobs"]
+        Pages_API -->|Enqueue Social| Queue_Social["📥 Queue: social-jobs"]
+        
+        Queue_Booking -->|Triggers| Consumer_Booking["⚙️ Worker: bicom-booking-consumer"]
+        Queue_Social -->|Triggers| Consumer_Social["⚙️ Worker: bicom-social-consumer"]
+        
+        Cron_Scheduler["⏰ Cron Trigger"] -->|Scheduled Triggers| Worker_Cron["⚙️ Worker: bicom-cron-worker"]
+        
+        Worker_Cron -->|GDPR / Cleanup| DB
+        Worker_Cron -->|Backups| R2[("💿 Cloudflare R2 (bicom-multimedia)")]
+        Consumer_Social -->|Store Images / Videos| R2
+    end
+    
+    subgraph Externí Integrace
+        Consumer_Booking -->|OAuth2 / Calendar API| Google_Calendar["📆 Google Calendar"]
+        Consumer_Booking -->|Email API| Resend["📧 Resend Mailer"]
+        Consumer_Booking -->|Telegram Bot API| Telegram["💬 Telegram Chat (Notifikace)"]
+        
+        Worker_Cron -->|Meta Graph API| Instagram["📸 Instagram Feed"]
+        Consumer_Booking -->|SMS API| GoSMS["📱 GoSMS / SMS Gateway"]
+    end
+    
+    style CF_Pages fill:#f96,stroke:#333,stroke-width:2px
+    style DB fill:#9cf,stroke:#333,stroke-width:1px
+    style KV fill:#9cf,stroke:#333,stroke-width:1px
+    style R2 fill:#9cf,stroke:#333,stroke-width:1px
+    style AI_Engine fill:#d9f,stroke:#333,stroke-width:1px
+    style Consumer_Booking fill:#ff9,stroke:#333,stroke-width:1px
+    style Consumer_Social fill:#ff9,stroke:#333,stroke-width:1px
+    style Worker_Cron fill:#ff9,stroke:#333,stroke-width:1px
 ```
 
 ## 2. Vrstvy produkčního webu (Cloudflare Edge Grid)
