@@ -480,6 +480,31 @@
 - [x] Zprovozněn diagnostický skript D1 a generátor Service JSON-LD
 - [x] Změny otestovány a bez konfliktů sloučeny do upstream main
 
+---
+
+## 2026-06-01 Google Calendar Integration & Secrets Setup
+**Model:** Antigravity (Gemini 2.5 Pro / Gemini 3.5 Flash)
+**Branch:** agent/ag-w2-06-local-landing
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Konfigurace lokálních proměnných:** Vytvořen soubor `.dev.vars` s reálnými Google Calendar secrets a vývojovými placeholdery pro usnadnění lokálního vývoje.
+- **Ověření a testování integrace:** Vytvořen diagnostický skript `scratch/test-calendar-connection.js` pro lokální otestování JWT autentizace a komunikace se službou Google Calendar. Skript byl úspěšně spuštěn a ověřil funkčnost přístupu (úspěšně navázáno spojení a načten seznam událostí).
+- **Zdokumentování postupu a workaroundu:** Aktualizován a vytvořen implementační plán v `implementation_plan.md` obsahující detailní popis ručních kroků pro nahrání tajných klíčů do Cloudflare z důvodu omezení oprávnění API tokenu v agentním prostředí.
+
+### Soubory vytvořené
+- `scratch/test-calendar-connection.js` — Testovací skript kalendáře
+- `.dev.vars` — Lokální konfigurační soubor (ignorováno gitem)
+
+### Blokátory / poznámky pro vlastníka
+- **Ruční nahrání secrets:** Z důvodu omezení API tokenu v našem kódovacím prostředí (Wrangler hlásí `Authentication error [code: 10000]`) nemůže agent přímo nahrát produkční secrets přes příkazovou řádku do vašeho Cloudflare účtu. Zkopírujte prosím hodnoty pro `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL`, `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` (pozor na konce řádků), `SECRET_GOOGLE_CALENDAR_ID` a volitelně `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL` do Cloudflare Dashboardu pro projekt Pages i oba Workers (viz podrobný návod v `implementation_plan.md`).
+
+### Akceptační kritéria — splněno?
+- [x] Všechna secrets pro Google kalendář zavedena do lokálního vývojového prostředí (.dev.vars)
+- [x] Otestování a potvrzení funkčnosti spojení a správnosti klíče přes testovací skript
+- [x] Vytvoření implementačního plánu a podrobného návodu pro vlastníka
+
+
 
 
 
