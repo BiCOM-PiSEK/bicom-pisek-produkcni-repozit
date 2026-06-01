@@ -1,0 +1,22 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://bicom-pisek.cz/#terapeut",
+  "name": "Certifikovaná terapeutka Bicom Písek",
+  "jobTitle": "Certifikovaná terapeutka biorezonanční metody Bicom",
+  "worksFor": {
+    "@id": "https://bicom-pisek.cz/#business"
+  },
+  "knowsAbout": [
+    "biorezonance",
+    "Bicom Optima",
+    "komplementární péče",
+    "alergie",
+    "detoxikace",
+    "odvykání kouření"
+  ],
+  "hasCredential": {
+    "@type": "EducationalOccupationalCredential",
+    "credentialCategory": "Certifikace metody Bicom; přístroj Bicom Optima je zdravotnický prostředek třídy IIa (ISO 13485)"
+  }
+}
