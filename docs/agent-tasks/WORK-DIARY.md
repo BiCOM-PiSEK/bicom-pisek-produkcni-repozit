@@ -491,9 +491,11 @@
 - **Konfigurace lokálních proměnných:** Vytvořen soubor `.dev.vars` s reálnými Google Calendar secrets a vývojovými placeholdery pro usnadnění lokálního vývoje.
 - **Ověření a testování integrace:** Vytvořen diagnostický skript `scratch/test-calendar-connection.js` pro lokální otestování JWT autentizace a komunikace se službou Google Calendar. Skript byl úspěšně spuštěn a ověřil funkčnost přístupu (úspěšně navázáno spojení a načten seznam událostí).
 - **Zdokumentování postupu a workaroundu:** Aktualizován a vytvořen implementační plán v `implementation_plan.md` obsahující detailní popis ručních kroků pro nahrání tajných klíčů do Cloudflare z důvodu omezení oprávnění API tokenu v agentním prostředí.
+- **Návrh integrace plateb Stripe:** Vytvořen detailní návrh a technický plán integrace platební brány Stripe v docs/STRIPE_INTEGRATION.md, který mapuje databázové změny, API endpointy, webhooky a frontendové zapojení.
 
 ### Soubory vytvořené
 - `scratch/test-calendar-connection.js` — Testovací skript kalendáře
+- `docs/STRIPE_INTEGRATION.md` — Návrh a plán integrace platební brány Stripe
 - `.dev.vars` — Lokální konfigurační soubor (ignorováno gitem)
 
 ### Blokátory / poznámky pro vlastníka
@@ -503,6 +505,7 @@
 - [x] Všechna secrets pro Google kalendář zavedena do lokálního vývojového prostředí (.dev.vars)
 - [x] Otestování a potvrzení funkčnosti spojení a správnosti klíče přes testovací skript
 - [x] Vytvoření implementačního plánu a podrobného návodu pro vlastníka
+- [x] Vypracování a zdokumentování plánu integrace platební brány Stripe
 
 
 
