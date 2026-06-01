@@ -49,6 +49,12 @@ const ROUTES = [
     moduleId: 'invoices',
   },
   {
+    path: '/platby',
+    title: 'Stripe Platby',
+    icon: 'credit-card',
+    moduleId: 'payments',
+  },
+  {
     path: '/zpravy',
     title: 'Zprávy',
     icon: 'message-square',

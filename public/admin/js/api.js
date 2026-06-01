@@ -214,6 +214,15 @@ function getInvoices(params = {}) {
 }
 
 /**
+ * GET /admin/payments — přehled plateb Stripe.
+ * @returns {Promise<ApiResponse>}
+ */
+function getPayments() {
+  return request('/payments');
+}
+
+
+/**
  * POST /admin/invoices — vystavení faktury.
  * @param {Object} data
  * @returns {Promise<ApiResponse>}
@@ -276,6 +285,7 @@ const AdminAPI = {
   publishContent,
   getInvoices,
   createInvoice,
+  getPayments,
   getGeoAnalytics,
   getSettings,
   saveSettings,

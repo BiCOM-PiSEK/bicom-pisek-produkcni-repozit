@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     note_enc TEXT,
     preferred_date TEXT NOT NULL,
     psc TEXT,
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','done','cancelled')),
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','done','cancelled','pending_payment')),
     estimated_price INTEGER,
     consent_version TEXT,
     consent_marketing INTEGER DEFAULT 0,
@@ -25,10 +25,16 @@ CREATE TABLE IF NOT EXISTS bookings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
     anonymized_at TIMESTAMP,
+    stripe_session_id TEXT,
+    stripe_payment_intent_id TEXT,
+    stripe_payment_status TEXT,
+    paid_amount INTEGER,
+    paid_at TIMESTAMP,
     FOREIGN KEY (operator_id) REFERENCES operators(id)
 );
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_created ON bookings(created_at);
+CREATE INDEX IF NOT EXISTS idx_bookings_stripe_session ON bookings(stripe_session_id);
 
 CREATE TABLE IF NOT EXISTS newsletter_subscribers (
     id TEXT PRIMARY KEY,
@@ -162,6 +168,16 @@ CREATE TABLE IF NOT EXISTS marketing_campaigns (
     start_date TIMESTAMP,
     end_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS payment_transactions (
+    id TEXT PRIMARY KEY,
+    booking_id TEXT NOT NULL,
+    stripe_session_id TEXT NOT NULL UNIQUE,
+    amount INTEGER NOT NULL,
+    currency TEXT NOT NULL DEFAULT 'CZK',
+    status TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(booking_id) REFERENCES bookings(id)
 );
 
 -- ============================================================
