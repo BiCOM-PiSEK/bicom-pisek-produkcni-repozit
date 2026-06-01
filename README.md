@@ -26,6 +26,7 @@ npm run dev
 |----------|-------|
 | `docs/STYLE_BRIEF.md` | Vizuální zákoník — Quiet Luxury paleta, typografie |
 | `docs/ASSET_STRATEGY.md` | Strategie vizuálních assetů — originály, web verze, R2 |
+| `docs/GIT_WORKFLOW.md` | Pravidla větvení a synchronizace (Fork ↔ Upstream) |
 | `docs/ARCHITEKTURA.md` | Celková technická architektura |
 | `docs/API_KEYS_CHECKLIST.md` | Seznam API klíčů a secrets pro produkci |
 | `docs/HANDOVER.md` | Postup předání klientovi |

@@ -100,7 +100,7 @@ Terapeutka namluví poznámku → přepis (klávesnice iPhone) → vloží do ad
 | `preview` | CF Pages preview (per PR) | D1 dev | review PR |
 | `production` | CF Pages (`bicompisek.cz`) | D1 `bicom-db-prod` | ostrý provoz |
 
-Deploy: GitHub Actions → `wrangler pages deploy` (Continuous Deployment z větve `main` produkčního repa).
+Deploy a synchronizace probíhá podle přesných pravidel popsaných v [docs/GIT_WORKFLOW.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/GIT_WORKFLOW.md) (Continuous Deployment z větve `main` produkčního repa).
 
 ## 6. Co je „nadřazené" a co „předatelné"
 
