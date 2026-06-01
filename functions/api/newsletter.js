@@ -4,6 +4,7 @@
 
 import { DataCrypt } from '../lib/datacrypt.js';
 import { subscribeNewsletter } from '../lib/db.js';
+import { checkRateLimit } from '../lib/rate-limit.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -26,6 +27,16 @@ export async function onRequestOptions() {
  */
 export async function onRequestPost({ request, env }) {
   try {
+    // 0. Rate limiting (max 10 newsletter subscriptions per IP per minute)
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const allowed = await checkRateLimit(env.CACHE, ip, 'newsletter', 10);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Příliš mnoho požadavků. Zkuste to prosím za minutu.' }),
+        { status: 429, headers: CORS_HEADERS }
+      );
+    }
+
     // 1. Parse JSON body
     let data;
     try {

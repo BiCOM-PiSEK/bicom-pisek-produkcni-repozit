@@ -7,7 +7,7 @@
   "url": "https://bicom-pisek.cz",
   "telephone": "+420000000000",
   "priceRange": "$$",
-  "address": { "@type": "PostalAddress", "streetAddress": "DOPLNIT", "addressLocality": "Písek", "postalCode": "39701", "addressCountry": "CZ" },
+  "address": { "@type": "PostalAddress", "streetAddress": "Vladislavova 201 (Technologický park)", "addressLocality": "Písek", "postalCode": "39701", "addressCountry": "CZ" },
   "geo": { "@type": "GeoCoordinates", "latitude": "49.3088", "longitude": "14.1475" },
   "areaServed": [
     { "@type": "City", "name": "Písek" }, { "@type": "City", "name": "Strakonice" },

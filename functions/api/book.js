@@ -4,6 +4,7 @@
 
 import { DataCrypt } from '../lib/datacrypt.js';
 import { createBooking, addGeoLead, subscribeNewsletter } from '../lib/db.js';
+import { checkRateLimit } from '../lib/rate-limit.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
 const ALLOWED_SERVICES = [
@@ -52,6 +53,16 @@ export async function onRequestOptions() {
  */
 export async function onRequestPost({ request, env, waitUntil }) {
   try {
+    // 0. Rate limiting (max 5 bookings per IP per minute)
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const allowed = await checkRateLimit(env.CACHE, ip, 'book', 5);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Příliš mnoho požadavků. Zkuste to prosím za minutu.' }),
+        { status: 429, headers: CORS_HEADERS }
+      );
+    }
+
     // 1. Parse JSON body
     let data;
     try {

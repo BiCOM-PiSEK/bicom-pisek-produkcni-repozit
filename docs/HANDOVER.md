@@ -16,6 +16,7 @@
 - [ ] **Google Workspace:** plná admin práva (Gmail, Kalendář, Business Profil); propojení Calendar API se Service Accountem zachovat.
 - [ ] **GitHub:** přidat účet klientky (nebo jejího IT) jako Owner org `BiCOM-PiSEK` s přístupem k produkčnímu repu (historie, dokumentace).
 - [ ] **Secrets:** předat bezpečně (správce hesel), zejména `ENCRYPTION_KEY` — jeho ztráta = nečitelná zašifrovaná data.
+- [ ] **Vyčištění databáze:** Vymazat demo data z produkční D1 databáze před ostrým spuštěním provedením příkazu `npm run db:clean-demo` (odstraní testovací rezervace, poptávky a odběratele s placeholdery).
 - [ ] **Zaučení (Virtual Office):** 1-pager — barevné kódy v Google Kalendáři (žlutá=předběžné, zelená=potvrdit→spustí notifikaci) + jak namluvit poznámku do AI Copywritera.
 
 ## 3. Provozní „playbook" pro Lenku (bez technické bariéry)
