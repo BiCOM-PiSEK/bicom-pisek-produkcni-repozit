@@ -19,7 +19,12 @@ const STATIC_ROUTES = [
   '/sluzby/patogeny',
   '/sluzby/prostredi-a-zateze',
   '/sluzby/podpora-pri-onkologii',
-  '/sluzby/prevence-a-rekonvalescence'
+  '/sluzby/prevence-a-rekonvalescence',
+  '/biorezonance-pisek',
+  '/biorezonance-strakonice',
+  '/biorezonance-vodnany',
+  '/biorezonance-milevsko',
+  '/biorezonance-protivin'
 ];
 
 function generateSitemap() {
