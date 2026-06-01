@@ -507,6 +507,37 @@
 - [x] Vytvoření implementačního plánu a podrobného návodu pro vlastníka
 - [x] Vypracování a zdokumentování plánu integrace platební brány Stripe
 
+---
+
+## 2026-06-01 Flexibilní Stripe integrace s přepínačem a klientským směrováním
+**Model:** Antigravity (Gemini 3.5 Flash)
+**Branch:** agent/ag-w2-06-local-landing
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Konfigurační klíč a administrace:** Whitelistován nový stavový parametr `stripe_deposit_required` v settings API (`functions/admin/settings.js`) a přidán vizuální toggle switch v admin UI v sekci "Platby a zálohy" (`public/admin/js/modules/settings.js`).
+- **Config API Endpoint:** Vytvořen nový veřejný endpoint `functions/api/booking-config.js` pro bezpečné čtení toggle stavu z D1 databáze `process_states`.
+- **Veřejný rezervační formulář:** Upraven script `public/assets/js/guide.js` tak, aby se při dobrovolné záloze (`stripe_deposit_required === false`) zobrazil detailní panel pro volbu způsobu platby (online záloha 500 Kč vs. předběžná rezervace zdarma). Odeslání formuláře flexibilně směruje klienta buď na Stripe Checkout, nebo na bezplatný `/api/book` flow.
+- **Klientské směrování a templates:** Zaregistrovány routy `/rezervace-potvrzena` a `/rezervace-zrusena` ve veřejném SPA routeru (`public/assets/js/router.js`). Vytvořeny prémiové, responzivní šablony v duchu *Quiet Luxury* (light-only) s rozlišením platby (předběžná bezplatná vs. uhrazená prioritní).
+
+### Soubory vytvořené
+- `functions/api/booking-config.js` — config API endpoint
+
+### Soubory upravené
+- `functions/admin/settings.js` — whitelist klíče nastavení
+- `public/admin/js/modules/settings.js` — settings toggle UI a defaults
+- `public/assets/js/guide.js` — booking form workflow, config loading, dynamic html a submission
+- `public/assets/js/router.js` — routes registration, confirmation a cancellation rendering templates
+
+### Akceptační kritéria — splněno?
+- [x] Administrační přepínač Stripe zálohy funguje a ukládá se do D1
+- [x] Booking config API endpoint bezpečně vrací stav z DB
+- [x] Veřejný rezervační formulář reaguje na konfiguraci a mění tlačítko/zobrazuje panel
+- [x] Odeslání formuláře přesměrovává na Stripe (při platbě) nebo do iDoklad/Queue (při volbě zdarma)
+- [x] SPA potvrzovací stránka rozlišuje query parametr `free=true` a zobrazuje odpovídající text
+- [x] Změny otestovány na validitu syntaxe a odeslány na GitHub (origin i upstream)
+
+
 
 
 
