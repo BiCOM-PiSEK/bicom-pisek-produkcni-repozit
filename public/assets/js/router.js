@@ -90,6 +90,10 @@ async function resolveRoute() {
       await renderBlogDetail(slug);
     } else if (path === "/gdpr") {
       renderGdprPage();
+    } else if (path === "/rezervace-potvrzena") {
+      renderRezervacePotvrzenaPage();
+    } else if (path === "/rezervace-zrusena") {
+      renderRezervaceZrusenaPage();
     } else {
       // 404 fallback
       render404Page();
@@ -390,6 +394,143 @@ function renderGdprPage() {
 
         <p><strong>5. Práva subjektu údajů</strong></p>
         <p>Máte právo požadovat přístup k Vašim osobním údajům, jejich opravu, výmaz („právo být zapomenut“), omezení zpracování, a vznést námitku proti zpracování na e-mail: <strong>info@bicom-pisek.cz</strong>.</p>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("subpage-heading")?.focus();
+}
+
+/**
+ * Renders Stripe payment success confirmation page.
+ */
+function renderRezervacePotvrzenaPage() {
+  if (mainEl) mainEl.style.display = "none";
+  subpageContainer.style.display = "block";
+
+  document.title = "Rezervace termínu | Bicom Písek";
+  setMetaDescription("Vaše rezervace termínu biorezonance Bicom.");
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const bookingId = urlParams.get('id') || '';
+  const isFree = urlParams.get('free') === 'true';
+
+  let headingText = "Rezervace a platba úspěšná";
+  let iconHtml = "✓";
+  let iconColor = "var(--c-sage)";
+  let bodyHtml = "";
+
+  if (isFree) {
+    headingText = "Předběžná rezervace odeslána";
+    iconHtml = "✉";
+    iconColor = "var(--c-champagne)";
+    bodyHtml = `
+      <p style="font-size: 1.15rem; color: var(--c-charcoal); margin-bottom: 1.5rem; line-height: 1.7;">
+        Děkujeme za vaši poptávku termínu. Vaše rezervace byla úspěšně zaznamenána.
+      </p>
+      <p style="margin-bottom: 1.5rem; color: var(--c-charcoal); line-height: 1.7;">
+        Jelikož jste zvolili možnost <strong>rezervace bez platby předem</strong>, váš termín je v tuto chvíli pouze předběžný a čeká na ověření kapacity. Během krátké doby se s vámi spojíme pro upřesnění a telefonické potvrzení termínu.
+      </p>
+      <div style="background-color: #f7f5f2; border-left: 4px solid var(--c-champagne); padding: 1rem 1.25rem; margin-bottom: 2rem; font-size: 0.9rem; color: #666; line-height: 1.5;">
+        <strong>Doporučení:</strong> Pokud byste chtěli mít termín garantovaný přednostně a bez nutnosti dalšího potvrzování, doporučujeme příště zvolit online úhradu zálohy. Rezervace s uhrazenou zálohou mají v našem kalendáři nejvyšší prioritu.
+      </div>
+    `;
+  } else {
+    bodyHtml = `
+      <p style="font-size: 1.15rem; color: var(--c-charcoal); margin-bottom: 1.5rem; line-height: 1.7;">
+        Děkujeme za vaši rezervaci a úhradu rezervační zálohy ve výši <strong>500 Kč</strong>.
+      </p>
+      <p style="margin-bottom: 1.5rem; color: var(--c-charcoal); line-height: 1.7;">
+        Platba byla úspěšně přijata. Na váš e-mail jsme odeslali potvrzení s podrobnostmi a zaplacenou zálohovou fakturu (prostřednictvím systému iDoklad). Váš termín je nyní prioritně rezervovaný a brzy se s vámi spojíme pro upřesnění času.
+      </p>
+    `;
+  }
+
+  subpageContainer.innerHTML = `
+    <div style="margin-bottom: 2rem;">
+      <a href="/" class="btn btn-outline" style="padding: 0.5rem 1rem;" id="back-link">
+        &larr; Zpět na úvodní stránku
+      </a>
+    </div>
+    <div style="max-width: 800px; margin: 0 auto; text-align: center; animation: fadeIn 0.4s ease;">
+      <div style="font-size: 4.5rem; color: ${iconColor}; margin-bottom: 1rem; line-height: 1;">${iconHtml}</div>
+      <h1 id="subpage-heading" tabindex="-1" style="font-size: clamp(2rem, 4vw, 3rem); margin-top: 0.5rem; margin-bottom: 1.5rem; color: var(--c-forest);">
+        ${headingText}
+      </h1>
+      
+      <div style="background-color: var(--c-white); border-radius: var(--radius); padding: 2.5rem 2rem; border: 1px solid rgba(115, 138, 117, 0.12); box-shadow: var(--shadow-sm); text-align: left; margin-bottom: 2.5rem;">
+        ${bodyHtml}
+        
+        <h3 style="font-family: var(--font-body); font-size: 1.05rem; text-transform: uppercase; color: var(--c-forest); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(115, 138, 117, 0.12); padding-bottom: 0.5rem; font-weight:600;">
+          Doporučená příprava před terapií
+        </h3>
+        <p style="font-size: 0.95rem; color: #555; margin-bottom: 0.75rem;">
+          Pro dosažení nejlepších výsledků biorezonance prosím dodržujte tyto pokyny:
+        </p>
+        <ul style="font-size: 0.95rem; color: #555; padding-left: 1.25rem; margin-bottom: 2rem; line-height: 1.6;">
+          <li style="margin-bottom: 0.5rem;"><strong>24 hodin před sezením</strong> prosím nepijte žádný alkohol ani kávu.</li>
+          <li style="margin-bottom: 0.5rem;">V den terapie omezte pití silného černého či zeleného čaje a energetických nápojů.</li>
+          <li style="margin-bottom: 0.5rem;">Před i po terapii pijte dostatek čisté neperlivé vody (pomáhá tělu odvádět uvolněné škodliviny).</li>
+          <li style="margin-bottom: 0.5rem;">Na sezení doporučujeme obléci pohodlné oblečení (terapie probíhá v leže či sedě).</li>
+        </ul>
+        
+        ${bookingId ? `
+        <div style="background-color: var(--c-mist); border-radius: var(--radius); padding: 0.75rem 1rem; border: 1px solid rgba(197, 168, 128, 0.15); font-size: 0.85rem; font-family: monospace; text-align: center; color: #666; word-break: break-all;">
+          Referenční ID rezervace: ${escapeHtml(bookingId)}
+        </div>
+        ` : ''}
+      </div>
+      
+      <a href="/" class="btn btn-primary btn-accent" style="padding: 1.2rem 3rem;">
+        Zpět na úvodní stránku
+      </a>
+    </div>
+  `;
+
+  document.getElementById("subpage-heading")?.focus();
+}
+
+/**
+ * Renders Stripe payment cancelled page.
+ */
+function renderRezervaceZrusenaPage() {
+  if (mainEl) mainEl.style.display = "none";
+  subpageContainer.style.display = "block";
+
+  document.title = "Platba nedokončena | Bicom Písek";
+  setMetaDescription("Platba rezervační zálohy byla zrušena.");
+
+  subpageContainer.innerHTML = `
+    <div style="margin-bottom: 2rem;">
+      <a href="/" class="btn btn-outline" style="padding: 0.5rem 1rem;" id="back-link">
+        &larr; Zpět na úvodní stránku
+      </a>
+    </div>
+    <div style="max-width: 800px; margin: 0 auto; text-align: center; animation: fadeIn 0.4s ease;">
+      <div style="font-size: 4.5rem; color: var(--c-error); margin-bottom: 1rem; line-height: 1;">✕</div>
+      <h1 id="subpage-heading" tabindex="-1" style="font-size: clamp(2rem, 4vw, 3rem); margin-top: 0.5rem; margin-bottom: 1.5rem; color: var(--c-forest);">
+        Platba nedokončena
+      </h1>
+      
+      <div style="background-color: var(--c-white); border-radius: var(--radius); padding: 2.5rem 2rem; border: 1px solid rgba(115, 138, 117, 0.12); box-shadow: var(--shadow-sm); text-align: left; line-height: 1.7; margin-bottom: 2.5rem;">
+        <p style="font-size: 1.1rem; color: var(--c-charcoal); margin-bottom: 1.5rem;">
+          Platba rezervační zálohy byla stornována nebo nebyla dokončena.
+        </p>
+        <p style="color: #555;">
+          Váš vybraný termín nebyl zarezervován a rezervace nebyla dokončena. Pokud si stále přejete vytvořit rezervaci termínu, přejděte prosím zpět na rezervační formulář a dokončete proces.
+        </p>
+        <p style="margin-top: 1rem; color: #555;">
+          Pokud máte potíže s online platbou kartou, kontaktujte nás prosím na e-mailu <strong>info@bicom-pisek.cz</strong> a domluvíme se na alternativním postupu.
+        </p>
+      </div>
+      
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="/#rezervace" class="btn btn-primary" style="padding: 1rem 2.5rem;">
+          Zkusit znovu rezervaci
+        </a>
+        <a href="/" class="btn btn-outline" style="padding: 1rem 2.5rem;">
+          Zpět na úvod
+        </a>
       </div>
     </div>
   `;

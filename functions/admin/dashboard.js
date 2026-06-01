@@ -158,26 +158,51 @@ export async function onRequestGet({ env, data }) {
       ? Math.round(((confirmedThisMonth - confirmedLastMonth) / confirmedLastMonth) * 100)
       : 0;
 
-    // ─── Revenue estimation (from confirmed bookings × avg price) ──
+    // ─── Revenue calculation (actual Stripe payments + fallback to estimated) ──
     let revenueWeek = 0;
     let revenueToday = 0;
+    let hasStripeTransactions = false;
     try {
-      const revWeekResult = await db.prepare(
-        `SELECT SUM(COALESCE(estimated_price, 0)) as total
-         FROM bookings
-         WHERE status IN ('confirmed', 'done')
-         AND created_at >= date('now', 'weekday 0', '-7 days')`
-      ).first();
-      revenueWeek = revWeekResult?.total || 0;
+      const txCheck = await db.prepare("SELECT COUNT(*) as cnt FROM payment_transactions").first();
+      if (txCheck?.cnt > 0) {
+        hasStripeTransactions = true;
+        const revWeekResult = await db.prepare(
+          `SELECT SUM(amount) as total
+           FROM payment_transactions
+           WHERE status = 'completed'
+           AND created_at >= date('now', 'weekday 0', '-7 days')`
+        ).first();
+        revenueWeek = revWeekResult?.total || 0;
 
-      const revTodayResult = await db.prepare(
-        `SELECT SUM(COALESCE(estimated_price, 0)) as total
-         FROM bookings
-         WHERE status IN ('confirmed', 'done')
-         AND date(created_at) = date('now')`
-      ).first();
-      revenueToday = revTodayResult?.total || 0;
-    } catch { /* estimation fallback */ }
+        const revTodayResult = await db.prepare(
+          `SELECT SUM(amount) as total
+           FROM payment_transactions
+           WHERE status = 'completed'
+           AND date(created_at) = date('now')`
+        ).first();
+        revenueToday = revTodayResult?.total || 0;
+      }
+    } catch { /* Table might not exist yet or empty */ }
+
+    if (!hasStripeTransactions) {
+      try {
+        const revWeekResult = await db.prepare(
+          `SELECT SUM(COALESCE(estimated_price, 0)) as total
+           FROM bookings
+           WHERE status IN ('confirmed', 'done')
+           AND created_at >= date('now', 'weekday 0', '-7 days')`
+        ).first();
+        revenueWeek = revWeekResult?.total || 0;
+
+        const revTodayResult = await db.prepare(
+          `SELECT SUM(COALESCE(estimated_price, 0)) as total
+           FROM bookings
+           WHERE status IN ('confirmed', 'done')
+           AND date(created_at) = date('now')`
+        ).first();
+        revenueToday = revTodayResult?.total || 0;
+      } catch { /* estimation fallback */ }
+    }
 
     // ─── System health ───────────────────────────────────
     const system = {
@@ -187,6 +212,7 @@ export async function onRequestGet({ env, data }) {
       telegram: env.SECRET_TELEGRAM_BOT_TOKEN ? 'ok' : 'standby',
       calendar: env.SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL ? 'ok' : 'standby',
       idoklad: env.SECRET_IDOKLAD_CLIENT_ID ? 'ok' : 'standby',
+      stripe: env.SECRET_STRIPE_SECRET_KEY ? 'ok' : 'standby',
     };
 
     // ─── Response ────────────────────────────────────────

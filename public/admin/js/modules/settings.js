@@ -35,6 +35,20 @@ export async function render(container, ctx) {
         </div>
       </div>
 
+      <!-- Platby & Zálohy -->
+      <div class="card mb-6">
+        <div class="card-header"><h3 class="card-title">💳 Platby &amp; Zálohy</h3></div>
+        <div class="card-body">
+          <div class="form-group flex items-center justify-between">
+            <div>
+              <label class="form-label" style="margin:0;">Vyžadovat online zálohu (500 Kč)</label>
+              <p class="form-hint">Pokud je zapnuto, klient musí před dokončením rezervace uhradit zálohu přes Stripe. Pokud je vypnuto, platba online je dobrovolná (klient může dokončit rezervaci zdarma).</p>
+            </div>
+            <label class="toggle"><input type="checkbox" name="stripe_deposit_required" ${settings.stripe_deposit_required === '1' ? 'checked' : ''}><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+
       <!-- Upomínky -->
       <div class="card mb-6">
         <div class="card-header"><h3 class="card-title">🔔 Upomínky</h3></div>
@@ -140,5 +154,6 @@ function getDefaults() {
     telegram_booking: '1', telegram_digest: '1', telegram_cashflow: '1',
     ai_copywriter_tone: 'quiet_luxury', ai_auto_publish: '0',
     gdpr_retention_days: '30', booking_max_future_days: '90',
+    stripe_deposit_required: '1',
   };
 }
