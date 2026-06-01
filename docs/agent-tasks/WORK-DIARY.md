@@ -431,4 +431,55 @@
 - [x] Doménová schémata pro testování a produkci vysvětlena
 
 
+## 2026-06-01 Implementace chybějící dokumentace, GEO/SEO landingů a diagnostik
+**Model:** Antigravity (Gemini 3.5 Flash)
+**Branch:** agent/ag-w2-06-local-landing (sloučeno do upstream main)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Integrace regionálního SEO a landing stránek (Fáze B1, B2, B3)**:
+  - Nasazeno 5 nových regionálních stránek v `public/`: Písek, Strakonice, Vodňany, Milevsko, Protivín.
+  - Integrován odkaz na `schema/person.json` (E-E-A-T) do hlavičky hlavní stránky `public/index.html`.
+  - Aktualizován sitemap generátor `scripts/build-sitemap.js` a přebudována sitemapa `public/sitemap.xml` obsahující všech 5 nových stránek.
+- **Implementace chybějící dokumentace a architektury**:
+  - Tři nové dokumenty z Inboxu (`DATABASE_MANAGEMENT.md`, `GAP_ANALYSIS_OPPORTUNITIES.md`, `GEO_AEO_SEO_STRATEGY.md`) zkopírovány a zařazeny pod verzi v `docs/`.
+  - Do `docs/ARCHITEKTURA.md` vložen Mermaid diagram znázorňující topologii celého Cloudflare ekosystému.
+- **Zavedení adresy provozovny a příprava na ostrý start**:
+  - Adresa `Vladislavova 201 (Technologický park)` nahradila původní zástupné symboly v `public/index.html` a `public/schema/localbusiness.json`.
+  - Přidán příkaz `"db:clean-demo"` do `package.json` pro vyčištění demo dat z D1 a zapsán do handover checklistu.
+- **Zabezpečení a technické SEO (Sprint 1 a 2)**:
+  - Vytvořen a integrován KV rate-limiter `functions/lib/rate-limit.js` do rezervačního a newsletterového API.
+  - Vytvořen diagnostický nástroj `scripts/db-diagnostics.js` (`npm run db:diagnostics`) ověřující zdraví D1, zálohy a GDPR anonymizaci.
+  - Vytvořen generátor Service JSON-LD `scripts/generate-service-jsonld.js` (`npm run db:generate-jsonld`), který aktualizoval strukturovaná data k 11 službám v D1.
+
+### Soubory vytvořené
+- `docs/DATABASE_MANAGEMENT.md`
+- `docs/GAP_ANALYSIS_OPPORTUNITIES.md`
+- `docs/GEO_AEO_SEO_STRATEGY.md`
+- `public/biorezonance-pisek.html`, `biorezonance-strakonice.html`, `biorezonance-vodnany.html`, `biorezonance-milevsko.html`, `biorezonance-protivin.html`
+- `public/schema/person.json`
+- `functions/lib/rate-limit.js`
+- `scripts/db-diagnostics.js`
+- `scripts/generate-service-jsonld.js`
+
+### Soubory upravené
+- `docs/ARCHITEKTURA.md` — Přidán Mermaid diagram
+- `docs/HANDOVER.md` — Přidán krok pro vymazání demo dat
+- `package.json` — Přidány příkazy pro diagnostiku, clean-demo a generování JSON-LD
+- `public/index.html` — Aktualizace adresy a odkaz na Person schema
+- `public/schema/localbusiness.json` — Aktualizace adresy
+- `scripts/build-sitemap.js` — Přidány lokální trasy
+- `public/sitemap.xml` — Znovuzrozená sitemapa
+
+### Akceptační kritéria — splněno?
+- [x] Všechny 3 dokumenty zařazeny a synchronizovány v repu
+- [x] 5 lokálních landingů nasazeno v public a zapsáno do sitemapy
+- [x] Person JSON-LD vytvořen a provázán s index.html
+- [x] Adresa provozovny aktualizována napříč projektem
+- [x] Vytvořen rate limiter a nasazen na rezervační a newsletter API
+- [x] Zprovozněn diagnostický skript D1 a generátor Service JSON-LD
+- [x] Změny otestovány a bez konfliktů sloučeny do upstream main
+
+
+
 
