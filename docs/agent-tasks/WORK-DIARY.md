@@ -398,3 +398,37 @@
 - [x] Inbox složka s originály a zpracovanými verzemi ignorována v .gitignore
 
 
+## 2026-06-01 Git synchronizace, Cloudflare audit a oprava deploymentu
+**Model:** Antigravity (Gemini 3.5 Flash)
+**Branch:** agent/ag-w2-05-asset-strategy (sloučeno do upstream main)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Zavedení schváleného Git workflow**:
+  - Plně popsána pravidla větvení a synchronizace (Fork ↔ Upstream) v novém dokumentu [docs/GIT_WORKFLOW.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/GIT_WORKFLOW.md).
+  - Odkazy na tento dokument byly integrovány do hlavních projektových souborů: [README.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/README.md), [WHITE_PAPER.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/WHITE_PAPER.md) a [docs/ARCHITEKTURA.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/ARCHITEKTURA.md).
+- **Synchronizace a vyřešení konfliktů v PR #9**:
+  - Vyřešena kolize větví způsobená squash-merge operací v předchozích fázích.
+  - Změny na lokální větvi a osobním forku (`origin/main`) byly plně synchronizovány s `upstream/main` repozitáře organizace.
+  - Pull Request #9 byl úspěšně sloučen a uzavřen na GitHubu, čímž došlo k nasazení do produkce.
+- **Inženýrský audit Cloudflare ekosystému**:
+  - Zmapovali jsme a popsali logiku a účel všech Workers a Pages v rozhraní Cloudflare (hlavní portál `bicom-pisek`, cron-worker `bicom-cron-worker`, spotřebitelské workers `bicom-booking-consumer` a `bicom-social-consumer`).
+  - Vyřešili jsme nefunkční příkaz sestavení na Cloudflare Pages: nahrazením chybného `npx wrangler deploy` za správné `npm run build` (sestavení sitemapy) s výstupním adresářem `public`.
+  - Zdokumentovali jsme rozdělení testovacích a produkčních domén (`bicom-pisek.pages.dev` vs. `bicom-pisek.cz` a `bicompisek.cz`).
+
+### Soubory změněné
+- [README.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/README.md) — Přidán odkaz na Git workflow
+- [WHITE_PAPER.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/WHITE_PAPER.md) — Upřesněna sekce deploye s odkazem na workflow
+- [docs/ARCHITEKTURA.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/ARCHITEKTURA.md) — Přesměrován odkaz v sekci deploye na Git workflow
+- [docs/GIT_WORKFLOW.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/GIT_WORKFLOW.md) — [NOVÝ] Detailní popis Fork ↔ Upstream workflow
+
+### Akceptační kritéria — splněno?
+- [x] Git workflow je popsán a integrován do projektových materiálů
+- [x] PR #9 je bez konfliktů a úspěšně sloučeno/nasazeno do produkčního upstreamu
+- [x] Lokální větev i forky jsou kompletně synchronizované s upstream/main
+- [x] Architektura Cloudflare Workers & Pages je vysvětlena a zdokumentována
+- [x] Chybný build command v nastavení Cloudflare vyřešen a nahrazen správným
+- [x] Doménová schémata pro testování a produkci vysvětlena
+
+
+
