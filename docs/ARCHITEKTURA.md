@@ -380,7 +380,7 @@ Lokální dohledatelnost stojí na třech věcech: NAP konzistenci, mapových pr
 **Pravidlo:** identický řetězec N/A/P na všech platformách, znak po znaku.
 ```
 Name:    Bicom Písek
-Address: [přesná ulice č.p.], 397 01 Písek, Česká republika
+Address: Vladislavova 201 (technologický park), 397 01 Písek, Česká republika
 Phone:   +420 XXX XXX XXX   (vždy mezinárodní formát)
 ```
 Profily k založení a sladění:

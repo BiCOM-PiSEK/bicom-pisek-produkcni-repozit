@@ -13,7 +13,7 @@
 import { fetchWithRetry } from './_fetch-retry.js';
 
 const RESEND_API = 'https://api.resend.com/emails';
-const BUSINESS_ADDRESS = 'Bicom Písek, Nádražní 2512, 397 01 Písek';
+const BUSINESS_ADDRESS = 'Bicom Písek, Vladislavova 201 (technologický park), 397 01 Písek';
 
 export class ResendConnector {
   /**
