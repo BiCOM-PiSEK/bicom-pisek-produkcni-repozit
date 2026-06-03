@@ -75,7 +75,7 @@ export class GoSmsConnector {
    * @returns {Promise<object|null>}
    */
   async sendBookingReminder(booking) {
-    const address = booking.address || 'Nádražní 2512, Písek';
+    const address = booking.address || 'Vladislavova 201, 397 01 Písek';
     const text = `Bicom Pisek: Pripominame Vas zitrejsi termin v ${booking.time}. Adresa: ${address}. Tesime se na Vas.`;
 
     return this.sendSms(booking.phone, text);
