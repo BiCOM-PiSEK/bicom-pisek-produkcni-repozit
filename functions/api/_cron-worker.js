@@ -14,52 +14,72 @@ export default {
   async scheduled(event, env, ctx) {
     console.log(`[cron-worker] Triggered by schedule: ${event.cron}`);
 
-    switch (event.cron) {
-      // 1. reminders-dispatch (every hour)
-      case "0 */1 * * *":
-      case "0 * * * *":
-        ctx.waitUntil(cronReminders.scheduled(event, env, ctx));
-        break;
+    // Parsujeme minutu a hodinu z cron výrazu (první dvě pole oddělená mezerami)
+    const parts = (event.cron || "").trim().split(/\s+/);
+    if (parts.length < 2) {
+      console.error(`[cron-worker] Neplatný cron řetězec: ${event.cron}`);
+      return;
+    }
 
-      // 2. instagram-sync (daily at 03:00)
-      case "0 3 * * *":
-        ctx.waitUntil(cronInstagram.scheduled(event, env, ctx));
-        break;
+    const minuta = parts[0];
+    const hodina = parts[1];
 
-      // 3. gdpr-anonymize (daily at 03:30)
-      case "30 3 * * *":
-        ctx.waitUntil(cronGdpr.scheduled(event, env, ctx));
-        break;
+    // Zjištění aktuálního dne v časovém pásmu Europe/Prague (např. 'Sun', 'Mon'...)
+    const den = new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      timeZone: 'Europe/Prague'
+    }).format(new Date());
 
-      // 4. geo-insights (weekly on Mondays at 04:00)
-      case "0 4 * * MON":
-      case "0 4 * * 1": // Standard UNIX Monday (0=SUN, 1=MON)
-      case "0 4 * * 2": // Cloudflare Monday (1=SUN, 2=MON)
-        ctx.waitUntil(cronGeo.scheduled(event, env, ctx));
-        break;
-
-      // 5. d1-backup (weekly on Sundays at 02:00)
-      case "0 2 * * SUN":
-      case "0 2 * * 0": // Standard UNIX Sunday
-      case "0 2 * * 7": // Standard UNIX Sunday (alternative)
-      case "0 2 * * 1": // Cloudflare Sunday (1=SUN, 2=MON)
+    // Rozhodování na základě minuty a hodiny (unikátní kombinace pro každou z 7 úloh)
+    // 1. Reminders (každou hodinu - hodina obsahuje '*' nebo '*/1')
+    if (minuta === '0' && (hodina === '*' || hodina === '*/1')) {
+      console.log(`[cron-worker] Spouštím reminders-dispatch`);
+      ctx.waitUntil(cronReminders.scheduled(event, env, ctx));
+    }
+    // 2. Backup (neděle 02:00)
+    else if (minuta === '0' && hodina === '2') {
+      if (den === 'Sun') {
+        console.log(`[cron-worker] Spouštím d1-backup (ověřeno: je neděle v Europe/Prague)`);
         ctx.waitUntil(cronBackup.scheduled(event, env, ctx));
-        break;
-
-      // 6. social-publish (daily at 08:00)
-      case "0 8 * * *":
-        ctx.waitUntil(cronSocial.scheduled(event, env, ctx));
-        break;
-
-      // 7. cashflow-alerts (weekly on Mondays at 09:00)
-      case "0 9 * * MON":
-      case "0 9 * * 1": // Standard UNIX Monday
-      case "0 9 * * 2": // Cloudflare Monday
+      } else {
+        console.log(`[cron-worker] Přeskakuji d1-backup (dnes je ${den}, očekává se Sun)`);
+      }
+    }
+    // 3. Instagram Sync (denně 03:00)
+    else if (minuta === '0' && hodina === '3') {
+      console.log(`[cron-worker] Spouštím instagram-sync`);
+      ctx.waitUntil(cronInstagram.scheduled(event, env, ctx));
+    }
+    // 4. GDPR Anonymize (denně 03:30)
+    else if (minuta === '30' && hodina === '3') {
+      console.log(`[cron-worker] Spouštím gdpr-anonymize`);
+      ctx.waitUntil(cronGdpr.scheduled(event, env, ctx));
+    }
+    // 5. Geo Insights (pondělí 04:00)
+    else if (minuta === '0' && hodina === '4') {
+      if (den === 'Mon') {
+        console.log(`[cron-worker] Spouštím geo-insights (ověřeno: je pondělí v Europe/Prague)`);
+        ctx.waitUntil(cronGeo.scheduled(event, env, ctx));
+      } else {
+        console.log(`[cron-worker] Přeskakuji geo-insights (dnes je ${den}, očekává se Mon)`);
+      }
+    }
+    // 6. Social Publish (denně 08:00)
+    else if (minuta === '0' && hodina === '8') {
+      console.log(`[cron-worker] Spouštím social-publish`);
+      ctx.waitUntil(cronSocial.scheduled(event, env, ctx));
+    }
+    // 7. Cashflow Alerts (pondělí 09:00)
+    else if (minuta === '0' && hodina === '9') {
+      if (den === 'Mon') {
+        console.log(`[cron-worker] Spouštím cashflow-alerts (ověřeno: je pondělí v Europe/Prague)`);
         ctx.waitUntil(cronCashflow.scheduled(event, env, ctx));
-        break;
-
-      default:
-        console.warn(`[cron-worker] No handler registered for schedule: ${event.cron}`);
+      } else {
+        console.log(`[cron-worker] Přeskakuji cashflow-alerts (dnes je ${den}, očekává se Mon)`);
+      }
+    }
+    else {
+      console.warn(`[cron-worker] Nebyl nalezen žádný handler pro minutu "${minuta}" a hodinu "${hodina}" (cron: ${event.cron})`);
     }
   }
 };
