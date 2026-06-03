@@ -15,6 +15,20 @@ V projektu pracujeme se dvěma vzdálenými repozitáři (remotes):
     *   **URL:** `https://github.com/MEVERIK-SOLUTION/bicom-pisek-produkcni-repozit.git`
     *   **Účel:** Vývojové a testovací prostředí pro jednotlivé vývojáře. Zde se provádí větvení a lokální testování. Větve se odsud posílají formou Pull Requestů do upstream repozitáře.
 
+### 1.1 Cloudflare deploy: Production vs Preview
+
+Nasazování celého projektu probíhá na Cloudflare Pages a dělí se na dva režimy:
+
+1.  **PRODUCTION (Produkční režim):**
+    *   **Větev:** `main` (automatické nasazení po sloučení Pull Requestu do upstreamu).
+    *   **Zdroj:** Hlavní repozitář organizace (`BiCOM-PiSEK/bicom-pisek-produkcni-repozit`).
+    *   **Nastavení:** `Automatic deployments = Enabled`, `Build output directory = public`, `Build system = v3`.
+    *   **Cílové domény:** Obsluhuje obě produkční domény — kanonickou `bicom-pisek.cz` (s www) i výchozí `bicom-pisek.pages.dev`. Obě tyto domény jsou živé a chráněné pomocí Cloudflare Access.
+2.  **PREVIEW (Staging / Testovací režim):**
+    *   **Větve:** Všechny ne-produkční větve a otevřené Pull Requesty (`Preview branch = All non-production branches`).
+    *   **Zdroj:** Automaticky z jakékoliv větve/PR nasměrované do upstreamu.
+    *   **Účel:** Každá nová větev a každý Pull Request automaticky získá unikátní preview URL (např. `https://<hash>.<projekt>.pages.dev`). Toto prostředí slouží jako bezplatný staging pro testování frontendu a funkcí před sloučením do produkce.
+
 ---
 
 ## 2. Nastavení lokálního prostředí

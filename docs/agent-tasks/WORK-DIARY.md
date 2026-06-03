@@ -591,7 +591,7 @@
 - **Aktualizace a plain-text konverze CLAUDE.md:** Soubor CLAUDE.md v rootu byl převeden z RTF do čistého plain-text Markdownu v UTF-8. Zastaralý read-only auditní režim v sekci "REŽIM PRÁCE" byl nahrazen pravidly pro aktivní vývoj. Byla přidána nová sekce "Úložiště" s odkazem na mapu úložišť.
 - **Vytvoření mapy úložišť (docs/REPO_MAPA_ULOZIST.md):** Vytvořen detailní registr všech lokálních (inbox, zpracované), kódových (Gity) a cloudových (D1, R2, KV) úložišť a složek v projektu.
 - **Doplnění chybějících S0 secrets:** V `docs/API_KEYS_CHECKLIST.md` byly doplněny nově zavedené proměnné (`SECRET_MAINTENANCE_PIN`, `TURNSTILE_SITEKEY`, `TURNSTILE_SECRET_KEY`, `SECRET_CF_ACCESS_TEAM`, `SECRET_CF_ACCESS_AUD` a `ENV`) s popisem a přiřazením k cílovým Pages/Workers.
-- **Oprava Git workflow:** V `docs/GIT_WORKFLOW.md` byla opravena mylná informace o napojení forku na Cloudflare Pages. Dokumentace nově správně odráží, že Pages jsou nasazovány přímo z upstream repozitáře a obsluhují chráněný vývoj i produkci.
+- **Oprava a doplnění Git workflow:** V `docs/GIT_WORKFLOW.md` byla opravena mylná informace o napojení forku na Cloudflare Pages. Nově byla doplněna sekce „Cloudflare deploy: Production vs Preview“ vysvětlující chování produkčního a testovacího (staging) prostředí.
 - **Aktualizace README.md:** Soubor README.md byl nahrazen opraveným zněním od provozovatele a doplněn o odkaz na mapu úložišť.
 - **AI_AGENT_PROMPT.md:** Doplněno povinné čtení `CLAUDE.md` na začátku každé práce AI agenta.
 
@@ -604,7 +604,7 @@
 - `docs/DATABASE_MANAGEMENT.md` — Oprava počtu tabulek (14)
 - `docs/GAP_ANALYSIS_OPPORTUNITIES.md` — Oprava počtu tabulek (14)
 - `docs/GEO_AEO.md` — Oprava odkazu na doménu v JSON-LD schématech
-- `docs/GIT_WORKFLOW.md` — Oprava principu nasazování z upstreamu a preview
+- `docs/GIT_WORKFLOW.md` — Oprava principu nasazování, doplnění sekce o Cloudflare deploy
 - `docs/HANDOVER.md` — Sjednocení domény a názvu D1
 - `.github/AI_AGENT_PROMPT.md` — Přidán odkaz na povinné čtení CLAUDE.md
 - `docs/agent-tasks/WORK-DIARY.md` — Zápis nového běhu
@@ -619,5 +619,7 @@
 - [x] Vytvořen nový soubor docs/REPO_MAPA_ULOZIST.md s kompletní strukturou
 - [x] Opraven a doplněn checklist klíčů a secrets (API_KEYS_CHECKLIST.md)
 - [x] Opraven GIT_WORKFLOW.md a AI_AGENT_PROMPT.md
+- [x] Doplněn Cloudflare deploy model do GIT_WORKFLOW.md
 - [x] Vše odesláno do větve docs/sprint-cleanup
+- [x] Otevřen Pull Request do upstream/main
 
