@@ -56,6 +56,7 @@ npm run dev
 | `docs/STRIPE_INTEGRATION.md` | Platební brána (volitelná funkce) |
 | `docs/HANDOVER.md` | Postup předání klientce |
 | `docs/GAP_ANALYSIS_OPPORTUNITIES.md` | Technický dluh a příležitosti |
+| `docs/REPO_MAPA_ULOZIST.md` | Registr a mapa všech lokálních, online i cloudových úložišť projektu |
 | `docs/audit/` | Generální audit M1–M7 (architektura, kód, infra, integrace, bezpečnost, UX, SEO) |
 
 ---
