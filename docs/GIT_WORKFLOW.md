@@ -10,10 +10,24 @@ V projektu pracujeme se dvěma vzdálenými repozitáři (remotes):
 
 1.  **Upstream (Hlavní repozitář organizace):**
     *   **URL:** `https://github.com/BiCOM-PiSEK/bicom-pisek-produkcni-repozit.git`
-    *   **Účel:** Hlavní zdroj pravdy (Source of Truth) pro produkční nasazení. Z větve `main` tohoto repozitáře se provádí ostrý deploy na produkční doménu `bicom-pisek.cz` (resp. `bicompisek.cz`).
+    *   **Účel:** Hlavní zdroj pravdy (Source of Truth) pro produkční nasazení. Z větve `main` tohoto repozitáře se provádí automatický deploy na Cloudflare Pages. Ten obsluhuje obě produkční domény: kanonickou **`bicom-pisek.cz`** (resp. s www) i výchozí doménu **`bicom-pisek.pages.dev`**. Obě tyto domény jsou produkční a chráněné pomocí Cloudflare Access (vyžadují přihlášení).
 2.  **Origin (Osobní fork vývojáře):**
     *   **URL:** `https://github.com/MEVERIK-SOLUTION/bicom-pisek-produkcni-repozit.git`
-    *   **Účel:** Vývojové a testovací prostředí. Zde se provádí větvení a testování. Větev `main` tohoto forku je propojena s Cloudflare Pages pro automatický preview build na adrese `https://bicom-pisek.pages.dev/`.
+    *   **Účel:** Vývojové a testovací prostředí pro jednotlivé vývojáře. Zde se provádí větvení a lokální testování. Větve se odsud posílají formou Pull Requestů do upstream repozitáře.
+
+### 1.1 Cloudflare deploy: Production vs Preview
+
+Nasazování celého projektu probíhá na Cloudflare Pages a dělí se na dva režimy:
+
+1.  **PRODUCTION (Produkční režim):**
+    *   **Větev:** `main` (automatické nasazení po sloučení Pull Requestu do upstreamu).
+    *   **Zdroj:** Hlavní repozitář organizace (`BiCOM-PiSEK/bicom-pisek-produkcni-repozit`).
+    *   **Nastavení:** `Automatic deployments = Enabled`, `Build output directory = public`, `Build system = v3`.
+    *   **Cílové domény:** Obsluhuje obě produkční domény — kanonickou `bicom-pisek.cz` (s www) i výchozí `bicom-pisek.pages.dev`. Obě tyto domény jsou živé a chráněné pomocí Cloudflare Access.
+2.  **PREVIEW (Staging / Testovací režim):**
+    *   **Větve:** Všechny ne-produkční větve a otevřené Pull Requesty (`Preview branch = All non-production branches`).
+    *   **Zdroj:** Automaticky z jakékoliv větve/PR nasměrované do upstreamu.
+    *   **Účel:** Každá nová větev a každý Pull Request automaticky získá unikátní preview URL (např. `https://<hash>.<projekt>.pages.dev`). Toto prostředí slouží jako bezplatný staging pro testování frontendu a funkcí před sloučením do produkce.
 
 ---
 
@@ -37,11 +51,11 @@ Vývoj každé funkce či opravy se řídí striktním postupem od lokální vě
 
 ```
  [1. Vývoj]                   [2. Kontrola & Test]                [3. Produkce]
- Lokální větev               Fork (origin/main)                  Organizace (upstream/main)
- ─────────────               ──────────────────                  ──────────────────────────
+ Lokální větev               Fork (origin)                       Organizace (upstream/main)
+ ─────────────               ─────────────                       ──────────────────────────
  agent/ag-w2-XX  ──push──▶   MEVERIK-SOLUTION                    BiCOM-PiSEK
-                             ├── PR na main                      └── PR z forku do main
-                             └── Live Preview (Pages dev)        └── Ostrý start (Pages prod)
+                             └── PR do upstream/main             ├── Automatický build (Pages)
+                                                                 └── Ostrý start (Pages prod)
 ```
 
 ### Krok 1: Lokální vývoj
@@ -60,21 +74,17 @@ Po dokončení práce a lokálním otestování se změny odešlou na Váš osob
 git push origin agent/ag-w2-05-asset-strategy
 ```
 
-### Krok 3: Pull Request a testování v preview (Origin/main)
-1. Přejděte na GitHub do svého forku `MEVERIK-SOLUTION/bicom-pisek-produkcni-repozit`.
-2. Otevřete Pull Request z vaší větve `agent/ag-w2-05-asset-strategy` do **své** větve `main`.
-3. Sloučením (merge) tohoto PR se spustí automatický build na Cloudflare Pages, který nasadí kód na testovací doménu `https://bicom-pisek.pages.dev/`.
-4. Proveďte vizuální a funkční kontrolu na testovacím webu.
+### Krok 3: Pull Request do Upstreamu
+1. Přejděte na GitHub do hlavního repozitáře `BiCOM-PiSEK/bicom-pisek-produkcni-repozit`.
+2. Otevřete Pull Request ze své větve `agent/ag-w2-05-asset-strategy` (nacházející se na vašem forku `origin`) do větve `main` hlavního repozitáře `upstream`.
+3. Cloudflare Pages automaticky generuje náhledy pro jednotlivé PR (Preview Deployments), kde lze změny bezpečně zkontrolovat ještě před sloučením do produkce.
 
-### Krok 4: Synchronizace a nasazení na produkci (Upstream/main)
-Jakmile jsou změny otestovány a schváleny, synchronizují se do hlavního repozitáře organizace.
-
-#### **Primární metoda (Přes GitHub Pull Request - Doporučeno):**
-1. Otevřete Pull Request na GitHubu z větve `main` (nebo přímo z vaší agent větve) Vašeho osobního forku `MEVERIK-SOLUTION` do větve `main` repozitáře organizace `BiCOM-PiSEK`.
-2. Schválením a sloučením tohoto PR se automaticky spustí produkční nasazení na ostrou doménu.
+### Krok 4: Synchronizace a nasazení na produkci
+1. Jakmile je Pull Request schválen a sloučen (merged) do větve `main` v `upstream`, spustí se produkční deployment na Cloudflare Pages.
+2. Změny se okamžitě projeví na chráněných produkčních doménách `bicom-pisek.cz` i `bicom-pisek.pages.dev`.
 
 #### **Záložní metoda (Přes příkazovou řádku):**
-Pokud je potřeba provést rychlou synchronizaci přímo z terminálu:
+Pokud je potřeba provést rychlou synchronizaci přímo z terminálu bez Pull Requestu (pouze pro administrátora s přímým přístupem do upstreamu):
 ```bash
 # 1. Přepněte se na lokální větev main
 git checkout main

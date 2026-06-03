@@ -82,7 +82,7 @@ graph TD
 | 1 | Frontend | CF Pages — HTML5 + Tailwind + Vanilla ES6 (SPA router) | Prémiový portál „Quiet Luxury", fluidní bez přeblikávání | TTFB < 50 ms, LCP < 500 ms |
 | 2 | Logika | CF Workers (V8 isolates, ES modules) | API `/api/book`, `/api/newsletter`, `/api/chat`, `/api/admin/copywriter` | bez Node.js závislostí |
 | 3 | AI | CF Workers AI (`@cf/meta/llama-3-8b-instruct`) | Chatbot „AI Rádce" + admin copywriter (audio→blog) | edge inference |
-| 4 | Data | CF D1 (distribuovaná SQLite) | `bookings`, `newsletter_subscribers`, `blog_posts`, `geo_leads`, `audit_log` | field-level AES-GCM |
+| 4 | Data | CF D1 (distribuovaná SQLite) | 14 tabulek (vč. `bookings`, `newsletter_subscribers`, `blog_posts`, `services`...) | field-level AES-GCM |
 | 5 | Storage | CF R2 (S3-kompatibilní) | videa, fotogalerie, certifikáty — bez egress poplatků | — |
 | 6 | Cache/Stav | CF KV | session tokeny, rate-limit čítače, cache JSON-LD | — |
 | 7 | Integrace | Google Calendar/Gmail, Resend, Meta Graph, SMS brána | viz `03_Workers_automatizace_mapy.md` | OAuth2 / Service Account |
@@ -142,7 +142,7 @@ Terapeutka namluví poznámku → přepis (klávesnice iPhone) → vloží do ad
 |-----------|---------|----|------|
 | `local` | `wrangler pages dev` | D1 `--local` | vývoj |
 | `preview` | CF Pages preview (per PR) | D1 dev | review PR |
-| `production` | CF Pages (`bicompisek.cz`) | D1 `bicom-db-prod` | ostrý provoz |
+| `production` | CF Pages (`bicom-pisek.cz`) | D1 `bicom-pisek-db` | ostrý provoz |
 
 Deploy a synchronizace probíhá podle přesných pravidel popsaných v [docs/GIT_WORKFLOW.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/GIT_WORKFLOW.md) (Continuous Deployment z větve `main` produkčního repa).
 
@@ -293,9 +293,9 @@ Příkazy:
 ```bash
 # init lokálně i na produkci
 npx wrangler d1 execute DB --local  --file=db/schema.sql
-npx wrangler d1 execute bicom-db-prod --remote --file=db/schema.sql
+npx wrangler d1 execute bicom-pisek-db --remote --file=db/schema.sql
 # migrace
-npx wrangler d1 migrations apply bicom-db-prod --remote
+npx wrangler d1 migrations apply bicom-pisek-db --remote
 ```
 
 ## 5. Zálohy a obnova
@@ -491,7 +491,7 @@ Každá veřejná URL/sekce má:
 - `<title>` ve formátu `{Služba/téma} {Město} | Bicom Písek`
 - `<meta name="description">` 150–160 znaků, jazykem cílovky, s lokalitou.
 - **Open Graph** + **Twitter Card** (titulek, popis, R2 obrázek 1200×630).
-- **Canonical** vždy na `https://bicompisek.cz/...`.
+- **Canonical** vždy na `https://bicom-pisek.cz/...`.
 - **JSON-LD** dle `03_GEO_AEO/02` (LocalBusiness, Person, Service, FAQPage, Article).
 - `lang="cs"`, `hreflang="cs-cz"`.
 - Sémantické HTML5 (`<article>`, `<section>`, `<nav>`, nadpisová hierarchie H1→H2→H3 s klíčovými slovy).
@@ -500,7 +500,7 @@ Každá veřejná URL/sekce má:
 ```html
 <title>Odvykání kouření Písek a Strakonice | Bicom Písek</title>
 <meta name="description" content="Antinikotinový program metodou Bicom v Písku. Šetrná podpora při odvykání kouření i vapingu. Transparentní ceny, objednání online. Dojezd ze Strakonic 20 min.">
-<link rel="canonical" href="https://bicompisek.cz/sluzby/odvykani-koureni">
+<link rel="canonical" href="https://bicom-pisek.cz/sluzby/odvykani-koureni">
 ```
 
 ## 6. Přístupnost (a11y)
@@ -556,7 +556,7 @@ Frontend odpovídá < 200 ms; těžké operace běží na pozadí.
 - **Cron**: `instagram-sync` (24 h, sdílený IG → DB), `reminders-dispatch` (SMS GoSMS), `gdpr-anonymize`, `geo-insights`, `social-publish` (naplánované sdílení), `d1-backup`.
 
 ### C. State management & storage (D1 & R2)
-- **D1** = sdílený SSoT pro obě majitelky: `bookings`, `blog_posts`, `services`, + `operators`, `calendar_slots`, `social_posts`, `marketing_campaigns`. Řeší **race conditions** (§7).
+- **D1** = sdílený SSoT pro obě majitelky: 14 tabulek (vč. `bookings`, `blog_posts`, `services`, `operators`, `calendar_slots`, `social_posts`, `marketing_campaigns` atd.). Řeší **race conditions** (§7).
 - **R2** = média (zero egress): automaticky stažené fotky z Instagramu, streamovaná videa.
 
 ### D. Kognitivní vrstva pro sjednocení výstupů (Workers AI) — nejzásadnější prvek

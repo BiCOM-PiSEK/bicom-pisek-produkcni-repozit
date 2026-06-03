@@ -7,7 +7,7 @@
 
 | # | Mezera / příležitost | Prio | Dopad | Doporučení |
 |---|---|---|---|---|
-| A1 | **D1 schéma nebylo nasazené** (0 tabulek) | 🔴 | Web/admin neměl kam ukládat data | ✅ **VYŘEŠENO dnes** — kanonické `db/schema.sql` (13 tabulek) + 11 služeb + 6 článků nasazeno naživo. Přidej `npm run db:init:prod` do CI. |
+| A1 | **D1 schéma nebylo nasazené** (0 tabulek) | 🔴 | Web/admin neměl kam ukládat data | ✅ **VYŘEŠENO dnes** — kanonické `db/schema.sql` (14 tabulek) + 11 služeb + 6 článků nasazeno naživo. Přidej `npm run db:init:prod` do CI. |
 | A2 | **Bez automatické zálohy D1** | 🔴 | Ztráta dat = nevratná | Denní `wrangler d1 export` → R2 `bicom-multimedia/backups/` přes `bicom-cron-worker`. |
 | A3 | **GDPR anonymizační cron neověřen** | 🔴 | Riziko porušení čl. 9 GDPR (retence) | Implementovat a otestovat anonymizaci po 30 dnech (SQL je v DB management doc), logovat do `audit_log`. |
 | A4 | **Migrace bez verzování stavu** | 🟠 | Drift mezi repo a produkcí | Tabulka/řádek `schema_version`, každá migrace `migrations/NNNN_*.sql` + zápis do `audit_log`. |

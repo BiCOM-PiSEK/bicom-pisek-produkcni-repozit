@@ -81,12 +81,12 @@ GEO/AEO je čistě **pull** — nevnucujeme se, ale staneme se nejlepší odpov�
 {
   "@context": "https://schema.org",
   "@type": ["MedicalBusiness", "HealthAndBeautyBusiness", "LocalBusiness"],
-  "@id": "https://bicompisek.cz/#business",
+  "@id": "https://bicom-pisek.cz/#business",
   "name": "Bicom Písek",
   "description": "Biorezonanční metoda Bicom Optima v Písku. Komplementární, šetrná podpora pro dospělé i děti. Doplněk klasické medicíny.",
-  "url": "https://bicompisek.cz",
+  "url": "https://bicom-pisek.cz",
   "telephone": "+420XXXXXXXXX",
-  "image": "https://bicompisek.cz/assets/img/ordinace.jpg",
+  "image": "https://bicom-pisek.cz/assets/img/ordinace.jpg",
   "priceRange": "$$",
   "address": {
     "@type": "PostalAddress",
@@ -122,7 +122,7 @@ GEO/AEO je čistě **pull** — nevnucujeme se, ale staneme se nejlepší odpov�
   "@context": "https://schema.org",
   "@type": "Service",
   "serviceType": "Biorezonanční podpora — {{nazev_sluzby}}",
-  "provider": { "@id": "https://bicompisek.cz/#business" },
+  "provider": { "@id": "https://bicom-pisek.cz/#business" },
   "areaServed": { "@type": "City", "name": "Písek" },
   "description": "{{strucny_popis — komplementární, bez lecebnych tvrzeni}}",
   "offers": {
@@ -164,8 +164,8 @@ GEO/AEO je čistě **pull** — nevnucujeme se, ale staneme se nejlepší odpov�
   "image": "{{image_url}}",
   "datePublished": "{{published_at}}",
   "author": { "@type": "Organization", "name": "Bicom Písek" },
-  "publisher": { "@id": "https://bicompisek.cz/#business" },
-  "mainEntityOfPage": "https://bicompisek.cz/magazin/{{slug}}"
+  "publisher": { "@id": "https://bicom-pisek.cz/#business" },
+  "mainEntityOfPage": "https://bicom-pisek.cz/magazin/{{slug}}"
 }
 ```
 
@@ -175,9 +175,9 @@ GEO/AEO je čistě **pull** — nevnucujeme se, ale staneme se nejlepší odpov�
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Domů", "item": "https://bicompisek.cz/" },
-    { "@type": "ListItem", "position": 2, "name": "Služby", "item": "https://bicompisek.cz/sluzby" },
-    { "@type": "ListItem", "position": 3, "name": "{{nazev}}", "item": "https://bicompisek.cz/sluzby/{{slug}}" }
+    { "@type": "ListItem", "position": 1, "name": "Domů", "item": "https://bicom-pisek.cz/" },
+    { "@type": "ListItem", "position": 2, "name": "Služby", "item": "https://bicom-pisek.cz/sluzby" },
+    { "@type": "ListItem", "position": 3, "name": "{{nazev}}", "item": "https://bicom-pisek.cz/sluzby/{{slug}}" }
   ]
 }
 ```

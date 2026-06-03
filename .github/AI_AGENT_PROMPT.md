@@ -2,6 +2,8 @@
 
 Toto je systémový prompt a bezpečnostní vrstva pro všechny agenty (Claude Code, Gemini, Copilot), kteří vstoupí do tohoto repozitáře.
 
+*   **DŮLEŽITÉ:** Každý agent na začátku práce povinně přečte [CLAUDE.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/CLAUDE.md) a řídí se jím.
+
 ## 1. Upstream Workflow (Nadřazenost vývojového balíku)
 Tento repozitář je aplikační a implementační vrstva. NENÍ to místo pro vymýšlení strategie nebo vizuální DNA. 
 *   **Absolutní zdroj pravdy:** Všechny zásadní architektonické, strategické a designové změny musí být napřed provedeny a schváleny v nadřazeném lokálním adresáři `MEVERIK_vyvojovy_balik`.
