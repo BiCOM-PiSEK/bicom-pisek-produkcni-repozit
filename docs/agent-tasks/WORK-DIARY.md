@@ -779,3 +779,33 @@
 - [x] Statický index.html načten přes `env.ASSETS.fetch`
 - [x] Záznam zapsán do WORK-DIARY.md
 
+---
+
+## 2026-06-03 S1 — /admin redirect & ADR-001 — Fáze B: Deployment, testování a architektonické rozhodnutí
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** docs/adr-001 (Sloučeno do main přes self-merge)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Deployment a verifikace /admin redirectu (Úkol 1):**
+  - Pull Request #17 (`fix/s1-admin-redirect`) byl úspěšně squash-sloučen do `BiCOM-PiSEK/main` přes GitHub CLI.
+  - Provedena kompletní synchronizace a pročištění lokálního i vzdáleného repozitáře (smazány dočasné větve a srovnán fork `origin/main` s `upstream/main`).
+  - **Bezpečnostní test:** Proveden `curl -sI -H "Accept: text/html" https://bicom-pisek.pages.dev/admin/kalendar` bez přihlášení. Výsledek potvrdil, že požadavek byl správně zachycen a odmítnut/přesměrován (HTTP 302 na přihlašovací portál Cloudflare Access), což prokazuje, že SPA fallback nezpůsobil žádnou bezpečnostní trhlinu a klientský shell `/admin/index.html` se nepřihlášenému uživateli nevrátí.
+- **Tvorba ADR-001: Cloudflare-first produkční výseč (Úkol 2):**
+  - Vytvořen nový architektonický dokument `docs/adr/ADR-001-cloudflare-first.md`.
+  - Tento dokument zakotvuje, že celá produkční výseč (včetně administrace a databází) zůstane plně a čistě na Cloudflare Pages + Workers bez zavádění dalších služeb (Firebase, Google Cloud Run), a definuje rozhodovací mapu, kdy v budoucnu případně sáhnout mimo Cloudflare.
+  - Vytvořen Pull Request a okamžitě self-mergnut do `BiCOM-PiSEK/main`.
+
+### Soubory vytvořené
+- `docs/adr/ADR-001-cloudflare-first.md` — architektonické rozhodnutí
+
+### Soubory upravené
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Sloučen PR #17, uklizeny větve a synchronizován fork
+- [x] Ověřen bezpečnostní stav po nasazení (HTTP 302 přesměrování z CF Access)
+- [x] Vytvořen dokument ADR-001 se schváleným textem a zařazen do docs/adr/
+- [x] Proveden self-merge dokumentace a úklid větve `docs/adr-001`
+- [x] Záznam zapsán do WORK-DIARY.md
+
