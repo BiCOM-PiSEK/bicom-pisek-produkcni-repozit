@@ -733,3 +733,49 @@
 - [x] Vytvořen PR #16 pro větev `fix/s1-adresa`
 - [x] Staré souřadnice (u nádraží) nahrazeny novými správnými souřadnicemi pro Vladislavova 201 v celém repozitáři
 
+---
+
+## 2026-06-03 S1 — /admin redirect (nález C-24) — Fáze A: Čistá diagnóza
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** agent/ag-w3-s1-admin-redirect-diagnose (PR schválen a sloučen dodatečně)
+**Status:** ✅ Diagnostika dokončena
+
+### Co bylo zjištěno
+- **Root Cause nefunkčnosti refreshe a deep-linků na `/admin/*`:**
+  1. **Priorita routování v Cloudflare Pages:** Pages zpracovávají požadavky v pořadí `Statické soubory -> Pages Functions (/functions) -> _redirects`. Protože existuje složka `functions/admin/` s middlewarem a API endpointy, jakýkoliv požadavek na `/admin/*` je zachycen Pages Functions. Pravidla v `public/_redirects` se pro tyto cesty vůbec neuplatní.
+  2. **Chování middleware a chybějící handlery:** Pokud uživatel přistoupí na cestu bez specifické funkce (např. `/admin/kalendar`), middleware `functions/admin/_middleware.js` provede auth (které v případě chybějící cookie vrátí 401 JSON odpověď) a pak zavolá `next()`. Vzhledem k tomu, že pro tuto cestu neexistuje konkrétní handler (např. `kalendar.js` neexistuje) a v `/public` neexistuje statický soubor `/admin/kalendar`, Pages vrátí standardní 404, přičemž zcela přeskočí rewrite pravidlo z `_redirects`.
+  3. **Kolize API a klientských cest:** Pokud uživatel přistoupí na cestu, která má shodný API handler (např. `/admin/bookings`), Pages Function se vykoná a vrátí syrový JSON z databáze namísto vykreslení klientského SPA `/admin/index.html`.
+- **Veřejný web vs. Admin:** Veřejné deep-linky (např. `/gdpr` nebo `/sluzby/biorezonance-pisek`) fungují správně, protože pro ně neexistují žádné Pages Functions a uplatní se pravidlo `/* /index.html 200` v `_redirects`.
+- **Riziko vůči Admin Auth:** Oprava routování nesmí oslabit zabezpečení. Každý přístup na `/admin/*` (kromě statických assetů a index.html) musí být nadále striktně chráněn přes Cloudflare Access a middleware. Přepsání neexistujících cest na `/admin/index.html` je bezpečné, pokud se provede až po úspěšném ověření JWT tokenu, protože samotný klientský shell neobsahuje citlivá data.
+
+---
+
+## 2026-06-03 S1 — /admin redirect (nález C-24) — Fáze B: Oprava (SPA fallback)
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/s1-admin-redirect (PR připraven)
+**Status:** ✅ Hotovo (Čeká na review diffu)
+
+### Co bylo implementováno
+- **Oprava routování v `functions/admin/_middleware.js` (V3)**:
+  - Implementována pomocná asynchronní funkce `handleSpaFallback`, která kontroluje podmínky pro přepis klientských URL na klientský shell `/admin/index.html`.
+  - Přepis je spuštěn výhradně tehdy, pokud:
+    1. Metoda požadavku je `GET`.
+    2. Hlavička `Accept` obsahuje `'text/html'` (prohlížeč žádá o stránku, nikoli o API).
+    3. Cesta neodpovídá žádnému z 8 existujících API handlerů (`/admin/activity`, `bookings`, `copywriter`, `dashboard`, `geo`, `invoices`, `payments`, `settings`).
+    4. Cesta neodpovídá statickému assetu (obrázky, CSS, JS).
+  - Přepis se spouští v dev módu i v produkčním módu **až po úspěšném ověření JWT tokenu**.
+  - Získání statického assetu `/admin/index.html` z middleware je vyřešeno přes interní `env.ASSETS.fetch` s plným předáním request kontextu a zachováním CORS hlaviček.
+- **Bezpečnostní audit:** Ověřeno, že nepřihlášený uživatel bez validní `CF_Authorization` cookie / JWT tokenu je middlewarem okamžitě zablokován a obdrží 401 JSON chybovou odpověď. Klientský shell `/admin/index.html` se vrátí pouze autorizovanému uživateli.
+
+### Soubory upravené
+- `functions/admin/_middleware.js` — implementace `handleSpaFallback` a napojení do auth flow
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Vytvořena větev `fix/s1-admin-redirect`
+- [x] Úprava provedena výhradně v `functions/admin/_middleware.js`
+- [x] SPA fallback spuštěn pouze po úspěšné autentizaci
+- [x] Vyloučeno všech 8 API handlerů a statické assety z přepisování
+- [x] Statický index.html načten přes `env.ASSETS.fetch`
+- [x] Záznam zapsán do WORK-DIARY.md
+
