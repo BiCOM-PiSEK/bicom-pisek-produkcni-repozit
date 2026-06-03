@@ -10,7 +10,7 @@
 **Status:** ✅ Hotovo
 
 ### Co bylo implementováno
-- Kompletní D1 databázové schéma (13 tabulek) s CHECK constrainty, indexy a FK
+- Kompletní D1 databázové schéma (14 tabulek) s CHECK constrainty, indexy a FK
 - 5 číslovaných migrací (0001–0005)
 - Seed data pro 11 reálných služeb Bicom
 - Šifrovací vrstva `DataCrypt` (AES-GCM 256-bit, Web Crypto API)

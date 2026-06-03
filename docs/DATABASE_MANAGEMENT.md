@@ -8,7 +8,7 @@
 | Vrstva | Zdroj | Identifikátor | Stav |
 |---|---|---|---|
 | Účet | Cloudflare | `MEVERIK STUDIO` (b99c0658…) | aktivní |
-| Databáze | D1 | `bicom-pisek-db` (c04cb289-2ff4-45d7-9fa0-3243c34c3abe) | **13 tabulek nasazeno** |
+| Databáze | D1 | `bicom-pisek-db` (c04cb289-2ff4-45d7-9fa0-3243c34c3abe) | **14 tabulek nasazeno** |
 | Úložiště | R2 | `bicom-multimedia` | aktivní |
 | Cache | KV | `bicom-pisek-cache` | aktivní |
 | Web/API | Worker | `bicom-pisek` | nasazen |
@@ -18,7 +18,7 @@
 
 Před dnešním zásahem měla `bicom-pisek-db` **0 tabulek** — kanonické schéma z repa (`db/schema.sql`) nebylo nikdy aplikováno na produkci. To byla hlavní mezera; nyní je odstraněna a databáze je v souladu s repem (single source of truth).
 
-## 2. Datový model — 13 tabulek (přesně dle `db/schema.sql`)
+## 2. Datový model — 14 tabulek (přesně dle `db/schema.sql`)
 
 Konvence: PK je `id TEXT` (generuje aplikace), časy `TIMESTAMP DEFAULT CURRENT_TIMESTAMP`, citlivá pole mají sufix `_enc` (AES-GCM, base64). D1/SQLite — FK definované, ale plně se vynucují jen při zapnutém `PRAGMA foreign_keys`.
 
@@ -108,4 +108,4 @@ Schéma je idempotentní (`CREATE TABLE IF NOT EXISTS`). D1 už eviduje tabulku 
 - Cookie consent gating před spuštěním měřicích kódů.
 
 ## 7. Poznámka k dnešnímu nasazení
-Schéma bylo nasazeno ve dvou krocích: nejprve zjednodušený odhad, poté **kompletní reset na přesné kanonické `db/schema.sql`** z repa (13 tabulek). Aktuální stav D1 = přesná shoda s repem + reálný seed služeb. Žádná odchylka od „single source of truth".
+Schéma bylo nasazeno ve dvou krocích: nejprve zjednodušený odhad, poté **kompletní reset na přesné kanonické `db/schema.sql`** z repa (14 tabulek). Aktuální stav D1 = přesná shoda s repem + reálný seed služeb. Žádná odchylka od „single source of truth".

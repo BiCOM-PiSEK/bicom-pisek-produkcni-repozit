@@ -4,7 +4,7 @@
 >
 > **Verze:** 1.0 (Master Release) · **Standard:** MEVERIK STUDIO 2026 · **Datum:** 2026-05-25
 > **Provoz:** Bicom Písek (biorezonance Bicom Optima, Písek)
-> **Doména:** `bicompisek.cz` (primární) + 301 redirect z `bicom-pisek.cz`
+> **Doména:** `bicom-pisek.cz` (primární) + 301 redirect z `bicompisek.cz`
 
 ---
 
@@ -88,7 +88,7 @@ Bicom Písek je **hybridní serverless ekosystém** = prémiový prezentační w
 
 ## 7. Klíčová rozhodnutí (zamčená — neměnit bez souhlasu orchestrátora)
 
-- Doména: `bicompisek.cz` (bez pomlčky) jako kanonická; `bicom-pisek.cz` → 301 redirect.
+- Doména: `bicom-pisek.cz` (s pomlčkou) jako kanonická; `bicompisek.cz` → 301 redirect.
 - Stack: **Cloudflare-first** uvnitř širší MEVERIK STUDIO architektury (zálohy: Next.js, Neon.tech, GCP AI Garden, NVIDIA NIM).
 - Frontend produkce (předání klientovi): čistý HTML5 + Tailwind + Vanilla JS na CF Pages. Komplexní Vue/Nuxt verze zůstává v MEVERIK vývojovém repu.
 - Dva repozitáře: produkční (předatelný klientovi) + soukromý (know-how MEVERIK).
@@ -181,7 +181,7 @@ Produkční web Bicom Písek je **úzká, levná, předatelná** výseč širš�
 | 1 | Frontend | CF Pages — HTML5 + Tailwind + Vanilla ES6 (SPA router) | Prémiový portál „Quiet Luxury", fluidní bez přeblikávání | TTFB < 50 ms, LCP < 500 ms |
 | 2 | Logika | CF Workers (V8 isolates, ES modules) | API `/api/book`, `/api/newsletter`, `/api/chat`, `/api/admin/copywriter` | bez Node.js závislostí |
 | 3 | AI | CF Workers AI (`@cf/meta/llama-3-8b-instruct`) | Chatbot „AI Rádce" + admin copywriter (audio→blog) | edge inference |
-| 4 | Data | CF D1 (distribuovaná SQLite) | `bookings`, `newsletter_subscribers`, `blog_posts`, `geo_leads`, `audit_log` | field-level AES-GCM |
+| 4 | Data | CF D1 (distribuovaná SQLite) | 14 tabulek (vč. `bookings`, `newsletter_subscribers`, `blog_posts`, `services`...) | field-level AES-GCM |
 | 5 | Storage | CF R2 (S3-kompatibilní) | videa, fotogalerie, certifikáty — bez egress poplatků | — |
 | 6 | Cache/Stav | CF KV | session tokeny, rate-limit čítače, cache JSON-LD | — |
 | 7 | Integrace | Google Calendar/Gmail, Resend, Meta Graph, SMS brána | viz `03_Workers_automatizace_mapy.md` | OAuth2 / Service Account |
@@ -241,7 +241,7 @@ Terapeutka namluví poznámku → přepis (klávesnice iPhone) → vloží do ad
 |-----------|---------|----|------|
 | `local` | `wrangler pages dev` | D1 `--local` | vývoj |
 | `preview` | CF Pages preview (per PR) | D1 dev | review PR |
-| `production` | CF Pages (`bicompisek.cz`) | D1 `bicom-db-prod` | ostrý provoz |
+| `production` | CF Pages (`bicom-pisek.cz`) | D1 `bicom-pisek-db` | ostrý provoz |
 
 Deploy a synchronizace probíhá podle přesných pravidel popsaných v [docs/GIT_WORKFLOW.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/GIT_WORKFLOW.md) (Continuous Deployment z větve `main` produkčního repa).
 

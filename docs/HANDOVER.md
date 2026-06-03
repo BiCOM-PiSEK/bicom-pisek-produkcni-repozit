@@ -7,11 +7,11 @@
 |---------------------|-------------------|
 | Repo `bicom-repozit-produkce` (čistý produkční kód) | Soukromý dev repo, experimenty, univerzální knihovny |
 | Cloudflare účet/zóna (Pages, D1, R2, Workers, KV) | Vue/Nuxt varianta, FastAPI enginy, AI orchestrace |
-| Doména `bicompisek.cz` + DNS | Architektonické know-how, light BIM&CDE koncepce |
+| Doména `bicom-pisek.cz` + DNS | Architektonické know-how, light BIM&CDE koncepce |
 | Google Workspace + Business Profil | |
 
 ## 2. Handover checklist
-- [ ] **Doména a DNS (Cloudflare):** převod správy `bicompisek.cz` do bezplatného osobního CF účtu klientky (WAF, CDN, SSL přejdou automaticky, bez výpadku). Varianta: Member Access jako admin, nebo přímý domain transfer.
+- [ ] **Doména a DNS (Cloudflare):** převod správy `bicom-pisek.cz` (a případné typo-domény `bicompisek.cz`) do bezplatného osobního CF účtu klientky (WAF, CDN, SSL přejdou automaticky, bez výpadku). Varianta: Member Access jako admin, nebo přímý domain transfer.
 - [ ] **Infrastruktura:** převod práv k Pages, D1, Workers, R2, KV do účtu klientky.
 - [ ] **Google Workspace:** plná admin práva (Gmail, Kalendář, Business Profil); propojení Calendar API se Service Accountem zachovat.
 - [ ] **GitHub:** přidat účet klientky (nebo jejího IT) jako Owner org `BiCOM-PiSEK` s přístupem k produkčnímu repu (historie, dokumentace).
@@ -41,15 +41,15 @@
 > Vše, co je třeba zřídit/mít, než agenti začnou a než web pojede ostře. Klíče se NIKDY nedávají do repa — jen do CF Secrets / `.dev.vars`.
 
 ## 1. Domény a DNS
-- [ ] **`bicompisek.cz`** — koupit (registrátor: WEDOS / přes NIC.cz). Kanonická doména.
-- [ ] **`bicom-pisek.cz`** — již vlastněná (viz PDF v `Doména, DNS a Hosting/`) → 301 redirect na kanonickou.
+- [ ] **`bicom-pisek.cz`** — již vlastněná (viz PDF v `Doména, DNS a Hosting/`) → kanonická doména.
+- [ ] **`bicompisek.cz`** — koupit (registrátor: WEDOS / přes NIC.cz) → 301 redirect na kanonickou.
 - [ ] Nastavit nameservery na **Cloudflare**, ověřit zónu.
 - [ ] SSL/TLS = Full (strict), HSTS, automatické HTTPS.
 
 ## 2. Cloudflare (jádro)
 - [ ] Účet Cloudflare (zatím tvůj, později převod na Lenku).
 - [ ] **Pages** projekt napojený na produkční repo (auto-deploy z `main`).
-- [ ] **D1** databáze `bicom-db-prod` → zkopírovat `database_id` do `wrangler.toml`.
+- [ ] **D1** databáze `bicom-pisek-db` → zkopírovat `database_id` do `wrangler.toml`.
 - [ ] **R2** bucket `bicom-multimedia`.
 - [ ] **KV** namespace (cache/rate-limit) → `id` do `wrangler.toml`.
 - [ ] **Workers AI** povolené (Llama 3).
@@ -73,8 +73,8 @@
 | `SECRET_GEMINI_API_KEY` | Google AI Studio | API pro záložní kognitivní Gemini model |
 
 ## 4. Google Workspace (doporučeno, volitelné ~8 €/měs)
-- [ ] Workspace na `bicompisek.cz` (Business tarif).
-- [ ] Schránky `info@bicompisek.cz`, `admin@bicompisek.cz`.
+- [ ] Workspace na `bicom-pisek.cz` (Business tarif).
+- [ ] Schránky `info@bicom-pisek.cz`, `admin@bicom-pisek.cz`.
 - [ ] Google Cloud projekt + Service Account pro Calendar API (sdílet kalendář se SA e-mailem).
 
 ## 5. Sociální a lokální profily (NAP konzistence — znak po znaku stejné)
@@ -148,8 +148,8 @@
 ### B1 · Domény
 | Položka | Hodnota | Registrátor / správa | Vlastník účtu | Expirace |
 |---------|---------|----------------------|---------------|----------|
-| bicompisek.cz | (kanonická) | WEDOS (registrátor) / CZ.NIC | WHC s.r.o. → převést na klienta | doplnit |
-| bicom-pisek.cz | 301 → kanonická | WEDOS / CZ.NIC | WHC s.r.o. | doplnit |
+| bicom-pisek.cz | (kanonická) | WEDOS (registrátor) / CZ.NIC | WHC s.r.o. → převést na klienta | doplnit |
+| bicompisek.cz | 301 → kanonická | WEDOS / CZ.NIC | WHC s.r.o. | doplnit |
 | DNS zóna | nameservery CF | Cloudflare | účet CF | — |
 | CZ.NIC kontakt ID | C0018624831-CZ (WEDOS-B2M-739975) | CZ.NIC | Matej Kocanda / WHC | — |
 
@@ -157,7 +157,7 @@
 | Služba | Účel | Účet/owner | Kde žijí klíče |
 |--------|------|-----------|----------------|
 | Cloudflare (Pages, D1, R2, KV, Workers, Secrets) | jádro provozu | CF účet (→ klient) | CF dashboard / Secrets |
-| Google Workspace | e-maily, kalendář, disk | bicompisek.cz | Google admin |
+| Google Workspace | e-maily, kalendář, disk | bicom-pisek.cz | Google admin |
 | Google Cloud (Service Account, Cloud Run) | Calendar API, heavy | GCP projekt | GCP / Secrets |
 | GitHub Org BiCOM-PiSEK | kód | org owner (→ klient) | GitHub |
 | Sentry | error log | projekt | Sentry |
@@ -209,7 +209,7 @@
 ## 2. Co se předává
 | Rovina | Co | Jak |
 |--------|----|----|
-| Držitel domény | vlastnictví `bicompisek.cz` (+ `bicom-pisek.cz`) | změna držitele v CZ.NIC přes WEDOS |
+| Držitel domény | vlastnictví `bicom-pisek.cz` (+ `bicompisek.cz`) | změna držitele v CZ.NIC přes WEDOS |
 | DNS zóna | A/CNAME/MX/TXT, WAF, SSL | převod CF zóny do účtu klienta |
 | E-maily | MX + Google Workspace | předání Workspace adminu |
 
@@ -222,13 +222,13 @@
 
 ## 4. Postup — DNS zóna (Cloudflare)
 1. Klient si zřídí **bezplatný Cloudflare účet**.
-2. Varianta A — **Move zone**: zónu `bicompisek.cz` převést do účtu klienta (CF „Move to another account") → přejdou A/CNAME/MX/TXT, WAF, SSL, bez výpadku.
+2. Varianta A — **Move zone**: zónu `bicom-pisek.cz` (a případně `bicompisek.cz`) převést do účtu klienta (CF „Move to another account") → přejdou A/CNAME/MX/TXT, WAF, SSL, bez výpadku.
    Varianta B — **Member access**: pozvat klienta jako administrátora do stávající zóny (rychlejší, vlastnictví zůstává u tebe).
 3. Ověřit po převodu: web odpovídá, SSL aktivní (Full strict), 301 z `bicom-pisek.cz` funguje, MX (Workspace) sedí, žádné chyby v DNS.
 
 ## 5. Kontrolní checklist předání domény
-- [ ] Držitel `bicompisek.cz` = klient (CZ.NIC), auto-renew zapnuto.
-- [ ] Držitel `bicom-pisek.cz` = klient, 301 redirect funguje.
+- [ ] Držitel `bicom-pisek.cz` = klient (CZ.NIC), auto-renew zapnuto.
+- [ ] Držitel `bicompisek.cz` = klient, 301 redirect funguje.
 - [ ] Nameservery na Cloudflare, zóna v účtu klienta (nebo member access).
 - [ ] SSL/TLS Full (strict), HSTS, automatické HTTPS.
 - [ ] MX/SPF/DKIM/DMARC pro Workspace ověřeny (e-maily chodí).
