@@ -8,7 +8,7 @@
   "telephone": "+420000000000",
   "priceRange": "$$",
   "address": { "@type": "PostalAddress", "streetAddress": "Vladislavova 201 (technologický park)", "addressLocality": "Písek", "postalCode": "397 01", "addressCountry": "CZ" },
-  "geo": { "@type": "GeoCoordinates", "latitude": "49.3088", "longitude": "14.1475" },
+  "geo": { "@type": "GeoCoordinates", "latitude": "49.3134106", "longitude": "14.1375869" },
   "areaServed": [
     { "@type": "City", "name": "Písek" }, { "@type": "City", "name": "Strakonice" },
     { "@type": "City", "name": "Milevsko" }, { "@type": "City", "name": "Vodňany" },

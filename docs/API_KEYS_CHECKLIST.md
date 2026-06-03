@@ -42,7 +42,7 @@ Níže uvedené parametry byly původně zvažovány pro frontend, nicméně re�
 
 -   **`NEXT_PUBLIC_MAPY_CZ_API_KEY` / `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`**
     *   *Stav:* **Nepoužívá se.** Webová prezentace používá bezplatný Mapy.cz `<iframe>` widget vložený přímo do HTML bez potřeby registrace API klíče:
-        `https://api.mapy.cz/v1/iframe/index.html?center=14.1475,49.3088&zoom=14&mark=14.1475,49.3088`
+        `https://api.mapy.cz/v1/iframe/index.html?center=14.1375869,49.3134106&zoom=14&mark=14.1375869,49.3134106`
 -   **`NEXT_PUBLIC_GA_MEASUREMENT_ID`**
     *   *Stav:* Bude konfigurováno v příslušných HTML šablonách / skriptech pro cookies pouze v případě schválení měřících kódů na produkci.
 
