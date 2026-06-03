@@ -625,16 +625,21 @@
 
 ---
 
-## 2026-06-03 S1, krok 1 — Fáze A: migrace 0008 (faq CHECK constraint)
+## 2026-06-03 S1, krok 1 — Fáze A+B: migrace 0008 (faq CHECK constraint)
 **Model:** Antigravity (Gemini 2.5 Pro)
-**Branch:** fix/s1-faq-constraint
-**Status:** ✅ Hotovo (Čeká na schválení Fáze B)
+**Branch:** fix/s1-faq-constraint (PR #13 sloučen do main)
+**Status:** ✅ Hotovo
 
 ### Co bylo implementováno
-- **Záloha databáze:** Proveden export vzdálené D1 databáze `bicom-pisek-db` do lokálního souboru `backups/pre-0008-20260603.sql`.
-- **Nová D1 migrace:** Vytvořen migrační soubor `db/migrations/0008_expand_content_type_check.sql` pro bezpečné rozšíření `CHECK` constraintu u sloupce `content_type` v tabulce `content_blocks` (SQLite rebuild table pattern) tak, aby nově povoloval typ `'faq'`.
-- **Aktualizace Master Schématu:** Upraven soubor `db/schema.sql` tak, aby nově obsahoval rozšířený `CHECK` constraint u tabulky `content_blocks`.
-- **Ověření a audit:** Ověřena struktura sloupců tabulky `content_blocks` přes `PRAGMA table_info` a indexy přes `PRAGMA index_list`. Bylo potvrzeno, že na tabulce nejsou žádné explicitní triggery ani cizí klíče.
+- **Záloha databáze (Fáze A):** Proveden export vzdálené D1 databáze `bicom-pisek-db` do lokálního souboru `backups/pre-0008-20260603.sql`.
+- **Nová D1 migrace (Fáze A):** Vytvořen migrační soubor `db/migrations/0008_expand_content_type_check.sql` pro bezpečné rozšíření `CHECK` constraintu u sloupce `content_type` v tabulce `content_blocks` (SQLite rebuild table pattern) tak, aby nově povoloval typ `'faq'`.
+- **Aktualizace Master Schématu (Fáze A):** Upraven soubor `db/schema.sql` tak, aby nově obsahoval rozšířený `CHECK` constraint u tabulky `content_blocks`.
+- **Ověření a audit (Fáze A):** Ověřena struktura sloupců tabulky `content_blocks` přes `PRAGMA table_info` a indexy přes `PRAGMA index_list`. Bylo potvrzeno, že na tabulce nejsou žádné explicitní triggery ani cizí klíče.
+- **Spuštění a ověření migrace (Fáze B):**
+  - **Lokální test:** Spuštěna migrace na lokální D1 databázi. Počet řádků před i po úspěšné migraci zůstal shodný (COUNT = 1). Ověřeno, že zápis typu `'faq'` nyní lokálně prochází a následně byl smazán.
+  - **Produkční nasazení:** Spuštěna migrace na produkční Cloudflare D1 databázi (`bicom-pisek-db`) přes `d1 execute --remote --file`. Počet řádků před i po úspěšné migraci zůstal shodný (COUNT = 0).
+  - **Produkční FAQ test:** Otestován zápis typu `'faq'` na produkční databázi úspěšným vložením testovacího řádku (`__faq_test__`). Poté byl testovací řádek smazán a COUNT(*) se vrátil na původní hodnotu `0`.
+- **Mergnutí a úklid (Fáze B):** Pull Request #13 byl squash-sloučen do `upstream/main`. Fork `origin/main` byl plně synchronizován s `upstream/main` a větev `fix/s1-faq-constraint` byla odstraněna lokálně i na obou vzdálených repozitářích.
 
 ### Soubory vytvořené
 - `db/migrations/0008_expand_content_type_check.sql` — migrační skript
@@ -643,14 +648,13 @@
 - `db/schema.sql` — aktualizace kanonického schématu
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
-### Blokátory / poznámky pro vlastníka
-- **Migrace nebyla spuštěna:** Podle zadání Fáze A nebyla migrace spuštěna proti žádné databázi (lokální ani remote). Spuštění proběhne až ve Fázi B po schválení.
-- **Lokální záloha:** Soubor se zálohou `backups/pre-0008-20260603.sql` byl vytvořen lokálně a není commitován do gitu.
-
 ### Akceptační kritéria — splněno?
 - [x] Záloha před zásahem provedena a uložena lokálně
 - [x] Ověřena struktura tabulky (PRAGMA table_info) a indexy
 - [x] Vytvořen migrační skript 0008_expand_content_type_check.sql
 - [x] Upraveno kanonické db/schema.sql
-- [x] Zapsáno do WORK-DIARY.md a připraven PR (bez spouštění migrace)
+- [x] Spuštěna a ověřena lokální migrace (COUNT před/po souhlasí)
+- [x] Spuštěna a ověřena produkční migrace (COUNT před/po souhlasí)
+- [x] Otestován zápis typu 'faq' na produkci (úspěšný INSERT a DELETE)
+- [x] Sloučen PR #13, synchronizován fork a smazána dočasná větev
 
