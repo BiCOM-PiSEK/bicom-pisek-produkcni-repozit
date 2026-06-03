@@ -707,3 +707,26 @@
 - [x] Odeslán a doručen 1 Telegram ping z produkčního prostředí
 - [x] Produkční worker přenasazen v čistém stavu (bez testovacího kódu)
 
+---
+
+## 2026-06-03 S1, krok 3 — Plošná oprava adresy a merge deníku
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/s1-adresa (Vytvořena z aktuálního upstream/main)
+**Status:** ⚠️ Částečně / Čeká na schválení PR s adresou
+
+### Co bylo implementováno
+- **Sloučení deníku (Bod 2):** Vytvořen PR #15 pro větev `docs/s1-cron-diary` na upstream repozitáři a úspěšně squash-sloučen do `main`. Větev byla smazána a fork synchronizován.
+- **Plošná oprava adresy (Bod 1):** Stará adresa "Nádražní 2512" / "Nádražní 2512, Písek" / zástupný znak `[přesná ulice č.p.]` byla vyhledána a plošně nahrazena novou adresou provozovny:
+  - V `functions/lib/connectors/gosms.js` (zkrácená verze v SMS šabloně): `Vladislavova 201, 397 01 Písek`
+  - V `functions/lib/connectors/resend.js` (plná verze v konstantě `BUSINESS_ADDRESS`): `Bicom Písek, Vladislavova 201 (technologický park), 397 01 Písek`
+  - V `public/schema/localbusiness.json` (normalizace streetAddress a PSČ): `Vladislavova 201 (technologický park)` a PSČ s mezerou `397 01`
+  - V `docs/ARCHITEKTURA.md` (nahrazení zástupného placeholderu `[přesná ulice č.p.]`): `Vladislavova 201 (technologický park)`
+- **Nalezené další zastaralé údaje (k nahlášení):**
+  - V `public/schema/localbusiness.json` na řádku 11 a v `public/index.html` na řádku 432 (Mapy.cz iframe) jsou uloženy staré souřadnice `latitude: 49.3088, longitude: 14.1475`, které geograficky odpovídají starému umístění u nádraží (Nádražní 2512). Nové souřadnice pro Vladislavova 201 by měly být `49.313365, 14.137611`. Tyto hodnoty nebyly opravovány a jsou nahlášeny ke schválení.
+
+### Akceptační kritéria — splněno?
+- [x] Větev `docs/s1-cron-diary` úspěšně sloučena do `main` na upstreamu a fork synchronizován
+- [x] Staré adresy a zástupné symboly nahrazeny novou adresou v kódu, schématu i dokumentaci
+- [x] Vytvořen PR #16 pro větev `fix/s1-adresa`
+- [x] Identifikovány a nahlášeny další nekonzistentní adresní údaje (souřadnice u nádraží)
+
