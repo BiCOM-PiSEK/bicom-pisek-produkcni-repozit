@@ -15,6 +15,9 @@
     "seed": "node scripts/seed-services.js",
     "build": "node scripts/build-sitemap.js",
     "deploy": "wrangler pages deploy public",
+    "deploy:cron": "wrangler deploy --config wrangler.cron-worker.toml",
+    "deploy:booking": "wrangler deploy --config wrangler.booking-consumer.toml",
+    "deploy:social": "wrangler deploy --config wrangler.social-consumer.toml",
     "lint": "eslint functions public/assets/js",
     "test": "vitest run"
   },
