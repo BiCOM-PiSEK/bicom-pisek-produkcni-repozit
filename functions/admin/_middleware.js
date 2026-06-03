@@ -138,10 +138,12 @@ async function verifyJWT(token, team, aud) {
     return null;
   }
 
-  // Kontrola audience
+  // Kontrola audience (podpora pro více AUD hodnot oddělených čárkou)
   if (aud && payload.aud) {
     const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-    if (!audArray.includes(aud)) {
+    const allowedAuds = aud.split(',').map(a => a.trim());
+    const hasValidAud = audArray.some(tokenAud => allowedAuds.includes(tokenAud));
+    if (!hasValidAud) {
       console.warn('[admin-auth] Invalid audience');
       return null;
     }
