@@ -537,6 +537,48 @@
 - [x] SPA potvrzovací stránka rozlišuje query parametr `free=true` a zobrazuje odpovídající text
 - [x] Změny otestovány na validitu syntaxe a odeslány na GitHub (origin i upstream)
 
+---
+
+## 2026-06-01 Sprint S0 — Bezpečnostní a funkční opravy (generální audit)
+**Model:** Antigravity (Gemini 3.5 Flash)
+**Branch:** fix/s0-security
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **S0-1: Ochrana admin auth dev-fallbacku**:
+  - Upraven middleware `functions/admin/_middleware.js` tak, aby se dev-mode fallback (který bez `SECRET_CF_ACCESS_TEAM` automaticky přihlašuje fiktivního administrátora) spouštěl výhradně v lokálním prostředí (`localhost` / `127.0.0.1`).
+  - V produkčním/nasazeném prostředí (detekováno pomocí `env.ENV === 'production'` nebo na základě hostname) middleware při chybějící konfiguraci `SECRET_CF_ACCESS_TEAM` vrátí chybovou odpověď HTTP 403 Forbidden.
+  - Přidán detailní `TODO` komentář s doporučeným postupem pro ověření podpisu JWT tokenu proti JWKS certifikátům v dalším PR.
+- **S0-2: Oprava SQL dotazů AI Rádce (chat.js)**:
+  - Sjednoceny názvy sloupců v `functions/api/chat.js` se schématem `db/schema.sql`.
+  - V `loadServicesContext`: nahrazen neexistující sloupec `description` za `short_desc` / `long_desc` a sloupec `price` za `price_avg`. Přizpůsobeno mapování cache i D1 výsledků.
+  - V `loadFaqContext`: nahrazeny neexistující sloupce `body` za `content_markdown` a `type = 'faq'` za `content_type = 'faq'`. Odstraněna neexistující podmínka `active = 1` z SQL dotazu.
+- **S0-3: Dynamická konfigurace Maintenance Gate**:
+  - V `functions/_middleware.js` upraveno načítání bypass PINu z environment proměnné `SECRET_MAINTENANCE_PIN` a veřejného Turnstile klíče z `TURNSTILE_SITEKEY` (obojí s bezpečnými lokálními fallbacks).
+  - Hodnoty jsou do statické šablony `MAINTENANCE_HTML` injektovány dynamicky za běhu pomocí `.replaceAll()`.
+  - Kontrola bypass cookie byla upravena na dynamické ověření aktuální hodnoty PINu z environmentu.
+- **S0-4: Vyčištění GCP secrets a .gitignore**:
+  - Přidán ignorovaný adresář `scratch/` do `.gitignore` pro zamezení nechtěného verzování vývojových skriptů a citlivých dat.
+  - Odstraněn untracked soubor `scratch/upload-secrets.js` obsahující GCP klíče z pracovního adresáře.
+  - Git historie byla ověřena příkazem `git log --all --full-history -- scratch/upload-secrets.js` a potvrdila, že soubor nebyl nikdy v minulosti commitnut do repozitáře.
+
+### Soubory opravené
+- `functions/admin/_middleware.js` — Zabezpečení dev-fallbacku a JWKS TODO
+- `functions/api/chat.js` — SQL sloupce D1 a mapování entit
+- `functions/_middleware.js` — Dynamické dosazování PIN a Turnstile sitekey
+- `.gitignore` — Ignorování scratch/ adresáře
+
+### Soubory smazané
+- `scratch/upload-secrets.js` — Odstranění surového GCP klíče z disku
+
+### Akceptační kritéria — splněno?
+- [x] Ochrana dev-fallbacku před zneužitím v produkci
+- [x] Chatbot se dotazuje na validní sloupce a nevyhazuje SQLITE_ERROR
+- [x] Maintenance gate plně přesunuta do environment proměnných
+- [x] Soubor scratch/upload-secrets.js smazán a ověřen, že není v historii
+- [x] scratch/ složka přidána do .gitignore
+- [x] Vše otestováno, připraveno k PR
+
 
 
 

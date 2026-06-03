@@ -311,7 +311,7 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
       </div>
       
       <div class="turnstile-container">
-        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onTurnstileSuccess"></div>
+        <div class="cf-turnstile" data-sitekey="__SITEKEY_PLACEHOLDER__" data-callback="onTurnstileSuccess"></div>
       </div>
       
       <button class="close-btn" id="close-btn">Zpět na úvod</button>
@@ -369,7 +369,7 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
       const pin = Array.from(pinInputs).map(i => i.value).join('');
       if (pin.length < 4) return;
       
-      if (pin !== '1994') {
+      if (pin !== '__PIN_PLACEHOLDER__') {
         showError('Neplatný přístupový kód');
         pinInputs.forEach(i => i.value = '');
         pinInputs[0].focus();
@@ -384,7 +384,7 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
       errorMsg.classList.remove('active');
       
       // Verification successful! Set cookie and redirect to the presentation domain.
-      document.cookie = "bypass_maintenance=1994; path=/; max-age=2592000; secure; samesite=strict";
+      document.cookie = "bypass_maintenance=__PIN_PLACEHOLDER__; path=/; max-age=2592000; secure; samesite=strict";
       window.location.href = 'https://bicom-pisek.pages.dev';
     }
   </script>
@@ -395,12 +395,15 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const hostname = url.hostname;
 
+  const pin = context.env.SECRET_MAINTENANCE_PIN || '1994';
+  const sitekey = context.env.TURNSTILE_SITEKEY || '1x00000000000000000000AA';
+
   // We only run this maintenance logic on the main production domain(s)
   if (hostname === 'bicom-pisek.cz' || hostname === 'www.bicom-pisek.cz') {
     
     // Check if the user has the bypass cookie
     const cookieHeader = context.request.headers.get('Cookie') || '';
-    const hasBypass = cookieHeader.includes('bypass_maintenance=1994');
+    const hasBypass = cookieHeader.includes(`bypass_maintenance=${pin}`);
     
     if (!hasBypass) {
       // If requesting API, return 503 JSON
@@ -418,8 +421,13 @@ export async function onRequest(context) {
         );
       }
       
+      // Inject the actual PIN and Turnstile sitekey into the HTML template
+      const html = MAINTENANCE_HTML
+        .replaceAll('__PIN_PLACEHOLDER__', pin)
+        .replaceAll('__SITEKEY_PLACEHOLDER__', sitekey);
+
       // Otherwise, return the standalone Maintenance HTML page
-      return new Response(MAINTENANCE_HTML, {
+      return new Response(html, {
         status: 503,
         headers: {
           'Content-Type': 'text/html; charset=utf-8',

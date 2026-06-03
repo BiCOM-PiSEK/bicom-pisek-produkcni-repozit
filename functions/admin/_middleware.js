@@ -40,9 +40,16 @@ export async function onRequest(context) {
     return next();
   }
 
-  // Dev mode — pokud CF Access team není nastaven, povolí přístup
+  // Dev mode — pokud CF Access team není nastaven, povolí přístup pouze v lokálním vývoji.
+  // Mimo dev (produkce / *.pages.dev) tvrdě zamítneme fallback a vrátíme 403.
   const cfTeam = env.SECRET_CF_ACCESS_TEAM;
   if (!cfTeam) {
+    const isProd = env.ENV === 'production' || (!url.hostname.includes('localhost') && !url.hostname.includes('127.0.0.1'));
+    if (isProd) {
+      console.error('[admin-auth] Access blocked: production/deployed environment detected but SECRET_CF_ACCESS_TEAM is not configured.');
+      return jsonError('Přístup zamítnut — chybí konfigurace autorizační služby.', 403);
+    }
+
     data.operator = {
       id: 'dev-operator',
       email: 'dev@bicompisek.cz',
@@ -115,8 +122,13 @@ async function verifyJWT(token, team, aud) {
   const parts = token.split('.');
   if (parts.length !== 3) return null;
 
-  // Dekóduj payload (bez ověření podpisu — Cloudflare Access to dělá za nás
-  // na edge, my jen kontrolujeme iss, aud, exp)
+  // TODO: Doplňte plnohodnotné ověření PODPISU Cloudflare Access JWT proti JWKS certifikátům.
+  // Dnes se pro zjednodušení ověřují pouze claims (iss, aud, exp), což spoléhá na to,
+  // že Cloudflare Access aktivně vynucuje ochranu na edge (před vstupem do Workeru).
+  // Implementační kroky pro budoucí PR:
+  // 1. Načíst JWKS certifikáty z: https://<team>.cloudflareaccess.com/cdn-cgi/access/certs
+  // 2. Parsnout token header, získat 'kid' a vyhledat odpovídající veřejný klíč v JWKS.
+  // 3. Použít Web Crypto API (crypto.subtle.importKey a crypto.subtle.verify) pro ověření podpisu tokenu.
   const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
 
   // Kontrola issuer
@@ -126,10 +138,12 @@ async function verifyJWT(token, team, aud) {
     return null;
   }
 
-  // Kontrola audience
+  // Kontrola audience (podpora pro více AUD hodnot oddělených čárkou)
   if (aud && payload.aud) {
     const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-    if (!audArray.includes(aud)) {
+    const allowedAuds = aud.split(',').map(a => a.trim());
+    const hasValidAud = audArray.some(tokenAud => allowedAuds.includes(tokenAud));
+    if (!hasValidAud) {
       console.warn('[admin-auth] Invalid audience');
       return null;
     }

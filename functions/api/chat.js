@@ -82,17 +82,17 @@ async function loadServicesContext(env) {
     const cached = await env.CACHE.get('services:all', 'json');
     if (cached) {
       return cached
-        .map((s) => `- ${s.name}: ${s.description || ''} (${s.price || '—'} Kč)`)
+        .map((s) => `- ${s.name}: ${s.short_desc || s.long_desc || ''} (${s.price_avg || '—'} Kč)`)
         .join('\n');
     }
 
     const { results } = await env.DB.prepare(
-      'SELECT name, description, price FROM services WHERE active = 1 ORDER BY sort_order'
+      'SELECT name, short_desc, long_desc, price_avg FROM services WHERE active = 1 ORDER BY sort_order'
     ).all();
 
     if (results?.length) {
       return results
-        .map((s) => `- ${s.name}: ${s.description || ''} (${s.price || '—'} Kč)`)
+        .map((s) => `- ${s.name}: ${s.short_desc || s.long_desc || ''} (${s.price_avg || '—'} Kč)`)
         .join('\n');
     }
   } catch (err) {
@@ -109,12 +109,12 @@ async function loadServicesContext(env) {
 async function loadFaqContext(env) {
   try {
     const { results } = await env.DB.prepare(
-      "SELECT title, body FROM content_blocks WHERE type = 'faq' AND active = 1 LIMIT 20"
+      "SELECT title, content_markdown FROM content_blocks WHERE content_type = 'faq' LIMIT 20"
     ).all();
 
     if (results?.length) {
       return results
-        .map((faq) => `Q: ${faq.title}\nA: ${faq.body}`)
+        .map((faq) => `Q: ${faq.title}\nA: ${faq.content_markdown}`)
         .join('\n\n');
     }
   } catch (err) {
