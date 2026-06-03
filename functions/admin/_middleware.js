@@ -58,6 +58,8 @@ export async function onRequest(context) {
       isDev: true,
     };
     console.info('[admin-auth] Dev mode — no CF Access team configured');
+    const fallbackRes = await handleSpaFallback(request, env, url);
+    if (fallbackRes) return fallbackRes;
     return next();
   }
 
@@ -94,6 +96,10 @@ export async function onRequest(context) {
     console.error('[admin-auth] JWT verification failed:', err);
     return jsonError('Chyba ověření — zkuste se přihlásit znovu.', 401);
   }
+
+  // SPA fallback rewrite po úspěšném ověření tokenu
+  const fallbackRes = await handleSpaFallback(request, env, url);
+  if (fallbackRes) return fallbackRes;
 
   // Pokračuj ke handleru
   const response = await next();
@@ -220,4 +226,51 @@ function jsonError(message, status) {
       },
     }
   );
+}
+
+// ─── SPA FALLBACK ───────────────────────────────────────────────
+
+/**
+ * Provede SPA fallback na /admin/index.html pro klientské routy.
+ * @param {Request} request
+ * @param {Object} env
+ * @param {URL} url
+ * @returns {Promise<Response|null>}
+ */
+async function handleSpaFallback(request, env, url) {
+  const acceptHeader = request.headers.get('Accept') || '';
+  const apiHandlers = [
+    '/admin/activity',
+    '/admin/bookings',
+    '/admin/copywriter',
+    '/admin/dashboard',
+    '/admin/geo',
+    '/admin/invoices',
+    '/admin/payments',
+    '/admin/settings'
+  ];
+
+  const isGet = request.method === 'GET';
+  const wantsHtml = acceptHeader.includes('text/html');
+  const isApiHandler = apiHandlers.some(path => 
+    url.pathname === path || url.pathname === `${path}/`
+  );
+  const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/);
+
+  if (isGet && wantsHtml && !isApiHandler && !isStaticAsset) {
+    console.info(`[admin-auth] SPA fallback rewrite to /admin/index.html for: ${url.pathname}`);
+    const fallbackUrl = new URL('/admin/index.html', request.url);
+    const fallbackRequest = new Request(fallbackUrl.toString(), request);
+    const response = await env.ASSETS.fetch(fallbackRequest);
+    
+    const newHeaders = new Headers(response.headers);
+    Object.entries(CORS_HEADERS).forEach(([k, v]) => newHeaders.set(k, v));
+    
+    return new Response(response.body, {
+      status: 200,
+      headers: newHeaders
+    });
+  }
+  
+  return null;
 }
