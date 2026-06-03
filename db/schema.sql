@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS content_blocks (
     section_key TEXT UNIQUE NOT NULL,
     title TEXT,
     content_markdown TEXT NOT NULL,
-    content_type TEXT DEFAULT 'text' CHECK(content_type IN ('text','prompt','config')),
+    content_type TEXT DEFAULT 'text' CHECK(content_type IN ('text','prompt','config','faq')),
     last_updated_by TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
