@@ -658,3 +658,25 @@
 - [x] Otestován zápis typu 'faq' na produkci (úspěšný INSERT a DELETE)
 - [x] Sloučen PR #13, synchronizován fork a smazána dočasná větev
 
+---
+
+## 2026-06-03 S1, krok 2 — Fáze A: cron-fix (Čistá diagnóza)
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** main (Lokální diagnóza)
+**Status:** ⚠️ Částečně / Diagnostika dokončena (Čeká na Fázi B)
+
+### Co bylo zjištěno
+- **Root Cause nefunkčnosti cronů:**
+  1. **Chybějící deployment skript:** V `package.json` zcela chybí příkaz pro nasazení workeru `bicom-cron-worker`. Skript `"deploy"` nasazuje pouze Cloudflare Pages. Worker tak nebyl dlouho přenasazen.
+  2. **Mismatch v routeru (_cron-worker.js):** Router používá striktní porovnání `switch (event.cron)` s explicitními cron řetězci (`"0 */1 * * *"` a zkratkami `"MON"`, `"SUN"`). Cloudflare Scheduler tyto výrazy normalizuje (např. `*/1` na `*` a dny v týdnu na čísla: SUN=1, MON=2), což způsobí, že switch skočí do `default` větve a cron se nespustí.
+- **Důkazy v databázi:** V tabulce `audit_log` na remote D1 není žádná zmínka o spuštění cronu (`actor = 'cron'`), což potvrzuje, že crony nikdy reálně neproběhly.
+- **Telegram test:** Diagnostický ping přes Telegram bot API nebylo možné provést z důvodu chybějících tokenů v `.dev.vars` a chybě `Authentication error [code: 10000]` při pokusu o přístup k produkčním secrets na Cloudflare přes Wrangler.
+
+### Akceptační kritéria — splněno?
+- [x] Zjištěn Root Cause proč crony neběží
+- [x] Sestavena mapa 7 cronů
+- [x] Proveden secrets check
+- [x] Navržen postup opravy (priorita _cron-backup a _cron-gdpr)
+- [x] Telegram ping test vyhodnocen jako neproveditelný z důvodu chybějících klíčů
+- [x] Záznam zapsán do WORK-DIARY.md
+
