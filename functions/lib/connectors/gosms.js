@@ -5,23 +5,97 @@
  * Uses only the Web Fetch API — no Node.js dependencies.
  *
  * Required secrets:
- *   - SECRET_SMS_GATEWAY_API_KEY
+ *   - SECRET_SMS_GATEWAY_CLIENT_ID
+ *   - SECRET_SMS_GATEWAY_CLIENT_SECRET
+ *
+ * Required bindings:
+ *   - CACHE (KV namespace for token caching)
  *
  * @module gosms
  */
 
 import { fetchWithRetry } from './_fetch-retry.js';
 
+const TOKEN_ENDPOINT = 'https://app.gosms.cz/oauth/v2/token';
 const GOSMS_API = 'https://app.gosms.cz/api/v1/messages';
+const KV_TOKEN_KEY = 'gosms_token';
 const MAX_SMS_LENGTH = 160;
 
 export class GoSmsConnector {
   /**
    * @param {object} env - Cloudflare Worker environment bindings.
+   * @param {object} [kvCache] - KV namespace for caching tokens (defaults to env.CACHE).
    */
-  constructor(env) {
-    this.apiKey = env.SECRET_SMS_GATEWAY_API_KEY || '';
-    this.configured = Boolean(this.apiKey);
+  constructor(env, kvCache) {
+    this.clientId = env.SECRET_SMS_GATEWAY_CLIENT_ID || '';
+    this.clientSecret = env.SECRET_SMS_GATEWAY_CLIENT_SECRET || '';
+    this.kvCache = kvCache || env.CACHE || null;
+    this.configured = Boolean(this.clientId) && Boolean(this.clientSecret);
+  }
+
+  /**
+   * Obtain an access token via client_credentials grant.
+   * Checks KV cache first; if expired, requests a new token and caches it.
+   *
+   * @returns {Promise<string|null>} The access token or null if not configured/failed.
+   */
+  async _getAccessToken() {
+    if (!this.configured) {
+      console.warn('[GoSMS] Missing client credentials — skipping auth.');
+      return null;
+    }
+
+    // Try KV cache first
+    if (this.kvCache) {
+      try {
+        const cached = await this.kvCache.get(KV_TOKEN_KEY);
+        if (cached) return cached;
+      } catch (e) {
+        console.warn('[GoSMS] KV cache read error:', e.message);
+      }
+    }
+
+    // Request new token
+    const body = new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+    });
+
+    const res = await fetchWithRetry(TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+
+    if (!res || !res.ok) {
+      console.warn('[GoSMS] Token request failed:', res?.status);
+      return null;
+    }
+
+    try {
+      const data = await res.json();
+      const token = data.access_token;
+      if (!token) {
+        console.warn('[GoSMS] No access token in response');
+        return null;
+      }
+      const ttl = (data.expires_in || 3600) - 60; // 60s safety margin
+
+      // Cache in KV
+      if (this.kvCache) {
+        try {
+          await this.kvCache.put(KV_TOKEN_KEY, token, { expirationTtl: Math.max(ttl, 60) });
+        } catch (e) {
+          console.warn('[GoSMS] KV cache write error:', e.message);
+        }
+      }
+
+      return token;
+    } catch (e) {
+      console.warn('[GoSMS] Failed to parse token response:', e.message);
+      return null;
+    }
   }
 
   /**
@@ -33,7 +107,13 @@ export class GoSmsConnector {
    */
   async sendSms(phoneNumber, text) {
     if (!this.configured) {
-      console.warn('[GoSMS] Missing API key — SMS not sent.');
+      console.warn('[GoSMS] Missing client credentials — SMS not sent.');
+      return null;
+    }
+
+    const token = await this._getAccessToken();
+    if (!token) {
+      console.warn('[GoSMS] Authentication failed — SMS not sent.');
       return null;
     }
 
@@ -46,7 +126,7 @@ export class GoSmsConnector {
     const res = await fetchWithRetry(GOSMS_API, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
