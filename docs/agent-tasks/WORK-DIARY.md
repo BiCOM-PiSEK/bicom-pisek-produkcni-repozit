@@ -843,6 +843,43 @@
 
 ---
 
+## 2026-06-07 S1/S2 Blok 1 — Oprava SMS brány + sjednocení upomínek (Fáze B: Implementace)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s1-sms-fix
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno
+- **Refaktoring GoSMS konektoru (`gosms.js`):**
+  - Přepsán na OAuth2 autorizaci využívající `client_credentials` grant flow.
+  - Zavedena metoda `_getAccessToken()`, která nejprve kontroluje KV namespace (`env.CACHE`) pod klíčem `gosms_token`.
+  - Pokud klíč chybí nebo vypršel, odešle POST na `https://app.gosms.cz/oauth/v2/token` s `Content-Type: application/x-www-form-urlencoded`.
+  - Uloží obdržený `access_token` do KV s expiračním TTL sníženým o 60s safety margin (obvykle 3540s).
+  - Metoda `sendSms` získává token z cache/Identity Serveru a připojuje hlavičku `Authorization: Bearer <token>`.
+  - Ošetřeno chybějící nastavení credentials (vrací `null` a zaloguje `warn`, takže cron-worker nespadne).
+- **Oprava field-mismatch v upomínkách (`_cron-reminders.js`):**
+  - Sjednoceno a opraveno mapování polí předávaných do konektorů.
+  - Sestavují se pole `time` (formát `HH:MM`, např. `"10:00"`) a `confirmed_date` (formát `d. m. yyyy v HH:MM`, např. `"8. 6. 2026 v 10:00"`) z databázového sloupce `preferred_date` za použití `Intl.DateTimeFormat` s explicitní časovou zónou `Europe/Prague`.
+  - Tím se zabrání odesílání textů s hodnotou `undefined` v SMS zprávách a emailech.
+- **Verifikace:**
+  - Provedena kontrola syntaxe (`node --check`) na obou změněných souborech (vše bez chyb).
+  - Úspěšně sestaven a ověřen lokální build (`npm run build`).
+
+### Soubory změněné
+- `functions/lib/connectors/gosms.js` — přechod na OAuth2 a KV caching
+- `functions/api/_cron-reminders.js` — oprava chybějících polí `time` a `confirmed_date`
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] GoSmsConnector upraven pro přechod ze statického API klíče na client_credentials OAuth2
+- [x] Token je cachován v KV namespace pod klíčem `gosms_token` s TTL (expires_in - 60s)
+- [x] Zachována fetch retry logika a robustní graceful warn/return null chování
+- [x] Opraven field mismatch v `_cron-reminders.js` – do konektoru odchází správný čas i celé datum
+- [x] Formátování dat a času využívá správně timezone `Europe/Prague`
+- [x] Úspěšná syntaktická kontrola a build projektu
+- [x] Vytvořena větev `agent/ag-w3-s1-sms-fix` a otevřen Pull Request #21
+
+---
+
 ## 2026-06-07 S1 — Implementace AI Cost-guardu (AI Rádce limitace)
 **Model:** Antigravity (Gemini 2.0 Flash)
 **Branch:** agent/ag-w3-s1-chat-limit
@@ -880,6 +917,44 @@
 - [x] Neporušen stávající AI fallback a cenzurní řetězec
 - [x] Provedena syntaktická kontrola a build projektu
 - [x] Vytvořen PR #20 (a oprava propisující se do něj) a zapsáno do WORK-DIARY.md
+
+---
+
+## 2026-06-07 S1/S2 Blok 1 — Oprava SMS brány + redeploy (Fáze A: Diagnóza)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s1-chat-limit (Čistá diagnóza, read-only běh)
+**Status:** ✅ Hotovo (Fáze A dokončena, čeká na schválení pro Fázi B)
+
+### Co bylo zjištěno (Diagnóza)
+1. **Adresa v repozitáři:**
+   - V repozitáři je již adresa kompletně opravena na novou provozovnu `Vladislavova 201` (v `resend.js` i `gosms.js`).
+   - Jediný výskyt staré adresy "Nádražní 2512" je v předchozím logu pracovního deníku (historická zmínka), v samotném kódu či šablonách se již nevyskytuje.
+   - **Závěr:** Oprava v repu je hotová, problém s doručováním staré adresy je způsoben chybějícím redeployem běžících workerů.
+2. **GoSMS OAuth2 parametry:**
+   - **Token Endpoint:** `https://app.gosms.cz/oauth/v2/token`
+   - **Grant type:** `client_credentials` (Content-Type: `application/x-www-form-urlencoded`, parametry: `grant_type`, `client_id`, `client_secret`).
+   - **TTL Tokenu:** 3600 sekund (1 hodina), ukládání do KV `env.CACHE` s bezpečnostní rezervou (např. TTL 3540s).
+   - **Send SMS Endpoint:** `POST https://app.gosms.cz/api/v1/messages` (JSON payload: `{"message": "...", "recipients": "...", "channel": 1}`).
+   - **Plán refaktoringu:** Přepsat `gosms.js` po vzoru `idoklad.js` na dynamické získávání tokenu přes metodu `_getAccessToken()` s ukládáním do KV Cache, namísto dosavadního statického a již nefunkčního API klíče.
+3. **Secrets:**
+   - SMS zprávy reálně odesílá pouze `bicom-cron-worker` (`functions/api/_cron-reminders.js`). Ostatní dva workery (`booking-consumer`, `social-consumer`) `gosms.js` neimportují a SMS přímo neposílají (`booking-consumer` pouze plánuje odeslání zápisem do tabulky `reminders` v D1).
+   - Na `bicom-cron-workeru` jsou secrety `SECRET_SMS_GATEWAY_CLIENT_ID` i `SECRET_SMS_GATEWAY_CLIENT_SECRET` v produkčním prostředí Cloudflare již úspěšně nasazeny a ověřeny (**ANO**).
+4. **Redeploy Gap:**
+   - Všechny tři workery mají kód nasazený před datem commitu plošné opravy adresy (`35e4c73`, 3. 6. 2026 16:20). Dnešní deploy cron-workeru byl pouze update konfigurace (secrets), nikoliv znovusestavení kódu.
+   - Pro aktualizaci sdíleného kódu konektorů je nutný **kompletní redeploy všech 3 workerů**.
+   - `package.json` obsahuje všechny potřebné skripty: `deploy:cron`, `deploy:booking` a `deploy:social`.
+
+### Soubory změněné
+- `docs/agent-tasks/WORK-DIARY.md` — zápis diagnózy do pracovního deníku
+
+### Akceptační kritéria (Fáze A) — splněno?
+- [x] Zjištěn přesný stav adresy v repu a potvrzena její kompletní oprava
+- [x] Dohledány detaily GoSMS OAuth2 protokolu a navržen způsob refaktoringu po vzoru iDokladu
+- [x] Identifikován worker odesílající SMS a potvrzena existence potřebných secretů
+- [x] Porovnány časy posledních deployů s commity a ověřena nutnost redeploye všech 3 workerů
+- [x] Ověřena přítomnost deploy skriptů v package.json
+- [x] Výsledky zapsány do WORK-DIARY.md bez jakýchkoliv kódových změn (read-only diagnóza)
+
 
 
 
