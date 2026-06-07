@@ -1,7 +1,7 @@
-// POST /api/chat
-// AI-powered chat assistant for Bicom Písek.
-// Uses Workers AI (Llama 3), with Groq and Gemini API fallbacks.
-// Enforces medical-legal language filters.
+import { checkRateLimit } from '../lib/rate-limit.js';
+
+// Global daily cap for AI chat requests to prevent abuse (tunable)
+const AI_CHAT_DAILY_CAP = 500;
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -224,6 +224,16 @@ async function callGeminiAPI(env, messages) {
  */
 export async function onRequestPost({ request, env, waitUntil }) {
   try {
+    // 0. Rate limiting (max 20 requests per IP per minute) to protect Workers AI credits
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const allowed = await checkRateLimit(env.CACHE, ip, 'chat', 20);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Posíláte zprávy příliš rychle, zkuste to prosím za chvíli.' }),
+        { status: 429, headers: CORS_HEADERS }
+      );
+    }
+
     // 1. Parse request body
     let data;
     try {
@@ -251,6 +261,29 @@ export async function onRequestPost({ request, env, waitUntil }) {
         { status: 400, headers: CORS_HEADERS }
       );
     }
+
+    const convId = conversationId || crypto.randomUUID();
+
+    // 1.b Global daily cap check (max AI_CHAT_DAILY_CAP requests per day)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const dailyKey = `ai_chat_daily:${todayStr}`;
+    const dailyCountStr = await env.CACHE.get(dailyKey);
+    const dailyCount = dailyCountStr ? parseInt(dailyCountStr, 10) : 0;
+
+    if (dailyCount >= AI_CHAT_DAILY_CAP) {
+      // Soft fail: return a polite automated message under HTTP 200 so the chat widget does not break
+      return new Response(
+        JSON.stringify({
+          success: true,
+          reply: 'Pro dnešek je AI poradna vytížená — napište nám prosím přes kontaktní formulář nebo zavolejte, rádi vám odpovíme osobně.',
+          conversationId: convId
+        }),
+        { status: 200, headers: CORS_HEADERS }
+      );
+    }
+
+    // Increment daily count in KV cache (with a 48h TTL)
+    await env.CACHE.put(dailyKey, (dailyCount + 1).toString(), { expirationTtl: 172800 });
 
     // 2. Load context (services catalog + FAQ)
     const [servicesCtx, faqCtx] = await Promise.all([
@@ -302,9 +335,6 @@ export async function onRequestPost({ request, env, waitUntil }) {
       reply = censorResponse(reply);
       escalate = true;
     }
-
-    // Generate conversation ID if not provided
-    const convId = conversationId || crypto.randomUUID();
 
     // 6. Audit log (non-blocking)
     waitUntil(
