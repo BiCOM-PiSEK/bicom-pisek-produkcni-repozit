@@ -44,22 +44,13 @@ export default {
 
         const dateObj = new Date(reminder.preferred_date);
 
-        // Format time for SMS (e.g., "10:00")
-        const time = new Intl.DateTimeFormat('cs-CZ', {
-          timeZone: 'Europe/Prague',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        }).format(dateObj);
-
-        // Format date and time for email (e.g., "8. 6. 2026 v 10:00")
-        const datePart = new Intl.DateTimeFormat('cs-CZ', {
+        // Format date part only (e.g., "10. 6. 2026")
+        const dateStr = new Intl.DateTimeFormat('cs-CZ', {
           timeZone: 'Europe/Prague',
           year: 'numeric',
           month: 'numeric',
           day: 'numeric',
         }).format(dateObj);
-        const confirmed_date = `${datePart} v ${time}`;
 
         const booking = {
           name,
@@ -67,8 +58,7 @@ export default {
           phone,
           service: reminder.service,
           preferredDate: reminder.preferred_date,
-          time,
-          confirmed_date,
+          date: dateStr,
         };
 
         if (reminder.channel === 'sms') {

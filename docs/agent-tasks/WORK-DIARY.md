@@ -955,6 +955,41 @@
 - [x] Ověřena přítomnost deploy skriptů v package.json
 - [x] Výsledky zapsány do WORK-DIARY.md bez jakýchkoliv kódových změn (read-only diagnóza)
 
+---
+
+## 2026-06-08 S1/S2 Blok 1 — GoSMS kanál a bezčasové upomínky
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s1-sms-channel-fix
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno
+- **Dynamický kanál pro GoSMS:**
+  - V `gosms.js` byla zavedena konstanta `DEFAULT_SMS_CHANNEL = 498575`.
+  - V konstruktoru se kanál načítá z env proměnné `SMS_GATEWAY_CHANNEL` a převádí se na číslo. Pokud chybí, použije se fallback na `DEFAULT_SMS_CHANNEL`.
+  - V metodě `sendSms` je nahrazena napevno zadaná hodnota `channel: 1` za dynamickou hodnotu `this.channel`.
+- **Bezčasové SMS a e-mailové upomínky:**
+  - V `_cron-reminders.js` byla kompletně odstraněna hodinová složka z parsování preferred_date. Datum je nově formátováno pouze jako čisté datum `d. m. yyyy` (např. `"10. 6. 2026"`) s časovou zónou `Europe/Prague`.
+  - Hodnota se do konektorů předává v jednotném poli `booking.date`.
+  - Upraveny texty zpráv v `gosms.js` a `resend.js`, které znějí přirozeně a neodkazují na vymyšlenou hodinu.
+- **Verifikace:**
+  - Provedena kontrola syntaxe (`node --check`) na všech 3 dotčených souborech (vše bez chyb).
+  - Úspěšně sestaven a ověřen lokální build (`npm run build`).
+
+### Soubory změněné
+- `functions/lib/connectors/gosms.js` — dynamický kanál, bezčasová šablona upomínky
+- `functions/lib/connectors/resend.js` — bezčasová šablona upomínky
+- `functions/api/_cron-reminders.js` — odstranění formátování času, sjednocení pole na booking.date
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] GoSMS odesílá zprávy přes dynamický kanál z env (s fallbackem na 498575)
+- [x] Odstraněno formátování hodiny v `_cron-reminders.js`
+- [x] Sjednoceno pole předávané do konektoru na `booking.date`
+- [x] Upraven text SMS v `gosms.js` tak, aby neobsahoval čas a vešel se do 160 znaků
+- [x] Upraven text e-mailu v `resend.js` tak, aby neobsahoval čas schůzky a zněl přirozeně
+- [x] Úspěšná syntaktická kontrola a build projektu
+- [x] Vytvořena větev `agent/ag-w3-s1-sms-channel-fix` a otevřen Pull Request #22
+
 
 
 

@@ -134,11 +134,11 @@ export class ResendConnector {
    * @param {string} booking.email - Customer email.
    * @param {string} booking.name - Customer name.
    * @param {string} booking.service - Service name.
-   * @param {string} booking.confirmed_date - Confirmed date/time string.
+   * @param {string} booking.date - Appointment date string (e.g. "10. 6. 2026").
    * @returns {Promise<object|null>}
    */
   async sendBookingReminder(booking) {
-    const subject = `Připomínka zítřejšího termínu — ${booking.service}`;
+    const subject = `Připomínka termínu — ${booking.service}`;
 
     const html = `
 <!DOCTYPE html>
@@ -146,11 +146,11 @@ export class ResendConnector {
 <head><meta charset="utf-8"></head>
 <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto;">
   <div style="background: #e3f2fd; padding: 24px; border-radius: 8px; margin-bottom: 16px;">
-    <h2 style="color: #1565c0; margin: 0 0 8px;">⏰ Připomínka termínu</h2>
+    <h2 style="color: #1565c0; margin: 0 0 8px;">⏰ Připomínka rezervace</h2>
     <p style="margin: 0;">Dobrý den, <strong>${escapeHtml(booking.name)}</strong>,</p>
   </div>
 
-  <p>Rádi bychom Vám připomněli Váš <strong>zítřejší termín</strong>:</p>
+  <p>Rádi bychom Vám připomněli Vaši <strong>rezervaci</strong>:</p>
 
   <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
     <tr>
@@ -158,14 +158,16 @@ export class ResendConnector {
       <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.service)}</td>
     </tr>
     <tr>
-      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Termín:</strong></td>
-      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.confirmed_date)}</td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Datum:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.date)}</td>
     </tr>
     <tr>
       <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Adresa:</strong></td>
       <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${BUSINESS_ADDRESS}</td>
     </tr>
   </table>
+
+  <p>Přesný čas s Vámi domluvíme telefonicky, případně jej již máte potvrzený samostatně.</p>
 
   <div style="background: #fff8e1; padding: 16px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 16px;">
     <p style="margin: 0;"><strong>Nezapomeňte:</strong> 24 hodin před terapií nepijte kávu ani alkohol.</p>
