@@ -841,4 +841,45 @@
 - [x] Vytvořena větev, odeslán push a založen PR #19
 - [x] Záznam zapsán do WORK-DIARY.md
 
+---
+
+## 2026-06-07 S1 — Implementace AI Cost-guardu (AI Rádce limitace)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s1-chat-limit
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno
+- **IP rate limiting (Vrstva A):**
+  - Integrován existující rate-limiter `checkRateLimit` na úplný začátek endpointu `/api/chat` (`functions/api/chat.js`).
+  - Nastaven limit **20 požadavků / 60 sekund / IP**.
+  - Při překročení vrací kód zdvořilou chybovou zprávu (`HTTP 429 Too Many Requests`) ve formátu, který chat widget na frontendu bezpečně vykreslí jako chybovou hlášku.
+- **Globální denní strop (Vrstva B):**
+  - Zavedena konstanta `AI_CHAT_DAILY_CAP = 500` pro laditelnost denního stropu.
+  - Implementována kontrola celkového počtu denních požadavků ukládaných v KV cache (`env.CACHE`) pod klíčem `ai_chat_daily:YYYY-MM-DD` (v UTC) s expiračním TTL 48 hodin.
+  - Při překročení stropu 500 volání dojde k **měkkému přesměrování (soft-fail)**, kdy se vrací `HTTP 200 OK` s předpřipravenou zdvořilou hláškou o vytíženosti, takže chat widget neselže a uživatel dostane srozumitelnou zprávu.
+  - Čítač se inkrementuje v KV těsně před spuštěním AI inference (Workers AI / Groq / Gemini).
+- **Opravy na základě CodeRabbit Code Review:**
+  - **Zajištění stability při výpadku KV (Fail-Open):** Celá logika denního stropu (čtení, vyhodnocení, zápis do KV) byla obalena do samostatného `try/catch` bloku. V případě jakéhokoliv výpadku či nedostupnosti KV cache se chyba pouze zaloguje (`console.warn`) a request bezpečně pokračuje dál k AI modelům (fail-open), aniž by shodil chat chybou HTTP 500.
+  - **Zdokumentování best-effort charakteru limitu:** Přidán vysvětlující komentář k race condition při vysoké souběžnosti KV get/put. Limit je best-effort pojistka v souladu s ADR-001 (jednoduchá architektura), nikoli transakční rozpočet.
+- **Verifikace:**
+  - Provedena kontrola syntaxe (`node --check functions/api/chat.js`) a úspěšně spuštěn build sitemapy (`npm run build`). Vše bez chyb.
+  - Vytvořena větev `agent/ag-w3-s1-chat-limit` a otevřen Pull Request #20.
+
+### Soubory změněné
+- `functions/api/chat.js` — import limiteru, zavedení IP limitu a globálního stropu v onRequestPost, try/catch stabilizace a komentář
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] IP rate limit (20/min) kontrolován na začátku před spuštěním AI
+- [x] Zpětná kompatibilita chybového formátu 429 s chat-widget.js
+- [x] Globální denní strop (500/den) s laditelnou konstantou
+- [x] Obalení logiky stropu do fail-open try/catch (KV výpadek neshodí chat)
+- [x] Dokumentace best-effort KV race condition přímo v kódu
+- [x] Měkké přesměrování při překročení denního stropu (HTTP 200)
+- [x] Inkrementace čítače v KV s TTL 48h
+- [x] Neporušen stávající AI fallback a cenzurní řetězec
+- [x] Provedena syntaktická kontrola a build projektu
+- [x] Vytvořen PR #20 (a oprava propisující se do něj) a zapsáno do WORK-DIARY.md
+
+
 
