@@ -265,25 +265,35 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const convId = conversationId || crypto.randomUUID();
 
     // 1.b Global daily cap check (max AI_CHAT_DAILY_CAP requests per day)
-    const todayStr = new Date().toISOString().split('T')[0];
-    const dailyKey = `ai_chat_daily:${todayStr}`;
-    const dailyCountStr = await env.CACHE.get(dailyKey);
-    const dailyCount = dailyCountStr ? parseInt(dailyCountStr, 10) : 0;
+    // POZN.: Denní strop je BEST-EFFORT (přibližný), ne transakční rozpočet.
+    // KV get+put není atomické, takže při vysoké souběžnosti může reálný počet mírně
+    // přesáhnout AI_CHAT_DAILY_CAP (~o desítky). To je vědomě akceptováno: jde o měkkou
+    // pojistku proti runaway/zneužití, ne o tvrdý finanční limit. První obrana je IP-limit.
+    // Tvrdě atomická varianta (Durable Object / D1 UPDATE...RETURNING) je úmyslně odložena
+    // — viz ADR-001 (drž produkční výseč jednoduchou).
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dailyKey = `ai_chat_daily:${todayStr}`;
+      const dailyCountStr = await env.CACHE.get(dailyKey);
+      const dailyCount = dailyCountStr ? parseInt(dailyCountStr, 10) : 0;
 
-    if (dailyCount >= AI_CHAT_DAILY_CAP) {
-      // Soft fail: return a polite automated message under HTTP 200 so the chat widget does not break
-      return new Response(
-        JSON.stringify({
-          success: true,
-          reply: 'Pro dnešek je AI poradna vytížená — napište nám prosím přes kontaktní formulář nebo zavolejte, rádi vám odpovíme osobně.',
-          conversationId: convId
-        }),
-        { status: 200, headers: CORS_HEADERS }
-      );
+      if (dailyCount >= AI_CHAT_DAILY_CAP) {
+        // Soft fail: return a polite automated message under HTTP 200 so the chat widget does not break
+        return new Response(
+          JSON.stringify({
+            success: true,
+            reply: 'Pro dnešek je AI poradna vytížená — napište nám prosím přes kontaktní formulář nebo zavolejte, rádi vám odpovíme osobně.',
+            conversationId: convId
+          }),
+          { status: 200, headers: CORS_HEADERS }
+        );
+      }
+
+      // Increment daily count in KV cache (with a 48h TTL)
+      await env.CACHE.put(dailyKey, (dailyCount + 1).toString(), { expirationTtl: 172800 });
+    } catch (err) {
+      console.warn('[chat] daily cap KV error — fail-open:', err);
     }
-
-    // Increment daily count in KV cache (with a 48h TTL)
-    await env.CACHE.put(dailyKey, (dailyCount + 1).toString(), { expirationTtl: 172800 });
 
     // 2. Load context (services catalog + FAQ)
     const [servicesCtx, faqCtx] = await Promise.all([
