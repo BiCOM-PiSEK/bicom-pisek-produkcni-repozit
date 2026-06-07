@@ -20,6 +20,7 @@ const TOKEN_ENDPOINT = 'https://app.gosms.cz/oauth/v2/token';
 const GOSMS_API = 'https://app.gosms.cz/api/v1/messages';
 const KV_TOKEN_KEY = 'gosms_token';
 const MAX_SMS_LENGTH = 160;
+const DEFAULT_SMS_CHANNEL = 498575;
 
 export class GoSmsConnector {
   /**
@@ -30,6 +31,7 @@ export class GoSmsConnector {
     this.clientId = env.SECRET_SMS_GATEWAY_CLIENT_ID || '';
     this.clientSecret = env.SECRET_SMS_GATEWAY_CLIENT_SECRET || '';
     this.kvCache = kvCache || env.CACHE || null;
+    this.channel = Number(env.SMS_GATEWAY_CHANNEL) || DEFAULT_SMS_CHANNEL;
     this.configured = Boolean(this.clientId) && Boolean(this.clientSecret);
   }
 
@@ -132,7 +134,7 @@ export class GoSmsConnector {
       body: JSON.stringify({
         message: text,
         recipients: phoneNumber,
-        channel: 1,
+        channel: this.channel,
       }),
     });
 
@@ -150,13 +152,11 @@ export class GoSmsConnector {
    *
    * @param {object} booking - Booking data.
    * @param {string} booking.phone - Customer phone number.
-   * @param {string} booking.time - Appointment time string (e.g. "10:00").
-   * @param {string} [booking.address] - Business address.
+   * @param {string} booking.date - Appointment date string (e.g. "10. 6. 2026").
    * @returns {Promise<object|null>}
    */
   async sendBookingReminder(booking) {
-    const address = booking.address || 'Vladislavova 201, 397 01 Písek';
-    const text = `Bicom Pisek: Pripominame Vas zitrejsi termin v ${booking.time}. Adresa: ${address}. Tesime se na Vas.`;
+    const text = `Bicom Pisek: Pripominame Vasi rezervaci na ${booking.date}. Presny cas s Vami domluvime nebo jej mate jiz potvrzeny. Tesime se na Vas.`;
 
     return this.sendSms(booking.phone, text);
   }
