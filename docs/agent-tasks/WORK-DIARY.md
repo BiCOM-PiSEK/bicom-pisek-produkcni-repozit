@@ -809,3 +809,36 @@
 - [x] Proveden self-merge dokumentace a úklid větve `docs/adr-001`
 - [x] Záznam zapsán do WORK-DIARY.md
 
+---
+
+## 2026-06-07 S1 — Oprava map widgetu
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s1-map-widget
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno
+- **Oprava Mapy iframe widgetu:**
+  - V souboru `public/index.html` byl nahrazen nefunkční a 404 navracející iframe odkazující na `https://api.mapy.cz/v1/iframe/index.html?center=14.1375869,49.3134106&zoom=14&mark=14.1375869,49.3134106`.
+  - Původní `src` byl nahrazen novým, plně funkčním embed odkazem `https://mapy.com/s/jonumebovo`.
+  - Ostatní atributy iframe (`width="100%"` a `height="100%"`, `frameborder="0"`) a styling byly beze změny zachovány.
+- **Audit public/*.html souborů:**
+  - Prohledán zbytek složky `public/` (včetně 5 regionálních landing pages). Bylo ověřeno, že stejný ani jiný mapový iframe se v ostatních souborech nevyskytuje.
+- **Aktualizace sitemapy:**
+  - Po opravě byl spuštěn sitemap generátor (`npm run build`), který aktualizoval datum `lastmod` na `2026-06-07` pro všechny zapsané trasy v `public/sitemap.xml`.
+- **Založení PR:**
+  - Změny byly odeslány do větve `agent/ag-w3-s1-map-widget` a byl vytvořen Pull Request #19 do `upstream/main`.
+
+### Soubory změněné
+- `public/index.html` — výměna src u iframe
+- `public/sitemap.xml` — aktualizace data lastmod v sitemapě
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Nahrazena nefunkční Mapy URL za funkční embed odkaz
+- [x] Ostatní atributy iframe zachovány beze změn
+- [x] Prohledán zbytek public/ (vyskytuje se pouze v index.html)
+- [x] Nedotčeny souřadnice v JSON-LD schématech
+- [x] Vytvořena větev, odeslán push a založen PR #19
+- [x] Záznam zapsán do WORK-DIARY.md
+
+
