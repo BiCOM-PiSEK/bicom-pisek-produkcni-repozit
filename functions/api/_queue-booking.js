@@ -74,18 +74,29 @@ export default {
           note: booking.note,
         });
 
-        // 5. Schedule SMS reminder (T-24h)
+        // 5. Schedule reminders (T-24h)
         const reminderTime = addMinutes(booking.preferred_date, -24 * 60);
-        await env.DB.prepare(
-          `INSERT INTO reminders (id, booking_id, channel, send_at)
-           VALUES (?, ?, 'sms', ?)`
-        ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+        const reminderChannel = booking.reminder_channel || 'email';
 
-        // 6. Schedule email reminder (T-24h)
+        // Email reminder is always scheduled (core channel)
         await env.DB.prepare(
           `INSERT INTO reminders (id, booking_id, channel, send_at)
            VALUES (?, ?, 'email', ?)`
         ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+
+        // Secondary reminder channel based on client's preference
+        if (reminderChannel === 'sms') {
+          await env.DB.prepare(
+            `INSERT INTO reminders (id, booking_id, channel, send_at)
+             VALUES (?, ?, 'sms', ?)`
+          ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+        } else if (reminderChannel === 'whatsapp') {
+          // Prepared for future WhatsApp connector. Will not send until connector is implemented.
+          await env.DB.prepare(
+            `INSERT INTO reminders (id, booking_id, channel, send_at)
+             VALUES (?, ?, 'whatsapp', ?)`
+          ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+        }
 
         // 7. Audit log
         await env.DB.prepare(
