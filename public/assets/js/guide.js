@@ -82,8 +82,27 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Load configuration and initialize payment options if not mandatory
-  let bookingConfig = { stripe_deposit_required: true };
+  let bookingConfig = { stripe_deposit_required: true, require_phone: true };
   
+  function updatePhoneRequirement() {
+    const phoneInput = document.getElementById("booking-phone");
+    const phoneLabel = document.querySelector('label[for="booking-phone"]');
+    const channelSelect = document.getElementById("booking-reminder-channel");
+    const channel = channelSelect ? channelSelect.value : 'email';
+    
+    const isPhoneRequired = bookingConfig.require_phone || (channel === 'sms');
+    
+    if (phoneInput) {
+      if (isPhoneRequired) {
+        phoneInput.setAttribute("required", "");
+        if (phoneLabel) phoneLabel.innerHTML = 'Telefon *';
+      } else {
+        phoneInput.removeAttribute("required");
+        if (phoneLabel) phoneLabel.innerHTML = 'Telefon';
+      }
+    }
+  }
+
   async function initBookingConfig() {
     try {
       const res = await fetch("/api/booking-config");
@@ -92,6 +111,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error("[guide] Error fetching booking config:", err);
+    }
+
+    updatePhoneRequirement();
+
+    const channelSelect = document.getElementById("booking-reminder-channel");
+    if (channelSelect) {
+      channelSelect.addEventListener("change", updatePhoneRequirement);
     }
 
     const submitBtn = formEl ? formEl.querySelector('button[type="submit"]') : null;
@@ -191,7 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
         preferred_date: document.getElementById("booking-date").value,
         psc: document.getElementById("booking-psc").value || null,
         note: document.getElementById("booking-note").value || null,
-        consent_marketing: document.getElementById("booking-marketing").checked ? 1 : 0
+        consent_processing: document.getElementById("booking-consent-processing").checked,
+        consent_marketing: document.getElementById("booking-marketing").checked,
+        reminder_channel: document.getElementById("booking-reminder-channel").value
       };
 
       // Determine which workflow to use (Stripe vs. Free)

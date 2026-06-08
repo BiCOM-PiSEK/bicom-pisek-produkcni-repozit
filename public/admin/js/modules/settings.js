@@ -46,6 +46,13 @@ export async function render(container, ctx) {
             </div>
             <label class="toggle"><input type="checkbox" name="stripe_deposit_required" ${settings.stripe_deposit_required === '1' ? 'checked' : ''}><span class="toggle-slider"></span></label>
           </div>
+          <div class="form-group flex items-center justify-between" style="margin-top: 1.5rem; border-top: 1px solid rgba(115,138,117,0.15); padding-top: 1.5rem;">
+            <div>
+              <label class="form-label" style="margin:0;">Vyžadovat telefonní číslo</label>
+              <p class="form-hint">Pokud je zapnuto, telefonní číslo je vždy povinné. Pokud je vypnuto, telefon je nepovinný (povinným se stane pouze tehdy, pokud klient zvolí zasílání upomínek přes SMS).</p>
+            </div>
+            <label class="toggle"><input type="checkbox" name="require_phone" ${settings.require_phone === '1' ? 'checked' : ''}><span class="toggle-slider"></span></label>
+          </div>
         </div>
       </div>
 
@@ -154,6 +161,6 @@ function getDefaults() {
     telegram_booking: '1', telegram_digest: '1', telegram_cashflow: '1',
     ai_copywriter_tone: 'quiet_luxury', ai_auto_publish: '0',
     gdpr_retention_days: '30', booking_max_future_days: '90',
-    stripe_deposit_required: '1',
+    stripe_deposit_required: '1', require_phone: '1',
   };
 }

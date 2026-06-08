@@ -322,6 +322,15 @@
           </div>
 
           <div class="form-group">
+            <label for="booking-reminder-channel">Způsob zasílání upomínek termínu</label>
+            <select id="booking-reminder-channel" class="form-control">
+              <option value="email" selected>E-mail (vždy)</option>
+              <option value="sms">SMS</option>
+              <option value="whatsapp" disabled>WhatsApp (brzy)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label for="booking-service">Požadovaný program *</label>
             <select id="booking-service" class="form-control" required>
               <option value="" disabled selected>Vyberte program...</option>
@@ -355,13 +364,13 @@
           </div>
 
           <div class="form-group form-full form-checkbox">
-            <input type="checkbox" id="booking-consent" required>
-            <label for="booking-consent">Souhlasím se zpracováním osobních a citlivých údajů o zdraví za účelem vyřízení rezervace (metoda podléhá GDPR šifrování). *</label>
+            <input type="checkbox" id="booking-consent-processing" required>
+            <label for="booking-consent-processing">Souhlasím se zpracováním poskytnutých osobních údajů, včetně údajů o zdravotním stavu, za účelem vyřízení rezervace a poskytnutí objednané služby. Seznámil/a jsem se se <a href="/gdpr" id="consent-gdpr-link">Zásadami ochrany osobních údajů</a>. *</label>
           </div>
 
           <div class="form-group form-full form-checkbox">
             <input type="checkbox" id="booking-marketing">
-            <label for="booking-marketing">Chci odebírat e-mailový zpravodaj s radami a tipy pro zdraví (Newsletter).</label>
+            <label for="booking-marketing">Chci dostávat novinky, zvýhodněné nabídky a tipy z Bicom Písek. Souhlasím se zasíláním obchodních sdělení na uvedené kontaktní údaje. Souhlas je dobrovolný a mohu jej kdykoli odvolat.</label>
           </div>
 
           <div class="booking-actions">

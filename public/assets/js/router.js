@@ -374,26 +374,35 @@ function renderGdprPage() {
       </h1>
       
       <div style="background-color: var(--c-white); border-radius: var(--radius); padding: 2rem; border: 1px solid rgba(115, 138, 117, 0.1); box-shadow: var(--shadow-sm); line-height: 1.8;">
+        <div style="background-color: #f4f6f4; border-left: 4px solid var(--c-sage); padding: 1.25rem; margin-bottom: 2rem; font-size: 0.9rem; color: var(--c-forest); line-height: 1.6; border-radius: 4px;">
+          <strong>Upozornění pro provozovatele:</strong> Tyto textové vzory jsou připraveny věcně v duchu právních předpisů EU (GDPR) a ČR. Nejedná se však o právní poradenství. Před spuštěním ostrého provozu je nezbytná kontrola a doplnění ze strany vašeho právního zástupce (doplnění konkrétního IČO, jména provozovatele, případně pověřence pro ochranu osobních údajů - DPO, konkrétních zpracovatelů a přesných lhůt).
+        </div>
+
         <p><strong>1. Základní ustanovení</strong></p>
         <p>Provozovatel (dále jen „správce“), se sídlem Písek, prohlašuje, že veškeré osobní údaje zpracovává v souladu s Nařízením Evropského parlamentu a Rady (EU) 2016/679 (GDPR).</p>
         
         <p><strong>2. Jaké osobní a citlivé údaje zpracováváme?</strong></p>
-        <p>Při online rezervaci termínu zpracováváme Vaše:</p>
+        <p>Při online rezervaci termínu a nastavení komunikace zpracováváme Vaše:</p>
         <ul>
           <li>Jméno a příjmení (identifikační údaj)</li>
-          <li>E-mailovou adresu a telefonní číslo (kontaktní údaje)</li>
+          <li>E-mailovou adresu a telefonní číslo (kontaktní a komunikační údaje sloužící k vyřízení rezervace a zasílání automatických upomínek termínu podle Vámi vybraného kanálu)</li>
           <li>PSČ (pro agregované geografické statistiky poptávek)</li>
-          <li><strong>Citlivé údaje o zdraví:</strong> stručnou poznámku o Vašich potížích, kterou dobrovolně uvedete. Tyto údaje jsou chráněny nejpřísnějším šifrováním (Field-Level Encryption) a přístup k nim má výhradně správce.</li>
+          <li><strong>Citlivé údaje o zdraví (čl. 9 GDPR):</strong> stručnou poznámku o Vašich potížích, kterou dobrovolně uvedete. Tyto údaje jsou chráněny nejpřísnějším šifrováním (Field-Level Encryption) a přístup k nim má výhradně správce.</li>
         </ul>
 
         <p><strong>3. Účel a právní základ zpracování</strong></p>
-        <p>Zpracování je nezbytné pro splnění smlouvy / vyřízení Vaší poptávky termínu a poskytnutí doplňkové poradenské péče. V případě odběru newsletteru je právním základem Váš výslovný souhlas.</p>
+        <p>Zpracování osobních a zdravotních údajů je nezbytné pro splnění smlouvy / vyřízení Vaší poptávky termínu a poskytnutí objednané biorezonanční péče. Pro automatické zasílání upomínek na Váš termín využíváme Vaše kontaktní údaje (e-mail nebo SMS) na základě plnění smlouvy a oprávněného zájmu na řádném poskytnutí služby. V případě odběru newsletteru a marketingových sdělení je právním základem Váš výslovný a dobrovolný souhlas.</p>
 
         <p><strong>4. Doba uchování údajů</strong></p>
         <p>Údaje z rezervačního formuláře jsou automaticky anonymizovány po 30 dnech od plánovaného termínu sezení. E-mail pro zasílání newsletteru uchováváme do doby odhlášení odběru.</p>
 
-        <p><strong>5. Práva subjektu údajů</strong></p>
+        <p><strong>5. Práva subjektu údajů a odvolání souhlasu</strong></p>
         <p>Máte právo požadovat přístup k Vašim osobním údajům, jejich opravu, výmaz („právo být zapomenut“), omezení zpracování, a vznést námitku proti zpracování na e-mail: <strong>info@bicom-pisek.cz</strong>.</p>
+        <p>Udělené souhlasy (např. marketingový souhlas pro newsletter) můžete kdykoli a bez jakýchkoli následků odvolat:</p>
+        <ul>
+          <li>Odpovědí na libovolný e-mail od nás (zasláním žádosti o odhlášení na <strong>info@bicom-pisek.cz</strong>).</li>
+          <li>Kliknutím na odhlašovací odkaz v patičce každého zaslaného newsletteru.</li>
+        </ul>
       </div>
     </div>
   `;
