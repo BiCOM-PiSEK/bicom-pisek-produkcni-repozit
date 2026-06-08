@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     estimated_price INTEGER,
     consent_version TEXT,
     consent_marketing INTEGER DEFAULT 0,
+    reminder_channel TEXT DEFAULT 'email' CHECK(reminder_channel IN ('email','sms','whatsapp')),
     calendar_event_id TEXT,
     operator_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -93,7 +94,7 @@ CREATE INDEX IF NOT EXISTS idx_geo_city ON geo_leads(city);
 CREATE TABLE IF NOT EXISTS reminders (
     id TEXT PRIMARY KEY,
     booking_id TEXT NOT NULL,
-    channel TEXT NOT NULL CHECK(channel IN ('sms','email')),
+    channel TEXT NOT NULL CHECK(channel IN ('sms','email','whatsapp')),
     send_at TIMESTAMP NOT NULL,
     sent INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
