@@ -1159,3 +1159,41 @@
 - [x] Aktualizace GDPR stránky o varování, upomínky a odvolání souhlasu
 - [x] Syntaktická kontrola a build projektu
 - [x] Otevřen Pull Request #25 do main větve
+
+---
+
+## 2026-06-08 S2 GDPR Frontend — CodeRabbit Fixes (PR #25)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s2-gdpr-frontend
+**Status:** ✅ Hotovo (Opravy zapracovány a pushnuty do PR #25)
+
+### Co bylo implementováno
+- **Oprava 1 (null-guard u `reminder_channel`):**
+  - V `public/assets/js/guide.js` byl zaveden null-guard pro element `#booking-reminder-channel` před sestavením payloadu `data` (pokud v DOM chybí, vrací se defaultní hodnota `'email'`).
+- **Oprava 2 (defenzivní guardy v `updatePhoneRequirement()`):**
+  - Přidán guard na `phoneInput` (při `null` dojde k early-return).
+  - Přidáno bezpečné čtení `bookingConfig.require_phone` (pokud je `bookingConfig` null, fallback na `true`).
+  - Přidán guard na `phoneLabel` před pokusem o manipulaci s `innerHTML`.
+- **Oprava 3 (sjednocení GDPR odkazů):**
+  - V `public/index.html` byly všechny fragmenty `href="#gdpr"` (v patičce a v cookie banneru) přepsány na absolutní path `/gdpr` podporovaný routerem.
+- **Oprava 4 (a11y a popisky u kanálu upomínek):**
+  - U selectu `#booking-reminder-channel` v `public/index.html` byl přidán help text element `#booking-reminder-help` a select byl propojen pomocí `aria-describedby`.
+  - U disabled option `whatsapp` byly doplněny atributy `aria-label` a `title` signalizující nedostupnost služby.
+- **Verifikace:**
+  - Provedena syntaktická kontrola syntaxe (`node --check public/assets/js/guide.js`).
+  - Úspěšně sestaven lokální build sitemap (`npm run build`).
+  - Přidán komentář k PR #25 objasňující staré komentáře CodeRabbit.
+
+### Soubory změněné
+- `public/assets/js/guide.js` — defenzivní guardy u telefonu a reminder_channel
+- `public/index.html` — sjednocení GDPR odkazů na `/gdpr` a a11y vylepšení selectu
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Null-guard u `booking-reminder-channel` v guide.js
+- [x] Early-return a safe checky v `updatePhoneRequirement()`
+- [x] Sjednocení všech `href="#gdpr"` na `/gdpr` v index.html
+- [x] Přidán help text a a11y vazby (aria-describedby, aria-label, title) na selectu a option
+- [x] Syntax check a build v pořádku
+- [x] Odeslán komentář na GitHub PR #25 o neplatných audit/backup komentářích
+

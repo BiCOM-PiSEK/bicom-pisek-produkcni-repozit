@@ -323,11 +323,12 @@
 
           <div class="form-group">
             <label for="booking-reminder-channel">Způsob zasílání upomínek termínu</label>
-            <select id="booking-reminder-channel" class="form-control">
+            <select id="booking-reminder-channel" class="form-control" aria-describedby="booking-reminder-help">
               <option value="email" selected>E-mail (vždy)</option>
               <option value="sms">SMS</option>
-              <option value="whatsapp" disabled>WhatsApp (brzy)</option>
+              <option value="whatsapp" disabled aria-label="WhatsApp — brzy, zatím nedostupné" title="Zatím nedostupné">WhatsApp (brzy)</option>
             </select>
+            <span id="booking-reminder-help" class="form-hint" style="font-size: 0.85rem; color: #767a7d; margin-top: 4px; display: block;">Vyberte, jakým způsobem Vám zašleme připomenutí termínu před jeho konáním.</span>
           </div>
 
           <div class="form-group">
@@ -479,7 +480,7 @@
         Provozovatel: DOPLNIT | IČO: DOPLNIT
       </div>
       <div>
-        <a href="#gdpr" style="color: #ADB8AE; text-decoration: underline;" id="gdpr-link">Ochrana osobních údajů (GDPR)</a> | 
+        <a href="/gdpr" style="color: #ADB8AE; text-decoration: underline;" id="gdpr-link">Ochrana osobních údajů (GDPR)</a> | 
         <a href="#" style="color: #ADB8AE; text-decoration: underline;" id="cookie-settings-btn">Nastavení cookies</a>
       </div>
     </div>
@@ -488,7 +489,7 @@
   <!-- 10. Cookie Consent lišta -->
   <div class="cookie-banner" id="cookie-banner">
     <p>
-      Tento web používá soubory cookies a analytické nástroje k zajištění optimálního výkonu a analýze návštěvnosti. Informace o zdraví z rezervačních formulářů jsou přísně šifrovány a nepodléhají měření. Více informací v <a href="#gdpr">zásadách GDPR</a>.
+      Tento web používá soubory cookies a analytické nástroje k zajištění optimálního výkonu a analýze návštěvnosti. Informace o zdraví z rezervačních formulářů jsou přísně šifrovány a nepodléhají měření. Více informací v <a href="/gdpr">zásadách GDPR</a>.
     </p>
     <div class="cookie-actions">
       <button class="cookie-btn cookie-btn-decline" id="cookie-decline">Odmítnout</button>
