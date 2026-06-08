@@ -1136,8 +1136,9 @@
   - V `public/assets/js/router.js` (`renderGdprPage()`) bylo na začátek sekce o souhlasech přidáno zvýrazněné upozornění o nutnosti revize textů právníkem provozovatele.
   - Zásady byly doplněny o explicitní právo na odvolání souhlasu (odpovědí na e-mail info@bicom-pisek.cz nebo odkazem v newsletteru) a zmínku o zpracování kontaktů za účelem upomínek termínu.
 - **Verifikace:**
-  - Proveden syntax check (`node --check`) na všech dotčených souborech a sestaven úspěšný sitemap build (`npm run build`).
-  - Vytvořen a odeslán Pull Request #25 na GitHubu.
+  - Proveden syntax check (`node --check`) na všech dotčených souberech a sestaven úspěšný sitemap build (`npm run build`).
+  - Větev a PR #25 byly očištěny od nechtěně commitnutých souborů (záloha DB, auditní reporty) a složka `backups/` byla přidána do `.gitignore`.
+  - Vytvořen a odeslán Pull Request #25 na GitHubu (aktualizován).
 
 ### Soubory změněné
 - `functions/admin/settings.js` — whitelist a výchozí stav require_phone na backendu
