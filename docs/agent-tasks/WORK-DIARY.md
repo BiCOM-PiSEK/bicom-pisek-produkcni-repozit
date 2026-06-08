@@ -1071,6 +1071,45 @@
 - [x] Provedena syntaktická kontrola, build a lokální integrační testy
 - [x] Otevřen a aktualizován Pull Request #23 pro review
 
+---
+
+## 2026-06-08 S2 Blok 2a — GDPR souhlasy u Stripe (Fáze B1b: Backend)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s2-stripe-consent
+**Status:** ✅ Hotovo (Pull Request vytvořen, čeká na review)
+
+### Co bylo implementováno
+- **Refaktoring pomocných metod:**
+  - `CONSENT_VERSION` a `parseBoolean()` byly vyjmuty z `book.js` a přesunuty do sdíleného souboru `db.js` jako exporty. Tím se zamezilo duplicitě kódu.
+  - V `book.js` byl import upraven tak, aby načítal tyto helpers z `db.js` (otestováno a plně funkční).
+- **GDPR souhlasy a kanál ve Stripe checkoutu:**
+  - V `stripe-checkout.js` se z payloadu nově načítají parametry `consent_processing`, `consent_marketing` a `reminder_channel`.
+  - Přidána validace povinného souhlasu (`consent_processing`) a volby komunikačního kanálu (`reminder_channel` s blokováním WhatsAppu přes 400).
+  - Rozšířen inline SQL `INSERT INTO bookings` tak, aby ukládal `consent_version` (= `CONSENT_VERSION`), `consent_marketing` (0/1) a `reminder_channel`.
+  - Pokud uživatel udělil marketingový souhlas, v non-blocking `waitUntil` se volá `subscribeNewsletter()` s dedupem na e-mail hash.
+- **Kaskáda upomínek u Stripe cesty:**
+  - Zjištěno, že Stripe úspěšná platba odesílá zprávu do stejné fronty `env.BOOKING_QUEUE` jako `/api/book`, takže upomínky se plánují přes stávající consumer `_queue-booking.js`.
+  - V `stripe-webhook.js` bylo doplněno předávání `reminder_channel` z DB (kam se uloží při checkoutu) do queue zprávy, takže kaskáda upomínek je nyní plně funkční i pro platící uživatele.
+- **Verifikace:**
+  - Provedena kontrola syntaxe (`node --check`) na všech 4 změněných souborech a úspěšně sestaven lokální build (`npm run build`).
+
+### Soubory změněné
+- `functions/lib/db.js` — export sdílené `CONSENT_VERSION` a `parseBoolean`
+- `functions/api/book.js` — import sdílených metod, odstranění lokálních deklarací
+- `functions/api/stripe-checkout.js` — načtení, validace a zápis souhlasů a kanálu upomínek do DB, přihlášení k newsletteru
+- `functions/api/stripe-webhook.js` — předání `reminder_channel` z DB do payloadu queue zprávy
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Helpers `CONSENT_VERSION` a `parseBoolean` přesunuty do `db.js` a sdíleny
+- [x] Stripe checkout validuje povinný GDPR souhlas a volbu komunikačního kanálu před Stripe session
+- [x] Stripe checkout ukládá souhlasy a kanál upomínek do DB
+- [x] Při zaškrtnutí marketingu je uživatel přihlášen k newsletteru přes `subscribeNewsletter`
+- [x] Stripe webhook předává `reminder_channel` z DB do queue payloadu pro správné plánování upomínek
+- [x] Provedena syntaktická kontrola a build projektu
+- [x] Otevřen Pull Request do main větve
+
+
 
 
 

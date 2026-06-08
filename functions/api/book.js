@@ -3,7 +3,7 @@
 // and enqueues async processing (calendar, email, Telegram, reminders).
 
 import { DataCrypt } from '../lib/datacrypt.js';
-import { createBooking, addGeoLead, subscribeNewsletter } from '../lib/db.js';
+import { createBooking, addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
@@ -31,8 +31,6 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-const CONSENT_VERSION = '2026-06-08';
-
 /**
  * Strips HTML tags from a string to prevent XSS.
  * @param {string} str
@@ -41,22 +39,6 @@ const CONSENT_VERSION = '2026-06-08';
 function sanitize(str) {
   if (typeof str !== 'string') return '';
   return str.replace(/<[^>]*>/g, '').trim();
-}
-
-/**
- * Strictly parses value to boolean based on CodeRabbit guidelines.
- * Returns true only for true, 1, "1", "true", "yes" (case-insensitive).
- * Otherwise returns false.
- * @param {*} val
- * @returns {boolean}
- */
-function parseBoolean(val) {
-  if (val === true || val === 1) return true;
-  if (typeof val === 'string') {
-    const lower = val.toLowerCase().trim();
-    return lower === 'true' || lower === '1' || lower === 'yes';
-  }
-  return false;
 }
 
 /**

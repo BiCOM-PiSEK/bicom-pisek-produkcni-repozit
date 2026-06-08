@@ -1,5 +1,23 @@
 import { DataCrypt } from './datacrypt.js';
 
+export const CONSENT_VERSION = '2026-06-08';
+
+/**
+ * Strictly parses value to boolean based on CodeRabbit guidelines.
+ * Returns true only for true, 1, "1", "true", "yes" (case-insensitive).
+ * Otherwise returns false.
+ * @param {*} val
+ * @returns {boolean}
+ */
+export function parseBoolean(val) {
+  if (val === true || val === 1) return true;
+  if (typeof val === 'string') {
+    const lower = val.toLowerCase().trim();
+    return lower === 'true' || lower === '1' || lower === 'yes';
+  }
+  return false;
+}
+
 /**
  * Database helper functions for D1.
  * All sensitive data is encrypted before storage.

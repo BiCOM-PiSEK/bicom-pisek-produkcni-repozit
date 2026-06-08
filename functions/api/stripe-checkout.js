@@ -2,6 +2,7 @@
 // Creates a pending booking and returns a Stripe Checkout Session URL.
 
 import { DataCrypt } from '../lib/datacrypt.js';
+import { subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -14,14 +15,46 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   try {
     const data = await request.json();
     
     // Validate inputs
-    if (!data.name || !data.email || !data.phone || !data.service || !data.preferred_date) {
+    const { name, email, phone, service, preferred_date, note, psc, consent_marketing, reminder_channel, consent_processing } = data;
+
+    if (!name || !email || !phone || !service || !preferred_date) {
       return new Response(
         JSON.stringify({ error: 'invalid_input', message: 'Vyplňte prosím všechna povinná pole.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Strictly normalize boolean variables
+    const parsedConsentProcessing = parseBoolean(consent_processing);
+    const parsedConsentMarketing = parseBoolean(consent_marketing);
+    const reminderChannel = reminder_channel || 'email';
+
+    // Validate reminder_channel
+    const validChannels = ['email', 'sms', 'whatsapp'];
+    if (!validChannels.includes(reminderChannel)) {
+      return new Response(
+        JSON.stringify({ error: 'invalid_input', message: 'Neplatná volba komunikačního kanálu upomínek.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // WhatsApp is currently disabled at public API level
+    if (reminderChannel === 'whatsapp') {
+      return new Response(
+        JSON.stringify({ error: 'invalid_input', message: 'Kanál WhatsApp momentálně není podporován. Zvolte prosím SMS nebo E-mail.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Mandatory GDPR health processing consent
+    if (!parsedConsentProcessing) {
+      return new Response(
+        JSON.stringify({ error: 'invalid_input', message: 'Pro vytvoření rezervace musíte udělit souhlas se zpracováním osobních a citlivých údajů.' }),
         { status: 400, headers: CORS_HEADERS }
       );
     }
@@ -31,10 +64,10 @@ export async function onRequestPost({ request, env }) {
 
     // 1. Encrypt sensitive fields
     const [nameEnc, emailEnc, phoneEnc, noteEnc] = await Promise.all([
-      crypt.encrypt(data.name),
-      crypt.encrypt(data.email),
-      crypt.encrypt(data.phone),
-      data.note ? crypt.encrypt(data.note) : Promise.resolve(null),
+      crypt.encrypt(name),
+      crypt.encrypt(email),
+      crypt.encrypt(phone),
+      note ? crypt.encrypt(note) : Promise.resolve(null),
     ]);
 
     const depositAmount = 500; // 500 CZK deposit
@@ -82,20 +115,32 @@ export async function onRequestPost({ request, env }) {
 
     // 3. Save pending_payment booking to D1 database
     await env.DB.prepare(
-      `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, estimated_price, status, stripe_session_id, stripe_payment_status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?, 'pending_payment')`
+      `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, estimated_price, consent_version, consent_marketing, reminder_channel, status, stripe_session_id, stripe_payment_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?, 'pending_payment')`
     ).bind(
       bookingId,
       nameEnc,
       emailEnc,
       phoneEnc,
-      data.service,
+      service,
       noteEnc,
-      data.preferred_date,
-      data.psc || null,
+      preferred_date,
+      psc || null,
       data.estimated_price || null,
+      CONSENT_VERSION,
+      parsedConsentMarketing ? 1 : 0,
+      reminderChannel,
       session.id
     ).run();
+
+    // 4. Newsletter subscription (non-blocking)
+    if (parsedConsentMarketing) {
+      waitUntil(
+        subscribeNewsletter(env.DB, crypt, email, 'booking').catch((err) =>
+          console.error('[stripe-checkout] Newsletter subscribe error:', err)
+        )
+      );
+    }
 
     return new Response(
       JSON.stringify({ url: session.url, bookingId }),
