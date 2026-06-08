@@ -44,6 +44,22 @@ function sanitize(str) {
 }
 
 /**
+ * Strictly parses value to boolean based on CodeRabbit guidelines.
+ * Returns true only for true, 1, "1", "true", "yes" (case-insensitive).
+ * Otherwise returns false.
+ * @param {*} val
+ * @returns {boolean}
+ */
+function parseBoolean(val) {
+  if (val === true || val === 1) return true;
+  if (typeof val === 'string') {
+    const lower = val.toLowerCase().trim();
+    return lower === 'true' || lower === '1' || lower === 'yes';
+  }
+  return false;
+}
+
+/**
  * Handles OPTIONS preflight.
  */
 export async function onRequestOptions() {
@@ -86,17 +102,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
       );
     }
 
-    // Mandatory GDPR health processing consent
-    if (consent_processing !== true && consent_processing !== 1) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Pro vytvoření rezervace musíte udělit souhlas se zpracováním osobních a citlivých údajů.' }),
-        { status: 400, headers: CORS_HEADERS }
-      );
-    }
-
-    // Validate reminder_channel
-    const validChannels = ['email', 'sms', 'whatsapp'];
+    // Strictly normalize boolean variables
+    const parsedConsentProcessing = parseBoolean(consent_processing);
+    const parsedConsentMarketing = parseBoolean(consent_marketing);
     const reminderChannel = reminder_channel || 'email';
+
+    // Validate reminder_channel before writing
+    const validChannels = ['email', 'sms', 'whatsapp'];
     if (!validChannels.includes(reminderChannel)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Neplatná volba komunikačního kanálu upomínek.' }),
@@ -108,6 +120,14 @@ export async function onRequestPost({ request, env, waitUntil }) {
     if (reminderChannel === 'whatsapp') {
       return new Response(
         JSON.stringify({ success: false, error: 'Kanál WhatsApp momentálně není podporován. Zvolte prosím SMS nebo E-mail.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Mandatory GDPR health processing consent
+    if (!parsedConsentProcessing) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Pro vytvoření rezervace musíte udělit souhlas se zpracováním osobních a citlivých údajů.' }),
         { status: 400, headers: CORS_HEADERS }
       );
     }
@@ -159,7 +179,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       note: cleanNote,
       psc: psc ? sanitize(psc) : null,
       consent_version: CONSENT_VERSION,
-      consent_marketing: consent_marketing ? 1 : 0,
+      consent_marketing: parsedConsentMarketing ? 1 : 0,
       reminder_channel: reminderChannel,
     });
 
@@ -173,7 +193,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // 6. Newsletter subscription (non-blocking)
-    if (consent_marketing) {
+    if (parsedConsentMarketing) {
       waitUntil(
         subscribeNewsletter(env.DB, crypt, email, 'booking').catch((err) =>
           console.error('[book] Newsletter subscribe error:', err)

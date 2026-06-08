@@ -91,11 +91,7 @@ export default {
              VALUES (?, ?, 'sms', ?)`
           ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
         } else if (reminderChannel === 'whatsapp') {
-          // Prepared for future WhatsApp connector. Will not send until connector is implemented.
-          await env.DB.prepare(
-            `INSERT INTO reminders (id, booking_id, channel, send_at)
-             VALUES (?, ?, 'whatsapp', ?)`
-          ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+          console.warn(`[queue-booking] WhatsApp upomínka pro rezervaci ${booking.bookingId} přeskočena – dispatcher zatím WhatsApp neodesílá.`);
         }
 
         // 7. Audit log

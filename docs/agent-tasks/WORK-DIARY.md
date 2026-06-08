@@ -1031,7 +1031,7 @@
 ## 2026-06-08 S1/S2 Blok 2a — GDPR a volba kanálu (Fáze B1: DB + backend)
 **Model:** Antigravity (Gemini 2.0 Flash)
 **Branch:** agent/ag-w3-s2-gdpr-backend
-**Status:** ✅ Hotovo (Pull Request #23 otevřen, čeká na review)
+**Status:** ✅ Hotovo (Pull Request #23 otevřen a aktualizován, čeká na review)
 
 ### Co bylo implementováno
 - **Migrace 0009:**
@@ -1041,20 +1041,22 @@
   - Lokální migrace úspěšně aplikována a ověřena přes wrangler CLI.
 - **Oprava zápisu souhlasů a nového kanálu:**
   - V `book.js` a `db.js` byla opravena chyba neukládání GDPR souhlasů do DB. Do parametrů `createBooking()` se nově předávají `consent_version` (zavedena konstanta `CONSENT_VERSION = '2026-06-08'`), `consent_marketing` (0/1) a `reminder_channel`.
+  - **Striktní normalizace souhlasů (Oprava CodeRabbit):** V `book.js` zaveden helper `parseBoolean()`, který striktně parsuje souhlasy na boolean (vrací true pouze pro true, 1, "1", "true", "yes" case-insensitive, jinak false). Zamezuje se tak neplatným/prázdným stavům u `consent_processing` i `consent_marketing`.
   - Přidána validace povinného souhlasu se zpracováním citlivých dat (`consent_processing`) a validace zvoleného kanálu upomínek (`reminder_channel`). WhatsApp je na úrovni API dočasně zablokován chybou 400.
-- **Kaskáda upomínek:**
-  - V `_queue-booking.js` upraveno generování řádků do `reminders` na základě zvoleného `reminder_channel`. E-mailová upomínka se plánuje vždy, SMS a WhatsApp pouze pokud si je klient zvolí.
+- **Kaskáda upomínek (Oprava CodeRabbit):**
+  - V `_queue-booking.js` upraveno generování řádků do `reminders`. E-mail se plánuje vždy, SMS podmíněně.
+  - Větve pro WhatsApp upomínku nově nezapisují řádek do tabulky `reminders` (INSERT byl odstraněn), pouze logují varování `console.warn` (whatsapp dispatcher není implementován). Schema a migrace 0009 zůstávají beze změn (připravenost).
 - **Verifikace:**
   - Provedena kontrola syntaxe (`node --check`) na všech 3 modifikovaných souborech a úspěšně sestaven lokální build (`npm run build`).
   - Spuštěn in-memory integrační test v SQLite ověřující celou datovou logiku zápisu a dešifrování (všechny asserty prošly).
-  - Vytvořen Pull Request #23 na GitHubu.
+  - Vytvořen a aktualizován Pull Request #23 na GitHubu.
 
 ### Soubory změněné
 - `db/migrations/0009_add_reminder_channel.sql` — migrační skript (přidání sloupce + rebuild tabulky)
 - `db/schema.sql` — aktualizace kanonického schématu
 - `functions/lib/db.js` — vazba `reminder_channel` a souhlasů do INSERTu v `createBooking`
-- `functions/api/book.js` — validace souhlasů a kanálu, uložení verze souhlasu, odeslání do fronty
-- `functions/api/_queue-booking.js` — větvení zápisu upomínek podle zvoleného kanálu
+- `functions/api/book.js` — helper `parseBoolean`, strict validace souhlasů a kanálu, uložení verze souhlasu
+- `functions/api/_queue-booking.js` — odstranění WhatsApp zápisu, console.warn log pro chybějící dispatcher
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
 ### Akceptační kritéria — splněno?
@@ -1062,10 +1064,12 @@
 - [x] Aktualizováno `db/schema.sql`
 - [x] Lokální migrace úspěšně aplikována a ověřena
 - [x] Opraven zápis `consent_marketing` a `consent_version` v `book.js` a `db.js`
+- [x] Zavedena strict normalizace booleanů přes `parseBoolean` u obou souhlasů v `book.js`
 - [x] Validován povinný souhlas `consent_processing` a ošetřen/blokován WhatsApp na API úrovni
-- [x] Queue consumer generuje upomínky selektivně podle zvoleného kanálu (e-mail vždy, SMS/WhatsApp podmíněně)
+- [x] Z queue consumeru odstraněn zápis WhatsApp upomínek do reminders (nahrazeno `console.warn` logem)
+- [x] Queue consumer generuje upomínky selektivně podle zvoleného kanálu (e-mail vždy, SMS podmíněně)
 - [x] Provedena syntaktická kontrola, build a lokální integrační testy
-- [x] Otevřen Pull Request #23 pro review
+- [x] Otevřen a aktualizován Pull Request #23 pro review
 
 
 
