@@ -1287,5 +1287,48 @@
 - [x] Zanalyzována příčina reload smyčky v api.js a zodpovězeny otázky (a, b, c)
 - [x] Záznam zapsán do WORK-DIARY.md a pushnut
 
+---
+
+## 2026-06-08 FN-1 — Oprava admin refresh loop bugu (Fáze B)
+**Model:** Antigravity (Gemini 2.5 Pro / Flash)
+**Branch:** fix/s1-admin-loop
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno
+- **Oprava 1 (Seed real operators & smazání fantomů):**
+  - Vytvořena migrace `db/migrations/0010_seed_operators.sql` pro odstranění 2 starých fantomových identit (Lenka, Meverik) a vložení 6 reálných operátorských identit (Jana, Tereza, admin_box, info, matej_ic, matej_gm) pomocí `INSERT OR IGNORE`.
+  - Migrace byla úspěšně aplikována a ověřena na lokální D1 databázi (v tabulce `operators` je přesně 6 platných řádků).
+  - Ověřeno, že `db/schema.sql` tyto operators neseeduje, tudíž nebylo třeba v něm provádět změny.
+- **Oprava 2 (Rozlišení 401 a 403 a přerušení smyčky v api.js):**
+  - Upraven soubor `public/admin/js/api.js` pro rozlišení HTTP 401 a 403.
+  - Při 401 (chybějící/neplatný token) je uživatel přesměrován na Cloudflare Access login stránku `/cdn-cgi/access/login?redirect_url=` s uchováním aktuální cesty.
+  - Zaveden **Loop-Guard**: Před přesměrováním se zapíše timestamp do `sessionStorage ('admin_auth_redirect_at')`. Pokud od posledního přesměrování uplynulo méně než 10 sekund, redirect se zruší a zobrazí se statická Access Denied obrazovka.
+  - Při 403 (autentizován, ale chybí oprávnění) se NERELOADUJE, ale vyvolá se centrální handler `showAccessDenied()`, který vykreslí statickou obrazovku s informací o chybějícím přístupu a odkazem na odhlášení (`/cdn-cgi/access/logout`).
+- **Oprava 3 (Zastavení pollerů v app.js):**
+  - Do `public/admin/js/app.js` byla přidána a exportována funkce `stopPollers()`, která vyčistí intervaly pro activity feed (30s) a status bar (60s) z proměnných `state.activityPollTimer` a `state.statusPollTimer`.
+  - Funkce `stopPollers()` je uložena do `window.stopPollers` a volána z centrálního handleru v `api.js` pro zamezení opakovaných požadavků na pozadí po obdržení chyb 401/403.
+- **SEC-11 (CSP eval):**
+  - Prohledány soubory v `public/admin/js/**` a ověřeno, že se v nich nepoužívá `eval()`, `new Function()` ani string-based callbacky v `setTimeout`/`setInterval`. Kód je plně bezpečný a v souladu s CSP pravidly.
+- **Verifikace:**
+  - Provedena syntaktická kontrola syntaxe (`node --check public/admin/js/api.js public/admin/js/app.js`).
+  - Úspěšně sestaven lokální build sitemap (`npm run build`).
+
+### Soubory změněné
+- `db/migrations/0010_seed_operators.sql` — [NOVÝ] migrační soubor pro seedování operátorů a odstranění fantomů
+- `public/admin/js/api.js` — ošetření 401/403, Loop-Guard, showAccessDenied
+- `public/admin/js/app.js` — implementace a expozice stopPollers()
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Odstranění 2 fantomů a seed 6 reálných operators v migraci 0010
+- [x] Lokální ověření migrace na testovací D1 (právě 6 řádků, role i active sedí)
+- [x] Rozlišení 401 (redirect na Access login) vs 403 (Access Denied bez reloadu) v api.js
+- [x] Loop-Guard pro 401 redirecty v sessionStorage (stop <10s)
+- [x] Centrální showAccessDenied() vykreslující statickou obrazovku s odhlášením
+- [x] Zastavení pollerů (clearInterval) v app.js vyvolané po Access Denied
+- [x] Ověření SEC-11 (žádné eval/new Function/string-timers)
+- [x] Syntax check a build v pořádku
+
+
 
 

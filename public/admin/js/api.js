@@ -14,6 +14,105 @@
 const API_BASE = '/admin';
 
 /**
+ * Vykreslí statickou obrazovku "Váš účet nemá přístup — kontaktujte správce"
+ * a zastaví pollery na pozadí.
+ * @param {string} [reason]
+ */
+function showAccessDenied(reason = 'Váš účet nemá přístup — kontaktujte správce.') {
+  // Zastaví pollery (funkce z app.js)
+  if (typeof window.stopPollers === 'function') {
+    window.stopPollers();
+  }
+
+  // Vykreslí statickou obrazovku bez reloadu/redirectu
+  document.body.innerHTML = `
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100vw;
+      background-color: #FAF8F5;
+      color: #2B2B2B;
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      text-align: center;
+      padding: 2rem;
+      box-sizing: border-box;
+    ">
+      <div style="font-size: 4rem; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 12px rgba(58, 74, 60, 0.08));">🔒</div>
+      <h1 style="
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 2.5rem;
+        color: #3A4A3C;
+        margin-bottom: 1rem;
+        font-weight: 600;
+      ">Přístup odepřen</h1>
+      <p style="
+        font-size: 1rem;
+        color: #738A75;
+        max-width: 480px;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      ">${reason}</p>
+      <a href="/cdn-cgi/access/logout" style="
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        padding: 0 1.25rem;
+        border-radius: 10px;
+        background-color: #3A4A3C;
+        color: #FFFFFF;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(58, 74, 60, 0.08);
+        transition: background-color 150ms ease;
+      " onmouseover="this.style.backgroundColor='#2D3A2F'" onmouseout="this.style.backgroundColor='#3A4A3C'">
+        Odhlásit se
+      </a>
+    </div>
+  `;
+}
+
+// Zpřístupníme na window pro ostatní moduly a skripty
+window.showAccessDenied = showAccessDenied;
+
+/**
+ * Centrální ošetření chyb přihlášení (401 a 403).
+ * @param {number} status
+ */
+function handleAuthError(status) {
+  if (status === 403) {
+    console.warn('[api] 403 Forbidden - Access Denied.');
+    showAccessDenied('Váš účet nemá přístup — kontaktujte správce.');
+    return;
+  }
+
+  if (status === 401) {
+    const now = Date.now();
+    const lastRedirect = sessionStorage.getItem('admin_auth_redirect_at');
+
+    if (lastRedirect) {
+      const diff = now - parseInt(lastRedirect, 10);
+      if (diff < 10000) {
+        console.error('[api] Auth redirect loop detected (<10s). Breaking loop.');
+        showAccessDenied('Smyčka přesměrování detekována. Přihlášení selhalo opakovaně.');
+        return;
+      }
+    }
+
+    // Uložíme čas redirectu do sessionStorage a přesměrujeme
+    sessionStorage.setItem('admin_auth_redirect_at', now.toString());
+    console.warn('[api] 401 Unauthenticated - Redirecting to Cloudflare Access login.');
+    // window.location.href = '/cdn-cgi/access/login' + encodeURIComponent(location.pathname);
+    window.location.href = '/cdn-cgi/access/login?redirect_url=' + encodeURIComponent(location.pathname);
+  }
+}
+
+/**
+
  * @typedef {Object} ApiResponse
  * @property {boolean} ok
  * @property {Object|null} data
@@ -88,10 +187,9 @@ async function request(path, options = {}) {
       if (!response.ok) {
         const errorMsg = data?.error || `HTTP ${response.status}`;
 
-        // 401/403 → přesměrovat na login (Cloudflare Access)
+        // 401/403 → centrální ošetření autentizačních chyb (Access Denied / Redirect)
         if (response.status === 401 || response.status === 403) {
-          console.warn('[api] Auth error, redirecting to login');
-          window.location.href = '/admin';
+          handleAuthError(response.status);
           return { ok: false, data: null, error: 'Neoprávněný přístup', status: response.status };
         }
 
