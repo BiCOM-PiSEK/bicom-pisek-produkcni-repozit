@@ -125,6 +125,7 @@ export async function onRequestPost({ request, env }) {
         preferred_date: booking.preferred_date,
         estimated_price: booking.estimated_price,
         stripe_paid: true,
+        reminder_channel: booking.reminder_channel || 'email',
       });
 
       console.info(`[stripe-webhook] Successfully processed paid booking: ${bookingId}`);
