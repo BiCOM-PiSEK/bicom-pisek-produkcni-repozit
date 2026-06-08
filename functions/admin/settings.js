@@ -29,6 +29,7 @@ const EDITABLE_KEYS = [
   'gdpr_retention_days', // number of days before anonymization
   'booking_max_future_days', // max days in advance for bookings
   'stripe_deposit_required', // '1' | '0' — whether Stripe deposit is mandatory
+  'require_phone',      // '1' | '0' — whether phone number is mandatory for booking
 ];
 
 export async function onRequestGet({ env, data }) {

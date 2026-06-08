@@ -1109,8 +1109,91 @@
 - [x] Provedena syntaktická kontrola a build projektu
 - [x] Otevřen Pull Request do main větve
 
+---
 
+## 2026-06-08 S2 Blok 2a — GDPR a volba kanálu (Fáze B2: Frontend + Admin)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s2-gdpr-frontend
+**Status:** ✅ Hotovo (Pull Request #25 vytvořen, čeká na review)
 
+### Co bylo implementováno
+- **Výběr kanálu upomínek na frontendu:**
+  - Do rezervačního formuláře v `public/index.html` bylo přidáno rozbalovací menu `#booking-reminder-channel` umožňující volbu e-mailu (vždy, výchozí), SMS, a WhatsAppu (který je dočasně disabled s popiskem "brzy").
+  - V `public/assets/js/guide.js` je tato hodnota správně načítána a posílána v payloadu na `/api/book` i `/api/stripe-checkout`.
+- **GDPR souhlasy v rezervačním formuláři:**
+  - V `public/index.html` byl stávající checkbox pro souhlas se zpracováním přejmenován na `#booking-consent-processing` a jeho text byl upraven na povinný souhlas se zpracováním citlivých osobních údajů o zdravotním stavu. Součástí je odkaz na `/gdpr` s ID `#consent-gdpr-link`.
+  - Checkbox pro marketing `#booking-marketing` byl ponechán jako dobrovolný (nepovinný) a jeho popisek byl upraven dle legislativního znění.
+  - V `public/assets/js/guide.js` jsou stavy obou checkboxů načítány jako boolean a odesílány v payloadu.
+- **Podmíněná logika telefonu (`require_phone`):**
+  - V `public/assets/js/guide.js` byla implementována funkce `updatePhoneRequirement()`, která dynamicky nastavuje atribut `required` a hvězdičku v popisku pole telefonu:
+    - Pokud je v konfiguraci z DB `require_phone` zapnutý (`true`), telefon je vždy povinný.
+    - Pokud je `require_phone` vypnutý (`false`), telefon je nepovinný, ale při volbě kanálu upomínek `sms` se stane okamžitě povinným.
+- **Administrace nastavení:**
+  - Whitelistován klíč `require_phone` v `EDITABLE_KEYS` na backendu (`functions/admin/settings.js`).
+  - V `public/admin/js/modules/settings.js` byl přidán přepínač (toggle switch) pro `require_phone` pod sekci Platby & Zálohy a klíč byl doplněn do `getDefaults()` s výchozí hodnotou `'1'` (zapnuto).
+  - Veřejný config endpoint `/api/booking-config` (`functions/api/booking-config.js`) byl upraven tak, aby načítal `require_phone` z databáze (s fallbackem na `true`) a vracel jej jako součást konfigurace.
+- **GDPR stránka:**
+  - V `public/assets/js/router.js` (`renderGdprPage()`) bylo na začátek sekce o souhlasech přidáno zvýrazněné upozornění o nutnosti revize textů právníkem provozovatele.
+  - Zásady byly doplněny o explicitní právo na odvolání souhlasu (odpovědí na e-mail info@bicom-pisek.cz nebo odkazem v newsletteru) a zmínku o zpracování kontaktů za účelem upomínek termínu.
+- **Verifikace:**
+  - Proveden syntax check (`node --check`) na všech dotčených souberech a sestaven úspěšný sitemap build (`npm run build`).
+  - Větev a PR #25 byly očištěny od nechtěně commitnutých souborů (záloha DB, auditní reporty) a složka `backups/` byla přidána do `.gitignore`.
+  - Vytvořen a odeslán Pull Request #25 na GitHubu (aktualizován).
 
+### Soubory změněné
+- `functions/admin/settings.js` — whitelist a výchozí stav require_phone na backendu
+- `functions/api/booking-config.js` — vystavení require_phone ve veřejné konfiguraci
+- `public/index.html` — přidání selectu kanálu upomínek, úprava GDPR checkboxů a textů
+- `public/assets/js/guide.js` — dynamic requirement telefonu, odesílání souhlasů a kanálu v payloadu
+- `public/assets/js/router.js` — aktualizace GDPR textů, přidání varování a odkazu pro odvolání souhlasu
+- `public/admin/js/modules/settings.js` — toggle přepínač pro require_phone v administraci, getDefaults
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+### Akceptační kritéria — splněno?
+- [x] Výběr kanálu upomínek (e-mail, SMS, WhatsApp-disabled) v rezervačním formuláři
+- [x] Odesílání `reminder_channel`, `consent_processing` a `consent_marketing` v payloadu na `/api/book` a `/api/stripe-checkout`
+- [x] Změna textů souhlasů s odkazem na `/gdpr` a ošetření dobrovolnosti marketingu
+- [x] Podmíněná logika telefonu (povinný při `require_phone === true` nebo při volbě `sms` upomínek)
+- [x] Přidání `require_phone` přepínače do administrace a jeho whitelistování
+- [x] Zpřístupnění `require_phone` ve veřejném configu `/api/booking-config`
+- [x] Aktualizace GDPR stránky o varování, upomínky a odvolání souhlasu
+- [x] Syntaktická kontrola a build projektu
+- [x] Otevřen Pull Request #25 do main větve
+
+---
+
+## 2026-06-08 S2 GDPR Frontend — CodeRabbit Fixes (PR #25)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s2-gdpr-frontend
+**Status:** ✅ Hotovo (Opravy zapracovány a pushnuty do PR #25)
+
+### Co bylo implementováno
+- **Oprava 1 (null-guard u `reminder_channel`):**
+  - V `public/assets/js/guide.js` byl zaveden null-guard pro element `#booking-reminder-channel` před sestavením payloadu `data` (pokud v DOM chybí, vrací se defaultní hodnota `'email'`).
+- **Oprava 2 (defenzivní guardy v `updatePhoneRequirement()`):**
+  - Přidán guard na `phoneInput` (při `null` dojde k early-return).
+  - Přidáno bezpečné čtení `bookingConfig.require_phone` (pokud je `bookingConfig` null, fallback na `true`).
+  - Přidán guard na `phoneLabel` před pokusem o manipulaci s `innerHTML`.
+- **Oprava 3 (sjednocení GDPR odkazů):**
+  - V `public/index.html` byly všechny fragmenty `href="#gdpr"` (v patičce a v cookie banneru) přepsány na absolutní path `/gdpr` podporovaný routerem.
+- **Oprava 4 (a11y a popisky u kanálu upomínek):**
+  - U selectu `#booking-reminder-channel` v `public/index.html` byl přidán help text element `#booking-reminder-help` a select byl propojen pomocí `aria-describedby`.
+  - U disabled option `whatsapp` byly doplněny atributy `aria-label` a `title` signalizující nedostupnost služby.
+- **Verifikace:**
+  - Provedena syntaktická kontrola syntaxe (`node --check public/assets/js/guide.js`).
+  - Úspěšně sestaven lokální build sitemap (`npm run build`).
+  - Přidán komentář k PR #25 objasňující staré komentáře CodeRabbit.
+
+### Soubory změněné
+- `public/assets/js/guide.js` — defenzivní guardy u telefonu a reminder_channel
+- `public/index.html` — sjednocení GDPR odkazů na `/gdpr` a a11y vylepšení selectu
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Null-guard u `booking-reminder-channel` v guide.js
+- [x] Early-return a safe checky v `updatePhoneRequirement()`
+- [x] Sjednocení všech `href="#gdpr"` na `/gdpr` v index.html
+- [x] Přidán help text a a11y vazby (aria-describedby, aria-label, title) na selectu a option
+- [x] Syntax check a build v pořádku
+- [x] Odeslán komentář na GitHub PR #25 o neplatných audit/backup komentářích
 

@@ -17,3 +17,6 @@ npm-debug.log*
 # Inbox slozka pro importy
 docs/assets/*ke zpracovani*/
 
+# DB backups
+backups/
+
