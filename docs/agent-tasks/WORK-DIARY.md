@@ -1234,4 +1234,58 @@
 - [x] Smoke test zápisu a smazání reminder_channel na produkci prošel úspěšně
 - [x] Záznam zapsán do WORK-DIARY.md a commitnut
 
+---
+
+## 2026-06-08 S2, Krok 4 — READ-ONLY Diagnóza: Admin refresh loop bug (FN-1 Fáze A)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** main (read-only diagnóza)
+**Status:** ✅ Hotovo (Fakta sesbírána a nahlášena, bez změn kódu/DB)
+
+### Co bylo diagnostikováno
+
+* **KROK 1: Stav tabulky `operators` na produkci**
+  * Spuštěn remote query: `SELECT id, email, role, active FROM operators ORDER BY role, email;`
+  * **Nález:** Tabulka `operators` na produkci obsahuje **dva aktivní řádky** (`active=1`):
+    1. `id='op_admin'`, `email='admin@meverik.studio'`, `role='admin'`
+    2. `id='op_lenka'`, `email='lenka@bicom-pisek.cz'`, `role='owner'`
+  * **Spouštěč root-cause:** Neplatí hypotéza, že by tabulka `operators` byla prázdná nebo nekonzistentní. Nicméně pokud se uživatel přihlašuje jiným e-mailem než těmito dvěma (např. přes Cloudflare Access), Cloudflare Access hlavičky předají e-mail, který v DB chybí, což vyvolá `403 Forbidden` a následnou reload smyčku.
+
+* **KROK 2: Ověření migrace 0007 (Stripe) na produkci**
+  * Ověřeno DDL schématu tabulky `bookings` přes `sqlite_master`.
+  * **Nález:** Všechny sloupce pro Stripe (`stripe_session_id`, `stripe_payment_intent_id`, `stripe_payment_status`, `paid_amount`, `paid_at`) v tabulce existují.
+  * Sloupec `status` v DB obsahuje správně `CHECK(status IN ('pending','confirmed','done','cancelled','pending_payment'))` včetně hodnoty `'pending_payment'`. Stripe platby tedy na chybějících DB strukturách neselžou.
+
+* **KROK 3: Stav migrační tabulky**
+  * Spuštěn remote query: `SELECT name FROM d1_migrations ORDER BY id;`
+  * **Nález:** Tabulka `d1_migrations` na produkci obsahuje kompletní řadu migrací od `0001_core_tables.sql` po `0009_add_reminder_channel.sql`. Stav schématu je 100% v pořádku a odpovídá repu.
+
+* **KROK 4: Git-forenzika smazání M1–M7 / `docs/audit/`**
+  * Prověřena kompletní historie repozitáře pomocí `git log --all --full-history --diff-filter=D --oneline -- 'docs/audit/*'`.
+  * **Nález:** Adresář `docs/audit/` **nikdy neexistoval** v historii repozitáře (jak v upstream/main, tak na origin forku), dokud jsme ho my omylem nepřidali v lokálním commitu `06a947c` na větvi `agent/ag-w3-s2-gdpr-frontend` a následně neodstranili v commitu `89430c5`. 
+  * Potvrzuje se, že šlo o lokální untracked soubory na disku vývojáře (auditní reporty s reálnými secrets), které neunikly do sdílené historie upstreamu.
+
+* **KROK 5: Potvrzení frontend root-cause (`api.js`)**
+  * Analyzován kód v [public/admin/js/api.js](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/public/admin/js/api.js#L91-L96):
+    ```javascript
+    // 401/403 → přesměrovat na login (Cloudflare Access)
+    if (response.status === 401 || response.status === 403) {
+      console.warn('[api] Auth error, redirecting to login');
+      window.location.href = '/admin';
+      return { ok: false, data: null, error: 'Neoprávněný přístup', status: response.status };
+    }
+    ```
+  * **Vyhodnocení:**
+    * **(a) ANO:** Přesměrování (reload) míří na `'/admin'` (což je tentýž SPA), nikoliv na externí Cloudflare Access přihlášení `/cdn-cgi/access/login` nebo specifickou login endpoint.
+    * **(b) ANO:** Nerozlišuje mezi 401 (neautorizován - chybí token) a 403 (zakázáno - token existuje, ale uživatel nemá roli/přístup).
+    * **(c) ANO:** Kód nijak nezastavuje pollery (periodické intervaly v `app.js`). Běžící pollery tak po chybě vyvolají další fetch požadavky na pozadí, ty opět skončí 401/403 a znovu a znovu nastavují `window.location.href = '/admin'`, což vede k nekonečné reload smyčce.
+
+### Akceptační kritéria — splněno?
+- [x] Zjištěn a vypsán stav operators na produkci
+- [x] Ověřeno schéma bookings na přítomnost Stripe struktur a status 'pending_payment'
+- [x] Zkontrolována tabulka d1_migrations na produkci (všechny migrace 0001–0009 jsou aplikovány)
+- [x] Provedena git-forenzika smazání auditů docs/audit/ (potvrzeno, že se do upstreamu nedostaly)
+- [x] Zanalyzována příčina reload smyčky v api.js a zodpovězeny otázky (a, b, c)
+- [x] Záznam zapsán do WORK-DIARY.md a pushnut
+
+
 
