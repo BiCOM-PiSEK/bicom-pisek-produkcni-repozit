@@ -1347,3 +1347,23 @@
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku, oprava odkazu
 - `public/admin/js/api.js` — zachování kompletní návratové URL a smazání komentářů
 
+---
+
+## 2026-06-08 FN-1 — Produkční nasazení migrace 0010 (seed operators)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** main (produkční nasazení)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Záloha produkční DB:**
+  - Provedena kompletní záloha produkční D1 databáze `bicom-pisek-db` do lokálního souboru `backups/pre-0010-20260608.sql` (velikost 42 KB). Soubor je v `.gitignore`.
+- **Uvolnění cizích klíčů (FK Integrity):**
+  - Jelikož 3 demo rezervace (`bk_demo1`, `bk_demo2`, `bk_demo3`) v tabulce `bookings` odkazovaly na operátora `op_lenka`, přímé smazání by porušilo cizí klíč.
+  - V migraci 0010 byla před samotný `DELETE` přidána úprava referencí na `NULL` pro bookings, calendar slots a social posts.
+- **Spuštění D1 migrace na produkci:**
+  - Migrace `0010_seed_operators.sql` byla úspěšně nasazena na vzdálenou produkční DB přes `wrangler d1 migrations apply`.
+- **Ověření po nasazení:**
+  - Ověřeno, že tabulka `operators` na produkci obsahuje přesně 6 reálných aktivních účtů (Jana, Tereza, admin_box, info, matej_ic, matej_gm). Staré řádky `op_lenka` a `op_admin` byly kompletně odstraněny.
+  - Ověřeno, že migrace `0010_seed_operators.sql` je řádně zapsána a evidována v systémové tabulce `d1_migrations` (ID 10, applied_at: `2026-06-08 18:04:51`).
+
+
