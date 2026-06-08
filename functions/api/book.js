@@ -31,6 +31,8 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+const CONSENT_VERSION = '2026-06-08';
+
 /**
  * Strips HTML tags from a string to prevent XSS.
  * @param {string} str
@@ -39,6 +41,22 @@ const CORS_HEADERS = {
 function sanitize(str) {
   if (typeof str !== 'string') return '';
   return str.replace(/<[^>]*>/g, '').trim();
+}
+
+/**
+ * Strictly parses value to boolean based on CodeRabbit guidelines.
+ * Returns true only for true, 1, "1", "true", "yes" (case-insensitive).
+ * Otherwise returns false.
+ * @param {*} val
+ * @returns {boolean}
+ */
+function parseBoolean(val) {
+  if (val === true || val === 1) return true;
+  if (typeof val === 'string') {
+    const lower = val.toLowerCase().trim();
+    return lower === 'true' || lower === '1' || lower === 'yes';
+  }
+  return false;
 }
 
 /**
@@ -75,11 +93,41 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // 2. Validate required fields
-    const { name, email, phone, service, preferred_date, note, psc, consent_marketing } = data;
+    const { name, email, phone, service, preferred_date, note, psc, consent_marketing, reminder_channel, consent_processing } = data;
 
     if (!name || !email || !phone || !service || !preferred_date) {
       return new Response(
         JSON.stringify({ success: false, error: 'Vyplňte prosím všechna povinná pole.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Strictly normalize boolean variables
+    const parsedConsentProcessing = parseBoolean(consent_processing);
+    const parsedConsentMarketing = parseBoolean(consent_marketing);
+    const reminderChannel = reminder_channel || 'email';
+
+    // Validate reminder_channel before writing
+    const validChannels = ['email', 'sms', 'whatsapp'];
+    if (!validChannels.includes(reminderChannel)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatná volba komunikačního kanálu upomínek.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // WhatsApp is currently disabled at public API level
+    if (reminderChannel === 'whatsapp') {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Kanál WhatsApp momentálně není podporován. Zvolte prosím SMS nebo E-mail.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Mandatory GDPR health processing consent
+    if (!parsedConsentProcessing) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Pro vytvoření rezervace musíte udělit souhlas se zpracováním osobních a citlivých údajů.' }),
         { status: 400, headers: CORS_HEADERS }
       );
     }
@@ -129,6 +177,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
       service,
       preferred_date: preferredDate.toISOString(),
       note: cleanNote,
+      psc: psc ? sanitize(psc) : null,
+      consent_version: CONSENT_VERSION,
+      consent_marketing: parsedConsentMarketing ? 1 : 0,
+      reminder_channel: reminderChannel,
     });
 
     // 5. GEO lead tracking (non-blocking)
@@ -141,7 +193,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // 6. Newsletter subscription (non-blocking)
-    if (consent_marketing) {
+    if (parsedConsentMarketing) {
       waitUntil(
         subscribeNewsletter(env.DB, crypt, email, 'booking').catch((err) =>
           console.error('[book] Newsletter subscribe error:', err)
@@ -159,6 +211,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
         service,
         preferred_date: preferredDate.toISOString(),
         note: cleanNote,
+        reminder_channel: reminderChannel,
       }).catch((err) => console.error('[book] Queue send error:', err))
     );
 

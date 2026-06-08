@@ -990,6 +990,88 @@
 - [x] Úspěšná syntaktická kontrola a build projektu
 - [x] Vytvořena větev `agent/ag-w3-s1-sms-channel-fix` a otevřen Pull Request #22
 
+---
+
+## 2026-06-08 S1/S2 Blok 2a — GDPR souhlasy a kanál upomínek (Fáze A: Diagnóza)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** upstream/main (Čistá diagnóza, read-only běh)
+**Status:** ✅ Hotovo (Fáze A dokončena, čeká na schválení pro Fázi B)
+
+### Co bylo zjištěno (Diagnóza)
+1. **Struktura DB:**
+   - **Tabulka `bookings`:** Obsahuje pole pro souhlas (`consent_version TEXT` a `consent_marketing INTEGER DEFAULT 0`), ale neobsahuje žádné sloupce specifikující komunikační kanál pro upomínky (např. `reminder_channel`). Sloupce a indexy přesně odpovídají kanonickému schématu v `db/schema.sql` (nulový drift).
+   - **Tabulka `newsletter_subscribers`:** Obsahuje pole `source` (default `'booking'`), stav souhlasu (`status` s CHECK active/unsubscribed) a časové razítko `created_at`. Unikátní index `sqlite_autoindex_newsletter_subscribers_2` na `email_hash` řeší deduplikaci (dedup).
+2. **Jak se píše booking:**
+   - **`functions/api/book.js`:** Čte pole `name`, `email`, `phone`, `service`, `preferred_date`, `note`, `psc`, `consent_marketing`. Telefon je označen jako `required` a validován na formát `/^\+420\d{9}$/`.
+   - **Chyba zápisu:** Payload sice obsahuje `consent_marketing`, ale volání `createBooking()` z `db.js` jej (stejně jako `consent_version`) v book.js vůbec nepředává v objektu. Z tohoto důvodu se do DB ukládají hodnoty `NULL` / `0`. Pro newsletter se při zaškrtnutém souhlasu spouští samostatné `subscribeNewsletter()`, které funguje přes dedup na `email_hash`.
+   - **`_queue-booking.js`:** Připravuje upomínky zápisem do tabulky `reminders` s časovým předstihem (preferované datum - 24 hodin). Aktuálně generuje **oba kanály** (`'sms'` i `'email'`) bezpodmínečně pro každou rezervaci.
+3. **Formulář na frontendu:**
+   - V `public/index.html` formulář obsahuje stávající checkboxy `#booking-consent` (GDPR souhlas se zdrav. údaji - required) a `#booking-marketing` (newsletter - optional). Výběr kanálu chybí.
+   - Telefon je na frontendu `required`. Nová políčka (kanál a dva souhlasy) se dají elegantně vložit pod telefon / nad checkboxy souhlasů.
+4. **Obsah GDPR stránky:**
+   - Stránka v `router.js` (`renderGdprPage()`) zmiňuje účel rezervace, šifrování zdravotních údajů (čl. 9 GDPR) i marketingový newsletter.
+   - **Co chybí:** Explicitní právo odvolat souhlas a jakákoliv zmínka o zpracování dat za účelem upomínek (SMS / e-mail) a o možnosti volby kanálu.
+5. **Admin Settings:**
+   - whitelist `EDITABLE_KEYS` v `settings.js` i frontend modul `settings.js` jsou plně připravené. Přidání klíče `require_phone` (a výchozí hodnoty v `getDefaults()`) bude velmi čisté, protože frontend dynamic form submit sám všechny inputy zachytí a pošle na server k uložení do `process_states`.
+
+### Soubory změněné
+- `docs/agent-tasks/WORK-DIARY.md` — zápis diagnózy do pracovního deníku
+
+### Akceptační kritéria (Fáze A) — splněno?
+- [x] Zmapována DB struktura obou tabulek (bookings, newsletter_subscribers) včetně indexů
+- [x] Analyzován zápis bookingů v book.js a odhalen chybějící zápis consentů do DB
+- [x] Analyzován zápis upomínek v queue-booking.js (generování pro oba kanály bezpodmínečně)
+- [x] Zmapován rezervační formulář a jeho validace telefonu na frontendu i backendu
+- [x] Zkontrolován obsah stránky /gdpr a popsány chybějící náležitosti
+- [x] Ověřena možnost integrace require_phone přepínače přes stávající vzor nastavení v admin sekci
+- [x] Diagnóza zapsána do WORK-DIARY.md bez jakýchkoliv kódových změn (read-only diagnóza)
+
+---
+
+## 2026-06-08 S1/S2 Blok 2a — GDPR a volba kanálu (Fáze B1: DB + backend)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** agent/ag-w3-s2-gdpr-backend
+**Status:** ✅ Hotovo (Pull Request #23 otevřen a aktualizován, čeká na review)
+
+### Co bylo implementováno
+- **Migrace 0009:**
+  - Vytvořena migrace `0009_add_reminder_channel.sql`, která přidává sloupec `reminder_channel TEXT DEFAULT 'email'` do tabulky `bookings`.
+  - Rozšířen `CHECK(channel IN ('sms','email','whatsapp'))` u tabulky `reminders` pomocí safe-rebuildu se zachováním stávajících dat a indexu `idx_reminders_due`.
+  - Aktualizováno kanonické schéma `db/schema.sql`.
+  - Lokální migrace úspěšně aplikována a ověřena přes wrangler CLI.
+- **Oprava zápisu souhlasů a nového kanálu:**
+  - V `book.js` a `db.js` byla opravena chyba neukládání GDPR souhlasů do DB. Do parametrů `createBooking()` se nově předávají `consent_version` (zavedena konstanta `CONSENT_VERSION = '2026-06-08'`), `consent_marketing` (0/1) a `reminder_channel`.
+  - **Striktní normalizace souhlasů (Oprava CodeRabbit):** V `book.js` zaveden helper `parseBoolean()`, který striktně parsuje souhlasy na boolean (vrací true pouze pro true, 1, "1", "true", "yes" case-insensitive, jinak false). Zamezuje se tak neplatným/prázdným stavům u `consent_processing` i `consent_marketing`.
+  - Přidána validace povinného souhlasu se zpracováním citlivých dat (`consent_processing`) a validace zvoleného kanálu upomínek (`reminder_channel`). WhatsApp je na úrovni API dočasně zablokován chybou 400.
+- **Kaskáda upomínek (Oprava CodeRabbit):**
+  - V `_queue-booking.js` upraveno generování řádků do `reminders`. E-mail se plánuje vždy, SMS podmíněně.
+  - Větve pro WhatsApp upomínku nově nezapisují řádek do tabulky `reminders` (INSERT byl odstraněn), pouze logují varování `console.warn` (whatsapp dispatcher není implementován). Schema a migrace 0009 zůstávají beze změn (připravenost).
+- **Verifikace:**
+  - Provedena kontrola syntaxe (`node --check`) na všech 3 modifikovaných souborech a úspěšně sestaven lokální build (`npm run build`).
+  - Spuštěn in-memory integrační test v SQLite ověřující celou datovou logiku zápisu a dešifrování (všechny asserty prošly).
+  - Vytvořen a aktualizován Pull Request #23 na GitHubu.
+
+### Soubory změněné
+- `db/migrations/0009_add_reminder_channel.sql` — migrační skript (přidání sloupce + rebuild tabulky)
+- `db/schema.sql` — aktualizace kanonického schématu
+- `functions/lib/db.js` — vazba `reminder_channel` a souhlasů do INSERTu v `createBooking`
+- `functions/api/book.js` — helper `parseBoolean`, strict validace souhlasů a kanálu, uložení verze souhlasu
+- `functions/api/_queue-booking.js` — odstranění WhatsApp zápisu, console.warn log pro chybějící dispatcher
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Sloupec `reminder_channel` přidán do `bookings` a CHECK omezení na `reminders` rozšířeno o `whatsapp`
+- [x] Aktualizováno `db/schema.sql`
+- [x] Lokální migrace úspěšně aplikována a ověřena
+- [x] Opraven zápis `consent_marketing` a `consent_version` v `book.js` a `db.js`
+- [x] Zavedena strict normalizace booleanů přes `parseBoolean` u obou souhlasů v `book.js`
+- [x] Validován povinný souhlas `consent_processing` a ošetřen/blokován WhatsApp na API úrovni
+- [x] Z queue consumeru odstraněn zápis WhatsApp upomínek do reminders (nahrazeno `console.warn` logem)
+- [x] Queue consumer generuje upomínky selektivně podle zvoleného kanálu (e-mail vždy, SMS podmíněně)
+- [x] Provedena syntaktická kontrola, build a lokální integrační testy
+- [x] Otevřen a aktualizován Pull Request #23 pro review
+
+
 
 
 

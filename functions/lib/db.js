@@ -9,7 +9,7 @@ import { DataCrypt } from './datacrypt.js';
  * Creates a new booking record with encrypted sensitive fields.
  * @param {D1Database} db - D1 database binding
  * @param {DataCrypt} crypt - Initialized DataCrypt instance
- * @param {Object} data - Booking data (name, email, phone, service, note, preferred_date, psc, estimated_price, consent_version, consent_marketing)
+ * @param {Object} data - Booking data (name, email, phone, service, note, preferred_date, psc, estimated_price, consent_version, consent_marketing, reminder_channel)
  * @returns {Promise<string>} - The generated booking ID
  */
 export async function createBooking(db, crypt, data) {
@@ -24,9 +24,9 @@ export async function createBooking(db, crypt, data) {
 
   await db.batch([
     db.prepare(
-      `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, estimated_price, consent_version, consent_marketing)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(id, nameEnc, emailEnc, phoneEnc, data.service, noteEnc, data.preferred_date, data.psc || null, data.estimated_price || null, data.consent_version || null, data.consent_marketing ? 1 : 0),
+      `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, estimated_price, consent_version, consent_marketing, reminder_channel)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, nameEnc, emailEnc, phoneEnc, data.service, noteEnc, data.preferred_date, data.psc || null, data.estimated_price || null, data.consent_version || null, data.consent_marketing ? 1 : 0, data.reminder_channel || 'email'),
     db.prepare(
       `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
        VALUES (?, 'bookings', ?, 'create', 'system', 'New booking created')`
