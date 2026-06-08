@@ -1197,3 +1197,41 @@
 - [x] Syntax check a build v pořádku
 - [x] Odeslán komentář na GitHub PR #25 o neplatných audit/backup komentářích
 
+---
+
+## 2026-06-08 S2, krok 3 — Produkční nasazení migrace 0009 (reminder_channel)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** main (produkční nasazení)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Záloha produkční DB:**
+  - Provedena záloha produkční D1 databáze `bicom-pisek-db` do lokálního souboru `backups/pre-0009-20260608.sql` (velikost 41 KB). Soubor je ignorován v `.gitignore`.
+- **Spuštění D1 migrace na produkci:**
+  - Spuštěna migrace `0009_add_reminder_channel.sql` na vzdálené produkční DB (společně s 0008, která doposud nebyla v tabulce migrací zaznamenána). Obě migrace proběhly úspěšně.
+- **Ověření po migraci:**
+  - Ověřeno, že sloupec `reminder_channel TEXT DEFAULT 'email'` byl úspěšně přidán do tabulky `bookings`.
+  - Ověřeno, že tabulka `reminders` byla bezpečně rebuilnuta a její CHECK constraint nyní podporuje hodnotu `'whatsapp'`.
+  - Zkontrolovány počty řádků před a po migraci. Počty jsou identické (bookings: 3, reminders: 0), žádná data nebyla ztracena.
+  - Ověřeno, že index `idx_reminders_due` na tabulce `reminders` po rebuildu stále existuje.
+- **Redeploy 3 workerů:**
+  - Z lokální repo složky byly znovu nasazeny 3 workery sdílející kód a schéma:
+    - `bicom-cron-worker` (`npm run deploy:cron`)
+    - `bicom-booking-consumer` (`npm run deploy:booking`)
+    - `bicom-social-consumer` (`npm run deploy:social`)
+  - Všechny tři deploye proběhly úspěšně (zelený status v CLI).
+- **Smoke test zápisu:**
+  - Do vzdálené databáze byl vložen testovací řádek s `id='__rc_test__'` a `reminder_channel='sms'`.
+  - Ověřeno, že se hodnota správně uložila a lze ji vyčíst.
+  - Testovací řádek byl smazán a celkový počet řádků se vrátil na původní hodnotu 3.
+
+### Akceptační kritéria — splněno?
+- [x] Záloha remote D1 stažena a uložena lokálně mimo git
+- [x] Spuštěna a ověřena migrace 0009 na produkční DB
+- [x] Počet řádků před a po migraci se shoduje (COUNT bookings=3, reminders=0)
+- [x] Rebuilt tabulky reminders obsahuje check constraint pro whatsapp a index idx_reminders_due
+- [x] Všechny 3 workery úspěšně přenasazeny na Cloudflare
+- [x] Smoke test zápisu a smazání reminder_channel na produkci prošel úspěšně
+- [x] Záznam zapsán do WORK-DIARY.md a commitnut
+
+
