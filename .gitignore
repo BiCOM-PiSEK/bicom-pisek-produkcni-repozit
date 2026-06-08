@@ -20,3 +20,5 @@ docs/assets/*ke zpracovani*/
 # DB backups
 backups/
 
+# Audit (secrets)
+docs/audit/
