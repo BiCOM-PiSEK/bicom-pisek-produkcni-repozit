@@ -106,8 +106,8 @@ function handleAuthError(status) {
     // Uložíme čas redirectu do sessionStorage a přesměrujeme
     sessionStorage.setItem('admin_auth_redirect_at', now.toString());
     console.warn('[api] 401 Unauthenticated - Redirecting to Cloudflare Access login.');
-    // window.location.href = '/cdn-cgi/access/login' + encodeURIComponent(location.pathname);
-    window.location.href = '/cdn-cgi/access/login?redirect_url=' + encodeURIComponent(location.pathname);
+    const returnUrl = `${location.pathname}${location.search}${location.hash}`;
+    window.location.href = '/cdn-cgi/access/login?redirect_url=' + encodeURIComponent(returnUrl);
   }
 }
 

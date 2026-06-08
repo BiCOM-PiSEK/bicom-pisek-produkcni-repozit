@@ -1265,7 +1265,7 @@
   * Potvrzuje se, že šlo o lokální untracked soubory na disku vývojáře (auditní reporty s reálnými secrets), které neunikly do sdílené historie upstreamu.
 
 * **KROK 5: Potvrzení frontend root-cause (`api.js`)**
-  * Analyzován kód v [public/admin/js/api.js](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/public/admin/js/api.js#L91-L96):
+  * Analyzován kód v [public/admin/js/api.js](../../public/admin/js/api.js):
     ```javascript
     // 401/403 → přesměrovat na login (Cloudflare Access)
     if (response.status === 401 || response.status === 403) {
@@ -1331,4 +1331,19 @@
 
 
 
+---
+
+## 2026-06-08 FN-1 — CodeRabbit opravy pro PR #26
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** fix/s1-admin-loop
+**Status:** ✅ Hotovo (Opravy pushnuty do PR #26)
+
+### Co bylo implementováno
+- **Oprava 1 (Relativní odkaz v deníku):** Nahrazen absolutní odkaz `file:///...` v deníku na řádku 1268 za správný repo-relativní odkaz `[public/admin/js/api.js](../../public/admin/js/api.js)`.
+- **Oprava 2 (Návratová URL při redirectu):** V `public/admin/js/api.js` upraveno přesměrování při 401 chybě tak, aby zachovalo celou návratovou URL (path + search + hash) namísto pouhého `location.pathname`.
+- **Vyčištění komentářů:** Odstraněny staré nepoužívané zakomentované řádky v `public/admin/js/api.js`.
+
+### Soubory změněné
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku, oprava odkazu
+- `public/admin/js/api.js` — zachování kompletní návratové URL a smazání komentářů
 
