@@ -308,6 +308,25 @@ function init() {
   );
 }
 
+/**
+ * Zastaví pollery na pozadí (activity feed a status bar).
+ */
+function stopPollers() {
+  if (state.activityPollTimer) {
+    clearInterval(state.activityPollTimer);
+    state.activityPollTimer = null;
+    console.log('[app] Activity feed poller stopped.');
+  }
+  if (state.statusPollTimer) {
+    clearInterval(state.statusPollTimer);
+    state.statusPollTimer = null;
+    console.log('[app] Status bar poller stopped.');
+  }
+}
+
+// Zpřístupníme na window pro centrální Access Denied handler
+window.stopPollers = stopPollers;
+
 // Spuštění po DOM loaded
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -315,4 +334,5 @@ if (document.readyState === 'loading') {
   init();
 }
 
-export { toggleSidebar, toggleActivity, toggleMobileMenu };
+export { toggleSidebar, toggleActivity, toggleMobileMenu, stopPollers };
+

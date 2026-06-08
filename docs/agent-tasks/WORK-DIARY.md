@@ -1197,3 +1197,153 @@
 - [x] Syntax check a build v pořádku
 - [x] Odeslán komentář na GitHub PR #25 o neplatných audit/backup komentářích
 
+---
+
+## 2026-06-08 S2, krok 3 — Produkční nasazení migrace 0009 (reminder_channel)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** main (produkční nasazení)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **Záloha produkční DB:**
+  - Provedena záloha produkční D1 databáze `bicom-pisek-db` do lokálního souboru `backups/pre-0009-20260608.sql` (velikost 41 KB). Soubor je ignorován v `.gitignore`.
+- **Spuštění D1 migrace na produkci:**
+  - Spuštěna migrace `0009_add_reminder_channel.sql` na vzdálené produkční DB (společně s 0008, která doposud nebyla v tabulce migrací zaznamenána). Obě migrace proběhly úspěšně.
+- **Ověření po migraci:**
+  - Ověřeno, že sloupec `reminder_channel TEXT DEFAULT 'email'` byl úspěšně přidán do tabulky `bookings`.
+  - Ověřeno, že tabulka `reminders` byla bezpečně rebuilnuta a její CHECK constraint nyní podporuje hodnotu `'whatsapp'`.
+  - Zkontrolovány počty řádků před a po migraci. Počty jsou identické (bookings: 3, reminders: 0), žádná data nebyla ztracena.
+  - Ověřeno, že index `idx_reminders_due` na tabulce `reminders` po rebuildu stále existuje.
+- **Redeploy 3 workerů:**
+  - Z lokální repo složky byly znovu nasazeny 3 workery sdílející kód a schéma:
+    - `bicom-cron-worker` (`npm run deploy:cron`)
+    - `bicom-booking-consumer` (`npm run deploy:booking`)
+    - `bicom-social-consumer` (`npm run deploy:social`)
+  - Všechny tři deploye proběhly úspěšně (zelený status v CLI).
+- **Smoke test zápisu:**
+  - Do vzdálené databáze byl vložen testovací řádek s `id='__rc_test__'` a `reminder_channel='sms'`.
+  - Ověřeno, že se hodnota správně uložila a lze ji vyčíst.
+  - Testovací řádek byl smazán a celkový počet řádků se vrátil na původní hodnotu 3.
+
+### Akceptační kritéria — splněno?
+- [x] Záloha remote D1 stažena a uložena lokálně mimo git
+- [x] Spuštěna a ověřena migrace 0009 na produkční DB
+- [x] Počet řádků před a po migraci se shoduje (COUNT bookings=3, reminders=0)
+- [x] Rebuilt tabulky reminders obsahuje check constraint pro whatsapp a index idx_reminders_due
+- [x] Všechny 3 workery úspěšně přenasazeny na Cloudflare
+- [x] Smoke test zápisu a smazání reminder_channel na produkci prošel úspěšně
+- [x] Záznam zapsán do WORK-DIARY.md a commitnut
+
+---
+
+## 2026-06-08 S2, Krok 4 — READ-ONLY Diagnóza: Admin refresh loop bug (FN-1 Fáze A)
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** main (read-only diagnóza)
+**Status:** ✅ Hotovo (Fakta sesbírána a nahlášena, bez změn kódu/DB)
+
+### Co bylo diagnostikováno
+
+* **KROK 1: Stav tabulky `operators` na produkci**
+  * Spuštěn remote query: `SELECT id, email, role, active FROM operators ORDER BY role, email;`
+  * **Nález:** Tabulka `operators` na produkci obsahuje **dva aktivní řádky** (`active=1`):
+    1. `id='op_admin'`, `email='admin@meverik.studio'`, `role='admin'`
+    2. `id='op_lenka'`, `email='lenka@bicom-pisek.cz'`, `role='owner'`
+  * **Spouštěč root-cause:** Neplatí hypotéza, že by tabulka `operators` byla prázdná nebo nekonzistentní. Nicméně pokud se uživatel přihlašuje jiným e-mailem než těmito dvěma (např. přes Cloudflare Access), Cloudflare Access hlavičky předají e-mail, který v DB chybí, což vyvolá `403 Forbidden` a následnou reload smyčku.
+
+* **KROK 2: Ověření migrace 0007 (Stripe) na produkci**
+  * Ověřeno DDL schématu tabulky `bookings` přes `sqlite_master`.
+  * **Nález:** Všechny sloupce pro Stripe (`stripe_session_id`, `stripe_payment_intent_id`, `stripe_payment_status`, `paid_amount`, `paid_at`) v tabulce existují.
+  * Sloupec `status` v DB obsahuje správně `CHECK(status IN ('pending','confirmed','done','cancelled','pending_payment'))` včetně hodnoty `'pending_payment'`. Stripe platby tedy na chybějících DB strukturách neselžou.
+
+* **KROK 3: Stav migrační tabulky**
+  * Spuštěn remote query: `SELECT name FROM d1_migrations ORDER BY id;`
+  * **Nález:** Tabulka `d1_migrations` na produkci obsahuje kompletní řadu migrací od `0001_core_tables.sql` po `0009_add_reminder_channel.sql`. Stav schématu je 100% v pořádku a odpovídá repu.
+
+* **KROK 4: Git-forenzika smazání M1–M7 / `docs/audit/`**
+  * Prověřena kompletní historie repozitáře pomocí `git log --all --full-history --diff-filter=D --oneline -- 'docs/audit/*'`.
+  * **Nález:** Adresář `docs/audit/` **nikdy neexistoval** v historii repozitáře (jak v upstream/main, tak na origin forku), dokud jsme ho my omylem nepřidali v lokálním commitu `06a947c` na větvi `agent/ag-w3-s2-gdpr-frontend` a následně neodstranili v commitu `89430c5`. 
+  * Potvrzuje se, že šlo o lokální untracked soubory na disku vývojáře (auditní reporty s reálnými secrets), které neunikly do sdílené historie upstreamu.
+
+* **KROK 5: Potvrzení frontend root-cause (`api.js`)**
+  * Analyzován kód v [public/admin/js/api.js](../../public/admin/js/api.js):
+    ```javascript
+    // 401/403 → přesměrovat na login (Cloudflare Access)
+    if (response.status === 401 || response.status === 403) {
+      console.warn('[api] Auth error, redirecting to login');
+      window.location.href = '/admin';
+      return { ok: false, data: null, error: 'Neoprávněný přístup', status: response.status };
+    }
+    ```
+  * **Vyhodnocení:**
+    * **(a) ANO:** Přesměrování (reload) míří na `'/admin'` (což je tentýž SPA), nikoliv na externí Cloudflare Access přihlášení `/cdn-cgi/access/login` nebo specifickou login endpoint.
+    * **(b) ANO:** Nerozlišuje mezi 401 (neautorizován - chybí token) a 403 (zakázáno - token existuje, ale uživatel nemá roli/přístup).
+    * **(c) ANO:** Kód nijak nezastavuje pollery (periodické intervaly v `app.js`). Běžící pollery tak po chybě vyvolají další fetch požadavky na pozadí, ty opět skončí 401/403 a znovu a znovu nastavují `window.location.href = '/admin'`, což vede k nekonečné reload smyčce.
+
+### Akceptační kritéria — splněno?
+- [x] Zjištěn a vypsán stav operators na produkci
+- [x] Ověřeno schéma bookings na přítomnost Stripe struktur a status 'pending_payment'
+- [x] Zkontrolována tabulka d1_migrations na produkci (všechny migrace 0001–0009 jsou aplikovány)
+- [x] Provedena git-forenzika smazání auditů docs/audit/ (potvrzeno, že se do upstreamu nedostaly)
+- [x] Zanalyzována příčina reload smyčky v api.js a zodpovězeny otázky (a, b, c)
+- [x] Záznam zapsán do WORK-DIARY.md a pushnut
+
+---
+
+## 2026-06-08 FN-1 — Oprava admin refresh loop bugu (Fáze B)
+**Model:** Antigravity (Gemini 2.5 Pro / Flash)
+**Branch:** fix/s1-admin-loop
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno
+- **Oprava 1 (Seed real operators & smazání fantomů):**
+  - Vytvořena migrace `db/migrations/0010_seed_operators.sql` pro odstranění 2 starých fantomových identit (Lenka, Meverik) a vložení 6 reálných operátorských identit (Jana, Tereza, admin_box, info, matej_ic, matej_gm) pomocí `INSERT OR IGNORE`.
+  - Migrace byla úspěšně aplikována a ověřena na lokální D1 databázi (v tabulce `operators` je přesně 6 platných řádků).
+  - Ověřeno, že `db/schema.sql` tyto operators neseeduje, tudíž nebylo třeba v něm provádět změny.
+- **Oprava 2 (Rozlišení 401 a 403 a přerušení smyčky v api.js):**
+  - Upraven soubor `public/admin/js/api.js` pro rozlišení HTTP 401 a 403.
+  - Při 401 (chybějící/neplatný token) je uživatel přesměrován na Cloudflare Access login stránku `/cdn-cgi/access/login?redirect_url=` s uchováním aktuální cesty.
+  - Zaveden **Loop-Guard**: Před přesměrováním se zapíše timestamp do `sessionStorage ('admin_auth_redirect_at')`. Pokud od posledního přesměrování uplynulo méně než 10 sekund, redirect se zruší a zobrazí se statická Access Denied obrazovka.
+  - Při 403 (autentizován, ale chybí oprávnění) se NERELOADUJE, ale vyvolá se centrální handler `showAccessDenied()`, který vykreslí statickou obrazovku s informací o chybějícím přístupu a odkazem na odhlášení (`/cdn-cgi/access/logout`).
+- **Oprava 3 (Zastavení pollerů v app.js):**
+  - Do `public/admin/js/app.js` byla přidána a exportována funkce `stopPollers()`, která vyčistí intervaly pro activity feed (30s) a status bar (60s) z proměnných `state.activityPollTimer` a `state.statusPollTimer`.
+  - Funkce `stopPollers()` je uložena do `window.stopPollers` a volána z centrálního handleru v `api.js` pro zamezení opakovaných požadavků na pozadí po obdržení chyb 401/403.
+- **SEC-11 (CSP eval):**
+  - Prohledány soubory v `public/admin/js/**` a ověřeno, že se v nich nepoužívá `eval()`, `new Function()` ani string-based callbacky v `setTimeout`/`setInterval`. Kód je plně bezpečný a v souladu s CSP pravidly.
+- **Verifikace:**
+  - Provedena syntaktická kontrola syntaxe (`node --check public/admin/js/api.js public/admin/js/app.js`).
+  - Úspěšně sestaven lokální build sitemap (`npm run build`).
+
+### Soubory změněné
+- `db/migrations/0010_seed_operators.sql` — [NOVÝ] migrační soubor pro seedování operátorů a odstranění fantomů
+- `public/admin/js/api.js` — ošetření 401/403, Loop-Guard, showAccessDenied
+- `public/admin/js/app.js` — implementace a expozice stopPollers()
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Odstranění 2 fantomů a seed 6 reálných operators v migraci 0010
+- [x] Lokální ověření migrace na testovací D1 (právě 6 řádků, role i active sedí)
+- [x] Rozlišení 401 (redirect na Access login) vs 403 (Access Denied bez reloadu) v api.js
+- [x] Loop-Guard pro 401 redirecty v sessionStorage (stop <10s)
+- [x] Centrální showAccessDenied() vykreslující statickou obrazovku s odhlášením
+- [x] Zastavení pollerů (clearInterval) v app.js vyvolané po Access Denied
+- [x] Ověření SEC-11 (žádné eval/new Function/string-timers)
+- [x] Syntax check a build v pořádku
+
+
+
+---
+
+## 2026-06-08 FN-1 — CodeRabbit opravy pro PR #26
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** fix/s1-admin-loop
+**Status:** ✅ Hotovo (Opravy pushnuty do PR #26)
+
+### Co bylo implementováno
+- **Oprava 1 (Relativní odkaz v deníku):** Nahrazen absolutní odkaz `file:///...` v deníku na řádku 1268 za správný repo-relativní odkaz `[public/admin/js/api.js](../../public/admin/js/api.js)`.
+- **Oprava 2 (Návratová URL při redirectu):** V `public/admin/js/api.js` upraveno přesměrování při 401 chybě tak, aby zachovalo celou návratovou URL (path + search + hash) namísto pouhého `location.pathname`.
+- **Vyčištění komentářů:** Odstraněny staré nepoužívané zakomentované řádky v `public/admin/js/api.js`.
+
+### Soubory změněné
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku, oprava odkazu
+- `public/admin/js/api.js` — zachování kompletní návratové URL a smazání komentářů
+
