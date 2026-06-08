@@ -1,5 +1,10 @@
 -- Migration 0010: seed real operators + remove phantoms
 
+-- 0) Uvolnění referencí cizích klíčů na fantomy
+UPDATE bookings SET operator_id = NULL WHERE operator_id IN ('op_lenka', 'op_admin');
+UPDATE calendar_slots SET operator_id = NULL WHERE operator_id IN ('op_lenka', 'op_admin');
+UPDATE social_posts SET created_by = NULL WHERE created_by IN ('op_lenka', 'op_admin');
+
 -- 1) Odstranění dvou fantomových řádků
 DELETE FROM operators WHERE id IN ('op_lenka', 'op_admin');
 DELETE FROM operators WHERE email IN ('lenka@bicom-pisek.cz', 'admin@meverik.studio');

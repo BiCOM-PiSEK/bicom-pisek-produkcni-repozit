@@ -81,10 +81,11 @@ export async function onRequest(context) {
     }
 
     // Vyhledat operátorku v DB
-    const operator = await findOperator(env.DB, payload.email);
+    const normalizedEmail = String(payload.email).trim().toLowerCase();
+    const operator = await findOperator(env.DB, normalizedEmail);
 
     if (!operator) {
-      console.warn(`[admin-auth] Unknown operator: ${payload.email}`);
+      console.warn(`[admin-auth] Unknown operator: ${normalizedEmail}`);
       return jsonError('Přístup zamítnut — váš e-mail není registrován.', 403);
     }
 
@@ -184,7 +185,7 @@ async function findOperator(db, email) {
 
   try {
     const result = await db
-      .prepare('SELECT id, email, name, role FROM operators WHERE email = ? AND active = 1')
+      .prepare('SELECT id, email, name, role FROM operators WHERE email = ? COLLATE NOCASE AND active = 1')
       .bind(email)
       .first();
 
