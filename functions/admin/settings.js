@@ -26,6 +26,7 @@ const EDITABLE_KEYS = [
   'telegram_cashflow',  // '1' | '0' — cashflow alerts
   'ai_copywriter_tone', // 'formal' | 'friendly' | 'quiet_luxury'
   'ai_auto_publish',    // '1' | '0' — auto-publish AI articles
+  'ai_legal_guardrail', // 'off' | 'mild' | 'optimal' | 'strict'
   'gdpr_retention_days', // number of days before anonymization
   'booking_max_future_days', // max days in advance for bookings
   'stripe_deposit_required', // '1' | '0' — whether Stripe deposit is mandatory

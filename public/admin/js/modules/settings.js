@@ -106,6 +106,15 @@ export async function render(container, ctx) {
               <option value="formal" ${settings.ai_copywriter_tone === 'formal' ? 'selected' : ''}>Formální</option>
             </select>
           </div>
+          <div class="form-group">
+            <label class="form-label">Právní guardrail (přísnost)</label>
+            <select class="form-select" name="ai_legal_guardrail">
+              <option value="off" ${settings.ai_legal_guardrail === 'off' ? 'selected' : ''}>Vypnuto (off)</option>
+              <option value="mild" ${settings.ai_legal_guardrail === 'mild' ? 'selected' : ''}>Mírný (mild)</option>
+              <option value="optimal" ${settings.ai_legal_guardrail === 'optimal' ? 'selected' : ''}>Optimální (optimal)</option>
+              <option value="strict" ${settings.ai_legal_guardrail === 'strict' ? 'selected' : ''}>Přísný (strict)</option>
+            </select>
+          </div>
           <div class="form-group flex items-center justify-between">
             <div><label class="form-label" style="margin:0;">Automatická publikace</label><p class="form-hint">Články se publikují bez schválení</p></div>
             <label class="toggle"><input type="checkbox" name="ai_auto_publish" ${settings.ai_auto_publish === '1' ? 'checked' : ''}><span class="toggle-slider"></span></label>
@@ -160,6 +169,7 @@ function getDefaults() {
     invoice_mode: 'manual', reminder_sms: '1', reminder_email: '1', reminder_hours: '24',
     telegram_booking: '1', telegram_digest: '1', telegram_cashflow: '1',
     ai_copywriter_tone: 'quiet_luxury', ai_auto_publish: '0',
+    ai_legal_guardrail: 'optimal',
     gdpr_retention_days: '30', booking_max_future_days: '90',
     stripe_deposit_required: '1', require_phone: '1',
   };
