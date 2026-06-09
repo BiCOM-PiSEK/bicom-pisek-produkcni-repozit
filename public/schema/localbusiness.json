@@ -5,7 +5,7 @@
   "name": "Bicom Písek",
   "description": "Biorezonanční metoda Bicom Optima v Písku. Komplementární, šetrná podpora pro dospělé i děti. Doplněk klasické medicíny.",
   "url": "https://bicom-pisek.cz",
-  "telephone": "+420000000000",
+  "telephone": "+420735231025",
   "priceRange": "$$",
   "address": { "@type": "PostalAddress", "streetAddress": "Vladislavova 201 (technologický park)", "addressLocality": "Písek", "postalCode": "397 01", "addressCountry": "CZ" },
   "geo": { "@type": "GeoCoordinates", "latitude": "49.3134106", "longitude": "14.1375869" },

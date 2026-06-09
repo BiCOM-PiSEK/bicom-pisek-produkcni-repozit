@@ -1439,3 +1439,55 @@
 - `functions/api/_cron-gdpr.js` — přepis NULL na prázdný řetězec v SQL dotazu
 - `functions/lib/datacrypt.js` — přidání guardu pro prázdný řetězec v metodě `decrypt()`
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+---
+
+## 2026-06-09 SEC-6a finální — Živý re-test GDPR anonymizace
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** main (synced with upstream/main)
+**Status:** ✅ Hotovo (re-test úspěšný, testovací data i endpoint odstraněny a worker redeployován)
+
+### Co bylo implementováno / otestováno
+- **Deploy**: Do `functions/api/_cron-worker.js` byl přidán dočasný endpoint `/test-gdpr` pro manuální spuštění anonymizačního cronu. Worker byl úspěšně nasazen.
+- **Živý test anonymizace**:
+  - Proveden export produkční D1 databáze do `backups/pre-sec6a-retest-20260609.sql`.
+  - Ověřeno vložení 3 testovacích řádků (`__gdpr_test_hit__`, `__gdpr_test_fresh__`, `__gdpr_test_active__`).
+  - Spuštěna anonymizace přes endpoint `https://bicom-cron-worker.matejkocanda.workers.dev/test-gdpr`.
+  - Ověřen výsledek: `__gdpr_test_hit__` byla úspěšně anonymizována na prázdné řetězce `''`, `anonymized_at` bylo nastaveno na aktuální čas.
+  - Ostatní testovací řádky a demo řádky zůstaly nezměněné.
+  - Byl zapsán auditní log s akcí `anonymize` a detaily.
+- **Úklid (Krok 7)**: Testovací řádky byly smazány (COUNT se vrátil na 3), dočasný endpoint z workeru odstraněn a proveden čistý redeploy.
+
+### Soubory změněné
+- `functions/api/_cron-worker.js` — odstranění dočasného testovacího endpointu `/test-gdpr` (návrat k čisté verzi)
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+---
+
+## 2026-06-09 NAP/telefon Fáze B — Oprava placeholderů a sjednocení NAP
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/nap-telefon
+**Status:** ⚠️ Čeká na review (PR otevřen)
+
+### Co bylo implementováno / otestováno
+- **Oprava telefonu**:
+  - V `public/index.html` byl nahrazen zástupný telefon `+420 XXX XXX XXX (DOPLNIT)` reálným číslem `+420 735 231 025` a obalen klikacím odkazem `<a href="tel:+420735231025">`.
+  - V `public/schema/localbusiness.json` a v 5 regionálních stránkách `public/biorezonance-*.html` byl v JSON-LD schématech nahrazen testovací telefon reálnou hodnotou `+420735231025`.
+  - V `public/llms.txt` byl přidán řádek `- **Telefon:** +420 735 231 025` v sekci kontaktů.
+- **Sjednocení adresy (NAP)**:
+  - Ve všech zmíněných souborech byl sjednocen zápis ulice na `Vladislavova 201 (technologický park)` (malé "t").
+- **Verifikace**:
+  - Ověřena validita upravených JSON a JSON-LD dat.
+  - Spuštěn `npm run build` pro přegenerování sitemapy.
+
+### Soubory změněné
+- `public/index.html` — doplněn tel. odkaz, upravena ulice
+- `public/schema/localbusiness.json` — telefon a sjednocená ulice
+- `public/biorezonance-milevsko.html` — JSON-LD telefon a ulice
+- `public/biorezonance-pisek.html` — JSON-LD telefon a ulice, adresa v textu
+- `public/biorezonance-protivin.html` — JSON-LD telefon a ulice
+- `public/biorezonance-strakonice.html` — JSON-LD telefon a ulice
+- `public/biorezonance-vodnany.html` — JSON-LD telefon a ulice
+- `public/llms.txt` — doplnění telefonu
+- `public/sitemap.xml` — přegenerování sitemapy
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
