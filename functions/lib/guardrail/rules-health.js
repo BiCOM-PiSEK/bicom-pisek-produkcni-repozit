@@ -5,13 +5,15 @@ export const RULES_HEALTH = {
   forbidden: [
     'léčí', 'vyléčí', 'uzdraví', 'diagnostikuje',
     'zaručeně', '100%', 'nahradí lékaře',
-    'rakovina', 'borelióza', 'cukrovka', 'deprese', // konkrétní nemoci
+    'nahradí léky', 'bez léků', 'nemusíte k lékaři',
+    'odstraní příčinu nemoci',
+    'rakovina', 'borelióza', 'cukrovka', 'deprese', 'alergie', 'astma', 'ekzém', // konkrétní nemoci (jako cíl léčby/terapie)
     'tachyony', 'přepisuje imunitu', // pseudověda
     'lepší než lékař', 'účinnější než medicína', // nadřazenost nad lékařem
     'vyléčení dětí', 'léčíme dětské nemoci' // dětské zdraví
   ],
   risky: [
-    'pomáhá', 'podporuje', // bez kontextu
+    'pomáhá s [konkrétní nemocí]', 'podporuje vyléčení', 'vyřeší váš problém', // riziko v kontextu/slibech
     'výsledek do', 'zlepšení za', // sliby výsledku v čase
     'absolutní detox', 'kompletní očista' // absolutní detox
   ],

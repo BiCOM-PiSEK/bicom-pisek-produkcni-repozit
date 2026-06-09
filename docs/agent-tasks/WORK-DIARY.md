@@ -1522,3 +1522,7 @@
 - `public/admin/js/modules/settings.js` — select přísnosti v UI a výchozí nastavení
 - `docs/adr/ADR-002-guardrail-modularni-vrstva.md` [NEW] — architektonické rozhodnutí
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Doladění rules-health.js (před mergem)
+- Vyřešen konflikt risky zóny a safe_alternatives (odstraněna holá slovesa 'pomáhá' a 'podporuje' z risky zóny, nahrazena kontextovými vzorci 'pomáhá s [konkrétní nemocí]', 'podporuje vyléčení' a 'vyřeší váš problém').
+- Doplněna klíčová zakázaná tvrzení z rulebook v1.1 do `forbidden` ('nahradí léky', 'bez léků', 'nemusíte k lékaři', 'odstraní příčinu nemoci', 'alergie', 'astma', 'ekzém' s komentářem pro konkrétní nemoci).
