@@ -1394,3 +1394,24 @@
 ### Soubory změněné
 - `.gitignore` — ignorování složky `docs/audit/`
 - `docs/agent-tasks/WORK-DIARY.md` — souhrnný záznam o uzavření bloku
+
+---
+
+## 2026-06-09 Blok B — Úklid a hygiena repozitáře (DEAD-1/2/5 + CodeRabbit fix)
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** chore/s1-repo-hygiene
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **DEAD-1 (Smazání mrtvého crypto.js):**
+  - Odstraněn nepoužívaný soubor `functions/lib/crypto.js` z verzování i disku poté, co bylo ověřeno, že nemá žádné importéry v projektu.
+- **DEAD-2 (Odtrackování scratch test souboru):**
+  - Odebrán soubor `scratch/test-calendar-connection.js` z verzování Git (`git rm --cached`), ale fyzicky byl ponechán lokálně na disku.
+- **DEAD-5 (Oprava fantomových audit referencí):**
+  - Opraveny neplatné odkazy a zmínky o `docs/audit/` v souborech `README.md` a `docs/REPO_MAPA_ULOZIST.md`.
+- **CodeRabbit file:// fix:**
+  - V souboru `CLAUDE.md` nahrazeny oba absolutní odkazy začínající na `file:///Users/matejkocanda/...` za repo-relativní odkazy na `docs/REPO_MAPA_ULOZIST.md`.
+
+### Soubory změněné
+- `CLAUDE.md` — oprava absolutních odkazů za repo-relativní
+- `docs/agent-tasks/WORK-DIARY.md` — přidání záznamu o hygieně repozitáře
