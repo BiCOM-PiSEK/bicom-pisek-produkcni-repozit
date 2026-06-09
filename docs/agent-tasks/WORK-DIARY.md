@@ -1523,6 +1523,7 @@
 - `docs/adr/ADR-002-guardrail-modularni-vrstva.md` [NEW] — architektonické rozhodnutí
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
-### Doladění rules-health.js (před mergem)
-- Vyřešen konflikt risky zóny a safe_alternatives (odstraněna holá slovesa 'pomáhá' a 'podporuje' z risky zóny, nahrazena kontextovými vzorci 'pomáhá s [konkrétní nemocí]', 'podporuje vyléčení' a 'vyřeší váš problém').
-- Doplněna klíčová zakázaná tvrzení z rulebook v1.1 do `forbidden` ('nahradí léky', 'bez léků', 'nemusíte k lékaři', 'odstraní příčinu nemoci', 'alergie', 'astma', 'ekzém' s komentářem pro konkrétní nemoci).
+### Doladění rules-health.js a index.js (před mergem)
+- Změkčení risky zóny: Odstraněna slova 'pomáhá' a 'podporuje' z risky zóny (ponechány pouze reálně problémové vzorce jako 'výsledek do', 'zlepšení za', 'absolutní detox', 'kompletní očista', 'vyřeší váš problém', 'zbavíte se [nemoci]'). Přidán komentář vysvětlující, že váhy a kontextové vyhodnocení řeší detekční engine v Kroku 2.
+- Doplněna klíčová zakázaná tvrzení z rulebook v1.1 do `forbidden` ('nahradí léky', 'bez léků', 'nemusíte k lékaři', 'odstraní příčinu nemoci', 'astma', 'ekzém' s komentářem pro konkrétní nemoci).
+- Zavedeny lidské disclaimery: V `index.js` v nastaveních 'optimal' a 'strict' byla upravena instrukce o disclaimerech na přirozené, decentní vyznění vkusně zakomponované do textu (NE právničina, u social na minimum/vynechat). Původní `required_disclaimers` v `rules-health.js` byly ponechány pro budoucí detekci.

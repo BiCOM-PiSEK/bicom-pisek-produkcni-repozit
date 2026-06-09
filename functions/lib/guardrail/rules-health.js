@@ -7,15 +7,16 @@ export const RULES_HEALTH = {
     'zaručeně', '100%', 'nahradí lékaře',
     'nahradí léky', 'bez léků', 'nemusíte k lékaři',
     'odstraní příčinu nemoci',
-    'rakovina', 'borelióza', 'cukrovka', 'deprese', 'alergie', 'astma', 'ekzém', // konkrétní nemoci (jako cíl léčby/terapie)
+    'rakovina', 'borelióza', 'cukrovka', 'deprese', 'alergie', 'astma', 'ekzém', // konkrétní nemoci jmenované jako cíl léčby = 🔴; plný seznam přijde do detect.js
     'tachyony', 'přepisuje imunitu', // pseudověda
     'lepší než lékař', 'účinnější než medicína', // nadřazenost nad lékařem
     'vyléčení dětí', 'léčíme dětské nemoci' // dětské zdraví
   ],
   risky: [
-    'pomáhá s [konkrétní nemocí]', 'podporuje vyléčení', 'vyřeší váš problém', // riziko v kontextu/slibech
+    // Závažnost/váhy a kontextové vyhodnocení (skórovací model 9/1) řeší detekční engine detect.js v Kroku 2 — zde jen hrubý výběr pro prompt
     'výsledek do', 'zlepšení za', // sliby výsledku v čase
-    'absolutní detox', 'kompletní očista' // absolutní detox
+    'absolutní detox', 'kompletní očista', // absolutní detox
+    'vyřeší váš problém', 'zbavíte se [nemoci]' // sliby a odstraňování nemocí
   ],
   safe_alternatives: {
     'léčí': 'podporuje',

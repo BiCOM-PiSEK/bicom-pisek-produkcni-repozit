@@ -52,8 +52,7 @@ export function buildSystemPrompt({ tool, strictness = 'optimal', baseStyle = ''
 - Vyhni se následujícím rizikovým formulacím (oranžová zóna), zejména nepoužívej obecné sliby bez kontextu nebo časové záruky: ${rulebook.risky.join(', ')}
 - Používej bezpečná synonyma a opisy:
 ${Object.entries(rulebook.safe_alternatives).map(([bad, good]) => `  * místo "${bad}" napiš "${good}"`).join('\n')}
-- Na konec textu VŽDY povinně doplň tyto právní disclaimery:
-${rulebook.required_disclaimers.map(d => `  * ${d}`).join('\n')}`;
+- Zajisti, aby z textu PŘIROZENĚ a vkusně vyplynulo, že biorezonance je doplňková metoda nenahrazující lékařskou péči — ideálně jednou decentní větou vhodně zakomponovanou do textu. NEZAHLCUJ text právními formulacemi, nedělej seznam doložek, nesnižuj ani nekaz tím obsah. U krátkých formátů (social) drž toto sdělení na naprostém minimu (klidně vynech, pokud by kazilo krátký post).`;
   } 
   
   else if (normStrictness === 'strict') {
@@ -63,8 +62,7 @@ ${rulebook.required_disclaimers.map(d => `  * ${d}`).join('\n')}`;
 - Přísně používej bezpečná synonyma a opisy:
 ${Object.entries(rulebook.safe_alternatives).map(([bad, good]) => `  * místo "${bad}" napiš "${good}"`).join('\n')}
 - Pokud je nějaké téma nebo tvrzení na hraně nebo rizikové, RADĚJI JEJ ZCELA VYNECH, než abys riskoval/a porušení právních předpisů. Bezpečnost a legálnost má absolutní přednost před marketingovou atraktivitou.
-- Na konec textu VŽDY povinně doplň tyto právní disclaimery:
-${rulebook.required_disclaimers.map(d => `  * ${d}`).join('\n')}`;
+- Zajisti, aby z textu PŘIROZENĚ a vkusně vyplynulo, že biorezonance je doplňková metoda nenahrazující lékařskou péči — ideálně jednou decentní větou vhodně zakomponovanou do textu. NEZAHLCUJ text právními formulacemi, nedělej seznam doložek, nesnižuj ani nekaz tím obsah. U krátkých formátů (social) drž toto sdělení na naprostém minimu (klidně vynech, pokud by kazilo krátký post).`;
   }
 
   // Upozornění na budoucí napojení detekčního enginu (detect.js)
