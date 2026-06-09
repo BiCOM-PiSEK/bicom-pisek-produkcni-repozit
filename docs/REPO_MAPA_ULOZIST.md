@@ -26,7 +26,7 @@ Tento dokument slouží jako přehledný registr a mapa všech úložišť, slo�
     *   `docs/` — Obsahuje hlavní architektonické, marketingové a metodické dokumenty (`ARCHITEKTURA.md`, `GIT_WORKFLOW.md`, `API_KEYS_CHECKLIST.md`, `STYLE_BRIEF.md`, `HANDOVER.md` atd.).
     *   `docs/agent-tasks/` — Obsahuje pracovní deník kódovacích AI agentů (`WORK-DIARY.md`).
     *   `docs/assets/` — Grafické a textové podklady (inbox a složka `originals/` s původními grafickými návrhy).
-    *   `docs/audit/` — Detailní auditní zprávy M1 až M7 (architektura, kód, infra, integrace, bezpečnost, UX a SEO) a podsložka `reports/` s exportovanými markdown reporty.
+    *   `docs/audit/` — Interní auditní zprávy (architektura, kód, infra, bezpečnost, SEO), které jsou uchovávány mimo produkční repozitář (ignorováno v .gitignore).
 *   **Účel:** Centralizované úložiště dokumentace, briefů a auditních zpráv celého ekosystému.
 
 ### D. Markdown soubory v rootu repozitáře

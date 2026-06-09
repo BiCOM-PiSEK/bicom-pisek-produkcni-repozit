@@ -1367,3 +1367,51 @@
   - Ověřeno, že migrace `0010_seed_operators.sql` je řádně zapsána a evidována v systémové tabulce `d1_migrations` (ID 10, applied_at: `2026-06-08 18:04:51`).
 
 
+---
+
+## 2026-06-09 FN-1 / FN-1b — Governance úklid a uzavření admin bloku
+**Model:** Antigravity (Gemini 2.0 Flash)
+**Branch:** main (úklid a správa)
+**Status:** ✅ Hotovo (Připraveno k předání)
+
+### Co bylo implementováno
+- **FN-1 (Oprava admin refresh loop):**
+  - Vytvořena a na produkci úspěšně aplikována migrace `0010_seed_operators.sql`, která čistí fantomové záznamy a seeduje 6 reálných operátorských e-mailů. 
+  - V migraci byla zavedena pojistka uvolňující FK reference v tabulce `bookings` (3 demo rezervace přenastaveny z `op_lenka` na `NULL`), čímž byla zachována referenční integrita při mazání fantomů.
+  - V `api.js` implementováno rozlišení HTTP 401 a 403 chyb. Zaveden **Loop-Guard** v `sessionStorage` (detekce smyčky <10s) a centrální static Access Denied handler s odkazem na odhlášení.
+  - V `app.js` vystavena funkce `stopPollers()` k vyčištění periodických handles po detekci neoprávněného přístupu.
+- **FN-1b (Case-insensitive vyhledávání operátorů):**
+  - E-mail z Access JWT je v middleware před vyhledáním normalizován (trim, lowercase).
+  - V D1 lookup dotazu ve funkci `findOperator` byla přidána SQL pojistka `COLLATE NOCASE`.
+- **Nastavení a konfigurace (Pages):**
+  - Ověřeno nastavení proměnné `SECRET_CF_ACCESS_AUD` (obsahuje oba povolené AUD tagy oddělené čárkou).
+  - Nastaveno `ENV=production` v produkčním prostředí Cloudflare Pages.
+- **Governance a ochrana tajemství:**
+  - Složka `docs/audit/` (obsahující auditní zprávy s reálnými secrets) byla explicitně přidána do `.gitignore`, čímž se eliminovalo riziko nechtěného verzování.
+- **Odložený nález (Bypass údržby na /admin/*):**
+  - Bylo zaznamenáno, že maintenance gate chytá veškeré požadavky včetně `/admin/*` (což nutí vývojáře zadat Turnstile + PIN a vytvořit tak bypass cookie pro testování). Toto chování je zdokumentováno a projekt se parkuje do stabilního stavu "připraveno k předání".
+
+### Soubory změněné
+- `.gitignore` — ignorování složky `docs/audit/`
+- `docs/agent-tasks/WORK-DIARY.md` — souhrnný záznam o uzavření bloku
+
+---
+
+## 2026-06-09 Blok B — Úklid a hygiena repozitáře (DEAD-1/2/5 + CodeRabbit fix)
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** chore/s1-repo-hygiene
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno
+- **DEAD-1 (Smazání mrtvého crypto.js):**
+  - Odstraněn nepoužívaný soubor `functions/lib/crypto.js` z verzování i disku poté, co bylo ověřeno, že nemá žádné importéry v projektu.
+- **DEAD-2 (Odtrackování scratch test souboru):**
+  - Odebrán soubor `scratch/test-calendar-connection.js` z verzování Git (`git rm --cached`), ale fyzicky byl ponechán lokálně na disku.
+- **DEAD-5 (Oprava fantomových audit referencí):**
+  - Opraveny neplatné odkazy a zmínky o `docs/audit/` v souborech `README.md` a `docs/REPO_MAPA_ULOZIST.md`.
+- **CodeRabbit file:// fix:**
+  - V souboru `CLAUDE.md` nahrazeny oba absolutní odkazy začínající na `file:///Users/matejkocanda/...` za repo-relativní odkazy na `docs/REPO_MAPA_ULOZIST.md`.
+
+### Soubory změněné
+- `CLAUDE.md` — oprava absolutních odkazů za repo-relativní
+- `docs/agent-tasks/WORK-DIARY.md` — přidání záznamu o hygieně repozitáře
