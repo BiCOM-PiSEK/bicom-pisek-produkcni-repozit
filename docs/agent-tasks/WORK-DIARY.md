@@ -1415,3 +1415,22 @@
 ### Soubory změněné
 - `CLAUDE.md` — oprava absolutních odkazů za repo-relativní
 - `docs/agent-tasks/WORK-DIARY.md` — přidání záznamu o hygieně repozitáře
+
+---
+
+## 2026-06-09 SEC-6a — Oprava GDPR anonymizace (NULL → '')
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/sec6a-gdpr-notnull
+**Status:** ⚠️ Částečně (Kód opraven, čeká na schválení guardu dešifrování)
+
+### Co bylo implementováno
+- **Oprava anonymizačního UPDATE dotazu:**
+  - V `functions/api/_cron-gdpr.js` byl opraven SQL dotaz pro anonymizaci rezervací. Namísto nastavení citlivých polí `name_enc`, `email_enc`, `phone_enc` a `note_enc` na `NULL` se nyní nastavují na prázdný řetězec `''`.
+  - Tímto krokem se zamezí chybě `NOT NULL constraint failed`, jelikož SQLite databáze i kanonické schéma `db/schema.sql` vynucují u těchto polí `NOT NULL`.
+- **Diagnostika dešifrování:**
+  - Zanalyzována metoda `decrypt()` v `functions/lib/datacrypt.js`. Při dešifrování prázdného řetězce `''` se vyvolá chyba (promise rejection).
+  - Navržen a doporučen guard do metody `decrypt()`, který bezpečně vrátí `''` bez spuštění dešifrovacího algoritmu, čímž se předejde chybovému zobrazení `(chyba dešifrování)` v administraci.
+
+### Soubory změněné
+- `functions/api/_cron-gdpr.js` — přepis NULL na prázdný řetězec v SQL dotazu
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku

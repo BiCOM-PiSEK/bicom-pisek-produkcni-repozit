@@ -17,10 +17,10 @@ export default {
 
     const result = await env.DB.prepare(
       `UPDATE bookings
-       SET name_enc = NULL,
-           email_enc = NULL,
-           phone_enc = NULL,
-           note_enc = NULL,
+       SET name_enc = '',
+           email_enc = '',
+           phone_enc = '',
+           note_enc = '',
            anonymized_at = CURRENT_TIMESTAMP
        WHERE preferred_date <= ?
        AND anonymized_at IS NULL
