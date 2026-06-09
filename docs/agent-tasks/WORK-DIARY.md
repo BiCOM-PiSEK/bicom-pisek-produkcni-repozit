@@ -1538,17 +1538,18 @@
 ### Co bylo implementováno
 - **Kompletní revize a přepis README.md:**
   - Vytvořen detailní, profesionálně zpracovaný úvod projektu pro klienta, splňující Quiet Luxury tón a právní vymezení biorezonance jako komplementární metody.
-  - Vytvořen komplexní, vizuálně přehledný architektonický Mermaid diagram zobrazující toky dat, vrstvy (Edge, Frontend, Logic, AI, Data, Async, External) a integrace.
-  - Sestavena tabulka technologického stacku založeného na Edge-First a Cloudflare-native platformě MEVERIK STUDIO.
+  - Vytvořen komplexní, vizuálně přehledný architektonický Mermaid diagram zobrazující toky dat, vrstvy (Edge, Frontend, Logic, AI, Data, Async, External) a integrace. Sjednocen počet tabulek na reálných 14 v textu i diagramu.
+  - Sestavena tabulka technologického stacku založeného na Edge-First a Cloudflare-native platformě MEVERIK STUDIO. Ověřena podpora View Transitions API a existence GIT_WORKFLOW.md a db:init:local.
   - Zpracován a podrobně popsán seznam klíčových funkcí (asynchronní rezervace, GDPR šifrování dat, crony, AI Copywriter s guardrailem, blog Instagram sync, GEO marketing).
   - Vytvořen kompletní registr API a endpointů (veřejná i administrativní část).
-  - Přehledně zdokumentován stav integrací třetích stran (Google, Resend, GoSMS, Meta Graph, iDoklad, Stripe, Telegram).
+  - Přehledně zdokumentován reálný stav integrací třetích stran (Google, Resend, GoSMS, Meta Graph, iDoklad, Stripe, Telegram).
   - Popsány bezpečnostní principy, Zero Trust (CF Access), šifrování dat a minimalizace dle GDPR.
   - Zpracována pasáž o lokální vyhledávací dominanci, strukturovaných datech (JSON-LD), AI-SEO (llms.txt) a regionálních landing pages.
   - Transparentně zmapován aktuální stav vývoje a migrace (Hotovo / Ladí se / Na horizontu).
+  - Zavedeno přesné verzování na `v1.0 RC — aktivní finalizace před předáním` v hlavičce i patičce.
 - **Bezpečnostní audit:** Ověřeno, že v README.md se nenachází žádná citlivá ID (D1, KV), Access AUD klíče, secrets ani hesla.
 
 ### Soubory změněné
-- `README.md` — kompletní přepis a rozšíření
+- `README.md` — kompletní přepis, zpřesnění stavů a RC verze
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 

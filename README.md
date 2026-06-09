@@ -1,5 +1,7 @@
 # 🌿 Bicom Písek — Virtual Office & produkční web
 
+Verze: **v1.0 RC — aktivní finalizace před předáním**
+
 Hlavní produkční repozitář organizace **BiCOM-PiSEK** (`bicom-pisek-produkcni-repozit`). Tento repozitář představuje autoritativní zdroj pravdy (Single Source of Truth) pro celé technologické a programové řešení lokálního centra. Projekt je navržen a realizován podle standardu **MEVERIK STUDIO** s využitím moderní architektury **Edge-First** – veškerá aplikační logika, databáze i umělá inteligence běží na okraji sítě (Edge), což zajišťuje bleskovou odezvu (typicky < 200 ms), vysokou spolehlivost a nulové fixní provozní náklady za pronájem klasických serverů.
 
 **Provozovatel:** BIO ONE LIFE s.r.o. (klient)  
@@ -40,7 +42,7 @@ flowchart TD
     end
 
     subgraph Data ["Data & Storage Layer"]
-        D1["Cloudflare D1 (SQLite Database)\n- bookings (GDPR AES-GCM)\n- newsletter_subscribers (GDPR AES-GCM)\n- blog_posts\n- geo_leads\n- audit_log\n- process_states"]
+        D1["Cloudflare D1 (SQLite Database)\n- 14 schválených tabulek (GDPR AES-GCM)"]
         R2["Cloudflare R2\n(bicom-multimedia bucket)"]
         KV["Cloudflare KV\n(Cache, Rate Limiting, Config)"]
     end
@@ -53,7 +55,7 @@ flowchart TD
     subgraph External ["External Integrations"]
         GCal["Google Calendar API\n(Termíny & Operátoři)"]
         GW["Google Workspace\n(Gmail Mailer)"]
-        Resend["Resend API\n(Transakční e-maily)"]
+        Resend["Resend API\n(Transactional Email)"]
         GoSMS["GoSMS API\n(SMS upomínky)"]
         MetaGraph["Meta Graph API\n(Instagram Sync)"]
         iDoklad["iDoklad API\n(Fakturace)"]
@@ -155,12 +157,12 @@ Architektura je postavena na principu **Edge-First, Cloudflare-native**. Produk�
 
 | Služba | Účel integrace | Stav |
 | :--- | :--- | :--- |
-| **Google Calendar & Workspace** | Zápis a čtení termínů rezervací, organizace kalendáře. | Aktivní (vyžaduje nahrání finálních secrets) |
-| **Resend** | Odesílání transakčních e-mailů s potvrzením rezervací a upomínkami. | Aktivní |
-| **GoSMS** | Odesílání SMS upomínek 24h před konáním biorezonance. | Aktivní |
-| **Meta Graph API** | Synchronizace příspěvků z Instagramu pro Magazín. | Aktivní |
-| **iDoklad** | Automatické vystavování zálohových a řádných faktur. | Aktivní |
-| **Stripe** | Zpracování plateb online záloh na rezervované termíny. | Ve vývoji / v integračním testu |
+| **Google Calendar & Workspace** | Zápis a čtení termínů rezervací, organizace kalendáře. | Integrováno; zápis termínů ve finalizaci |
+| **Resend** | Odesílání transakčních e-mailů s potvrzením rezervací a upomínkami. | Integrováno; ověření doručitelnosti před spuštěním |
+| **GoSMS** | Odesílání SMS upomínek 24h před konáním biorezonance. | Integrováno; aktivace kreditu před spuštěním |
+| **Meta Graph API** | Synchronizace příspěvků z Instagramu pro Magazín. | Integrováno; čeká na schválení Meta App Review |
+| **iDoklad** | Automatické vystavování zálohových a řádných faktur. | Integrováno; finalizace |
+| **Stripe** | Zpracování plateb online záloh na rezervované termíny. | Ve vývoji / integrační test |
 | **Telegram** | Monitoring cashflow, chybových hlášení a denních/týdenních statistik. | Aktivní |
 
 ---
@@ -198,10 +200,11 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
  └─ AI Copywriter právní guardrail (preventivní modulární vrstva rules-health s volbou přísnosti)
 
  PRÁVĚ SE LADÍ / FIXUJE
- ├─ Administrační konzole Virtual Office (přihlašovací stavy, datová pipeline a vykreslování)
- ├─ Veřejný chatbot widget (renderování markdownu v bublinách chatu)
- ├─ Odstranění demo a testovacích dat z produkční D1 databáze
- └─ Zápis schválených termínů do Google kalendáře operátora
+ ├─ Administrační konzole Virtual Office (přihlašovací stav, datová pipeline, render)
+ ├─ Veřejný chatbot (AI Rádce) — nefunkční odpovědi, oprava napojení
+ ├─ Rendering markdownu v ČLÁNCÍCH magazínu
+ ├─ Propojení D1 + odstranění demo/testovacích dat
+ └─ Zápis schválených termínů do Google kalendáře
 
  NA HORIZONTU (Budoucí rozvoj)
  ├─ Generování obrázků, bannerů a Instagram/Facebook postů přímo z AI Copywritera
@@ -238,7 +241,7 @@ Pravidla pro vývoj, větvení a synchronizaci se řídí dokumentem [docs/GIT_W
 
 ---
 
-Vydání: **v1.0.0 (Červen 2026)**  
+Vydání: **v1.0 RC — aktivní finalizace před předáním**  
 © 2026 **MEVERIK STUDIO / WHC s.r.o.**  
 Všechna práva vyhrazena.  
 Kanonický web: [bicom-pisek.cz](https://bicom-pisek.cz)
