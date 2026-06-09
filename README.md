@@ -1,92 +1,244 @@
-# 🌿 Bicom Písek — Produkční repozitář
+# 🌿 Bicom Písek — Virtual Office & produkční web
 
-Hlavní produkční repozitář organizace **BiCOM-PiSEK** (`bicom-pisek-produkcni-repozit`). „Single Source of Truth" pro nasazení na Cloudflare a předání klientce. Vyvíjeno dle standardu **MEVERIK STUDIO 2026** — strategie **Edge-First** (nulové fixní náklady, < 200 ms latence, AI na okraji sítě).
+Hlavní produkční repozitář organizace **BiCOM-PiSEK** (`bicom-pisek-produkcni-repozit`). Tento repozitář představuje autoritativní zdroj pravdy (Single Source of Truth) pro celé technologické a programové řešení lokálního centra. Projekt je navržen a realizován podle standardu **MEVERIK STUDIO** s využitím moderní architektury **Edge-First** – veškerá aplikační logika, databáze i umělá inteligence běží na okraji sítě (Edge), což zajišťuje bleskovou odezvu (typicky < 200 ms), vysokou spolehlivost a nulové fixní provozní náklady za pronájem klasických serverů.
 
-> **Kanonická doména:** `bicom-pisek.cz` (s pomlčkou). Produkční Pages projekt běží i na výchozí doméně `bicom-pisek.pages.dev` — **obě jsou živé a chráněné.**
+**Provozovatel:** BIO ONE LIFE s.r.o. (klient)  
+**Dodavatel:** WHC s.r.o. / MEVERIK STUDIO
 
----
+> ⚠️ **Právní vymezení:** Biorezonanční metoda BICOM Optima je komplementární (doplňková) metoda. Nenahrazuje standardní lékařskou péči, diagnostiku ani klinickou léčbu. Provozovatel neposkytuje zdravotní služby ve smyslu zákona č. 372/2011 Sb., o zdravotních službách. Všechny prezentované texty a výstupy AI nástrojů jsou důsledně podrobeny tomuto tónu.
 
-## 🏗️ Stack (Cloudflare-only v produkci)
-
-- **Frontend:** HTML5 / Tailwind / Vanilla ES6 (SPA s kotvami) → Cloudflare Pages
-- **Backend:** Cloudflare Pages Functions + 3 Workers (ES modules, bez Node.js)
-- **DB:** Cloudflare D1 `bicom-pisek-db` (SQLite na edge, 14 tabulek)
-- **Storage:** Cloudflare R2 `bicom-multimedia` (média, 0 egress)
-- **Cache:** Cloudflare KV `bicom-pisek-cache`
-- **Async:** Cloudflare Queues `booking-jobs`, `social-jobs`
-- **AI:** Workers AI (`@cf/meta/llama-3-8b-instruct`) + fallback Groq → Gemini
-- **Integrace:** Google Calendar/Gmail, Resend, Meta Graph, SMS brána, Telegram, iDoklad, Stripe
-
-### Workers
-| Worker | Účel |
-|---|---|
-| `bicom-pisek` (Pages) | web + `/api/*` + `/admin/*` |
-| `bicom-booking-consumer` | tok A — rezervace → kalendář → e-mail |
-| `bicom-social-consumer` | fronta social-jobs |
-| `bicom-cron-worker` | 7 cron úloh (zálohy, GDPR, upomínky, IG sync, cashflow…) |
+**Kanonická doména:** [bicom-pisek.cz](https://bicom-pisek.cz)
 
 ---
 
-## 🚀 Lokální start
+## 🏗️ Celková architektura ekosystému
+
+Projekt je kompletně integrován v rámci globální infrastruktury Cloudflare. Následující diagram znázorňuje tok požadavků od uživatele, přes bezpečnostní filtry, aplikační vrstvu na Edge, až po asynchronní zpracování na pozadí a externí integrace.
+
+```mermaid
+flowchart TD
+    subgraph Edge ["Edge & Security Layer (Cloudflare)"]
+        DNS["Cloudflare DNS & WAF\n(DDoS Protection, Bot Mgmt, TLS 1.3)"]
+        Access["Cloudflare Access\n(Zero Trust SSO, One-Time PIN pro Admin)"]
+    end
+
+    subgraph Frontend ["Frontend Web Applications"]
+        PublicWeb["Veřejný portál (Pages)\n(HTML5, Tailwind, Vanilla SPA)"]
+        AdminSPA["Virtual Office SPA (Pages)\n(Administrace, Vanilla JS, CSS grid)"]
+    end
+
+    subgraph Logic ["Logic & API Layer (CF Pages Functions & Workers)"]
+        API["Pages Functions API\n(Request Router, Rate Limiter)"]
+        BookingConsumer["Booking Consumer (Worker)\n(Zpracování rezervační fronty)"]
+        SocialConsumer["Social Consumer (Worker)\n(Zpracování sociální fronty)"]
+        CronWorker["Cron Trigger Worker\n(7 automatizovaných úloh)"]
+    end
+
+    subgraph AI ["AI Services (Cloudflare Workers AI)"]
+        WorkersAI["Workers AI\n(Model Llama 3)"]
+        AIFallback["Trojitý fallback řetězec\n(Workers AI ➔ Groq ➔ Gemini)"]
+    end
+
+    subgraph Data ["Data & Storage Layer"]
+        D1["Cloudflare D1 (SQLite Database)\n- bookings (GDPR AES-GCM)\n- newsletter_subscribers (GDPR AES-GCM)\n- blog_posts\n- geo_leads\n- audit_log\n- process_states"]
+        R2["Cloudflare R2\n(bicom-multimedia bucket)"]
+        KV["Cloudflare KV\n(Cache, Rate Limiting, Config)"]
+    end
+
+    subgraph Async ["Asynchronous Job Queues"]
+        BookingQueue["CF Queue: booking-jobs"]
+        SocialQueue["CF Queue: social-jobs"]
+    end
+
+    subgraph External ["External Integrations"]
+        GCal["Google Calendar API\n(Termíny & Operátoři)"]
+        GW["Google Workspace\n(Gmail Mailer)"]
+        Resend["Resend API\n(Transakční e-maily)"]
+        GoSMS["GoSMS API\n(SMS upomínky)"]
+        MetaGraph["Meta Graph API\n(Instagram Sync)"]
+        iDoklad["iDoklad API\n(Fakturace)"]
+        Stripe["Stripe API\n(Platební zálohy)"]
+        Telegram["Telegram API\n(Monitoring & Cashflow)"]
+    end
+
+    %% Propojení prvků a datové toky
+    DNS --> PublicWeb
+    DNS --> Access
+    Access --> AdminSPA
+    
+    PublicWeb --> API
+    AdminSPA --> API
+    
+    API --> BookingQueue
+    API --> SocialQueue
+    API --> KV
+    API --> D1
+    
+    BookingQueue --> BookingConsumer
+    SocialQueue --> SocialConsumer
+    
+    BookingConsumer --> GCal
+    BookingConsumer --> GW
+    BookingConsumer --> Resend
+    BookingConsumer --> GoSMS
+    BookingConsumer --> iDoklad
+    BookingConsumer --> Telegram
+    
+    API --> WorkersAI
+    WorkersAI --> AIFallback
+    
+    CronWorker --> D1
+    CronWorker --> R2
+    CronWorker --> Telegram
+    CronWorker --> MetaGraph
+```
+
+---
+
+## 🛠️ Technologický Stack
+
+Architektura je postavena na principu **Edge-First, Cloudflare-native**. Produkční repozitář představuje optimalizovanou a stabilní předatelnou výseč širší platformy MEVERIK STUDIO, přičemž je plně zachován zero-cost provozní model a maximální bezpečnost.
+
+| Vrstva | Technologie | Funkce v systému |
+| :--- | :--- | :--- |
+| **Edge Runtime & DNS** | Cloudflare DNS, WAF | Ochrana sítě, TLS 1.3 certifikace, WAF pravidla, rate-limiting a bot management. |
+| **Frontend** | HTML5, CSS3 (Vanilla CSS + Tailwind), Vanilla ES6 JS | Rychlý static web (Pages) bez zbytečného JS overheadu, responzivní layouty, plynulé přechody (View Transitions API). |
+| **Backend & Logika** | Cloudflare Pages Functions, Cloudflare Workers | Serverless API endpointy, zprostředkování datových toků, zpracování událostí v reálném čase. |
+| **Relační databáze** | Cloudflare D1 (SQLite na okraji sítě) | Transakční databáze (14 tabulek) s CHECK constrainty, cizími klíči a indexy. |
+| **Stavová Cache & Limiter** | Cloudflare KV | Rychlá distribuovaná cache, koordinace rate-limiteru a ukládání konfiguračních stavů. |
+| **Blob Storage** | Cloudflare R2 | Bezúdržbový bucket pro obrázky a média (nulový egress poplatek). |
+| **Asynchronní fronty** | Cloudflare Queues | Zpracování úloh na pozadí (booking consumer, social consumer) odolné vůči výpadkům třetích stran. |
+| **Umělá inteligence** | Cloudflare Workers AI, Groq, Gemini API | Integrace lokálního modelu Llama 3 s fallback řetězcem přes Groq na Gemini API. |
+| **Administrativní Auth** | Cloudflare Access (Zero Trust) | Zabezpečení administrativní zóny Virtual Office, One-Time PIN přihlašování přes registrované e-maily. |
+
+---
+
+## 🌟 Klíčové Funkce
+
+- **Moderní asynchronní rezervace:** Uživatel odešle poptávku termínu přes interaktivního průvodce. API okamžitě zašifruje data, uloží požadavek do D1 a zařadí jej do asynchronní fronty (`booking-jobs`). Booking Consumer následně na pozadí zapíše událost do Google kalendáře, vygeneruje a odešle e-mail přes Resend a SMS upomínku přes GoSMS.
+- **GDPR Security & Field-level šifrování:** Osobní údaje (jméno, e-mail, telefon, poznámka) jsou před zápisem do DB šifrovány pomocí standardu AES-GCM (256-bit, Web Crypto API) dle článku 9 GDPR. Dešifrovací klíč žije v bezpečném prostředí a data se dešifrují až na klientu v administraci.
+- **Automatická anonymizace (GDPR cron):** Cron worker denně vyhledává a anonymizuje data rezervací starší než 30 dní (nahrazení citlivých polí prázdným řetězcem `''`), čímž splňuje legislativní minimalizaci dat. Ukládá se pouze auditní log o provedené akci.
+- **AI Copywriter s právním guardrailem:** Generátor textů v admin SPA ("Quiet Luxury" tón) s modulární právní bariérou (rules-health) a 4 úrovněmi přísnosti (`off`, `mild`, `optimal`, `strict`) řízenými z nastavení. Zabraňuje generování nepovolených medicínských tvrzení (červená a oranžová zóna rizikových frází) a navrhuje bezpečná synonyma.
+- **AI Rádce (Chatbot):** Veřejný chatovací widget napojený na Workers AI, poskytující odpovědi na dotazy s dynamickým právním filtrem a trojitým fallbackem.
+- **Bezúdržbový blog / Instagram Sync:** Cron worker stahuje příspěvky z Instagramu a ukládá je do R2, čímž automaticky plní sekci Magazínu na webu bez nutnosti ručního psaní článků.
+- **GEO-Marketing & Analytics:** Sběr a vyhodnocování geografických dat (leadů) na základě PSČ a měst pro doporučování a optimalizaci regionálních kampaní.
+- **Virtual Office SPA:** Kompletní administrativní konzole (Dashboard s KPI a trendy, Kalendář, Blog a AI nástroje, Fakturace, GEO přehledy, Nastavení).
+
+---
+
+## 🔗 Registr API a Endpointů
+
+### Veřejné API (`/api/*`)
+- `GET /api/services` — Načtení katalogu programů z D1 s fallbackem na KV cache.
+- `POST /api/book` — Zpracování poptávky termínu, šifrování osobních dat a zápis do fronty.
+- `GET /api/booking-config` — Veřejné načtení toggle stavů nastavení (např. nutnost Stripe platby).
+- `POST /api/newsletter` — Přihlášení k newsletteru s kontrolou duplicity a šifrováním.
+- `POST /api/chat` — AI Rádce na webu s napojením na databázový kontext FAQ a služeb.
+- `GET /api/blog` — Výpis blogových příspěvků a IG sync článků pro veřejný Magazín.
+- `GET/POST /api/calendar-hook` — Webhook pro synchronizaci změn z Google kalendáře zpět do D1.
+- `POST /api/stripe-checkout` — Inicializace platby zálohy na Stripe.
+- `POST /api/stripe-webhook` — Zpracování potvrzení platby a dokončení rezervace.
+- `GET /api/health` — Diagnostika zdraví databáze, cache, front a nastavení.
+
+### Administrační API (`/admin/*` — pod ochranou CF Access)
+- `GET /admin/dashboard` — Agregovaná data, statistiky, trendy a seznam posledních rezervací.
+- `GET/PUT /admin/bookings` — Správa a dešifrování rezervací s automatickým zápisem do audit logu.
+- `POST /admin/copywriter` — Generování obsahu s dynamickým právním guardrailem.
+- `GET/PUT /admin/settings` — Čtení a zápis konfiguračních klíčů z process_states.
+- `GET /admin/activity` — Logování uživatelských a systémových akcí (Audit Log).
+- `GET /admin/geo` — Geografická distribuce leadů a analýza lokalit.
+- `GET /admin/invoices` — Synchronizace a přehled faktur z iDokladu.
+
+---
+
+## 🔌 Integrace třetích stran
+
+| Služba | Účel integrace | Stav |
+| :--- | :--- | :--- |
+| **Google Calendar & Workspace** | Zápis a čtení termínů rezervací, organizace kalendáře. | Aktivní (vyžaduje nahrání finálních secrets) |
+| **Resend** | Odesílání transakčních e-mailů s potvrzením rezervací a upomínkami. | Aktivní |
+| **GoSMS** | Odesílání SMS upomínek 24h před konáním biorezonance. | Aktivní |
+| **Meta Graph API** | Synchronizace příspěvků z Instagramu pro Magazín. | Aktivní |
+| **iDoklad** | Automatické vystavování zálohových a řádných faktur. | Aktivní |
+| **Stripe** | Zpracování plateb online záloh na rezervované termíny. | Ve vývoji / v integračním testu |
+| **Telegram** | Monitoring cashflow, chybových hlášení a denních/týdenních statistik. | Aktivní |
+
+---
+
+## 🔒 Bezpečnost & GDPR
+
+Projekt je od počátku navržen v souladu s nařízením **GDPR** (článek 9 – zpracování zvláštních kategorií osobních údajů):
+1. **Cloudflare Access (Zero Trust):** Celá administrativní sekce `/admin/*` je chráněna přes identity provider na Cloudflare. Vstup je povolen pouze schváleným e-mailům přes jednorázové kódy (PIN).
+2. **Field-level šifrování (AES-GCM):** Citlivé údaje (jména, kontakty, poznámky o zdravotním stavu) jsou v databázi uloženy v šifrovaném formátu. Dešifrování probíhá lokálně na klientovi po přihlášení do admin sekce.
+3. **Minimalizace dat:** Po uplynutí 30 dní od konání rezervace jsou citlivé osobní údaje automaticky odstraněny (nahrazeny prázdným řetězcem `''`).
+4. **Auditování:** Každá manipulace s citlivými údaji (čtení/dešifrování, úprava, smazání) je zapsána do nezměnitelného systémového logu (`audit_log`).
+5. **Správa klíčů:** Veškeré API klíče a secrets jsou nahrány v Cloudflare Environment Variables a nejsou součástí repozitáře.
+
+---
+
+## 📈 GEO / AEO / SEO & Vyhledávače
+
+- **Lokální SEO landingy:** 5 specializovaných stránek pro regiony (Písek, Strakonice, Vodňany, Milevsko, Protivín) pro zachycení vyhledávacích dotazů na lokální biorezonanci.
+- **Strukturovaná data (JSON-LD):** Detailní Person a LocalBusiness schémata, Service schémata v D1 generovaná za účelem zvýšení důvěryhodnosti u Google (E-E-A-T) i vyhledávačů.
+- **AI-SEO & AEO (llms.txt):** Strojově čitelný popis celého projektu v rootu (`llms.txt`) pro usnadnění procházení vyhledávacími roboty AI asistentů (GPTBot, PerplexityBot apod.), aby AI asistenti odpovídali přesně a pravdivě o službách Bicom Písek.
+- **Sitemap & Robots.txt:** Automaticky generovaná mapa stránek a pravidla pro roboty povzbuzující procházení obsahu.
+
+---
+
+## 🔄 Stav Vývoje a Migrace
+
+Projekt je v aktivní fázi dolaďování před konečným předáním. Produkční kód je postupně zrcadlen z vývojového balíku MEVERIK STUDIO do tohoto čistého repozitáře.
+
+```
+ HOTOVO 
+ ├─ Bezpečnostní audit S0 a fix 403 zacyklení (Zero Trust dev-fallback)
+ ├─ Repozitářová hygiena (odstranění mrtvého kódu a testovacích souborů)
+ ├─ GDPR anonymizace (oprava constraintů, úspěšný živý produkční re-test)
+ ├─ Sjednocení NAP (telefon a adresa Vladislavova 201 sjednocena napříč schématy a landingy)
+ └─ AI Copywriter právní guardrail (preventivní modulární vrstva rules-health s volbou přísnosti)
+
+ PRÁVĚ SE LADÍ / FIXUJE
+ ├─ Administrační konzole Virtual Office (přihlašovací stavy, datová pipeline a vykreslování)
+ ├─ Veřejný chatbot widget (renderování markdownu v bublinách chatu)
+ ├─ Odstranění demo a testovacích dat z produkční D1 databáze
+ └─ Zápis schválených termínů do Google kalendáře operátora
+
+ NA HORIZONTU (Budoucí rozvoj)
+ ├─ Generování obrázků, bannerů a Instagram/Facebook postů přímo z AI Copywritera
+ ├─ Detekční/cenzurní vrstva právního guardrailu (detect.js v Kroku 2)
+ ├─ Plné obousměrné napojení na Meta Graph (automatická publikace)
+ └─ Rozšíření CRM nástrojů v administraci Virtual Office (správa klientů)
+```
+
+---
+
+## 🚀 Lokální Spuštění
+
+Pro lokální spuštění a vývoj je zapotřebí nainstalovat Node.js a npx wrangler CLI:
 
 ```bash
+# 1. Klonování repozitáře
 git clone https://github.com/BiCOM-PiSEK/bicom-pisek-produkcni-repozit.git
 cd bicom-pisek-produkcni-repozit
+
+# 2. Instalace závislostí
 npm install
-cp .dev.vars.example .dev.vars   # vyplň lokální klíče (NIKDY necommitovat)
+
+# 3. Nastavení lokálních proměnných (vytvořte ze šablony)
+cp .dev.vars.example .dev.vars
+
+# 4. Inicializace lokální SQLite D1 databáze
 npm run db:init:local
+
+# 5. Spuštění lokálního vývojového serveru Wrangler
 npm run dev
 ```
 
-> Práce s repem (fork ↔ upstream, větvení, nasazení) se řídí **`docs/GIT_WORKFLOW.md`**.
+Pravidla pro vývoj, větvení a synchronizaci se řídí dokumentem [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md).
 
 ---
 
-## 📖 Dokumentace
-
-| Dokument | Popis |
-|---|---|
-| `docs/ARCHITEKTURA.md` | Celková technická architektura, datové toky, D1 schéma |
-| `docs/GIT_WORKFLOW.md` | Pravidla větvení a synchronizace (Fork ↔ Upstream) |
-| `docs/DATABASE_MANAGEMENT.md` | Správa D1, migrace, seed, šifrování |
-| `docs/API_KEYS_CHECKLIST.md` | Kanonický registr secrets a API klíčů (kde žijí, stav) |
-| `docs/STYLE_BRIEF.md` | Vizuální zákoník — Quiet Luxury paleta, typografie |
-| `docs/ASSET_STRATEGY.md` | Strategie vizuálních assetů (originály, web verze, R2) |
-| `docs/GEO_AEO.md` + `docs/GEO_AEO_SEO_STRATEGY.md` | Obsahová a lokální SEO/AEO strategie + právní rámec zdravotních tvrzení |
-| `docs/STRIPE_INTEGRATION.md` | Platební brána (volitelná funkce) |
-| `docs/HANDOVER.md` | Postup předání klientce |
-| `docs/GAP_ANALYSIS_OPPORTUNITIES.md` | Technický dluh a příležitosti |
-| `docs/REPO_MAPA_ULOZIST.md` | Registr a mapa všech lokálních, online i cloudových úložišť projektu |
-| `docs/audit/` | (interní, mimo produkční repo) auditní zprávy MEVERIK |
-
----
-
-## 🤖 Protokol pro AI agenty
-
-1. **Přečti `.github/AI_AGENT_PROMPT.md`** a `CLAUDE.md` a plně je respektuj.
-2. Design se řídí PŘÍSNĚ podle `docs/STYLE_BRIEF.md` (Quiet Luxury). Žádné odchylky v barvách ani typografii.
-3. **Vizuální assety** dle `docs/ASSET_STRATEGY.md` — originály v `docs/assets/`, web verze v `public/assets/img/`.
-4. **Žádné** externí knihovny mimo definované ve `wrangler.toml` / `package.json`.
-5. Každou změnu zapiš do `agent_journal.md` a `docs/agent-tasks/WORK-DIARY.md`.
-6. Zdravotní tvrzení **vždy** přes právní filtr — viz `docs/GEO_AEO.md` a interní právní revize tvrzení (L1–L6).
-7. **Žádný Secret do kódu** — pouze CF Secrets / `.dev.vars` (v `.gitignore`). Názvy a umístění viz `docs/API_KEYS_CHECKLIST.md`.
-
----
-
-## 🔒 Bezpečnost (stav po Sprintu S0)
-
-- `/admin/*` je chráněn **Cloudflare Access** (Zero Trust, One-Time PIN) na obou doménách — bez přihlášení vrací 403 / login.
-- Citlivá zdravotní data šifrována **AES-GCM 256** (field-level, čl. 9 GDPR) před zápisem do D1.
-- Secrets výhradně v CF Secrets; v repu nikdy.
-
----
-
-## 📦 Předání klientce
-
-Postup převodu domény, CF účtu, Google Workspace a repozitáře → **`docs/HANDOVER.md`**.
-
----
-
-## 🔄 Vztah k vývojovému balíku MEVERIK
-
-Tento repozitář je **produkční (předatelná) výseč**. Nadřazeným strategickým a designovým zdrojem je vývojový balík **MEVERIK STUDIO**; sem se promítá jen produkční kód. Komplexní know-how (Vue/Nuxt varianta, FastAPI enginy, AI orchestrace) zůstává v soukromém MEVERIK repu a do produkce se nekopíruje.
+Vydání: **v1.0.0 (Červen 2026)**  
+© 2026 **MEVERIK STUDIO / WHC s.r.o.**  
+Všechna práva vyhrazena.  
+Kanonický web: [bicom-pisek.cz](https://bicom-pisek.cz)
