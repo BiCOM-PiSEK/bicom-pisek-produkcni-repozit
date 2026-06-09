@@ -3,19 +3,15 @@
  * POST /admin/copywriter — generování obsahu
  */
 
+import { buildSystemPrompt, normalizeStrictness } from '../lib/guardrail/index.js';
+
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
-/** System prompt pro AI — Quiet Luxury tón + právní filtr */
-const SYSTEM_PROMPT = `Jsi AI copywriter pro Bicom Písek — centrum biorezonanční metody BICOM.
+/** Base style prompt for AI — Quiet Luxury tone and formatting guidelines */
+const BASE_STYLE_PROMPT = `Jsi AI copywriter pro Bicom Písek — centrum biorezonanční metody BICOM.
 Píšeš v češtině, tónem "Quiet Luxury" — vřelý, profesionální, empatický, nikdy ne klinický.
 Jazyk je jako náruč, která obejme — ne medicínský text.
-
-PRÁVNÍ FILTR (přísně dodržuj):
-- NIKDY nepiš "léčí", "vyléčí", "uzdraví", "zaručeně pomůže"
-- Používej: "podporuje", "harmonizuje", "napomáhá rovnováze", "může přispět k"
-- Biorezonance NENÍ lék — je to doplňková metoda
-- Vždy doporuč konzultaci s lékařem pro vážné stavy
 
 STYL:
 - Krátké odstavce (max 3 věty)
@@ -33,6 +29,18 @@ export async function onRequestPost({ env, data, request }) {
 
     if (!prompt?.trim()) return json({ ok: false, error: 'Zadejte téma.' }, 400);
 
+    // Read strictness from process_states
+    const rowGuardrail = await env.DB.prepare(
+      "SELECT value FROM process_states WHERE key = 'ai_legal_guardrail'"
+    ).first();
+    const strictness = normalizeStrictness(rowGuardrail?.value);
+
+    const systemPrompt = buildSystemPrompt({
+      tool: 'health',
+      strictness,
+      baseStyle: BASE_STYLE_PROMPT,
+    });
+
     // Build user prompt
     let userPrompt = `Napiš ${type === 'blog' ? 'blog článek' : type === 'social' ? 'příspěvek na sociální sítě' : 'newsletter'} na téma: ${prompt}`;
     if (service) userPrompt += `\nKontext služby: ${service}`;
@@ -45,7 +53,7 @@ export async function onRequestPost({ env, data, request }) {
       try {
         const aiRes = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
           ],
           max_tokens: 1500,
@@ -69,7 +77,7 @@ export async function onRequestPost({ env, data, request }) {
           body: JSON.stringify({
             model: 'llama-3.1-8b-instant',
             messages: [
-              { role: 'system', content: SYSTEM_PROMPT },
+              { role: 'system', content: systemPrompt },
               { role: 'user', content: userPrompt },
             ],
             max_tokens: 1500,
@@ -91,7 +99,7 @@ export async function onRequestPost({ env, data, request }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            system_instruction: { parts: [{ text: systemPrompt }] },
             contents: [{ parts: [{ text: userPrompt }] }],
           }),
         });

@@ -1467,7 +1467,7 @@
 ## 2026-06-09 NAP/telefon Fáze B — Oprava placeholderů a sjednocení NAP
 **Model:** Antigravity (Gemini 2.5 Pro)
 **Branch:** fix/nap-telefon
-**Status:** ⚠️ Čeká na review (PR otevřen)
+**Status:** ✅ Hotovo (PR sloučen a ověřen v produkci)
 
 ### Co bylo implementováno / otestováno
 - **Oprava telefonu**:
@@ -1491,3 +1491,39 @@
 - `public/llms.txt` — doplnění telefonu
 - `public/sitemap.xml` — přegenerování sitemapy
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+---
+
+## 2026-06-09 Copywriter Guardrail Krok 1 (PR-A) — Preventivní vrstva a nastavení
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** feat/copywriter-guardrail-prevent
+**Status:** ⚠️ Čeká na review (PR otevřen)
+
+### Co bylo implementováno / otestováno
+- **Modulární Guardrail**:
+  - Vytvořen soubor `functions/lib/guardrail/rules-health.js` obsahující zdravotní rulebook (červená zóna `forbidden`, oranžová zóna `risky`, bezpečná synonyma a povinné disclaimery).
+  - Vytvořen orchestrátor `functions/lib/guardrail/index.js` sestavující systémové prompty pomocí `buildSystemPrompt()` dle zadané přísnosti (`off`, `mild`, `optimal`, `strict`) a normalizující hodnoty přísnosti přes `normalizeStrictness()`.
+- **Integrace v copywriter.js**:
+  - V `functions/admin/copywriter.js` se nyní načítá úroveň přísnosti z DB (`process_states` klíč `ai_legal_guardrail`, výchozí hodnota `optimal`) a systémový prompt se sestavuje dynamicky.
+- **Konfigurace a UI nastavení**:
+  - V `functions/admin/settings.js` byl klíč `ai_legal_guardrail` přidán do `EDITABLE_KEYS`.
+  - V `public/admin/js/modules/settings.js` byl nastaven výchozí stav `ai_legal_guardrail: 'optimal'` a pod sekci AI Copywriter byl přidán výběrový prvek `<select>` se čtyřmi stupni přísnosti.
+- **Architektonické rozhodnutí**:
+  - Vytvořen dokument `docs/adr/ADR-002-guardrail-modularni-vrstva.md` zdůvodňující monolitickou in-repo implementaci modulární vrstvy namísto síťového API.
+- **Verifikace**:
+  - Proveden syntax check `node --check` nad všemi dotčenými soubory.
+  - Spuštěn sanity test generování promptů pro všechny úrovně přísnosti.
+
+### Soubory změněné / vytvořené
+- `functions/lib/guardrail/rules-health.js` [NEW] — pravidla pro zdravotní tvrzení
+- `functions/lib/guardrail/index.js` [NEW] — orchestrátor guardrailu a prompt builder
+- `functions/admin/copywriter.js` — dynamické sestavování promptu podle přísnosti
+- `functions/admin/settings.js` — registrace klíče nastavení
+- `public/admin/js/modules/settings.js` — select přísnosti v UI a výchozí nastavení
+- `docs/adr/ADR-002-guardrail-modularni-vrstva.md` [NEW] — architektonické rozhodnutí
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Doladění rules-health.js a index.js (před mergem)
+- Změkčení risky zóny: Odstraněna slova 'pomáhá' a 'podporuje' z risky zóny (ponechány pouze reálně problémové vzorce jako 'výsledek do', 'zlepšení za', 'absolutní detox', 'kompletní očista', 'vyřeší váš problém', 'zbavíte se [nemoci]'). Přidán komentář vysvětlující, že váhy a kontextové vyhodnocení řeší detekční engine v Kroku 2.
+- Doplněna klíčová zakázaná tvrzení z rulebook v1.1 do `forbidden` ('nahradí léky', 'bez léků', 'nemusíte k lékaři', 'odstraní příčinu nemoci', 'astma', 'ekzém' s komentářem pro konkrétní nemoci).
+- Zavedeny lidské disclaimery: V `index.js` v nastaveních 'optimal' a 'strict' byla upravena instrukce o disclaimerech na přirozené, decentní vyznění vkusně zakomponované do textu (NE právničina, u social na minimum/vynechat). Původní `required_disclaimers` v `rules-health.js` byly ponechány pro budoucí detekci.
