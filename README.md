@@ -57,7 +57,7 @@ npm run dev
 | `docs/HANDOVER.md` | Postup předání klientce |
 | `docs/GAP_ANALYSIS_OPPORTUNITIES.md` | Technický dluh a příležitosti |
 | `docs/REPO_MAPA_ULOZIST.md` | Registr a mapa všech lokálních, online i cloudových úložišť projektu |
-| `docs/audit/` | Generální audit M1–M7 (architektura, kód, infra, integrace, bezpečnost, UX, SEO) |
+| `docs/audit/` | (interní, mimo produkční repo) auditní zprávy MEVERIK |
 
 ---
 
@@ -68,7 +68,7 @@ npm run dev
 3. **Vizuální assety** dle `docs/ASSET_STRATEGY.md` — originály v `docs/assets/`, web verze v `public/assets/img/`.
 4. **Žádné** externí knihovny mimo definované ve `wrangler.toml` / `package.json`.
 5. Každou změnu zapiš do `agent_journal.md` a `docs/agent-tasks/WORK-DIARY.md`.
-6. Zdravotní tvrzení **vždy** přes právní filtr — viz `docs/GEO_AEO.md` a nálezy auditu M7 (právní revize tvrzení L1–L6).
+6. Zdravotní tvrzení **vždy** přes právní filtr — viz `docs/GEO_AEO.md` a interní právní revize tvrzení (L1–L6).
 7. **Žádný Secret do kódu** — pouze CF Secrets / `.dev.vars` (v `.gitignore`). Názvy a umístění viz `docs/API_KEYS_CHECKLIST.md`.
 
 ---

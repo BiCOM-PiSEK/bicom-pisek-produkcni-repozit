@@ -20,6 +20,3 @@ Projekt využívá následující hlavní úložiště:
 - **Git repozitář:** Osobní fork (vývoj) a hlavní upstream (produkce, zdroj pravdy).
 - **Cloudflare Edge:** D1 (databáze), R2 (multimédia) a KV (cache a sessions).
 Podrobná struktura a cesty viz [docs/REPO_MAPA_ULOZIST.md](file:///Users/matejkocanda/Documents/GitHub/bicom-pisek-produkcni-repozit/docs/REPO_MAPA_ULOZIST.md).
-
-## Kontext auditu
-Viz docs/audit/00_PLAYBOOK.md a 01_SNAPSHOT.md.
