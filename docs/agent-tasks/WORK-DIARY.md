@@ -1415,3 +1415,27 @@
 ### Soubory změněné
 - `CLAUDE.md` — oprava absolutních odkazů za repo-relativní
 - `docs/agent-tasks/WORK-DIARY.md` — přidání záznamu o hygieně repozitáře
+
+---
+
+## 2026-06-09 SEC-6a — Oprava GDPR anonymizace (NULL → '') + DataCrypt guard
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/sec6a-gdpr-notnull
+**Status:** ✅ Hotovo (Oprava UPDATE dotazu i dešifrovacího guardu připravena v PR)
+
+### Co bylo implementováno
+- **Oprava anonymizačního UPDATE dotazu:**
+  - V `functions/api/_cron-gdpr.js` byl opraven SQL dotaz pro anonymizaci rezervací. Namísto nastavení citlivých polí `name_enc`, `email_enc`, `phone_enc` a `note_enc` na `NULL` se nyní nastavují na prázdný řetězec `''`.
+  - Tímto krokem se zamezí chybě `NOT NULL constraint failed`, jelikož SQLite databáze i kanonické schéma `db/schema.sql` vynucují u těchto polí `NOT NULL`.
+- **Implementace guardu dešifrování:**
+  - V `functions/lib/datacrypt.js` byl přidán guard `if (encryptedBase64 === '') return '';` na začátek metody `decrypt()`.
+  - Tento guard zabrání spuštění dešifrovacího algoritmu Web Crypto API nad prázdným řetězcem a vrátí čistou hodnotu `''`.
+  - Zajištěno, že po tomto guardu:
+    - `getDecryptedBooking` v `db.js` vrátí pro anonymizovaná pole prázdný řetězec místo 500 výjimky,
+    - `admin/bookings.js` správně dešifruje bez pádu `Promise.all` (vykreslí se prázdná pole namísto textu `(chyba dešifrování)`),
+    - `admin/dashboard.js` nadále funguje bezchybně.
+
+### Soubory změněné
+- `functions/api/_cron-gdpr.js` — přepis NULL na prázdný řetězec v SQL dotazu
+- `functions/lib/datacrypt.js` — přidání guardu pro prázdný řetězec v metodě `decrypt()`
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku

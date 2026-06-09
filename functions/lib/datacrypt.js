@@ -146,6 +146,7 @@ class DataCrypt {
    */
   async decrypt(encryptedBase64) {
     if (encryptedBase64 == null) return null;
+    if (encryptedBase64 === '') return '';
     const key = await this._getKey();
     const raw = base64ToArrayBuffer(encryptedBase64);
 
