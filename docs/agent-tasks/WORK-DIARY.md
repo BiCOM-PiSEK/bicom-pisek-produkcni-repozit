@@ -1527,3 +1527,29 @@
 - Změkčení risky zóny: Odstraněna slova 'pomáhá' a 'podporuje' z risky zóny (ponechány pouze reálně problémové vzorce jako 'výsledek do', 'zlepšení za', 'absolutní detox', 'kompletní očista', 'vyřeší váš problém', 'zbavíte se [nemoci]'). Přidán komentář vysvětlující, že váhy a kontextové vyhodnocení řeší detekční engine v Kroku 2.
 - Doplněna klíčová zakázaná tvrzení z rulebook v1.1 do `forbidden` ('nahradí léky', 'bez léků', 'nemusíte k lékaři', 'odstraní příčinu nemoci', 'astma', 'ekzém' s komentářem pro konkrétní nemoci).
 - Zavedeny lidské disclaimery: V `index.js` v nastaveních 'optimal' a 'strict' byla upravena instrukce o disclaimerech na přirozené, decentní vyznění vkusně zakomponované do textu (NE právničina, u social na minimum/vynechat). Původní `required_disclaimers` v `rules-health.js` byly ponechány pro budoucí detekci.
+
+---
+
+## 2026-06-09 Přepis README.md produkčního repa
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** docs/readme-overhaul
+**Status:** ⚠️ Čeká na review (PR otevřen)
+
+### Co bylo implementováno
+- **Kompletní revize a přepis README.md:**
+  - Vytvořen detailní, profesionálně zpracovaný úvod projektu pro klienta, splňující Quiet Luxury tón a právní vymezení biorezonance jako komplementární metody.
+  - Vytvořen komplexní, vizuálně přehledný architektonický Mermaid diagram zobrazující toky dat, vrstvy (Edge, Frontend, Logic, AI, Data, Async, External) a integrace. Sjednocen počet tabulek na reálných 14 v textu i diagramu.
+  - Sestavena tabulka technologického stacku založeného na Edge-First a Cloudflare-native platformě MEVERIK STUDIO. Ověřena podpora View Transitions API a existence GIT_WORKFLOW.md a db:init:local.
+  - Zpracován a podrobně popsán seznam klíčových funkcí (asynchronní rezervace, GDPR šifrování dat, crony, AI Copywriter s guardrailem, blog Instagram sync, GEO marketing).
+  - Vytvořen kompletní registr API a endpointů (veřejná i administrativní část).
+  - Přehledně zdokumentován reálný stav integrací třetích stran (Google, Resend, GoSMS, Meta Graph, iDoklad, Stripe, Telegram).
+  - Popsány bezpečnostní principy, Zero Trust (CF Access), šifrování dat a minimalizace dle GDPR.
+  - Zpracována pasáž o lokální vyhledávací dominanci, strukturovaných datech (JSON-LD), AI-SEO (llms.txt) a regionálních landing pages.
+  - Transparentně zmapován aktuální stav vývoje a migrace (Hotovo / Ladí se / Na horizontu).
+  - Zavedeno přesné verzování na `v1.0 RC — aktivní finalizace před předáním` v hlavičce i patičce.
+- **Bezpečnostní audit:** Ověřeno, že v README.md se nenachází žádná citlivá ID (D1, KV), Access AUD klíče, secrets ani hesla.
+
+### Soubory změněné
+- `README.md` — kompletní přepis, zpřesnění stavů a RC verze
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
