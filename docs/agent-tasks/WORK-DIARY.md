@@ -1553,3 +1553,31 @@
 - `README.md` — kompletní přepis, zpřesnění stavů a RC verze
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-10 Admin páteř Fáze B — Oprava api.js wrapperu, Přehledu, health, /admin/me, logout, calendar demo data
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/admin-backbone
+**Status:** ⚠️ Čeká na review (PR otevřen)
+
+### Co bylo implementováno / otestováno
+- **Oprava api.js**: Odstraněno dvojité balení `{ ok, data }` response obálky. Metoda `request()` nyní vrací unwrapped payload, kde `res.data` odpovídá vnitřnímu datovému objektu z backendu a `res.ok` odpovídá backendovému stavu `ok` (nebo HTTP stavu).
+- **Defenzivní render Přehledu**: Modul `dashboard.js` byl chráněn optional chainingem a fallbacky na všech KPI, trendech a GEO datech. Při chybě se zobrazí elegantní prázdný stav "Data se nepodařilo načíst" s toastem a nedochází k pádům na `.length`.
+- **Oprava Status baru**: V `app.js` opraveno čtení stavu D1 na `health.checks?.d1` z `/api/health`. Zobrazení D1 online nyní funguje korektně.
+- **Nový /admin/me endpoint**: Vytvořen backend soubor `functions/admin/me.js` vracející základní údaje operátorky (`id`, `name`, `email`, `role`) z middleware kontextu.
+- **Zobrazení profilu v SPA**: V `api.js` implementována metoda `getMe()`. V `app.js` se na startu volá `getMe()`, dekonstruuje se jméno (avatar na první písmeno), jméno a role/email a plní se jimi sidebar.
+- **Logout v UI**: Do sidebar-footer v `public/admin/index.html` byl pod informace o operátorce doplněn minimalistický odkaz "Odhlásit se" propojující Edge /cdn-cgi/access/logout, s Quiet Luxury stylem.
+- **Odstranění demo fallbacku v kalendáři**: V `calendar.js` byla odstraněna funkce `getDemoBookings` a tichý fallback. Pokud se stahování nepodaří, kalendář vypíše chybovou obrazovku, při prázdné DB správně napíše "Žádné rezervace".
+- **Úklid a anonymizace**: Smazány všechny zbylé výskyty příjmení "Nováková" v demo datech v `public/admin/js/modules/` (nahrazeno za "Jana N.").
+
+### Soubory změněné / vytvořené
+- `functions/admin/me.js` [NEW] — endpoint pro zjištění aktuální operátorky
+- `public/admin/js/api.js` — odstranění dvojitého zavinutí, přidání `getMe()`
+- `public/admin/js/app.js` — oprava status bar D1 checku, volání getMe a plnění profilu
+- `public/admin/index.html` — doplněn odkaz pro odhlášení
+- `public/admin/js/modules/dashboard.js` — defenzivní rendering, oprava optional chainingu a fallbacků, anonymizace
+- `public/admin/js/modules/calendar.js` — odstranění getDemoBookings a demo fallbacku, ošetření error stavů
+- `public/admin/js/modules/invoices.js` — anonymizace demo jména
+- `public/admin/js/modules/payments.js` — anonymizace demo jména
+
+

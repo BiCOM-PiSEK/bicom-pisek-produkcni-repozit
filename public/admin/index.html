@@ -116,12 +116,20 @@
 
             <!-- Operator Info -->
             <div class="sidebar-footer">
-                <div class="sidebar-operator">
+                <div class="sidebar-operator" style="margin-bottom: var(--sp-2);">
                     <div class="sidebar-avatar" id="operator-avatar" title="Přihlášený uživatel">?</div>
                     <div class="sidebar-operator-info">
                         <div class="sidebar-operator-name" id="operator-name">Nepřihlášena</div>
                         <div class="sidebar-operator-role" id="operator-role">Čekám na ověření…</div>
                     </div>
+                </div>
+                <div class="sidebar-logout" style="padding-left: 48px;">
+                    <a href="/cdn-cgi/access/logout" style="font-size: var(--text-xs); color: var(--c-sage); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; transition: color 150ms ease;" onmouseover="this.style.color='var(--c-forest)'" onmouseout="this.style.color='var(--c-sage)'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span>Odhlásit se</span>
+                    </a>
                 </div>
             </div>
         </aside>
