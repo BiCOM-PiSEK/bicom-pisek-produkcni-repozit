@@ -197,6 +197,10 @@ input, select, textarea {
   grid-template-columns: var(--sidebar-w-collapsed) 1fr;
 }
 
+.admin-shell.activity-hidden .admin-activity {
+  display: none;
+}
+
 /* ─── 4. SIDEBAR ───────────────────────────────────────────── */
 .admin-sidebar {
   grid-area: sidebar;
@@ -452,7 +456,8 @@ input, select, textarea {
   position: relative;
 }
 
-.topbar-btn:hover {
+.topbar-btn:hover,
+.topbar-btn.active {
   background: var(--c-sage-light);
   color: var(--c-forest);
 }
@@ -712,13 +717,13 @@ input, select, textarea {
 /* ─── 10. GRID LAYOUTS ─────────────────────────────────────── */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: var(--sp-5);
 }
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: var(--sp-5);
 }
 
@@ -726,6 +731,17 @@ input, select, textarea {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--sp-5);
+}
+
+.grid-2 > *,
+.grid-3 > *,
+.grid-4 > * {
+  min-width: 0;
+}
+
+/* Defenzivní overflow pro karty s GEO grafy, aby se zabránilo oříznutí */
+.card-body:has(.geo-bar-item) {
+  overflow-x: auto;
 }
 
 .grid-auto {
@@ -1194,7 +1210,23 @@ input, select, textarea {
       "status  status";
   }
   .admin-activity {
-    display: none;
+    position: fixed;
+    right: 0;
+    top: var(--topbar-h);
+    bottom: var(--statusbar-h);
+    width: var(--activity-w);
+    max-width: 90vw;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+    box-shadow: -8px 0 24px rgba(0,0,0,.08);
+    z-index: 95;
+    display: flex;
+  }
+  .admin-shell.activity-hidden .admin-activity {
+    display: flex;
+  }
+  .admin-shell:not(.activity-hidden) .admin-activity {
+    transform: translateX(0);
   }
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);

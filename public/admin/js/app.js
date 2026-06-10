@@ -42,6 +42,8 @@ function toggleSidebar() {
   try {
     localStorage.setItem('bicom-admin-sidebar', state.sidebarCollapsed ? 'collapsed' : 'expanded');
   } catch { /* noop */ }
+
+  updateToggleButtons();
 }
 
 /**
@@ -55,6 +57,8 @@ function toggleActivity() {
   try {
     localStorage.setItem('bicom-admin-activity', state.activityHidden ? 'hidden' : 'visible');
   } catch { /* noop */ }
+
+  updateToggleButtons();
 }
 
 /**
@@ -68,6 +72,25 @@ function toggleMobileMenu() {
   sidebar.classList.toggle('mobile-open', state.mobileMenuOpen);
   if (overlay) {
     overlay.classList.toggle('active', state.mobileMenuOpen);
+  }
+}
+
+/**
+ * Update visual states (aria-pressed and active class) of toggle buttons.
+ */
+function updateToggleButtons() {
+  const activityBtn = $('#btn-toggle-activity');
+  if (activityBtn) {
+    const isActive = !state.activityHidden;
+    activityBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    activityBtn.classList.toggle('active', isActive);
+  }
+
+  const sidebarBtn = $('#btn-toggle-sidebar');
+  if (sidebarBtn) {
+    const isActive = state.sidebarCollapsed;
+    sidebarBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    sidebarBtn.classList.toggle('active', isActive);
   }
 }
 
@@ -277,7 +300,10 @@ function init() {
       $('.admin-shell')?.classList.add('sidebar-collapsed');
     }
 
-    const actPref = localStorage.getItem('bicom-admin-activity');
+    let actPref = localStorage.getItem('bicom-admin-activity');
+    if (!actPref && window.innerWidth <= 1280) {
+      actPref = 'hidden';
+    }
     if (actPref === 'hidden') {
       state.activityHidden = true;
       $('.admin-shell')?.classList.add('activity-hidden');
@@ -305,6 +331,14 @@ function init() {
     mobileOverlay.addEventListener('click', toggleMobileMenu);
   }
 
+  const notificationsBtn = $('#btn-notifications');
+  if (notificationsBtn) {
+    notificationsBtn.setAttribute('title', 'Připravujeme');
+    notificationsBtn.addEventListener('click', () => {
+      showToast('Centrum oznámení připravujeme', 'info');
+    });
+  }
+
   // Close mobile menu on route change
   document.addEventListener('click', (e) => {
     if (e.target.closest('.sidebar-link') && state.mobileMenuOpen) {
@@ -328,6 +362,9 @@ function init() {
   // Start status bar polling (every 60s)
   refreshStatusBar();
   state.statusPollTimer = setInterval(refreshStatusBar, 60000);
+
+  // Update initial visual states for toggle buttons
+  updateToggleButtons();
 
   console.log(
     '%c🌿 Bicom Písek — Virtual Office',

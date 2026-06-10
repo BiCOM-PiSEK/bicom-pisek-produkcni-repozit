@@ -1580,4 +1580,28 @@
 - `public/admin/js/modules/invoices.js` — anonymizace demo jména
 - `public/admin/js/modules/payments.js` — anonymizace demo jména
 
+---
+
+## 2026-06-11 Admin UI Fáze B — Oprava pravého panelu (oba režimy), overlay ≤1280px, zvoneček toast, grid overflow fix
+**Model:** Antigravity (Gemini 1.5 Pro)
+**Branch:** fix/admin-ui-panels
+**Status:** ⚠️ Čeká na review (PR otevřen)
+
+### Co bylo implementováno
+- **Oprava activity panelu pro široké displeje (>1280px):** Přidáno CSS pravidlo `.admin-shell.activity-hidden .admin-activity { display: none; }` pro správné skrytí panelu v gridu bez rozbití okolního zarovnání.
+- **Overlay chování pro menší displeje (≤1280px):** Nahrazeno pevné `display: none` v media query responzivním overlay chováním s absolutním/fixed pozicováním (`transform: translateX(100%)` s transition a box-shadow). Aktivní stav vysunutí je řízen pomocí `.admin-shell:not(.activity-hidden) .admin-activity { transform: translateX(0); }`.
+- **Indikace stavu tlačítek:** Tlačítkům `#btn-toggle-activity` a `#btn-toggle-sidebar` byla přidána synchronizace atributu `aria-pressed` a CSS třídy `.active` pro vizuální podsvícení podle aktuálního stavu zobrazení.
+- **Zpracování chybějící preference na menších displejích:** Při inicializaci admin SPA se na šířkách $\le 1280\text{px}$ bez dříve uložené preference v `localStorage` panel aktivit automaticky nastaví jako skrytý (`hidden`), aby nepřekrýval hlavní obsah od startu.
+- **Implementace centra oznámení (zvoneček):** Na tlačítko `#btn-notifications` byl navázán click event handler vyvolávající toast zprávu `Centrum oznámení připravujeme` s typem `info` a na tlačítko byl nastaven atribut `title="Připravujeme"`.
+- **Oprava přetékání a grid blowout:**
+  - Změněno zobrazení `.grid-2` a `.grid-3` na fluidní auto-fit grid (`grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))`), které se automaticky zalamuje namísto stlačování.
+  - Přidáno `min-width: 0;` pro všechny přímé potomky `.grid-2`, `.grid-3` a `.grid-4` k zamezení přetečení šířky mřížky.
+  - Defenzivně přidán `overflow-x: auto;` pro `.card-body` obsahující `.geo-bar-item` (grafy měst) a `.system-grid` (systémový stav), čímž se zamezilo ořezávání a umožnilo scrollování při nízké šířce.
+
+### Soubory změněné
+- `public/admin/css/admin.css` — Styly pro overlay panel, podsvícení tlačítek, fluidní gridy a overflow u karet
+- `public/admin/js/app.js` — Logika pro overlay preference, handler zvonečku a visual states tlačítek
+- `docs/agent-tasks/WORK-DIARY.md` — Záznam do pracovního deníku
+
+
 
