@@ -47,7 +47,7 @@ function renderTable(invoices) {
 
 function getDemoInvoices() {
   return [
-    { number: 'FV-2026-001', customer: 'Jana Nováková', date: '2026-05-20', amount: 1800, status: 'paid' },
+    { number: 'FV-2026-001', customer: 'Jana N.', date: '2026-05-20', amount: 1800, status: 'paid' },
     { number: 'FV-2026-002', customer: 'Petra Dvořáková', date: '2026-05-22', amount: 2400, status: 'unpaid' },
     { number: 'FV-2026-003', customer: 'Marie Svobodová', date: '2026-05-25', amount: 1200, status: 'paid' },
   ];

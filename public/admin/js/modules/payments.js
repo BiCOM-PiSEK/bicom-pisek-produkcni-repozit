@@ -165,7 +165,7 @@ function getDemoData(apiData) {
         amount: 500,
         status: 'completed',
         createdAt: new Date().toISOString(),
-        clientName: 'Jana Nováková',
+        clientName: 'Jana N.',
         service: 'imunita-a-obranyschopnost',
         preferredDate: new Date(Date.now() + 86400000 * 2).toISOString(),
       },

@@ -167,11 +167,11 @@ async function refreshStatusBar() {
     if (d1StatusEl) {
       const dot = d1StatusEl.querySelector('.statusbar-dot');
       if (dot) {
-        dot.className = `statusbar-dot ${health.d1 === 'ok' ? 'online' : 'offline'}`;
+        dot.className = `statusbar-dot ${health.checks?.d1 === 'ok' ? 'online' : 'offline'}`;
       }
       const label = d1StatusEl.querySelector('.statusbar-label');
       if (label) {
-        label.textContent = health.d1 === 'ok' ? 'D1 online' : 'D1 offline';
+        label.textContent = health.checks?.d1 === 'ok' ? 'D1 online' : 'D1 offline';
       }
     }
   } catch {
@@ -191,6 +191,34 @@ async function refreshStatusBar() {
       }
     }
   } catch { /* noop */ }
+}
+
+/**
+ * Načte informace o přihlášeném operátorovi a aktualizuje sidebar.
+ */
+async function loadOperatorInfo() {
+  const nameEl = $('#operator-name');
+  const roleEl = $('#operator-role');
+  const avatarEl = $('#operator-avatar');
+
+  try {
+    const res = await AdminAPI.getMe();
+    if (res.ok && res.data?.operator) {
+      const op = res.data.operator;
+      if (nameEl && op.name) {
+        nameEl.textContent = op.name;
+      }
+      if (roleEl && (op.role || op.email)) {
+        roleEl.textContent = op.role || op.email;
+      }
+      if (avatarEl && op.name) {
+        avatarEl.textContent = op.name.charAt(0).toUpperCase();
+        avatarEl.title = `${op.name} (${op.email || ''})`;
+      }
+    }
+  } catch (err) {
+    console.error('[app] Failed to load operator info:', err);
+  }
 }
 
 // ─── KEYBOARD SHORTCUTS ─────────────────────────────────────────
@@ -283,6 +311,9 @@ function init() {
       toggleMobileMenu();
     }
   });
+
+  // Load operator profile info
+  loadOperatorInfo();
 
   // Init keyboard shortcuts
   initKeyboardShortcuts();

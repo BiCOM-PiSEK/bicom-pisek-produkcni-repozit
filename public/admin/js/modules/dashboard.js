@@ -23,18 +23,36 @@ export async function render(container, ctx) {
 
   // Fetch dashboard data
   let data = null;
+  let hasError = false;
+
   if (api) {
     const res = await api.getDashboard();
     if (res.ok) {
       data = res.data;
     } else {
+      hasError = true;
       showToast('Nepodařilo se načíst přehled: ' + (res.error || 'Neznámá chyba'), 'warning');
     }
+  } else {
+    // Fallback demo data (pro vývoj bez backendu)
+    data = getDemoData();
   }
 
-  // Fallback demo data (pro vývoj bez backendu)
-  if (!data) {
-    data = getDemoData();
+  if (hasError || !data) {
+    container.innerHTML = `
+      <div class="canvas-header">
+        <h1 class="canvas-title">Přehled</h1>
+        <p class="canvas-subtitle">Data se nepodařilo načíst</p>
+      </div>
+      <div class="card mt-6">
+        <div class="empty-state" style="padding: var(--sp-8) var(--sp-4);">
+          <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);">⚠️</div>
+          <h4 class="empty-state-title">Data se nepodařilo načíst</h4>
+          <p class="empty-state-text">Zkontrolujte připojení k databázi nebo zkuste stránku obnovit.</p>
+        </div>
+      </div>
+    `;
+    return;
   }
 
   // Render final dashboard
@@ -62,10 +80,10 @@ function renderDashboard(data) {
 
     <!-- KPI karty -->
     <div class="grid-4 mb-6">
-      ${renderKPI('Nové poptávky', data.pendingBookings, data.pendingTrend, 'tento týden', '📋')}
-      ${renderKPI('Tržby', formatCurrency(data.revenueWeek), data.revenueTrend, 'tento týden', '💰')}
-      ${renderKPI('Potvrzené', data.confirmedBookings, data.confirmedTrend, 'tento měsíc', '✅')}
-      ${renderKPI('AI články', data.aiArticles, data.aiTrend, 'celkem v draftu', '🤖')}
+      ${renderKPI('Nové poptávky', data?.pendingBookings ?? 0, data?.pendingTrend ?? 0, 'tento týden', '📋')}
+      ${renderKPI('Tržby', formatCurrency(data?.revenueWeek ?? 0), data?.revenueTrend ?? 0, 'tento týden', '💰')}
+      ${renderKPI('Potvrzené', data?.confirmedBookings ?? 0, data?.confirmedTrend ?? 0, 'tento měsíc', '✅')}
+      ${renderKPI('AI články', data?.aiArticles ?? 0, data?.aiTrend ?? 0, 'celkem v draftu', '🤖')}
     </div>
 
     <!-- Dva sloupce: Čekající poptávky + Quick Actions -->
@@ -77,8 +95,8 @@ function renderDashboard(data) {
           <button class="btn btn-ghost btn-sm" id="btn-view-all-bookings">Zobrazit vše</button>
         </div>
         <div class="card-body">
-          ${data.recentBookings.length > 0
-            ? renderBookingsList(data.recentBookings)
+          ${(data?.recentBookings?.length ?? 0) > 0
+            ? renderBookingsList(data.recentBookings ?? [])
             : renderEmptyBookings()
           }
         </div>
@@ -108,7 +126,7 @@ function renderDashboard(data) {
             <span class="badge badge-new">Live</span>
           </div>
           <div class="card-body">
-            ${renderGeoHighlights(data.topCities)}
+            ${renderGeoHighlights(data?.topCities ?? [])}
           </div>
         </div>
       </div>
@@ -122,12 +140,12 @@ function renderDashboard(data) {
       </div>
       <div class="card-body">
         <div class="system-grid">
-          ${renderSystemStatus('Databáze D1', data.system?.d1 || 'ok')}
-          ${renderSystemStatus('Úložiště R2', data.system?.r2 || 'ok')}
-          ${renderSystemStatus('Cache KV', data.system?.kv || 'ok')}
-          ${renderSystemStatus('Telegram Bot', data.system?.telegram || 'standby')}
-          ${renderSystemStatus('Google Calendar', data.system?.calendar || 'standby')}
-          ${renderSystemStatus('iDoklad', data.system?.idoklad || 'standby')}
+          ${renderSystemStatus('Databáze D1', data?.system?.d1 ?? 'standby')}
+          ${renderSystemStatus('Úložiště R2', data?.system?.r2 ?? 'standby')}
+          ${renderSystemStatus('Cache KV', data?.system?.kv ?? 'standby')}
+          ${renderSystemStatus('Telegram Bot', data?.system?.telegram ?? 'standby')}
+          ${renderSystemStatus('Google Calendar', data?.system?.calendar ?? 'standby')}
+          ${renderSystemStatus('iDoklad', data?.system?.idoklad ?? 'standby')}
         </div>
       </div>
     </div>
@@ -227,19 +245,20 @@ function getQuickActionIconPath(icon) {
 }
 
 function renderGeoHighlights(cities) {
-  if (!cities || cities.length === 0) {
+  const cityList = cities ?? [];
+  if (cityList.length === 0) {
     return '<p class="text-sage" style="font-size: var(--text-sm);">GEO data budou dostupná po prvních poptávkách.</p>';
   }
 
-  const maxCount = Math.max(...cities.map((c) => c.count));
+  const maxCount = Math.max(...cityList.map((c) => c.count || 0), 1);
 
-  return cities.map((city) => {
-    const pct = Math.round((city.count / maxCount) * 100);
+  return cityList.map((city) => {
+    const pct = Math.round(((city.count || 0) / maxCount) * 100);
     return `
       <div class="geo-bar-item">
         <div class="flex justify-between items-center mb-2">
-          <span style="font-size: var(--text-sm); font-weight: 500;">${escapeHtml(city.name)}</span>
-          <span style="font-size: var(--text-xs); color: var(--c-sage);">${city.count} poptávek</span>
+          <span style="font-size: var(--text-sm); font-weight: 500;">${escapeHtml(city.name || '')}</span>
+          <span style="font-size: var(--text-xs); color: var(--c-sage);">${city.count || 0} poptávek</span>
         </div>
         <div class="geo-bar">
           <div class="geo-bar-fill" style="width: ${pct}%;"></div>
@@ -357,7 +376,7 @@ function getDemoData() {
     recentBookings: [
       {
         id: 'demo-1',
-        name: 'Jana Nováková',
+        name: 'Jana N.',
         service: 'imunita-a-obranyschopnost',
         preferred_date: new Date(Date.now() + 86400000 * 2).toISOString(),
         status: 'pending',

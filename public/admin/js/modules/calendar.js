@@ -10,13 +10,36 @@ export async function render(container, ctx) {
   container.innerHTML = renderSkeleton();
 
   let bookings = [];
+  let hasError = false;
+
   if (api) {
     const res = await api.getBookings({ limit: 50 });
-    if (res.ok && res.data?.bookings) {
-      bookings = res.data.bookings;
+    if (res.ok) {
+      bookings = res.data?.bookings ?? [];
+    } else {
+      hasError = true;
+      showToast('Nepodařilo se načíst rezervace: ' + (res.error || 'Neznámá chyba'), 'error');
     }
+  } else {
+    bookings = [];
   }
-  if (bookings.length === 0) bookings = getDemoBookings();
+
+  if (hasError) {
+    container.innerHTML = `
+      <div class="canvas-header">
+        <h1 class="canvas-title">Kalendář</h1>
+        <p class="canvas-subtitle">Data se nepodařilo načíst</p>
+      </div>
+      <div class="card">
+        <div class="empty-state" style="padding: var(--sp-8) var(--sp-4);">
+          <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);">⚠️</div>
+          <h4 class="empty-state-title">Chyba stahování dat</h4>
+          <p class="empty-state-text">Nepodařilo se navázat spojení s databází rezervací.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   const pending = bookings.filter((b) => b.status === 'pending');
   const confirmed = bookings.filter((b) => b.status === 'confirmed');
@@ -112,17 +135,6 @@ function renderBookingsTable(bookings) {
 
 function renderSkeleton() {
   return '<div class="canvas-header"><div class="skeleton" style="width:200px;height:32px;"></div></div><div class="card"><div class="skeleton" style="width:100%;height:300px;"></div></div>';
-}
-
-function getDemoBookings() {
-  const d = (days) => new Date(Date.now() + days * 86400000).toISOString();
-  return [
-    { id: 'd1', name: 'Jana Nováková', service: 'imunita-a-obranyschopnost', preferred_date: d(1), status: 'pending' },
-    { id: 'd2', name: 'Petra Dvořáková', service: 'energie-a-vitalita', preferred_date: d(2), status: 'pending' },
-    { id: 'd3', name: 'Marie Svobodová', service: 'psychika-a-emocni-rovnovaha', preferred_date: d(3), status: 'confirmed' },
-    { id: 'd4', name: 'Eva Procházková', service: 'bolest-a-pohybovy-aparat', preferred_date: d(-2), status: 'done' },
-    { id: 'd5', name: 'Kateřina Černá', service: 'hormonalni-system', preferred_date: d(5), status: 'pending' },
-  ];
 }
 
 function esc(s) { if (!s) return ''; const e = document.createElement('span'); e.textContent = s; return e.innerHTML; }

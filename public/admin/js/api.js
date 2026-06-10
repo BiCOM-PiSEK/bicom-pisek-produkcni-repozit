@@ -174,18 +174,18 @@ async function request(path, options = {}) {
       clearTimeout(timeoutId);
 
       // Parse response
-      let data = null;
+      let body = null;
       const contentType = response.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
         try {
-          data = await response.json();
+          body = await response.json();
         } catch {
-          data = null;
+          body = null;
         }
       }
 
       if (!response.ok) {
-        const errorMsg = data?.error || `HTTP ${response.status}`;
+        const errorMsg = body?.error || `HTTP ${response.status}`;
 
         // 401/403 → centrální ošetření autentizačních chyb (Access Denied / Redirect)
         if (response.status === 401 || response.status === 403) {
@@ -201,10 +201,28 @@ async function request(path, options = {}) {
           continue;
         }
 
-        return { ok: false, data, error: errorMsg, status: response.status };
+        return { ok: false, data: body?.data || null, error: errorMsg, status: response.status };
       }
 
-      return { ok: true, data, error: null, status: response.status };
+      let ok = response.ok;
+      let data = body;
+      let error = null;
+
+      if (body && typeof body === 'object') {
+        if (typeof body.ok === 'boolean') {
+          ok = body.ok;
+        }
+        if (body.data !== undefined) {
+          data = body.data;
+        } else if (body.ok === false) {
+          data = null;
+        }
+        if (body.error !== undefined) {
+          error = body.error;
+        }
+      }
+
+      return { ok, data, error, status: response.status };
 
     } catch (err) {
       lastError = err;
@@ -372,6 +390,14 @@ function createCampaign(data) {
   return request('/campaign', { method: 'POST', body: data });
 }
 
+/**
+ * GET /admin/me — aktuálně přihlášený operátor.
+ * @returns {Promise<ApiResponse>}
+ */
+function getMe() {
+  return request('/me');
+}
+
 // ─── EXPORT (pro browser ES module) ────────────────────────────
 
 const AdminAPI = {
@@ -389,6 +415,7 @@ const AdminAPI = {
   saveSettings,
   getActivityFeed,
   createCampaign,
+  getMe,
 };
 
 // Také na window pro přístup z modulů
