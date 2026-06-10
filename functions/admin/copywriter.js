@@ -47,6 +47,7 @@ export async function onRequestPost({ env, data, request }) {
     userPrompt += '\nVrať JSON: { "title": "...", "content": "...", "excerpt": "..." }';
 
     let generated = null;
+    let rawResponseText = null;
 
     // Chain: Workers AI → fallback
     if (env.AI) {
@@ -59,7 +60,10 @@ export async function onRequestPost({ env, data, request }) {
           max_tokens: 1500,
         });
         const text = aiRes?.response || '';
-        generated = tryParseJSON(text) || { title: 'Nový článek', content: text, excerpt: text.slice(0, 200) };
+        if (text) {
+          rawResponseText = text;
+          generated = tryParseJSON(text);
+        }
       } catch (err) {
         console.warn('[copywriter] Workers AI failed:', err.message);
       }
@@ -86,7 +90,10 @@ export async function onRequestPost({ env, data, request }) {
         });
         const groqData = await groqRes.json();
         const text = groqData.choices?.[0]?.message?.content || '';
-        generated = tryParseJSON(text) || { title: 'Nový článek', content: text, excerpt: text.slice(0, 200) };
+        if (text) {
+          rawResponseText = text;
+          generated = tryParseJSON(text);
+        }
       } catch (err) {
         console.warn('[copywriter] Groq fallback failed:', err.message);
       }
@@ -105,13 +112,19 @@ export async function onRequestPost({ env, data, request }) {
         });
         const gemData = await gemRes.json();
         const text = gemData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        generated = tryParseJSON(text) || { title: 'Nový článek', content: text, excerpt: text.slice(0, 200) };
+        if (text) {
+          rawResponseText = text;
+          generated = tryParseJSON(text);
+        }
       } catch (err) {
         console.warn('[copywriter] Gemini fallback failed:', err.message);
       }
     }
 
     if (!generated) {
+      if (rawResponseText) {
+        return json({ ok: false, error: 'AI vrátila neplatný formát, zkuste generovat znovu.' }, 400);
+      }
       return json({ ok: false, error: 'Žádný AI provider nedostupný. Zkontrolujte API klíče.' }, 503);
     }
 
@@ -147,9 +160,17 @@ export async function onRequestPost({ env, data, request }) {
 }
 
 function tryParseJSON(text) {
+  if (!text) return null;
+  // Odstraň případné ```json / ``` ploty
+  const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
   try {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]);
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      const parsed = JSON.parse(match[0]);
+      if (parsed && typeof parsed === 'object' && parsed.title && parsed.content) {
+        return parsed;
+      }
+    }
   } catch { /* noop */ }
   return null;
 }

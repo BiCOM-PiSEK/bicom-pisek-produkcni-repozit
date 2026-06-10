@@ -2,6 +2,8 @@
  * BICOM PÍSEK — Blog & AI Copywriter Module
  */
 
+import { renderMarkdown } from '/assets/js/markdown.js';
+
 export async function render(container, ctx) {
   const { api, showToast } = ctx;
   container.innerHTML = renderSkeleton();
@@ -99,7 +101,7 @@ export async function render(container, ctx) {
       const res = await api.generateContent({ prompt, type, service });
       if (res.ok && res.data) {
         resultEl.style.display = 'block';
-        resultEl.innerHTML = `<div class="card" style="border-left: 3px solid var(--c-champagne);"><h4 style="font-family: var(--font-head); color: var(--c-forest); margin-bottom: var(--sp-2);">${esc(res.data.title || 'Návrh')}</h4><p style="font-size: var(--text-sm); white-space: pre-wrap;">${esc(res.data.content)}</p></div>`;
+        resultEl.innerHTML = `<div class="card" style="border-left: 3px solid var(--c-champagne);"><h4 style="font-family: var(--font-head); color: var(--c-forest); margin-bottom: var(--sp-2);">${esc(res.data.title || 'Návrh')}</h4><div style="font-size: var(--text-sm);">${renderMarkdown(res.data.content)}</div></div>`;
         showToast('Článek vygenerován ✓', 'success');
       } else {
         showToast('Chyba: ' + (res.error || 'Nepodařilo se'), 'error');

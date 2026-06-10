@@ -3,6 +3,8 @@
   Spravuje virtuální navigaci bez přeblikávání, defferované stavy a přístupnost.
 */
 
+import { renderMarkdown } from './markdown.js';
+
 const ORIGINAL_TITLE = "Bicom Písek | Biorezonanční poradna Písek";
 const ORIGINAL_DESC = "Biorezonanční metoda Bicom Optima v Písku. Šetrná, certifikovaná a neinvazivní komplementární podpora pro děti i dospělé. Objednejte se online.";
 
@@ -335,8 +337,8 @@ async function renderBlogDetail(slug) {
         <p style="font-size: 1.15rem; line-height: 1.8; color: var(--c-forest); font-family: var(--font-head); font-style: italic; margin-bottom: 2rem; border-left: 3px solid var(--c-champagne); padding-left: 1.5rem;">
           ${escapeHtml(article.excerpt || '')}
         </p>
-        <div style="line-height: 1.9; font-size: 1.05rem; color: var(--c-charcoal); white-space: pre-wrap;">
-          ${escapeHtml(article.content)}
+        <div class="blog-article-content" style="line-height: 1.9; font-size: 1.05rem; color: var(--c-charcoal);">
+          ${renderMarkdown(article.content)}
         </div>
       </div>
 

@@ -1409,3 +1409,56 @@ footer {
   }
 }
 
+/* ----------------------------------------------------
+   18. Články Magazínu — Stylování Markdownu
+------------------------------------------------------- */
+.blog-article-content h2,
+.blog-article-content h3 {
+  font-family: var(--font-head);
+  color: var(--c-forest);
+  font-weight: 500;
+  text-align: left;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0;
+}
+
+.blog-article-content h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.blog-article-content h2::after {
+  display: none; /* Odstranění středové linky */
+}
+
+.blog-article-content h3 {
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+}
+
+.blog-article-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+
+.blog-article-content ul {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  list-style-type: square;
+}
+
+.blog-article-content li {
+  margin-bottom: 0.5rem;
+}
+
+.blog-article-content blockquote {
+  font-family: var(--font-head);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--c-forest);
+  border-left: 3px solid var(--c-champagne);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  line-height: 1.8;
+}
+
+

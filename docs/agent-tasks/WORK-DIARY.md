@@ -1603,5 +1603,40 @@
 - `public/admin/js/app.js` — Logika pro overlay preference, handler zvonečku a visual states tlačítek
 - `docs/agent-tasks/WORK-DIARY.md` — Záznam do pracovního deníku
 
+---
+
+## 2026-06-11 Markdown Fáze B1 — Bezpečný renderer + zpevnění copywriter parseru
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/blog-markdown
+**Status:** ⚠️ Čeká na review (PR otevřen)
+
+### Co bylo implementováno / otestováno
+- **Bezpečný Markdown Renderer (`markdown.js`)**:
+  - Implementován modulární ES renderer `public/assets/js/markdown.js` s funkcí `renderMarkdown(text)`.
+  - Nejprve provádí striktní HTML escapování (`&`, `<`, `>`, `"`, `'`) pro zamezení XSS z neošetřeného AI/Instagram obsahu.
+  - Podporuje normalizaci literálních `\n` na standardní newline.
+  - Převádí definovanou podmnožinu Markdownu (nadpisy `##` a `###` na `<h2>`/`<h3>`, tučné `**` na `<strong>`, kurzívu `*` na `<em>`, odrážky `- ` na `<ul><li>`, citace `> ` na `<blockquote>` a odstavce s `<p>`/`<br>`).
+- **Integrace ve Veřejném webu (`router.js` + CSS)**:
+  - V `public/assets/js/router.js` nahrazen původní `escapeHtml` a `pre-wrap` styl voláním `renderMarkdown(article.content)`.
+  - V `public/assets/css/style.css` přidán vkusný design pro formátování článku pod třídou `.blog-article-content` v tónu Quiet Luxury (nadpisy Cormorant Garamond, champagne akcentovaná čára u blockquote, správný line-height a marginy).
+- **Integrace v Admin SPA Náhledu (`blog.js`)**:
+  - Modul `public/admin/js/modules/blog.js` nyní importuje a využívá stejný `renderMarkdown` modul pro zobrazení vygenerovaného náhledu článku bez použití `pre-wrap` a `esc()`.
+- **Hardening AI Copywriter Parseru (`copywriter.js`)**:
+  - V `functions/admin/copywriter.js` v `tryParseJSON` nejprve odstraněny markdownové JSON obalovací bloky (```json / ```) a přidáno striktní ověření existence klíčů `title` a `content`.
+  - Zamezeno uložení surového textu do databáze v případě jakéhokoli selhání parsování AI odpovědi napříč všemi provideri. API v takovém případě bezpečně vrátí HTTP 400 s popisem chyby.
+- **Verifikace**:
+  - Proveden syntax check `node --check` nad všemi dotčenými soubory (úspěšně).
+  - Úspěšný test generování sitemapy `npm run build`.
+  - Spuštěn CLI unit/sanity test nad renderMarkdown s ukázkovým vstupem obsahujícím literální `\n`, tučné písmo, odrážky a XSS útok (vše escapováno a převedeno správně).
+
+### Soubory změněné / vytvořené
+- `public/assets/js/markdown.js` [NEW] — bezpečný markdown parser (ES modul)
+- `public/assets/js/router.js` — renderování článků pomocí nového rendereru
+- `public/assets/css/style.css` — Quiet Luxury stylování pro markdown články
+- `public/admin/js/modules/blog.js` — použití rendereru pro náhled vygenerovaného draftu
+- `functions/admin/copywriter.js` — ošetření JSON fences a zamezení zápisu vadných draftů
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+
 
 
