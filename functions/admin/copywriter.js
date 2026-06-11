@@ -8,7 +8,7 @@ import { buildSystemPrompt, normalizeStrictness } from '../lib/guardrail/index.j
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
-const MAX_TOKENS_BLOG = 4096;
+const MAX_TOKENS_BLOG = 6144;
 const MAX_TOKENS_SOCIAL = 600;
 
 /** Base style prompt for AI — Quiet Luxury tone and formatting guidelines */
@@ -76,14 +76,14 @@ export async function onRequestPost({ env, data, request }) {
 - Excerpt (pouták): 150–200 znaků dlouhý prostý text bez jakéhokoliv markdown formátování.
 
 DŮLEŽITÉ POKYNY PRO FORMÁT ODPOVĚDI:
-Vrať POUZE validní JSON objekt ve formátu:
-{
-  "title": "titulek",
-  "content": "hlavní text",
-  "excerpt": "pouták"
-}
-Odpověď nesmí obsahovat žádný text okolo, žádné úvodní ani závěrečné věty. Nepoužívej markdown ohraničení kódu (žádné ploty \`\`\`json ani \`\`\`).
-Všechny nové řádky v poli "content" musí být reprezentovány jako '\\n' uvnitř JSON řetězce tak, aby šel objekt přímo naparsovat pomocí JSON.parse().`;
+Odpověz PŘESNĚ v tomto formátu, bez jakéhokoli textu navíc:
+===TITLE===
+(titulek na jeden řádek)
+===EXCERPT===
+(perex 150-200 znaků, prostý text, jeden odstavec)
+===CONTENT===
+(celý obsah v markdownu)
+===END===`;
 
     let generated = null;
     let rawResponseText = null;
@@ -101,7 +101,7 @@ Všechny nové řádky v poli "content" musí být reprezentovány jako '\\n' uv
         const text = aiRes?.response || '';
         if (text) {
           rawResponseText = text;
-          generated = tryParseJSON(text);
+          generated = parseDelimited(text);
         }
       } catch (err) {
         console.warn('[copywriter] Workers AI failed:', err.message);
@@ -131,7 +131,7 @@ Všechny nové řádky v poli "content" musí být reprezentovány jako '\\n' uv
         const text = groqData.choices?.[0]?.message?.content || '';
         if (text) {
           rawResponseText = text;
-          generated = tryParseJSON(text);
+          generated = parseDelimited(text);
         }
       } catch (err) {
         console.warn('[copywriter] Groq fallback failed:', err.message);
@@ -156,7 +156,7 @@ Všechny nové řádky v poli "content" musí být reprezentovány jako '\\n' uv
         const text = gemData.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (text) {
           rawResponseText = text;
-          generated = tryParseJSON(text);
+          generated = parseDelimited(text);
         }
       } catch (err) {
         console.warn('[copywriter] Gemini fallback failed:', err.message);
@@ -201,20 +201,101 @@ Všechny nové řádky v poli "content" musí být reprezentovány jako '\\n' uv
   }
 }
 
-function tryParseJSON(text) {
+function parseDelimited(text) {
   if (!text) return null;
-  // Odstraň případné ```json / ``` ploty
-  const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-  try {
-    const match = cleaned.match(/\{[\s\S]*\}/);
-    if (match) {
-      const parsed = JSON.parse(match[0]);
-      if (parsed && typeof parsed === 'object' && parsed.title && parsed.content) {
-        return parsed;
+
+  // Odstraň případné ```markdown nebo ``` na úplném začátku/konci
+  const cleaned = text
+    .replace(/^```[a-z]*\s*\n?/i, '')
+    .replace(/```\s*$/i, '')
+    .trim();
+
+  const titleRegex = /===\s*TITLE\s*===/i;
+  const excerptRegex = /===\s*EXCERPT\s*===/i;
+  const contentRegex = /===\s*CONTENT\s*===/i;
+  const endRegex = /===\s*END\s*===/i;
+
+  const titleMatch = cleaned.match(titleRegex);
+  const excerptMatch = cleaned.match(excerptRegex);
+  const contentMatch = cleaned.match(contentRegex);
+  const endMatch = cleaned.match(endRegex);
+
+  // Musíme mít aspoň TITLE a CONTENT
+  if (!titleMatch || !contentMatch) return null;
+
+  const titleIdx = titleMatch.index + titleMatch[0].length;
+  let excerptStartIdx = -1;
+  let excerptEndIdx = -1;
+  let contentStartIdx = contentMatch.index + contentMatch[0].length;
+  let contentEndIdx = -1;
+
+  if (excerptMatch) {
+    excerptStartIdx = excerptMatch.index + excerptMatch[0].length;
+  }
+
+  let titleEndIdx = -1;
+  if (excerptMatch && excerptMatch.index > titleMatch.index) {
+    titleEndIdx = excerptMatch.index;
+  } else {
+    titleEndIdx = contentMatch.index;
+  }
+
+  const title = cleaned.slice(titleIdx, titleEndIdx).trim();
+
+  let excerpt = '';
+  if (excerptMatch) {
+    excerptEndIdx = contentMatch.index;
+    excerpt = cleaned.slice(excerptStartIdx, excerptEndIdx).trim();
+  }
+
+  if (endMatch && endMatch.index > contentMatch.index) {
+    contentEndIdx = endMatch.index;
+  } else {
+    contentEndIdx = cleaned.length;
+  }
+
+  let content = cleaned.slice(contentStartIdx, contentEndIdx).trim();
+
+  // Validace
+  if (!title || !content) return null;
+
+  // Oříznutí neúplné věty při chybějícím ===END===
+  if (!endMatch) {
+    const lastPunctuation = Math.max(
+      content.lastIndexOf('.'),
+      content.lastIndexOf('!'),
+      content.lastIndexOf('?')
+    );
+    if (lastPunctuation !== -1 && lastPunctuation < content.length - 1) {
+      const trailingPart = content.slice(lastPunctuation + 1).trim();
+      if (/[a-zA-Zá-žÁ-Ž0-9]/.test(trailingPart)) {
+        content = content.slice(0, lastPunctuation + 1).trim();
       }
     }
-  } catch { /* noop */ }
-  return null;
+  }
+
+  // Fallback pro chybějící excerpt
+  if (!excerpt) {
+    let cleanText = content
+      .replace(/#+\s+/g, '')
+      .replace(/[*_`]/g, '')
+      .replace(/^\s*[-*+]\s+/gm, '')
+      .replace(/^\s*>\s+/gm, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (cleanText.length > 180) {
+      let cutIdx = cleanText.indexOf(' ', 175);
+      if (cutIdx === -1 || cutIdx > 200) {
+        cutIdx = 180;
+      }
+      excerpt = cleanText.slice(0, cutIdx).trim() + '...';
+    } else {
+      excerpt = cleanText;
+    }
+  }
+
+  return { title, excerpt, content };
 }
 
 function slugify(text) {
