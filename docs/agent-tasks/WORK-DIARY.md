@@ -1745,6 +1745,20 @@
 - `functions/admin/copywriter.js` — implementace parseru a nového kontraktu promptu
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-11 Dokumentace — ADR-003 AI Studio
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** docs/adr-003
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno / otestováno
+- **ADR-003**: Vytvořen architektonický rozhodovací dokument `docs/adr/ADR-003-ai-studio.md` pro zavedení jednotné AI vrstvy se skills architekturou (AI Studio). Dokument definuje budoucí strukturu modulů, modelové řetězce, šablony výstupů, wizard a fázovaný plán implementace.
+
+### Soubory vytvořené / změněné
+- `docs/adr/ADR-003-ai-studio.md` [NEW] — architektonické rozhodnutí ADR-003
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
 
 
 
