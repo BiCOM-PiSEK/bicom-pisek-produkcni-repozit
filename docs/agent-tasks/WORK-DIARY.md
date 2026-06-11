@@ -1637,6 +1637,51 @@
 - `functions/admin/copywriter.js` — ošetření JSON fences a zamezení zápisu vadných draftů
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-11 Blog data fix — oprava literálních \n + smazání vadného draftu
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** main (D1 direct access)
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno / otestováno
+- **Záloha DB**: Proveden export produkční D1 databáze `bicom-pisek-db` do souboru `backups/pre-blog-fix-20260611.sql` (velikost 45.6 kB).
+- **Záchrana draftu**: Před smazáním byl kompletní obsah vadného draftu s ID `82340ca1-a6b7-472f-bbb1-cc9076cc05d8` vypsán do logů (pojistka vratnosti).
+- **Oprava literálních \n**: Nahrazeny literální dvouznakové sekvence backslash-n (`\n`) za skutečné newlines (`char(10)`) v contentu 6 hlavních blogových článků (`post_biorezonance`, `post_alergie`, `post_unava`, `post_traveni`, `post_odvykani`, `post_stres`). Zkontrolováno, že excerpts literální `\n` neobsahovaly.
+- **Smazání vadného draftu**: Smazán právě 1 vadný řádek s neparsovatelným textem v tabulce `blog_posts` (odpovídající ID, `source='ai_copywriter'` a `status='draft'`).
+- **Verifikace**: Ověřen stav po úpravě — počet blog postů klesl ze 7 na 6 a vizuální kontrola `post_unava` potvrdila správně zalomené odstavce bez literálních `\n`.
+
+### Soubory změněné
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+---
+
+## 2026-06-11 Chatbot Fáze B — výměna deprecated AI modelu + re-put runtime secrets
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/ai-model-deprecation
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno / otestováno
+- **Re-put secrets**: Znovu nahrány environment secrets z `.dev.vars` do produkčního runtime Pages Functions projektu `bicom-pisek` přes Wrangler CLI.
+  - **Nahrané klíče:** `SECRET_ENCRYPTION_KEY`, `SECRET_RESEND_API_KEY`, `SECRET_ADMIN_TOKEN`, `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL`, `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY`, `SECRET_GOOGLE_CALENDAR_ID`, `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL`
+  - **Přeskočené klíče (nebyly v `.dev.vars`):** `SECRET_GROQ_API_KEY`, `SECRET_GEMINI_API_KEY`
+- **Výměna deprecated AI modelu**:
+  - V kódu `functions/api/chat.js` nahrazen model `@cf/meta/llama-3-8b-instruct` za `@cf/meta/llama-3.3-70b-instruct-fp8-fast`.
+  - V kódu `functions/admin/copywriter.js` nahrazen model `@cf/meta/llama-3.1-8b-instruct` za `@cf/meta/llama-3.3-70b-instruct-fp8-fast`.
+- **Aktualizace dokumentace**:
+  - Upraven model na `@cf/meta/llama-3.3-70b-instruct-fp8-fast` v `docs/ARCHITEKTURA.md`, `WHITE_PAPER.md` a `GITHUB_SETUP_AND_PLANNING.md`.
+- **Ověření**:
+  - Provedena kontrola syntaxe přes `node --check` a úspěšně sestaven projekt přes `npm run build`.
+
+### Soubory změněné
+- `functions/api/chat.js` — změna AI modelu
+- `functions/admin/copywriter.js` — změna AI modelu
+- `docs/ARCHITEKTURA.md` — aktualizace modelu v architektuře
+- `WHITE_PAPER.md` — aktualizace modelu ve white paperu
+- `GITHUB_SETUP_AND_PLANNING.md` — aktualizace modelu v plánovacím kontextu
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+
 
 
 

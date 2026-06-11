@@ -182,7 +182,7 @@ Stavíš ekosystém **Bicom Písek** — prémiový web + automatizovaná virtu�
 
 ## NEMĚNITELNÁ PRAVIDLA (porušení = zastavení práce)
 
-1. **Stack je daný.** Cloudflare-only v produkci: Pages (HTML5+Tailwind+Vanilla ES6), Workers (ES modules, BEZ Node.js závislostí), D1, R2, KV, Workers AI (`@cf/meta/llama-3-8b-instruct`). Žádné jiné runtime/frameworky bez výslovného schválení.
+1. **Stack je daný.** Cloudflare-only v produkci: Pages (HTML5+Tailwind+Vanilla ES6), Workers (ES modules, BEZ Node.js závislostí), D1, R2, KV, Workers AI (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`). Žádné jiné runtime/frameworky bez výslovného schválení.
 2. **Žádné externí knihovny** mimo ty v `package.json`/`wrangler.toml`. Když něco potřebuješ navíc → napiš to do `agent_journal.md` a počkej na schválení.
 3. **Design = „Quiet Luxury".** Cormorant Garamond (nadpisy) + Montserrat (text). Barvy: alabaster #FAF8F5, sage #738A75, forest #3A4A3C, champagne #C5A880, charcoal #2B2B2B. Žádné křiklavé barvy, žádná ezoterika, žádný klinický chlad. (Detail: `01_ARCHITEKTURA/04`.)
 4. **Bezpečnost dat (čl. 9 GDPR).** Citlivá pole VŽDY šifruj přes `DataCrypt` (AES-GCM). Žádný Secret do kódu/repa — jen CF Secrets / `.dev.vars`. Parametrizované SQL dotazy (žádná SQLi). Sanitizace vstupů (XSS).
