@@ -52,7 +52,7 @@ export async function onRequestPost({ env, data, request }) {
     // Chain: Workers AI → fallback
     if (env.AI) {
       try {
-        const aiRes = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+        const aiRes = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },

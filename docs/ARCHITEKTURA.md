@@ -81,7 +81,7 @@ graph TD
 | 0 | Hrana sítě | Cloudflare DNS + WAF | DDoS štít, rate limiting (100 req/min/IP), bot management | TLS 1.3 |
 | 1 | Frontend | CF Pages — HTML5 + Tailwind + Vanilla ES6 (SPA router) | Prémiový portál „Quiet Luxury", fluidní bez přeblikávání | TTFB < 50 ms, LCP < 500 ms |
 | 2 | Logika | CF Workers (V8 isolates, ES modules) | API `/api/book`, `/api/newsletter`, `/api/chat`, `/api/admin/copywriter` | bez Node.js závislostí |
-| 3 | AI | CF Workers AI (`@cf/meta/llama-3-8b-instruct`) | Chatbot „AI Rádce" + admin copywriter (audio→blog) | edge inference |
+| 3 | AI | CF Workers AI (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`) | Chatbot „AI Rádce" + admin copywriter (audio→blog) | edge inference |
 | 4 | Data | CF D1 (distribuovaná SQLite) | 14 tabulek (vč. `bookings`, `newsletter_subscribers`, `blog_posts`, `services`...) | field-level AES-GCM |
 | 5 | Storage | CF R2 (S3-kompatibilní) | videa, fotogalerie, certifikáty — bez egress poplatků | — |
 | 6 | Cache/Stav | CF KV | session tokeny, rate-limit čítače, cache JSON-LD | — |
@@ -561,7 +561,7 @@ Frontend odpovídá < 200 ms; těžké operace běží na pozadí.
 
 ### D. Kognitivní vrstva pro sjednocení výstupů (Workers AI) — nejzásadnější prvek
 Slouží jako **překladač a normalizátor** individuálních vstupů obou majitelek.
-- Binding `AI`, model `@cf/meta/llama-3-8b-instruct`.
+- Binding `AI`, model `@cf/meta/llama-3.3-70b-instruct-fp8-fast`.
 - `/api/admin/copywriter`: přijme hrubý hlasový přepis kterékoliv majitelky → aplikuje **tvrdý system prompt** (vyloučí zakázaná zdravotní tvrzení dle `03_GEO_AEO/03`, nasadí tón „Quiet Luxury") → výstup je **100% konzistentní** bez ohledu na autorku.
 - Pravidlo: AI **nepublikuje sama** — navrhuje, člověk (kterákoliv majitelka) schválí.
 
@@ -680,7 +680,7 @@ graph LR
 ## 6.3 AI Guardrails & Fallbacks (Rotace a zálohy modelů)
 *   **Lokace systémového promptu:** Prompty (pro copywritera i chatbota) budou uloženy v KV / D1 (v tabulce `content_blocks`), nikoliv natvrdo v kódu Workeru. To umožní jejich okamžitou editaci přes administraci bez nutnosti redeploye.
 *   **Zálohovací řetězec (Fallback chain):**
-    1.  **Primární:** Cloudflare Workers AI (`@cf/meta/llama-3-8b-instruct`) — nulové dodatečné náklady, edge inference.
+    1.  **Primární:** Cloudflare Workers AI (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`) — nulové dodatečné náklady, edge inference.
     2.  **Sekundární (rychlost/kapacita):** Groq API (Llama 3 70B/8B) přes binding `SECRET_GROQ_API_KEY`.
     3.  **Terciární (kreativita/komplexnost):** Google Gemini API / GitHub Models (Gemma 2 / Gemini 1.5 Pro) přes API klíč `SECRET_GEMINI_API_KEY`.
 *   **Implementace ve Workeru:** Pokud volání primárního modelu selže (HTTP 5xx / timeout), kód automaticky přepne na sekundární/terciární API s identickým systémovým promptem.

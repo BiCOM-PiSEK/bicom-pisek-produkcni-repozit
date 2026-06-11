@@ -131,7 +131,7 @@ async function loadFaqContext(env) {
  */
 async function callWorkersAI(env, messages) {
   try {
-    const result = await env.AI.run('@cf/meta/llama-3-8b-instruct', { messages });
+    const result = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', { messages });
     return result?.response || null;
   } catch (err) {
     console.error('[chat] Workers AI error:', err);
