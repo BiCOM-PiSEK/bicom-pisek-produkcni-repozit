@@ -1681,6 +1681,23 @@
 - `GITHUB_SETUP_AND_PLANNING.md` — aktualizace modelu v plánovacím kontextu
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-11 Úklid — smazání osiřelého workeru "bicom-pisek"
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** main
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno / otestováno
+- **Verifikace**: Před smazáním bylo zkontrolováno přes Cloudflare API, že standalone Worker `bicom-pisek` (vytvořený 2026-05-25 jako hello-world) nemá žádné custom domény, schedules ani queue consumery. Zjištěno jediné binding na D1 databázi `DB`. Žádné secrets nebyly na tomto workeru registrovány.
+- **Smazání**: Standalone Worker `bicom-pisek` byl úspěšně smazán přes Wrangler CLI.
+- **Verifikace po smazání**:
+  - Ověřeno, že v seznamu Workers služeb již `bicom-pisek` nefiguruje a zůstaly pouze projektem využívané utility (`bicom-cron-worker`, `bicom-booking-consumer`, `bicom-social-consumer`).
+  - Ověřeno, že produkční Pages projekt `bicom-pisek` (PRODUKCE) je plně funkční a online (HTTP 200 pro `/` a `/api/health` vrací status `"ok"`).
+
+### Soubory změněné
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
 
 
 
