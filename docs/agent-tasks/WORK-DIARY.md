@@ -1698,6 +1698,31 @@
 ### Soubory změněné
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-11 Copywriter — delší a strukturované blogové články
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** feat/copywriter-longform
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno / otestováno
+- **Tokeny podle typu**: Zavedeny konstanty `MAX_TOKENS_BLOG = 4096` a `MAX_TOKENS_SOCIAL = 600`. Použity dynamicky na základě `type` parametru u všech tří AI poskytovatelů (Workers AI, Groq, Gemini) namísto původních natvrdo nastavených limitů.
+- **Strukturální instrukce pro blog**:
+  - Rozsah 800–1200 slov v češtině.
+  - Formátování v markdownu: Úvodní odstavec bez nadpisu (2-3 věty), 3–5 sekcí s nadpisy `##` a případně `###` podnadpisy, minimálně jeden seznam s odrážkami `- ` a alespoň jedna citace/tip začínající `> `.
+  - Jemný závěr s CTA bez tvrdého prodeje.
+  - Odstavce odděleny prázdným řádkem.
+- **Strukturální instrukce pro social posts**:
+  - Max cca 80 slov, bez jakýchkoliv nadpisů, max 1–2 emoji, max 3 hashtagy.
+- **Zpřísnění JSON formátu**:
+  - Vynucen přísnější návratový formát pro JSON bez jakéhokoliv textu okolo či ` ```json ` plotů, a nové řádky reprezentované jako `\n` v `content` poli.
+- **Ověření**:
+  - Provedena kontrola syntaxe přes `node --check` a úspěšně sestaven projekt přes `npm run build`.
+
+### Soubory změněné
+- `functions/admin/copywriter.js` — implementace delších a strukturovaných článků
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
 
 
 
