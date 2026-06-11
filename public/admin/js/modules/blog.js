@@ -11,17 +11,18 @@ export async function render(container, ctx) {
   let allPosts = [];
   let currentTab = 'all';
 
-  // Načte články ze serveru nebo použije demo data
+  // Načte články ze serveru
   async function loadPosts() {
-    if (api) {
+    try {
       const res = await api.getBlogPosts();
       if (res.ok && res.data?.posts) {
         allPosts = res.data.posts;
-        return;
+      } else {
+        showToast('Nepodařilo se načíst články: ' + (res.error || 'Neznámá chyba'), 'error');
       }
+    } catch (err) {
+      showToast('Síťová chyba při načítání článků: ' + err.message, 'error');
     }
-    // Fallback do demo dat
-    allPosts = getDemoPosts();
   }
 
   await loadPosts();
@@ -96,7 +97,7 @@ export async function render(container, ctx) {
             <div style="display: flex; gap: 0.25rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--c-mist); padding-bottom: 0.25rem; overflow-x: auto;">
               <button class="tab-btn" data-tab="all" style="background:none; border:none; padding: 0.5rem 0.75rem; cursor:pointer; font-weight:500; font-family:var(--font-body); font-size:var(--text-sm); border-bottom: 2px solid transparent;">Všechny</button>
               <button class="tab-btn" data-tab="draft" style="background:none; border:none; padding: 0.5rem 0.75rem; cursor:pointer; font-weight:500; font-family:var(--font-body); font-size:var(--text-sm); border-bottom: 2px solid transparent;">Koncepty</button>
-              <button class="tab-btn" data-tab="scheduled" style="background:none; border:none; padding: 0.5rem 0.75rem; cursor:pointer; font-weight:500; font-family:var(--font-body); font-size:var(--text-sm); border-bottom: 2px solid transparent;">Plánované</button>
+              <button class="tab-btn" data-tab="scheduled" style="background:none; border:none; padding: 0.5rem 0.75rem; cursor:pointer; font-weight:500; font-family:var(--font-body); font-size:var(--text-sm); border-bottom: 2px solid transparent;">Naplánované</button>
               <button class="tab-btn" data-tab="published" style="background:none; border:none; padding: 0.5rem 0.75rem; cursor:pointer; font-weight:500; font-family:var(--font-body); font-size:var(--text-sm); border-bottom: 2px solid transparent;">Publikované</button>
               <button class="tab-btn" data-tab="archived" style="background:none; border:none; padding: 0.5rem 0.75rem; cursor:pointer; font-weight:500; font-family:var(--font-body); font-size:var(--text-sm); border-bottom: 2px solid transparent;">Archivované</button>
             </div>
@@ -128,65 +129,36 @@ export async function render(container, ctx) {
       genBtn.disabled = true;
       genBtn.textContent = '⏳ Generuji pomocí AI…';
 
-      if (api) {
-        try {
-          const res = await api.generateContent({ prompt, type, service });
-          if (res.ok && res.data) {
-            // Zobrazit výsledek generování
-            const resultEl = container.querySelector('#ai-result');
-            const resultTitle = container.querySelector('#ai-result-title');
-            const resultExcerpt = container.querySelector('#ai-result-excerpt');
-            const resultPreview = container.querySelector('#ai-result-preview');
-
-            if (resultEl && resultTitle && resultExcerpt && resultPreview) {
-              resultTitle.textContent = res.data.title || 'Návrh článku';
-              resultExcerpt.textContent = res.data.excerpt || '';
-              resultPreview.innerHTML = renderMarkdown(res.data.content || '');
-              resultEl.style.display = 'block';
-            }
-
-            showToast('Článek vygenerován a uložen jako koncept ✓', 'success');
-
-            // Vyčistit prompt
-            container.querySelector('#ai-prompt').value = '';
-
-            // Znovu načíst články
-            await loadPosts();
-            updateBadge();
-            renderTable();
-          } else {
-            showToast('Chyba generování: ' + (res.error || 'Neznámá chyba'), 'error');
-          }
-        } catch (err) {
-          showToast('Chyba: ' + err.message, 'error');
-        }
-      } else {
-        // Mock generování
-        setTimeout(async () => {
-          const mockPost = {
-            id: String(Date.now()),
-            slug: 'mock-post-' + Date.now(),
-            title: prompt,
-            excerpt: 'Vygenerovaný perex pro téma: ' + prompt,
-            content: '## ' + prompt + '\nObsah vygenerovaný simulací AI pro testovací účely.',
-            status: 'draft',
-            source: 'ai_copywriter',
-            created_at: new Date().toISOString()
-          };
-          allPosts.unshift(mockPost);
-          
+      try {
+        const res = await api.generateContent({ prompt, type, service });
+        if (res.ok && res.data) {
+          // Zobrazit výsledek generování
           const resultEl = container.querySelector('#ai-result');
-          if (resultEl) {
-            container.querySelector('#ai-result-title').textContent = mockPost.title;
-            container.querySelector('#ai-result-excerpt').textContent = mockPost.excerpt;
-            container.querySelector('#ai-result-preview').innerHTML = renderMarkdown(mockPost.content);
+          const resultTitle = container.querySelector('#ai-result-title');
+          const resultExcerpt = container.querySelector('#ai-result-excerpt');
+          const resultPreview = container.querySelector('#ai-result-preview');
+
+          if (resultEl && resultTitle && resultExcerpt && resultPreview) {
+            resultTitle.textContent = res.data.title || 'Návrh článku';
+            resultExcerpt.textContent = res.data.excerpt || '';
+            resultPreview.innerHTML = renderMarkdown(res.data.content || '');
             resultEl.style.display = 'block';
           }
-          
-          showToast('Demo: Článek vygenerován (uložen lokálně) ✓', 'success');
+
+          showToast('Článek vygenerován a uložen jako koncept ✓', 'success');
+
+          // Vyčistit prompt
+          container.querySelector('#ai-prompt').value = '';
+
+          // Znovu načíst články
+          await loadPosts();
           updateBadge();
           renderTable();
-        }, 1500);
+        } else {
+          showToast('Chyba generování: ' + (res.error || 'Neznámá chyba'), 'error');
+        }
+      } catch (err) {
+        showToast('Chyba: ' + err.message, 'error');
       }
 
       genBtn.disabled = false;
@@ -321,7 +293,7 @@ export async function render(container, ctx) {
   // --- ACTIONS HANDLERS ---
 
   async function handlePublish(id) {
-    if (api) {
+    try {
       const res = await api.updateBlogPost({ id, action: 'publish' });
       if (res.ok) {
         showToast('Článek byl úspěšně zveřejněn ✓', 'success');
@@ -330,19 +302,13 @@ export async function render(container, ctx) {
       } else {
         showToast('Zveřejnění selhalo: ' + res.error, 'error');
       }
-    } else {
-      const post = allPosts.find((p) => p.id === id);
-      if (post) {
-        post.status = 'published';
-        post.published_at = new Date().toISOString();
-        showToast('Demo: Článek byl zveřejněn', 'success');
-        renderTable();
-      }
+    } catch (err) {
+      showToast('Chyba při zveřejňování: ' + err.message, 'error');
     }
   }
 
   async function handleUnpublish(id) {
-    if (api) {
+    try {
       const res = await api.updateBlogPost({ id, action: 'unpublish' });
       if (res.ok) {
         showToast('Článek byl vrácen do konceptů ✓', 'success');
@@ -351,19 +317,13 @@ export async function render(container, ctx) {
       } else {
         showToast('Akce selhala: ' + res.error, 'error');
       }
-    } else {
-      const post = allPosts.find((p) => p.id === id);
-      if (post) {
-        post.status = 'draft';
-        post.published_at = null;
-        showToast('Demo: Článek vrácen do konceptů', 'success');
-        renderTable();
-      }
+    } catch (err) {
+      showToast('Chyba při stahování článku: ' + err.message, 'error');
     }
   }
 
   async function handleArchive(id) {
-    if (api) {
+    try {
       const res = await api.updateBlogPost({ id, action: 'archive' });
       if (res.ok) {
         showToast('Článek byl archivován ✓', 'success');
@@ -372,13 +332,8 @@ export async function render(container, ctx) {
       } else {
         showToast('Archivace selhala: ' + res.error, 'error');
       }
-    } else {
-      const post = allPosts.find((p) => p.id === id);
-      if (post) {
-        post.status = 'archived';
-        showToast('Demo: Článek byl archivován', 'success');
-        renderTable();
-      }
+    } catch (err) {
+      showToast('Chyba při archivaci: ' + err.message, 'error');
     }
   }
 
@@ -427,7 +382,7 @@ export async function render(container, ctx) {
           return;
         }
 
-        if (api) {
+        try {
           const res = await api.updateBlogPost({
             id,
             action: 'schedule',
@@ -441,12 +396,8 @@ export async function render(container, ctx) {
           } else {
             showToast('Chyba plánování: ' + res.error, 'error');
           }
-        } else {
-          post.status = 'scheduled';
-          post.published_at = new Date(dateVal).toISOString();
-          showToast('Demo: Článek byl naplánován', 'success');
-          closeModal();
-          renderTable();
+        } catch (err) {
+          showToast('Chyba při ukládání plánu: ' + err.message, 'error');
         }
       });
     });
@@ -454,7 +405,7 @@ export async function render(container, ctx) {
 
   async function handleEdit(id) {
     let post = null;
-    if (api) {
+    try {
       const res = await api.getBlogPost(id);
       if (res.ok && res.data) {
         post = res.data;
@@ -462,8 +413,9 @@ export async function render(container, ctx) {
         showToast('Nepodařilo se načíst obsah článku: ' + res.error, 'error');
         return;
       }
-    } else {
-      post = allPosts.find((p) => p.id === id);
+    } catch (err) {
+      showToast('Chyba při stahování detailu článku: ' + err.message, 'error');
+      return;
     }
 
     if (!post) return;
@@ -556,7 +508,7 @@ export async function render(container, ctx) {
           return;
         }
 
-        if (api) {
+        try {
           const res = await api.updateBlogPost({
             id,
             action: 'update',
@@ -570,14 +522,8 @@ export async function render(container, ctx) {
           } else {
             showToast('Uložení selhalo: ' + res.error, 'error');
           }
-        } else {
-          post.title = title;
-          post.excerpt = excerpt;
-          post.image_url = image_url;
-          post.content = content;
-          showToast('Demo: Změny byly uloženy', 'success');
-          closeModal();
-          renderTable();
+        } catch (err) {
+          showToast('Chyba při ukládání: ' + err.message, 'error');
         }
       });
     });
@@ -609,14 +555,6 @@ export function destroy() {}
 
 function renderSkeleton() {
   return '<div class="canvas-header"><div class="skeleton" style="width:250px;height:32px;"></div></div><div class="grid-2 gap-6"><div class="card"><div class="skeleton" style="width:100%;height:350px;"></div></div><div class="card"><div class="skeleton" style="width:100%;height:350px;"></div></div></div>';
-}
-
-function getDemoPosts() {
-  return [
-    { id: '1', slug: 'jarni-alergie-biorezonance', title: 'Jarní alergie a biorezonance', excerpt: 'Pylová sezóna přichází — jak může biorezonanční metoda podpořit váš organismus…', status: 'draft', source: 'ai_copywriter', created_at: '2026-06-10T12:00:00Z', content: '## Jarní alergie\nBiorezonance pomáhá...' },
-    { id: '2', slug: '5-tipu-pro-silnejsi-imunitu', title: '5 tipů pro silnější imunitu', excerpt: 'Jednoduchá opatření, která můžete kombinovat s biorezonanční terapií…', status: 'published', published_at: '2026-06-09T10:00:00Z', source: 'manual', created_at: '2026-06-09T10:00:00Z', content: '## Imunita\n1. Spánek...' },
-    { id: '3', slug: 'unava-a-vitalita', title: 'Chronická únava a biorezonanční podpora', excerpt: 'Cítíte se neustále bez energie? Objevte příčiny a možnosti obnovy vitality.', status: 'scheduled', published_at: '2026-06-12T08:00:00Z', source: 'ai_copywriter', created_at: '2026-06-08T14:00:00Z', content: '## Únava\nÚnava může mít různé příčiny...' },
-  ];
 }
 
 function getStatusBadge(status, publishedAt) {

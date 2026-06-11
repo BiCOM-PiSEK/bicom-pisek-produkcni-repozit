@@ -100,6 +100,10 @@ export async function onRequestPut({ env, data, request }) {
         return json({ ok: false, error: 'Neplatné datum publikování.' }, 400);
       }
 
+      if (new Date(publish_at) <= new Date()) {
+        return json({ ok: false, error: 'Datum publikace musí být v budoucnosti.' }, 400);
+      }
+
       // SQLite vyžaduje formát YYYY-MM-DD HH:MM:SS v UTC
       const publishAtStr = new Date(publish_at).toISOString().replace('T', ' ').substring(0, 19);
 
@@ -147,8 +151,8 @@ export async function onRequestPut({ env, data, request }) {
     // Spustit transakci
     await env.DB.batch(batch);
 
-    // Invalidace KV cache při změně publikace/plánování/archivace
-    if (['publish', 'schedule', 'unpublish', 'archive'].includes(action)) {
+    // Invalidace KV cache při úpravě/publikaci/plánování/archivaci
+    if (['update', 'publish', 'schedule', 'unpublish', 'archive'].includes(action)) {
       try {
         const list = await env.CACHE.list({ prefix: 'blog:published:' });
         if (list && list.keys) {
