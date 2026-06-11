@@ -54,12 +54,20 @@ export default {
           ).bind(calendarEvent.id, booking.bookingId).run();
         }
 
+        const dateObj = new Date(booking.preferred_date);
+        const dateStr = new Intl.DateTimeFormat('cs-CZ', {
+          timeZone: 'Europe/Prague',
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+        }).format(dateObj);
+
         // 3. Send confirmation email to client
         await resend.sendBookingConfirmation({
           name: booking.name,
           email: booking.email,
           service: booking.service,
-          preferredDate: booking.preferred_date,
+          date: dateStr,
           estimatedPrice: booking.estimated_price,
         });
 

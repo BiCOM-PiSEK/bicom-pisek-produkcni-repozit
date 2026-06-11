@@ -68,7 +68,7 @@ export class ResendConnector {
    * @param {string} booking.email - Customer email.
    * @param {string} booking.name - Customer name.
    * @param {string} booking.service - Service name.
-   * @param {string} booking.confirmed_date - Confirmed date/time string.
+   * @param {string} booking.date - Appointment date string (e.g. "10. 6. 2026").
    * @param {number} [booking.estimated_price] - Estimated price in CZK.
    * @returns {Promise<object|null>}
    */
@@ -92,7 +92,7 @@ export class ResendConnector {
     </tr>
     <tr>
       <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Termín:</strong></td>
-      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.confirmed_date)}</td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.date)}</td>
     </tr>
     ${booking.estimated_price != null ? `
     <tr>

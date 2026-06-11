@@ -1805,8 +1805,41 @@
 - [x] Cron auto-publish pro plánování článků
 - [x] Úspěšné lokální sestavení (npm run build) a ověření syntaxe
 
+---
 
+## 2026-06-11 Cleanup B1 — oprava e-mail bugu a odstranění mocků
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/email-date-and-mocks
+**Status:** ✅ Hotovo
 
+### Co bylo implementováno / otestováno
+- **Oprava bugu "Termín: undefined"**:
+  - V `ResendConnector.sendBookingConfirmation` upravena šablona, aby četla parametr `booking.date` namísto neplatného `booking.confirmed_date`.
+  - V `_queue-booking.js` a `calendar-hook.js` upraveno předávání parametrů tak, aby se `preferred_date` zformátovalo pomocí `Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague' })` na datum bez času (např. "10. 6. 2026") a předalo se jako `date`.
+- **payments.js (Stripe platby)**:
+  - Odstraněna pomocná mockovací funkce `getDemoData`.
+  - Upraveno chování: pokud v databázi nejsou žádné platby, modul zobrazí standardní chybějící stav *"Zatím neproběhly žádné platby"* (nuly v KPI kartách jsou zachovány).
+  - Přidán explicitní chybový stav s ikonou varování a toastem při chybě API.
+- **invoices.js (Fakturace)**:
+  - Odstraněna pomocná mockovací funkce `getDemoInvoices`.
+  - Rozlišeny 3 stavy:
+    1. Úspěšné API + prázdné faktury: Zobrazí se KPI karty s nulami a tabulka s *"Žádné faktury"*.
+    2. Úspěšné API + `source: 'mock'` (iDoklad není propojen): Zobrazí se decentní, nechybový info-stav *"iDoklad není propojen"*.
+    3. Selhání API: Zobrazí se chybová stránka *"Chyba stahování dat"* s toastem.
+- **messages.js (Zprávy)**:
+  - Odstraněna pomocná mockovací funkce `getDemoMessages` i celý mock render.
+  - Zaveden čistý, statický a stylově sladěný placeholder *"Centrum zpráv připravujeme — eskalace AI Rádce a přehled komunikace zde najdete brzy."* v Quiet Luxury stylu.
+- **dashboard.js (Přehled)**:
+  - Odstraněn nepoužívaný fallback na `getDemoData`. Při chybějícím `api` v kontextu se nyní vyhodí explicitní chyba (stejně jako v `blog.js`).
+- **Rozhodnutí**:
+  - Google Calendar webhook/watch (přihlašování k odběru změn) je vědomě odložen na horizont. Potvrzování a rušení termínů je v této fázi plně funkční a provádí se přímo přes administrátorskou konzoli.
 
-
-
+### Soubory změněné
+- `functions/lib/connectors/resend.js` — sjednocení parametru a šablony pro potvrzení termínu
+- `functions/api/_queue-booking.js` — formátování data a předání do e-mailového odesílače
+- `functions/api/calendar-hook.js` — formátování data a předání do e-mailového odesílače
+- `public/admin/js/modules/payments.js` — odstranění mock dat, přidání prázdného a chybového stavu
+- `public/admin/js/modules/invoices.js` — odstranění mock dat, přidání prázdného, chybového a nenastaveného iDoklad stavu
+- `public/admin/js/modules/messages.js` — implementace statického coming-soon placeholderu
+- `public/admin/js/modules/dashboard.js` — odstranění mrtvé větve a getDemoData fallbacku
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
