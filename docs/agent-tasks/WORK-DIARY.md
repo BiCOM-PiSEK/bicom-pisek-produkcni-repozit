@@ -1723,6 +1723,28 @@
 - `functions/admin/copywriter.js` — implementace delších a strukturovaných článků
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-11 Copywriter hotfix — oddělovačový formát místo JSON
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/copywriter-output-format
+**Status:** ✅ Hotovo
+
+### Co bylo implementováno / otestováno
+- **Nový výstupní kontrakt**: Nahrazeno formátování JSON za robustní oddělovačový formát (`===TITLE===`, `===EXCERPT===`, `===CONTENT===`, `===END===`). Tím se zabrání chybám formátování při výskytu neescapovaných nových řádků nebo useknutí na limitu tokenů.
+- **Nový parser (`parseDelimited`)**:
+  - Parsování titulu, perexu a obsahu na základě oddělovačů (case-insensitive, tolerance mezer, odstranění vnějších \`\`\` plotů).
+  - Při chybějícím `===END===` (useknutí textu na limitu) ořízne poslední neúplnou větu/řádek a pokračuje dále (draft lze doeditovat).
+  - Při chybějícím perexu (`EXCERPT`) automaticky vygeneruje fallback z prvních ~180 znaků obsahu (s odstraněním markdown značek).
+- **Zvýšení limitu tokenů**: `MAX_TOKENS_BLOG` navýšen z 4096 na 6144 tokenů, aby se plně podpořily dlouhé a bohaté články.
+- **Verifikace**:
+  - Úspěšně otestovány všechny 4 hraniční stavy parseru (kompletní, useknutý, s ploty, chybějící obsah) přes testovací skript.
+  - Ověřena syntaxe přes `node --check` a úspěšně sestaven projekt přes `npm run build`.
+
+### Soubory změněné
+- `functions/admin/copywriter.js` — implementace parseru a nového kontraktu promptu
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
 
 
 
