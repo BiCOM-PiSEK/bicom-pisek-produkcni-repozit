@@ -1759,6 +1759,53 @@
 - `docs/adr/ADR-003-ai-studio.md` [NEW] — architektonické rozhodnutí ADR-003
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
 
+---
+
+## 2026-06-11 Blog management Fáze B1 — publikace, editace, plánování, archivace
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** feat/blog-management
+**Status:** ✅ Hotovo (Čeká na PR review)
+
+### Co bylo implementováno / otestováno
+- **D1 SQLite migrace (`0011_blog_status_expand.sql` + `schema.sql`)**: 
+  - Bezpečné rozšíření CHECK constraintu na `status` v `blog_posts` pro stavy `'scheduled'` a `'archived'`.
+  - Přidání auditního sloupce `updated_at`.
+  - Úspěšně otestováno a spuštěno lokálně s migrací dat a ověřením sloupců.
+- **Admin API Endpoint (`functions/admin/blog.js` [NEW])**:
+  - `GET /admin/blog` pro seznam všech článků bez velkého sloupce `content` (optimalizace payloadu).
+  - `GET /admin/blog?id=...` pro detail článku s plným obsahem.
+  - `PUT /admin/blog` pro akce `update`, `publish`, `schedule`, `unpublish`, `archive`.
+  - Batch transakce se zápisem do `audit_log` a pročištěním KV cache pro prefix `blog:published:`.
+- **Klientské rozhraní (`public/admin/js/modules/blog.js` + `public/admin/js/api.js`)**:
+  - Přidání API helperů `getBlogPosts`, `getBlogPost` a `updateBlogPost` do HTTP klienta.
+  - Vytvoření kompletní administrace článků: záložkový filtr podle stavů, barevné status badgy.
+  - Akční tlačítka pro okamžitou publikaci, stažení z webu, archivaci a naplánování.
+  - Modal editoru s detailními poli a side-by-side živým náhledem markdownu v reálném čase.
+  - Modal pro plánování publikace s validací budoucího data.
+  - Automatické překreslení po dokončení generování obsahu z AI Copywritera.
+- **Cron auto-publish (`functions/api/_cron-blog-publish.js` [NEW] + `_cron-worker.js`)**:
+  - Vytvoření cron tasku, který pravidelně vyhledává a publikuje naplánované články s prošlým datem publikace, zapisuje audit log a invaliduje KV cache.
+  - Registrace cronu do hodinového běhu v `_cron-worker.js`.
+
+### Soubory změněné / vytvořené
+- `db/migrations/0011_blog_status_expand.sql` [NEW] — SQLite rebuild migrace tabulky blog_posts
+- `db/schema.sql` — aktualizace kanonického schématu
+- `functions/admin/blog.js` [NEW] — admin API pro správu článků
+- `public/admin/js/api.js` — registrace API metod pro blog
+- `public/admin/js/modules/blog.js` — kompletní správa článků v administraci
+- `functions/api/_cron-blog-publish.js` [NEW] — cron pro automatickou publikaci
+- `functions/api/_cron-worker.js` — registrace cronu do hourly triggeru
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] SQLite migrace s novými stavy a updated_at
+- [x] Admin endpoint s podporou akcí a invalidací cache
+- [x] Bezpečnostní kontrola veřejného API
+- [x] Klientské rozhraní s editorem, náhledem a akčními tlačítky
+- [x] Cron auto-publish pro plánování článků
+- [x] Úspěšné lokální sestavení (npm run build) a ověření syntaxe
+
+
 
 
 

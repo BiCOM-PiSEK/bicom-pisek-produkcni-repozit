@@ -9,6 +9,7 @@ import cronGeo from './_cron-geo.js';
 import cronInstagram from './_cron-instagram.js';
 import cronReminders from './_cron-reminders.js';
 import cronSocial from './_cron-social.js';
+import cronBlogPublish from './_cron-blog-publish.js';
 
 export default {
   async scheduled(event, env, ctx) {
@@ -31,10 +32,11 @@ export default {
     }).format(new Date());
 
     // Rozhodování na základě minuty a hodiny (unikátní kombinace pro každou z 7 úloh)
-    // 1. Reminders (každou hodinu - hodina obsahuje '*' nebo '*/1')
+    // 1. Reminders & Blog Auto-Publish (každou hodinu - hodina obsahuje '*' nebo '*/1')
     if (minuta === '0' && (hodina === '*' || hodina === '*/1')) {
-      console.log(`[cron-worker] Spouštím reminders-dispatch`);
+      console.log(`[cron-worker] Spouštím reminders-dispatch a blog-auto-publish`);
       ctx.waitUntil(cronReminders.scheduled(event, env, ctx));
+      ctx.waitUntil(cronBlogPublish.scheduled(event, env, ctx));
     }
     // 2. Backup (neděle 02:00)
     else if (minuta === '0' && hodina === '2') {
