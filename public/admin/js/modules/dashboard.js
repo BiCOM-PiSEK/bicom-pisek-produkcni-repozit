@@ -31,11 +31,11 @@ export async function render(container, ctx) {
       data = res.data;
     } else {
       hasError = true;
-      showToast('Nepodařilo se načíst přehled: ' + (res.error || 'Neznámá chyba'), 'warning');
+      showToast('Nepodařilo se načíst přehled: ' + (res.error || 'Neznámá chyba'), 'error');
     }
   } else {
-    // Fallback demo data (pro vývoj bez backendu)
-    data = getDemoData();
+    hasError = true;
+    showToast('API klient není k dispozici.', 'error');
   }
 
   if (hasError || !data) {
@@ -358,60 +358,6 @@ function bindEvents(container, ctx, data) {
       }
     });
   });
-}
-
-// ─── DEMO DATA ──────────────────────────────────────────────────
-
-function getDemoData() {
-  return {
-    pendingBookings: 3,
-    pendingTrend: 12,
-    confirmedBookings: 18,
-    confirmedTrend: 5,
-    revenueWeek: 12400,
-    revenueTrend: 8,
-    revenueToday: 2800,
-    aiArticles: 4,
-    aiTrend: 0,
-    recentBookings: [
-      {
-        id: 'demo-1',
-        name: 'Jana N.',
-        service: 'imunita-a-obranyschopnost',
-        preferred_date: new Date(Date.now() + 86400000 * 2).toISOString(),
-        status: 'pending',
-      },
-      {
-        id: 'demo-2',
-        name: 'Petra Dvořáková',
-        service: 'energie-a-vitalita',
-        preferred_date: new Date(Date.now() + 86400000 * 3).toISOString(),
-        status: 'pending',
-      },
-      {
-        id: 'demo-3',
-        name: 'Marie Svobodová',
-        service: 'psychika-a-emocni-rovnovaha',
-        preferred_date: new Date(Date.now() + 86400000 * 5).toISOString(),
-        status: 'pending',
-      },
-    ],
-    topCities: [
-      { name: 'Písek', count: 42 },
-      { name: 'Strakonice', count: 15 },
-      { name: 'Vodňany', count: 11 },
-      { name: 'Protivín', count: 7 },
-      { name: 'Milevsko', count: 4 },
-    ],
-    system: {
-      d1: 'ok',
-      r2: 'ok',
-      kv: 'ok',
-      telegram: 'standby',
-      calendar: 'standby',
-      idoklad: 'standby',
-    },
-  };
 }
 
 // ─── UTILITIES ──────────────────────────────────────────────────

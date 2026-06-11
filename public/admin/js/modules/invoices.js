@@ -3,11 +3,57 @@
  */
 export async function render(container, ctx) {
   const { api, showToast } = ctx;
-  let invoices = getDemoInvoices();
+  let invoices = [];
+  let hasError = false;
+  let isMock = false;
+
   if (api) {
     const res = await api.getInvoices();
-    if (res.ok && res.data?.invoices) invoices = res.data.invoices;
+    if (res.ok) {
+      invoices = res.data?.invoices || [];
+      isMock = res.data?.source === 'mock';
+    } else {
+      hasError = true;
+      showToast('Nepodařilo se načíst faktury: ' + (res.error || 'Neznámá chyba'), 'error');
+    }
   }
+
+  if (hasError) {
+    container.innerHTML = `
+      <div class="canvas-header">
+        <h1 class="canvas-title">Fakturace</h1>
+        <p class="canvas-subtitle">Data se nepodařilo načíst</p>
+      </div>
+      <div class="card">
+        <div class="empty-state" style="padding: var(--sp-8) var(--sp-4);">
+          <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);">⚠️</div>
+          <h4 class="empty-state-title">Chyba stahování dat</h4>
+          <p class="empty-state-text">Nepodařilo se navázat spojení s fakturačním systémem.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (isMock) {
+    container.innerHTML = `
+      <div class="canvas-header flex justify-between items-center">
+        <div>
+          <h1 class="canvas-title">Fakturace</h1>
+          <p class="canvas-subtitle">Přehled faktur z iDokladu</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="empty-state" style="padding: var(--sp-8) var(--sp-4);">
+          <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);">🔌</div>
+          <h4 class="empty-state-title">iDoklad není propojen</h4>
+          <p class="empty-state-text">Propojení s iDokladem bude aktivní po zadání API klíčů v Cloudflare Secrets.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   const total = invoices.reduce((s, i) => s + i.amount, 0);
   const paid = invoices.filter((i) => i.status === 'paid').reduce((s, i) => s + i.amount, 0);
 
@@ -28,9 +74,10 @@ export async function render(container, ctx) {
   `;
 
   container.querySelector('#btn-new-invoice')?.addEventListener('click', () => {
-    showToast('Propojení s iDoklad bude aktivní po zadání API klíčů', 'info');
+    showToast('Vystavování faktur vyžaduje nastavení iDoklad API klíčů.', 'info');
   });
 }
+
 export function destroy() {}
 
 function renderTable(invoices) {
@@ -43,14 +90,6 @@ function renderTable(invoices) {
     <td><span class="badge ${i.status === 'paid' ? 'badge-confirmed' : 'badge-pending'}">${i.status === 'paid' ? 'Uhrazena' : 'Neuhrazena'}</span></td>
   </tr>`).join('');
   return `<div class="table-wrap"><table class="table"><thead><tr><th>Číslo</th><th>Klient</th><th>Datum</th><th>Částka</th><th>Stav</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-}
-
-function getDemoInvoices() {
-  return [
-    { number: 'FV-2026-001', customer: 'Jana N.', date: '2026-05-20', amount: 1800, status: 'paid' },
-    { number: 'FV-2026-002', customer: 'Petra Dvořáková', date: '2026-05-22', amount: 2400, status: 'unpaid' },
-    { number: 'FV-2026-003', customer: 'Marie Svobodová', date: '2026-05-25', amount: 1200, status: 'paid' },
-  ];
 }
 
 function esc(s) { if (!s) return ''; const e = document.createElement('span'); e.textContent = s; return e.innerHTML; }

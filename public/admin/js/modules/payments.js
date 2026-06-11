@@ -29,21 +29,40 @@ export async function render(container, ctx) {
   `;
 
   let data = null;
+  let hasError = false;
   if (api) {
     const res = await api.getPayments();
     if (res.ok) {
       data = res.data;
     } else {
-      showToast('Nepodařilo se načíst platby: ' + (res.error || 'Neznámá chyba'), 'warning');
+      hasError = true;
+      showToast('Nepodařilo se načíst platby: ' + (res.error || 'Neznámá chyba'), 'error');
     }
+  } else {
+    data = { totalRevenue: 0, paymentCount: 0, transactions: [] };
   }
 
-  // Fallback demo data if API not connected or empty
-  if (!data || !data.transactions || data.transactions.length === 0) {
-    data = getDemoData(data);
+  if (hasError) {
+    container.innerHTML = `
+      <div class="canvas-header">
+        <h1 class="canvas-title">Stripe Platby</h1>
+        <p class="canvas-subtitle">Data se nepodařilo načíst</p>
+      </div>
+      <div class="card">
+        <div class="empty-state" style="padding: var(--sp-8) var(--sp-4);">
+          <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);">⚠️</div>
+          <h4 class="empty-state-title">Chyba stahování dat</h4>
+          <p class="empty-state-text">Nepodařilo se navázat spojení s databází plateb.</p>
+        </div>
+      </div>
+    `;
+    return;
   }
 
-  const averagePayment = data.paymentCount > 0 ? Math.round(data.totalRevenue / data.paymentCount) : 0;
+  const totalRevenue = data?.totalRevenue || 0;
+  const paymentCount = data?.paymentCount || 0;
+  const transactions = data?.transactions || [];
+  const averagePayment = paymentCount > 0 ? Math.round(totalRevenue / paymentCount) : 0;
 
   container.innerHTML = `
     <div class="canvas-header flex justify-between items-center">
@@ -63,12 +82,12 @@ export async function render(container, ctx) {
     <div class="grid-3 mb-6">
       <div class="card kpi-card">
         <div style="font-size: 1.5rem; margin-bottom: var(--sp-2);">💳</div>
-        <div class="kpi-value">${fmtCzk(data.totalRevenue)}</div>
+        <div class="kpi-value">${fmtCzk(totalRevenue)}</div>
         <div class="kpi-label">Tržby přes Stripe</div>
       </div>
       <div class="card kpi-card">
         <div style="font-size: 1.5rem; margin-bottom: var(--sp-2);">📊</div>
-        <div class="kpi-value">${data.paymentCount}</div>
+        <div class="kpi-value">${paymentCount}</div>
         <div class="kpi-label">Úspěšných transakcí</div>
       </div>
       <div class="card kpi-card">
@@ -99,7 +118,7 @@ export async function render(container, ctx) {
         <h3 class="card-title">Historie transakcí</h3>
       </div>
       <div class="card-body">
-        ${renderTable(data.transactions)}
+        ${renderTable(transactions)}
       </div>
     </div>
   `;
@@ -109,12 +128,7 @@ export function destroy() {}
 
 function renderTable(txs) {
   if (!txs || !txs.length) {
-    return `
-      <div class="empty-state">
-        <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);">🌱</div>
-        <h4 class="empty-state-title">Žádné platby k zobrazení</h4>
-        <p class="empty-state-text">Jakmile proběhnou první online platby záloh přes Stripe, uvidíte zde jejich podrobný výpis.</p>
-      </div>`;
+    return `<div class="empty-state"><h4 class="empty-state-title">Zatím neproběhly žádné platby</h4></div>`;
   }
 
   const rows = txs.map((tx) => {
@@ -151,66 +165,6 @@ function renderTable(txs) {
         <tbody>${rows}</tbody>
       </table>
     </div>`;
-}
-
-function getDemoData(apiData) {
-  // If API returned a valid structure with 0 results, we enrich it with demo metrics
-  return {
-    totalRevenue: apiData?.totalRevenue || 4500,
-    paymentCount: apiData?.paymentCount || 9,
-    transactions: [
-      {
-        id: 'tx-1',
-        stripeSessionId: 'cs_live_a1B2c3D4e5F6g7H8i9J0k1L2',
-        amount: 500,
-        status: 'completed',
-        createdAt: new Date().toISOString(),
-        clientName: 'Jana N.',
-        service: 'imunita-a-obranyschopnost',
-        preferredDate: new Date(Date.now() + 86400000 * 2).toISOString(),
-      },
-      {
-        id: 'tx-2',
-        stripeSessionId: 'cs_live_b2C3d4E5f6G7h8I9j0K1l2M3',
-        amount: 500,
-        status: 'completed',
-        createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-        clientName: 'Petra Dvořáková',
-        service: 'energie-a-vitalita',
-        preferredDate: new Date(Date.now() + 86400000 * 3).toISOString(),
-      },
-      {
-        id: 'tx-3',
-        stripeSessionId: 'cs_live_c3D4e5F6g7H8i9J0k1L2m3N4',
-        amount: 500,
-        status: 'completed',
-        createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-        clientName: 'Marie Svobodová',
-        service: 'psychika-a-emocni-rovnovaha',
-        preferredDate: new Date(Date.now() + 86400000 * 5).toISOString(),
-      },
-      {
-        id: 'tx-4',
-        stripeSessionId: 'cs_live_d4E5f6G7h8I9j0K1l2M3n4O5',
-        amount: 500,
-        status: 'completed',
-        createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-        clientName: 'Karel Novotný',
-        service: 'bolest-a-pohybovy-aparat',
-        preferredDate: new Date(Date.now() + 86400000 * 6).toISOString(),
-      },
-      {
-        id: 'tx-5',
-        stripeSessionId: 'cs_live_e5F6g7H8i9J0k1L2m3N4o5P6',
-        amount: 500,
-        status: 'completed',
-        createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-        clientName: 'Lucie Černá',
-        service: 'hormonalni-system',
-        preferredDate: new Date(Date.now() + 86400000 * 8).toISOString(),
-      }
-    ],
-  };
 }
 
 function esc(s) {

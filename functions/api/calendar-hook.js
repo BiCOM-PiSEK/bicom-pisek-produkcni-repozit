@@ -119,13 +119,21 @@ export async function onRequestPost({ request, env }) {
           booking.phone_enc ? crypt.decrypt(booking.phone_enc) : null,
         ]);
 
+        const dateObj = new Date(booking.preferred_date);
+        const dateStr = new Intl.DateTimeFormat('cs-CZ', {
+          timeZone: 'Europe/Prague',
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+        }).format(dateObj);
+
         // Send confirmation email via Resend
         const resend = new ResendConnector(env);
         await resend.sendBookingConfirmation({
           name,
           email,
           service: booking.service,
-          preferredDate: booking.preferred_date,
+          date: dateStr,
         });
 
         // 8. Schedule SMS reminder (T-24h before appointment)
