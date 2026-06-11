@@ -55,8 +55,9 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     image_url TEXT,
     jsonld TEXT,
     source TEXT DEFAULT 'instagram' CHECK(source IN ('instagram','ai_copywriter','manual')),
-    status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published')),
+    status TEXT DEFAULT 'draft' CHECK(status IN ('draft','scheduled','published','archived')),
     published_at TIMESTAMP,
+    updated_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_blog_status ON blog_posts(status);

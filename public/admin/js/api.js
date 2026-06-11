@@ -398,6 +398,32 @@ function getMe() {
   return request('/me');
 }
 
+/**
+ * GET /admin/blog — seznam všech článků.
+ * @returns {Promise<ApiResponse>}
+ */
+function getBlogPosts() {
+  return request('/blog');
+}
+
+/**
+ * GET /admin/blog?id=... — detail jednoho článku.
+ * @param {string} id
+ * @returns {Promise<ApiResponse>}
+ */
+function getBlogPost(id) {
+  return request(`/blog?id=${id}`);
+}
+
+/**
+ * PUT /admin/blog — akce nad článkem (update, publish, schedule, unpublish, archive).
+ * @param {Object} body
+ * @returns {Promise<ApiResponse>}
+ */
+function updateBlogPost(body) {
+  return request('/blog', { method: 'PUT', body });
+}
+
 // ─── EXPORT (pro browser ES module) ────────────────────────────
 
 const AdminAPI = {
@@ -416,6 +442,9 @@ const AdminAPI = {
   getActivityFeed,
   createCampaign,
   getMe,
+  getBlogPosts,
+  getBlogPost,
+  updateBlogPost,
 };
 
 // Také na window pro přístup z modulů
