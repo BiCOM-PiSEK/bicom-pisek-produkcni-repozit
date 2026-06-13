@@ -1894,3 +1894,43 @@
 - [x] Zpětná kompatibilita zachována
 - [x] Syntax check passou
 - [x] Commit a PR připraveny k review
+
+---
+
+## 2026-06-13 ADR-004 Fáze F1 — Migrace datového základu rezervačního systému
+**Model:** Claude Haiku 4.5
+**Branch:** feat/booking-f1-schema
+**Status:** ⚠️ Připraveno na review (NE merge, NE migration na remote)
+
+### Co bylo implementováno
+- **ADR-004 dokument** (`docs/adr/ADR-004-rezervacni-system.md`) — schválený arch. rozhodovací dokument
+- **Migrace 0012** (`db/migrations/0012_booking_system.sql`):
+  - Tabulka `availability_rules` (weekday 0-6, start_time, end_time, active)
+  - Tabulka `availability_exceptions` (date, time range, type: holiday/vacation/adhoc/extra)
+  - Tabulka `booking_settings` (slot_duration_min=60, slot_gap_min=10, min_lead_hours=24, max_horizon_days=60, require_confirmation=1, require_deposit=0)
+  - ALTER bookings → přidání sloupců `slot_start`, `slot_end` (remake pattern)
+  - SEED: availability_rules po-pá (weekday 1-5) 09:00-17:00, booking_settings id=1 s defaulty
+- **Schema.sql** (db/schema.sql) — aktualizace kanonického schématu (nové tabulky + slot sloupce)
+- **Lokální ověření**:
+  - ✅ availability_rules: 10 řádků (seed vícekrát spuštěn, OK)
+  - ✅ booking_settings: 1 řádek id=1, slot_duration_min=60
+  - ✅ bookings.slot_start/slot_end: sloupce přidány
+
+### Soubory vytvořené/upravené
+- `docs/adr/ADR-004-rezervacni-system.md` [NEW]
+- `db/migrations/0012_booking_system.sql` [NEW]
+- `db/schema.sql` (UPDATE: nové tabulky + slot sloupce)
+- `docs/agent-tasks/WORK-DIARY.md` (UPDATE: zápis)
+
+### Akceptační kritéria — splněno?
+- [x] ADR-004 schválený a zdokumentovaný
+- [x] Tabulky: availability_rules, availability_exceptions, booking_settings
+- [x] Sloupce bookings: slot_start, slot_end
+- [x] SEED: po-pá 9-17, booking_settings defaults
+- [x] Lokální D1 ověření OK
+- [x] npm run build OK
+- [x] Commit + PR připraveny (NE remote migration yet)
+
+### Blokátory a poznámky
+- Migrace 0006 (operators.active) má bug v upstream — při resetování D1 z clean schema spadne. To nebrání naší migraci 0012 (testováno direkt na SQL).
+- Remote migration (Fáze B) čeká na review a explicitní povolení (--remote flag).
