@@ -1954,3 +1954,43 @@ Vedlejší nález — calendar_slots (Legacy):
 - POTENCIÁLNÍ DUPLICITA: calendar_slots vypadá jako „generovaná" tabulka, kterou měla BY availability_rules vytvářet
 - Řešení calendar_slots je otázka pro Fáze F2+ (API, slot-picking)
 - F1 to neovlivňuje
+
+---
+
+## 2026-06-13 (pátek) — ROADMAP.md: Založení kompasu stavu projektu
+
+**Branch:** `docs/roadmap-kompas`
+
+**Cíl:** Vytvořit `docs/ROADMAP.md` jako JEDINÝ ZDROJ PRAVDY o aktuálním stavu projektu, zapojit ho do rozcestníků (CLAUDE.md, WHITE_PAPER.md, REPO_MAPA_ULOZIST.md, README.md).
+
+### ✅ Hotovo:
+
+1. **Soubor docs/ROADMAP.md** (11.3 KB, 190 řádků)
+   - Struktura: Legenda → HOTOVO (32 položek) → PROBÍHÁ (2 položky) → ČEKÁ (GEO, JSON-LD, AI Studio, WhatsApp, Stripe, Web, CRM) → LAUNCH-BLOCKERY (9 položek) → HANDOVER/PŘEDÁNÍ
+   - Agreguje stav z WORK-DIARY, ADR-003/004, GAP ANALÝZY
+   - ODKAZUJE, NE duplikuje (viz ADR pro detaily, WORK-DIARY pro kroniku)
+   - Jednoduchá legenda (✅ HOTOVO, 🟡 PROBÍHÁ, 🟢 ČEKÁ, 🔴 LAUNCH-BLOCKER)
+
+2. **Zapojena do rozcestníků:**
+   - ✅ CLAUDE.md: nový řádek po pravidlech — "Aktuální stav projektu ... docs/ROADMAP.md — kompas"
+   - ✅ WHITE_PAPER.md: poznámka za tabulkou rolí — "📍 Aktuální stav projektu: ... docs/ROADMAP.md"
+   - ✅ REPO_MAPA_ULOZIST.md: přidáno do popisu docs/ — "ROADMAP.md — Živý kompas stavu"
+   - ✅ README.md: nový řádek v sekci "🔄 Stav Vývoje a Migrace" — Odkaz na docs/ROADMAP.md
+
+3. **Ověření:**
+   - Všechny linky relativní a správné (z rootu: `docs/ROADMAP.md`)
+   - ✅ `npm run build` — OK, sitemap generován bez chyb
+
+### 📚 Obsah ROADMAP.md — shrnutí:
+
+**HOTOVO (32):** Infrastruktura, web, GDPR, rezervace (F1), admin, Stripe, iDoklad, komunikační kanály, AI copywriter
+
+**PROBÍHÁ (2):** Rezervace F2–F7, Admin konzole doladění
+
+**ČEKÁ:** GEO/SEO B1–B9, JSON-LD úklid, AI Studio F1–F5, WhatsApp, Stripe produkční, Web kosmetika, CRM
+
+**LAUNCH-BLOCKERY (9):** L1–L9 (Resend, Turnstile, Maps, Meta, GoSMS, právní revize, Rezervace F2–F7, Stripe, iDoklad)
+
+---
+
+**Status:** ✅ ROADMAP HOTOVA, PR připraven na review

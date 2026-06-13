@@ -18,6 +18,8 @@
 
 > ⚠️ **Pravidlo č. 1:** Žádný agent nezačne kódovat, dokud nepřečte `System_prompt_GLOBAL.md` a svůj konkrétní brief. Každý agent zapisuje, co udělal, do `agent_journal.md` v repozitáři.
 
+> 📍 **Aktuální stav projektu:** Viz [docs/ROADMAP.md](docs/ROADMAP.md) — živý kompas o tom, co je hotovo, co se dolaďuje a co čeká (launch-blockery).
+
 ---
 
 ## 2. Mapa balíku (co je kde)
