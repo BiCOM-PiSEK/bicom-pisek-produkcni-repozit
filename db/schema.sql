@@ -133,6 +133,10 @@ CREATE TABLE IF NOT EXISTS operators (
 -- CALENDAR & SOCIAL & CAMPAIGNS
 -- ============================================================
 
+-- DEPRECATED (2026-06-13, ADR-004 Cesta 2): Tabulka z migrace 0004, nikdy nenaplněná,
+-- žádný kód do ní nepíše (jen _cron-backup ji zálohuje). Rezervační systém používá
+-- Cestu 2 (sloty počítány za běhu z availability_rules + bookings.slot_start).
+-- NEpoužívat, NEmazat.
 CREATE TABLE IF NOT EXISTS calendar_slots (
     id TEXT PRIMARY KEY,
     start_ts TIMESTAMP NOT NULL,
@@ -202,6 +206,59 @@ CREATE TABLE IF NOT EXISTS process_states (
     description TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ============================================================
+-- BOOKING SYSTEM (ADR-004 F1): Availability & Settings
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS availability_rules (
+    id TEXT PRIMARY KEY,
+    weekday INTEGER NOT NULL CHECK(weekday BETWEEN 0 AND 6),
+    start_time TEXT NOT NULL,
+    end_time TEXT NOT NULL,
+    active INTEGER DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_availability_rules_weekday ON availability_rules(weekday);
+
+CREATE TABLE IF NOT EXISTS availability_exceptions (
+    id TEXT PRIMARY KEY,
+    date TEXT NOT NULL,
+    start_time TEXT,
+    end_time TEXT,
+    type TEXT NOT NULL CHECK(type IN ('holiday','vacation','adhoc','extra')),
+    note TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_availability_exceptions_date ON availability_exceptions(date);
+
+CREATE TABLE IF NOT EXISTS booking_settings (
+    id INTEGER PRIMARY KEY CHECK(id = 1),
+    slot_duration_min INTEGER DEFAULT 60,
+    slot_gap_min INTEGER DEFAULT 10,
+    min_lead_hours INTEGER DEFAULT 24,
+    max_horizon_days INTEGER DEFAULT 60,
+    require_confirmation INTEGER DEFAULT 1,
+    require_deposit INTEGER DEFAULT 0,
+    deposit_amount INTEGER,
+    updated_at TIMESTAMP
+);
+
+-- ============================================================
+-- Default booking settings
+-- ============================================================
+
+INSERT OR IGNORE INTO booking_settings (id, slot_duration_min, slot_gap_min, min_lead_hours, max_horizon_days, require_confirmation, require_deposit, deposit_amount)
+VALUES (1, 60, 10, 24, 60, 1, 0, NULL);
+
+-- Default availability rules (Monday-Friday 9:00-17:00)
+INSERT OR IGNORE INTO availability_rules (id, weekday, start_time, end_time, active)
+VALUES
+    (lower(hex(randomblob(8))), 1, '09:00', '17:00', 1),
+    (lower(hex(randomblob(8))), 2, '09:00', '17:00', 1),
+    (lower(hex(randomblob(8))), 3, '09:00', '17:00', 1),
+    (lower(hex(randomblob(8))), 4, '09:00', '17:00', 1),
+    (lower(hex(randomblob(8))), 5, '09:00', '17:00', 1);
 
 -- Default process states
 INSERT OR IGNORE INTO process_states (key, value, description) VALUES
