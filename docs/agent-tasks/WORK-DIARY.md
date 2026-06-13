@@ -1843,3 +1843,27 @@
 - `public/admin/js/modules/messages.js` — implementace statického coming-soon placeholderu
 - `public/admin/js/modules/dashboard.js` — odstranění mrtvé větve a getDemoData fallbacku
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+---
+
+## 2026-06-13 Fáze B — Oprava 405 (potvrzení rezervace) a odolný PEM v konektoru
+**Model:** Antigravity (Gemini 2.5 Pro)
+**Branch:** fix/booking-confirm-and-pem
+**Status:** ✅ Hotovo (Čeká na review)
+
+### Co bylo implementováno / otestováno
+- **Oprava HTTP 405 (potvrzení rezervace)**:
+  - V `public/admin/js/api.js` změněno `updateBooking` z `PUT /bookings/:id` na `PUT /bookings` (bez ID v cestě) a ID je nyní posíláno v těle požadavku jako `body.id` v souladu se statickou routou `/admin/bookings` v Cloudflare Pages a jejím backendovým handlerem `onRequestPut`.
+- **Reset tlačítka při chybě**:
+  - V `public/admin/js/modules/calendar.js` upraven click handler tlačítek akcí tak, aby před přepsáním textu na *"Zpracovávám..."* uložil původní text a při chybě (nebo selhání API) jej obnovil. Odstraněna redundantní a mrtvá demo větev.
+- **Odolný import PEM klíče v konektoru**:
+  - V `functions/lib/connectors/google-calendar.js` přidána normalizace řetězce PEM klíče, která nahrazuje literální sekvence `\n` (zpětné lomítko + n) za skutečné zalomení řádku před očištěním mezer a hlaviček. Tím se zajišťuje 100% funkčnost i v případě, že je klíč do Cloudflare Secrets nahrán jako jednořádkový zploštělý text.
+- **Verifikace**:
+  - Spuštěna kontrola syntaxe `node --check` pro všechny modifikované JS soubory.
+  - Spuštěn produkční build `npm run build` (sestavení sitemapy) s úspěšným výsledkem.
+
+### Soubory změněné
+- `public/admin/js/api.js` — úprava cesty updateBooking na `/bookings` s předáním ID v těle
+- `public/admin/js/modules/calendar.js` — ukládání a obnova původního textu tlačítka akce, vyčištění demo větve
+- `functions/lib/connectors/google-calendar.js` — normalizace literálního `\n` před dekódováním PEM klíče
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku

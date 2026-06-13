@@ -25,8 +25,12 @@ const SCOPE = 'https://www.googleapis.com/auth/calendar';
  * @returns {Promise<CryptoKey>}
  */
 async function importPrivateKey(pem) {
+  // Normalize literal '\n' sequences (backslash-n string representation) to real newlines.
+  // This provides runtime tolerance against keys uploaded/flattened as single-line strings.
+  const normalizedPem = pem.replace(/\\n/g, '\n');
+
   // Strip PEM headers, whitespace, and decode base64
-  const pemBody = pem
+  const pemBody = normalizedPem
     .replace(/-----BEGIN PRIVATE KEY-----/, '')
     .replace(/-----END PRIVATE KEY-----/, '')
     .replace(/\s/g, '');

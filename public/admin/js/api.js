@@ -287,13 +287,13 @@ function getBookings(params = {}) {
 }
 
 /**
- * PUT /admin/bookings/:id — aktualizace statusu rezervace.
+ * PUT /admin/bookings — aktualizace statusu rezervace.
  * @param {string} id
  * @param {Object} updates
  * @returns {Promise<ApiResponse>}
  */
 function updateBooking(id, updates) {
-  return request(`/bookings/${id}`, { method: 'PUT', body: updates });
+  return request('/bookings', { method: 'PUT', body: { id, ...updates } });
 }
 
 /**
