@@ -23,7 +23,8 @@ Tento dokument slouží jako přehledný registr a mapa všech úložišť, slo�
 *   **Cesta v lokálu:** `docs/`
 *   **Typ přístupu:** Soukromé (součást repozitáře)
 *   **Obsah & podsložky:**
-    *   `docs/` — Obsahuje hlavní architektonické, marketingové a metodické dokumenty (`ARCHITEKTURA.md`, `GIT_WORKFLOW.md`, `API_KEYS_CHECKLIST.md`, `STYLE_BRIEF.md`, `HANDOVER.md` atd.).
+    *   `docs/` — Obsahuje hlavní architektonické, marketingové a metodické dokumenty (`ARCHITEKTURA.md`, `GIT_WORKFLOW.md`, `API_KEYS_CHECKLIST.md`, `STYLE_BRIEF.md`, `HANDOVER.md`, `ROADMAP.md` atd.).
+    *   `docs/ROADMAP.md` — Živý kompas stavu projektu (hotovo/dolaďuje se/čeká, launch-blockery, fáze) — **jediný zdroj pravdy o aktuálním stavu**.
     *   `docs/agent-tasks/` — Obsahuje pracovní deník kódovacích AI agentů (`WORK-DIARY.md`).
     *   `docs/assets/` — Grafické a textové podklady (inbox a složka `originals/` s původními grafickými návrhy).
     *   `docs/audit/` — Interní auditní zprávy (architektura, kód, infra, bezpečnost, SEO), které jsou uchovávány mimo produkční repozitář (ignorováno v .gitignore).

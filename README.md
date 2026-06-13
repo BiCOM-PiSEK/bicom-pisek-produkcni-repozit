@@ -189,6 +189,8 @@ Projekt je od počátku navržen v souladu s nařízením **GDPR** (článek 9 �
 
 ## 🔄 Stav Vývoje a Migrace
 
+> 📍 **Aktuální detailní stav a plán:** viz [docs/ROADMAP.md](docs/ROADMAP.md) — kompas projektu (hotovo / dolaďuje se / čeká).
+
 Projekt je v aktivní fázi dolaďování před konečným předáním. Produkční kód je postupně zrcadlen z vývojového balíku MEVERIK STUDIO do tohoto čistého repozitáře.
 
 ```
