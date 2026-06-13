@@ -133,6 +133,10 @@ CREATE TABLE IF NOT EXISTS operators (
 -- CALENDAR & SOCIAL & CAMPAIGNS
 -- ============================================================
 
+-- DEPRECATED (2026-06-13, ADR-004 Cesta 2): Tabulka z migrace 0004, nikdy nenaplněná,
+-- žádný kód do ní nepíše (jen _cron-backup ji zálohuje). Rezervační systém používá
+-- Cestu 2 (sloty počítány za běhu z availability_rules + bookings.slot_start).
+-- NEpoužívat, NEmazat.
 CREATE TABLE IF NOT EXISTS calendar_slots (
     id TEXT PRIMARY KEY,
     start_ts TIMESTAMP NOT NULL,
