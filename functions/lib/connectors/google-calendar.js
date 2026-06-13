@@ -9,6 +9,9 @@
  *   - SECRET_GOOGLE_CALENDAR_PRIVATE_KEY (PEM-encoded RSA private key)
  *   - SECRET_GOOGLE_CALENDAR_ID
  *
+ * Optional secrets:
+ *   - SECRET_GOOGLE_CALENDAR_IMPERSONATE (email for Domain-Wide Delegation)
+ *
  * @module google-calendar
  */
 
@@ -79,6 +82,7 @@ export class GoogleCalendarConnector {
     this.clientEmail = env.SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL || '';
     this.privateKeyPem = env.SECRET_GOOGLE_CALENDAR_PRIVATE_KEY || '';
     this.calendarId = env.SECRET_GOOGLE_CALENDAR_ID || '';
+    this.impersonateUser = env.SECRET_GOOGLE_CALENDAR_IMPERSONATE || '';
     this.configured =
       Boolean(this.clientEmail) &&
       Boolean(this.privateKeyPem) &&
@@ -118,6 +122,11 @@ export class GoogleCalendarConnector {
       iat: now,
       exp: now + 3600,
     };
+    // sub = impersonovaný uživatel pro Domain-Wide Delegation
+    // bez něj SA jedná sám za sebe
+    if (this.impersonateUser) {
+      payload.sub = this.impersonateUser;
+    }
 
     const encodedHeader = base64url(JSON.stringify(header));
     const encodedPayload = base64url(JSON.stringify(payload));
