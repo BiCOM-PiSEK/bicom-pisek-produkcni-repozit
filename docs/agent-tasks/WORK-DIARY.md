@@ -1867,3 +1867,30 @@
 - `public/admin/js/modules/calendar.js` — ukládání a obnova původního textu tlačítka akce, vyčištění demo větve
 - `functions/lib/connectors/google-calendar.js` — normalizace literálního `\n` před dekódováním PEM klíče
 - `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+---
+
+## 2026-06-13 Google Calendar: Domain-Wide Delegation support
+**Model:** Claude Haiku 4.5
+**Branch:** fix/gcal-domain-delegation
+**Status:** ⚠️ Připraveno na review
+
+### Co bylo implementováno
+- **Problém:** Service account `bicom-calendar@bicom-pisek-calendar.iam.gserviceaccount.com` dostával 403 Forbidden při zápisu do kalendáře `admin@bicom-pisek.cz` (přestože klíč se správně nahrálo a token exchange OK).
+- **Řešení:** Přidána podpora **Domain-Wide Delegation** (impersonace uživatele v JWT payloadu).
+- **Implementace v `functions/lib/connectors/google-calendar.js`:**
+  - Konstruktor: čtení nového volitelného `SECRET_GOOGLE_CALENDAR_IMPERSONATE` (e-mail uživatele k impersonaci)
+  - `_getAccessToken()`: pokud je `impersonateUser` vyplněn, přidá se do JWT payloadu pole `sub` (claim pro impersonaci)
+  - Zpětná kompatibilita: bez `SECRET_GOOGLE_CALENDAR_IMPERSONATE` se chování nezmění (SA jedná sám za sebe)
+- **E2E test:** Booking se vytvoří (HTTP 201), queue se zpracuje, ale `insertEvent` vrací stále 403 (čeká se konfiguraci DWD v Google Cloud Console a povolení SA)
+
+### Soubory upravené
+- `functions/lib/connectors/google-calendar.js` — přidání DWD support (sub impersonace)
+- `docs/agent-tasks/WORK-DIARY.md` — zápis do pracovního deníku
+
+### Akceptační kritéria — splněno?
+- [x] Čtení `SECRET_GOOGLE_CALENDAR_IMPERSONATE` v konstruktoru
+- [x] JWT payload obsahuje `sub` když je impersonateUser vyplněn
+- [x] Zpětná kompatibilita zachována
+- [x] Syntax check passou
+- [x] Commit a PR připraveny k review
