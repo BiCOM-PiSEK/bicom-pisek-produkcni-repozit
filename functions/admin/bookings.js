@@ -59,9 +59,9 @@ export async function onRequestPut({ env, data, request }) {
     const url = new URL(request.url);
     const body = await request.json();
 
-    // Booking ID from URL path or body
-    const bookingId = url.pathname.split('/').pop() || body.id;
-    if (!bookingId || bookingId === 'bookings') return json({ ok: false, error: 'Chybí ID rezervace.' }, 400);
+    // Booking ID from body or query param
+    const bookingId = body.id || url.searchParams.get('id');
+    if (!bookingId) return json({ ok: false, error: 'Chybí ID rezervace.' }, 400);
 
     const newStatus = body.status;
     if (!['confirmed', 'cancelled', 'done', 'pending'].includes(newStatus)) {
