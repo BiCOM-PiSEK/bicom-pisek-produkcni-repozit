@@ -88,20 +88,20 @@ export async function render(container, ctx) {
   container.querySelectorAll('.btn-action').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const { id, action } = btn.dataset;
+      const originalText = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Zpracovávám…';
-      if (api) {
-        const res = await api.updateBooking(id, { status: action });
-        if (res.ok) {
-          showToast(action === 'confirmed' ? 'Potvrzeno ✓' : 'Zrušeno', action === 'confirmed' ? 'success' : 'warning');
-          render(container, ctx);
-          return;
-        }
-        showToast('Chyba: ' + res.error, 'error');
-      } else {
-        showToast('Demo režim — API nedostupné', 'info');
+
+      const res = await api.updateBooking(id, { status: action });
+      if (res.ok) {
+        showToast(action === 'confirmed' ? 'Potvrzeno ✓' : 'Zrušeno', action === 'confirmed' ? 'success' : 'warning');
+        render(container, ctx);
+        return;
       }
+
+      showToast('Chyba: ' + res.error, 'error');
       btn.disabled = false;
+      btn.textContent = originalText;
     });
   });
 }
