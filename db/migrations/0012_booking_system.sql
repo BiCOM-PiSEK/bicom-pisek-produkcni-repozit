@@ -38,51 +38,10 @@ CREATE TABLE IF NOT EXISTS booking_settings (
     updated_at TIMESTAMP
 );
 
--- 4. Add slot columns to bookings (using remake pattern)
--- Rename existing table
-ALTER TABLE bookings RENAME TO bookings_old;
-
--- Recreate bookings with slot_start and slot_end columns
-CREATE TABLE bookings (
-    id TEXT PRIMARY KEY,
-    name_enc TEXT NOT NULL,
-    email_enc TEXT NOT NULL,
-    phone_enc TEXT NOT NULL,
-    service TEXT NOT NULL,
-    note_enc TEXT,
-    preferred_date TEXT NOT NULL,
-    slot_start TEXT,
-    slot_end TEXT,
-    psc TEXT,
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','done','cancelled','pending_payment')),
-    estimated_price INTEGER,
-    consent_version TEXT,
-    consent_marketing INTEGER DEFAULT 0,
-    reminder_channel TEXT DEFAULT 'email' CHECK(reminder_channel IN ('email','sms','whatsapp')),
-    calendar_event_id TEXT,
-    operator_id TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
-    anonymized_at TIMESTAMP,
-    stripe_session_id TEXT,
-    stripe_payment_intent_id TEXT,
-    stripe_payment_status TEXT,
-    paid_amount INTEGER,
-    paid_at TIMESTAMP,
-    FOREIGN KEY (operator_id) REFERENCES operators(id)
-);
-
--- Copy data from old table
-INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, status, estimated_price, consent_version, consent_marketing, reminder_channel, calendar_event_id, operator_id, created_at, updated_at, anonymized_at, stripe_session_id, stripe_payment_intent_id, stripe_payment_status, paid_amount, paid_at)
-SELECT id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, status, estimated_price, consent_version, consent_marketing, reminder_channel, calendar_event_id, operator_id, created_at, updated_at, anonymized_at, stripe_session_id, stripe_payment_intent_id, stripe_payment_status, paid_amount, paid_at FROM bookings_old;
-
--- Drop old table
-DROP TABLE bookings_old;
-
--- Recreate indexes
-CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
-CREATE INDEX IF NOT EXISTS idx_bookings_created ON bookings(created_at);
-CREATE INDEX IF NOT EXISTS idx_bookings_stripe_session ON bookings(stripe_session_id);
+-- 4. Add slot columns to bookings (simple ALTER approach)
+-- Note: Table is empty, ALTER ADD COLUMN is safe and preserves FK + indexes
+ALTER TABLE bookings ADD COLUMN slot_start TEXT;
+ALTER TABLE bookings ADD COLUMN slot_end TEXT;
 
 -- 5. Seed default availability rules (Monday-Friday 9:00-17:00)
 INSERT OR IGNORE INTO availability_rules (id, weekday, start_time, end_time, active)

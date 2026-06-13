@@ -1934,3 +1934,23 @@
 ### Blokátory a poznámky
 - Migrace 0006 (operators.active) má bug v upstream — při resetování D1 z clean schema spadne. To nebrání naší migraci 0012 (testováno direkt na SQL).
 - Remote migration (Fáze B) čeká na review a explicitní povolení (--remote flag).
+
+### Oprava — F1 migrace 0012 (remake → ALTER ADD COLUMN)
+**Status:** ✅ Hotovo (v PR #45)
+
+Zjištění při review:
+- Původní remake pattern (rename/create/insert/drop) měl riziko s FK z ostatních tabulek (reminders, calendar_slots, payment_transactions)
+- DROP TABLE bookings_old mohlo selhat s "Foreign key constraint failed" pokud by byl PRAGMA foreign_keys ON
+
+Oprava:
+- Nahrazeno prosté: `ALTER TABLE bookings ADD COLUMN slot_start TEXT; ADD COLUMN slot_end TEXT;`
+- Tabulka je prázdná → ALTER je bezpečný
+- Zachovává FK, indexy, všechny omezení
+- Ověřeno lokálně: PRAGMA table_info potvrzuje slot_start/slot_end
+
+Vedlejší nález — calendar_slots (Legacy):
+- Tabulka z migrace 0004, ve schématu existuje, ale v kódu se nepoužívá (jen v backupu)
+- Podobná co do struktury (start_ts, end_ts, booking_id, status) novému systému z ADR-004
+- POTENCIÁLNÍ DUPLICITA: calendar_slots vypadá jako „generovaná" tabulka, kterou měla BY availability_rules vytvářet
+- Řešení calendar_slots je otázka pro Fáze F2+ (API, slot-picking)
+- F1 to neovlivňuje

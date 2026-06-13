@@ -15,8 +15,6 @@ CREATE TABLE IF NOT EXISTS bookings (
     service TEXT NOT NULL,
     note_enc TEXT,
     preferred_date TEXT NOT NULL,
-    slot_start TEXT,
-    slot_end TEXT,
     psc TEXT,
     status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','done','cancelled','pending_payment')),
     estimated_price INTEGER,
