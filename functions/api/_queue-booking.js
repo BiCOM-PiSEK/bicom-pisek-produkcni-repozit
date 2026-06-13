@@ -77,8 +77,8 @@ export default {
           email: booking.email,
           phone: booking.phone,
           service: booking.service,
-          preferredDate: booking.preferred_date,
-          estimatedPrice: booking.estimated_price,
+          preferred_date: dateStr,
+          estimated_price: booking.estimated_price,
           note: booking.note,
         });
 
