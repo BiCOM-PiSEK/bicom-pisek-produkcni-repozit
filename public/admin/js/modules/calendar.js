@@ -5,6 +5,8 @@
  * FE-1: Admin bookings management — statuses, buttons, modals
  */
 
+let clickController = null;
+
 /**
  * Loads bookings, renders calendar tabs and table, attaches delegated event listeners.
  * Handles Confirm, Cancel, Delete, Detail actions via modals.
@@ -14,6 +16,10 @@
  */
 export async function render(container, ctx) {
   const { api, showToast } = ctx;
+
+  // Abort previous click listeners to prevent stacking
+  if (clickController) clickController.abort();
+  clickController = new AbortController();
 
   container.innerHTML = renderSkeleton();
 
@@ -137,7 +143,7 @@ export async function render(container, ctx) {
       const id = detailBtn.dataset.id;
       showDetailModal(id, api, showToast);
     }
-  });
+  }, { signal: clickController.signal });
 }
 
 export function destroy() {}
@@ -203,11 +209,18 @@ function esc(s) { if (!s) return ''; const e = document.createElement('span'); e
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' }); }
 
 /**
- * Formats ISO datetime to Czech locale (DD. MMM YYYY HH:MM), or '—' if empty.
- * @param {string} d - ISO datetime string
+ * Formats datetime (ISO or SQLite format) to Czech locale (DD. MMM YYYY HH:MM), or '—' if empty.
+ * Handles both ISO 8601 and SQLite "YYYY-MM-DD HH:mm:ss" formats.
+ * @param {string} d - Datetime string (ISO or SQLite)
  * @returns {string} Formatted datetime or placeholder
  */
-function fmtDateTime(d) { if (!d) return '—'; return new Date(d).toLocaleString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+function fmtDateTime(d) {
+  if (!d) return '—';
+  const iso = typeof d === 'string' ? d.replace(' ', 'T') : d;
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return '—';
+  return date.toLocaleString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
 
 /**
  * Finds a booking in the list by ID.
@@ -231,13 +244,14 @@ function showModal(html, onMount, onCleanup) {
   overlay.innerHTML = html;
   document.body.appendChild(overlay);
 
-  const closeBtn = overlay.querySelector('.btn-close') || overlay.querySelector('.btn-cancel');
   const closeModal = () => {
     if (onCleanup) onCleanup(overlay);
     overlay.remove();
   };
 
-  closeBtn?.addEventListener('click', closeModal);
+  overlay.querySelectorAll('.btn-close, .btn-cancel').forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closeModal();
   });
