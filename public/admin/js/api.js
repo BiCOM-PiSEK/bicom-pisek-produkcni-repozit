@@ -441,6 +441,32 @@ function saveAvailability(data) {
   return request('/availability', { method: 'PUT', body: data });
 }
 
+/**
+ * GET /admin/exceptions — načti výjimky dostupnosti.
+ * @returns {Promise<ApiResponse>}
+ */
+function getExceptions() {
+  return request('/exceptions');
+}
+
+/**
+ * POST /admin/exceptions — přidej výjimku dostupnosti.
+ * @param {Object} data — { date, type, start_time?, end_time?, note? }
+ * @returns {Promise<ApiResponse>}
+ */
+function addException(data) {
+  return request('/exceptions', { method: 'POST', body: data });
+}
+
+/**
+ * DELETE /admin/exceptions — smaž výjimku dostupnosti.
+ * @param {string} id — ID výjimky
+ * @returns {Promise<ApiResponse>}
+ */
+function deleteException(id) {
+  return request(`/exceptions?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
 // ─── EXPORT (pro browser ES module) ────────────────────────────
 
 const AdminAPI = {
@@ -464,6 +490,9 @@ const AdminAPI = {
   updateBlogPost,
   getAvailability,
   saveAvailability,
+  getExceptions,
+  addException,
+  deleteException,
 };
 
 // Také na window pro přístup z modulů

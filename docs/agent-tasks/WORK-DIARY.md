@@ -2305,3 +2305,60 @@ Teď `0` zůstane `0`, jen nevalidní input → `null`.
 - ROADMAP aktualizován: F2 a F3 z ČEKÁ → HOTOVO sekce (s PR čísly #47, #48)
 
 **Status:** Připraveno na PR — admin menu nyní obsahuje "Otevírací doba".
+
+---
+
+## ADR-004 F4: Admin UI pro výjimky dostupnosti (2026-06-14)
+
+**Branch:** `feat/booking-f4-exceptions`
+
+**Cíl:** Admin obrazovka pro správu výjimek dostupnosti (svátky, dovolená, ad-hoc blokace, extra otevíračky). F2 generátor je čte; F4 je jen ZÁPISOVÝ protějšek.
+
+**Implementace:**
+
+- **Backend** (`functions/admin/exceptions.js`, 293 řádků):
+  - GET /admin/exceptions: SELECT kde date >= dnes, ORDER BY date
+  - POST: Vložení s validací (date YYYY-MM-DD, type holiday|vacation|adhoc|extra, times jen pro adhoc/extra)
+  - DELETE ?id=: Smazání s audit_log
+  - Role check: admin || isDev
+
+- **API klient** (`public/admin/js/api.js`, +36 řádků):
+  - getExceptions() → GET /admin/exceptions
+  - addException(data) → POST /admin/exceptions
+  - deleteException(id) → DELETE /admin/exceptions?id=...
+
+- **Frontend modul** (`public/admin/js/modules/exceptions.js`, 280 řádků):
+  - Formulář: type select, date input, optional time inputs (zobrazeni jen pro adhoc/extra)
+  - Seznam: tabulka se sloupci Datum | Typ | Čas | Poznámka | Delete
+  - Bind listeners (vzor blog.js)
+  - Klientská validace + toast notifikace
+
+- **Router + Menu**:
+  - router.js: +1 route `/vyjimky` (icon: calendar-x, moduleId: exceptions) za dostupností
+  - index.html: +1 `<a>` položka v statickém menu (stejná struktura jako sousedi)
+  - GET /admin/exceptions: SELECT kde date >= dnes, ORDER BY date
+  - POST: Vložení s validací (date YYYY-MM-DD, type holiday|vacation|adhoc|extra, times jen pro adhoc/extra)
+  - DELETE ?id=: Smazání s audit_log
+  - Role check: admin || isDev
+
+- **API klient** (`public/admin/js/api.js`, +36 řádků):
+  - getExceptions() → GET /admin/exceptions
+  - addException(data) → POST /admin/exceptions
+  - deleteException(id) → DELETE /admin/exceptions?id=...
+
+- **Frontend modul** (`public/admin/js/modules/exceptions.js`, 280 řádků):
+  - Formulář: type select, date input, optional time inputs (zobrazeni jen pro adhoc/extra)
+  - Seznam: tabulka se sloupci Datum | Typ | Čas | Poznámka | Delete
+  - Bind listeners (vzor blog.js)
+  - Klientská validace + toast notifikace
+
+- **Router + Menu**:
+  - router.js: +1 route `/vyjimky` (icon: calendar-x, moduleId: exceptions) za dostupností
+  - index.html: +1 `<a>` položka v statickém menu (stejná struktura jako sousedi)
+
+**Validace:**
+- Klientská: adhoc/extra vyžadují start_time < end_time
+- Serverová: date regex + parseDate() check, type enum, times HH:MM, note max 200 znaků
+- Specifické: holiday/vacation bez časů (null), adhoc/extra jen s časy
+
+**Status:** Připraveno na PR (neplánuje se merge bez review).
