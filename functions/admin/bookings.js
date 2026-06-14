@@ -94,6 +94,15 @@ export async function onRequestPut({ env, data, request }) {
       return json({ ok: false, error: 'Pro přesun je nutný začátek i konec slotu.' }, 400);
     }
 
+    // Obrácený nebo neplatný rozsah → 400 (konec musí být po začátku)
+    if (newSlotStart && newSlotEnd) {
+      const startMs = Date.parse(newSlotStart);
+      const endMs = Date.parse(newSlotEnd);
+      if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
+        return json({ ok: false, error: 'Konec slotu musí být po jeho začátku.' }, 400);
+      }
+    }
+
     const isReschedule = !!(newSlotStart && newSlotEnd);
 
     if (isReschedule) {
