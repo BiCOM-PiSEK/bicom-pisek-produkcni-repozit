@@ -45,3 +45,18 @@ aplikačně (žádný sloupec navíc). ALTER ADD COLUMN, nikdy remake.
 ## Rizika
 - Zpětná smyčka konzole→Google→webhook — ošetřeno 3 vrstvami
 - Deploy: změny v consumeru/cronu vyžadují ruční wrangler deploy
+
+## Odložená rozhodnutí
+
+### no_show (stav "klient nedorazil") — ODLOŽENO
+
+**Datum:** 2026-06-14
+
+**Problém:** Stav `no_show` NENÍ v této várce implementován. Sloupec `bookings.status` má CHECK constraint (`pending/confirmed/done/cancelled/pending_payment`). SQLite/D1 neumí změnit CHECK přes ALTER — přidání `'no_show'` by vyžadovalo REBUILD celé tabulky bookings (16 tabulek, FK vazby, ostrá data) = nepoměrné riziko.
+
+**Řešení příště:** Buď:
+
+- **(a)** Přidat `'no_show'` do CHECK v rámci příští migrace, kdy se tabulka bookings stejně upravuje (table rebuild s opatrností).
+- **(b)** Řešit "nedorazil" bez nového statusu — samostatným boolean polem (`no_show_flag`), přidaným přes ALTER ADD COLUMN.
+
+Rozhodnutí: až při realizaci G4 nebo G5, v závislosti na náročnosti ostatních sloupců.

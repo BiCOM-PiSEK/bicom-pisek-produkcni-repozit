@@ -229,6 +229,43 @@ export class GoogleCalendarConnector {
   }
 
   /**
+   * Update the time of an existing event (reschedule).
+   * DŮLEŽITÉ: startLocal a endLocal musí být BEZ 'Z' (lokální čas);
+   * timeZone řídí interpretaci.
+   *
+   * @param {string} eventId - Google Calendar event ID.
+   * @param {string} startLocal - Start datetime BEZ 'Z' (RFC 3339 local, e.g. "2026-06-20T14:00:00").
+   * @param {string} endLocal - End datetime BEZ 'Z' (RFC 3339 local).
+   * @param {string} timeZone - IANA timezone (default 'Europe/Prague').
+   * @returns {Promise<object|null>} Updated event data or null on failure.
+   */
+  async updateEventTime(eventId, startLocal, endLocal, timeZone = 'Europe/Prague') {
+    const token = await this._getAccessToken();
+    if (!token) return null;
+
+    const url = `${CALENDAR_API}/calendars/${encodeURIComponent(this.calendarId)}/events/${encodeURIComponent(eventId)}`;
+
+    const res = await fetchWithRetry(url, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        start: { dateTime: startLocal, timeZone },
+        end: { dateTime: endLocal, timeZone },
+      }),
+    });
+
+    if (!res || !res.ok) {
+      console.warn('[GoogleCalendar] updateEventTime failed:', res?.status);
+      return null;
+    }
+
+    return res.json();
+  }
+
+  /**
    * List events in a time range.
    *
    * @param {string} timeMin - RFC 3339 start time (inclusive).

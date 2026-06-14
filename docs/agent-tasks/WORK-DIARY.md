@@ -2710,3 +2710,21 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **Nález #2–3 — confirmation_sent_at pořadí:** Nastav timestamp AŽ PO úspěšném e-mailu (admin i webhook). Pokud e-mail selže (null), confirmation_sent_at zůstane NULL → pozdější retry.
 
 **Status:** Opraveno, ready merge.
+
+## G3: Přesun termínu (2026-06-14)
+
+**Connector updateEventTime:** google-calendar.js — PATCH metoda pro změnu času Google eventu (lokální čas BEZ 'Z' + timeZone).
+
+**Šablona sendBookingRescheduled:** resend.js — HTML e-mail "Změna termínu" s novým datem/časem, tón Quiet Luxury, česky.
+
+**PUT přesun:** admin/bookings.js — query `new_slot_start` + `new_slot_end` spouští přesun:
+
+- Validace: oba sloty povinné
+- Status guard: jen pending/confirmed
+- UNIQUE kolizní detekce (idx_bookings_slot_unique) → 409
+- Side effects (mimo batch): Google updateEventTime + sendBookingRescheduled
+- Echo: přesun NEMĚNÍ barvu → webhook Guard 0 changes → no-op
+
+**no_show do ADR:** Zapsáno jako "Odloženo" — SQL CHECK constraint neumí ALTER; alternativy: (a) REBUILD tabulky v další migraci, (b) boolean flag `no_show_flag`.
+
+**Status:** Ready na PR (NEMERGUJ).

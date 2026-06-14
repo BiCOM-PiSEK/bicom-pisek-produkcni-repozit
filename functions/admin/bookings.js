@@ -85,8 +85,110 @@ export async function onRequestPut({ env, data, request }) {
     const bookingId = body.id || url.searchParams.get('id');
     if (!bookingId) return json({ ok: false, error: 'Chybí ID rezervace.' }, 400);
 
+    // G3: Nejdřív zkontroluj, zda je to PŘESUN TERMÍNU
+    const newSlotStart = body.new_slot_start;
+    const newSlotEnd = body.new_slot_end;
+    const isReschedule = (newSlotStart && newSlotEnd);
+
+    if (isReschedule) {
+      // Validace: oba sloty musí být k dispozici
+      if (!newSlotStart || !newSlotEnd) {
+        return json({ ok: false, error: 'Pro přesun je nutný začátek i konec slotu.' }, 400);
+      }
+
+      // Načti booking pro informace o stavu a Google kalendariu
+      const booking = await env.DB.prepare(
+        `SELECT id, calendar_event_id, email_enc, name_enc, service, status, slot_start, preferred_date
+         FROM bookings WHERE id = ?`
+      ).bind(bookingId).first();
+
+      // Přesun povol jen pro pending/confirmed
+      if (!['pending', 'confirmed'].includes(booking.status)) {
+        return json({ ok: false, error: 'Přesunout lze jen čekající nebo potvrzenou rezervaci.' }, 409);
+      }
+
+      // Pokus se UPDATE slot — UNIQUE kolizní detekce
+      try {
+        const rescheduleResult = await env.DB.prepare(
+          'UPDATE bookings SET slot_start = ?, slot_end = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        ).bind(newSlotStart, newSlotEnd, bookingId).run();
+
+        // Vždy zapisuj do audit logu (i když se nic nezmění)
+        await env.DB.prepare(
+          `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+           VALUES (?, 'bookings', ?, 'reschedule', ?, ?)`
+        ).bind(
+          crypto.randomUUID(),
+          bookingId,
+          `operator:${data.operator.id}`,
+          `Slot: ${booking.slot_start || 'none'} → ${newSlotStart}`
+        ).run();
+
+        // Side effects: Google Calendar + e-mail (mimo batch)
+        const calendar = new GoogleCalendarConnector(env);
+        const resend = new ResendConnector(env);
+
+        // Změní čas Google eventu (bez 'Z')
+        if (booking.calendar_event_id) {
+          calendar.updateEventTime(booking.calendar_event_id, newSlotStart, newSlotEnd)
+            .catch((err) => console.warn(`[admin/bookings] Google time update failed: ${err.message}`));
+        }
+
+        // Pošli e-mail o přesunu
+        if (booking.email_enc) {
+          try {
+            const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
+            const [email, name] = await Promise.all([
+              crypt.decrypt(booking.email_enc),
+              booking.name_enc ? crypt.decrypt(booking.name_enc) : 'Klient',
+            ]);
+
+            const displayDateTime = newSlotStart;
+            const dateObj = new Date(displayDateTime.includes('T') ? displayDateTime : displayDateTime.replace(' ', 'T') + ':00');
+            const dateStr = new Intl.DateTimeFormat('cs-CZ', {
+              timeZone: 'Europe/Prague',
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+            }).format(dateObj);
+            const timeStr = new Intl.DateTimeFormat('cs-CZ', {
+              timeZone: 'Europe/Prague',
+              hour: '2-digit',
+              minute: '2-digit',
+            }).format(dateObj);
+
+            const sendResult = await resend.sendBookingRescheduled({
+              name,
+              email,
+              service: booking.service,
+              date: dateStr,
+              time: timeStr,
+            });
+
+            if (!sendResult) {
+              console.warn(`[admin/bookings] Reschedule email not sent (null response)`);
+            }
+          } catch (err) {
+            console.warn(`[admin/bookings] Reschedule email failed: ${err.message}`);
+          }
+        }
+
+        return json({ ok: true, data: { id: bookingId, slot_start: newSlotStart, slot_end: newSlotEnd } });
+      } catch (dbErr) {
+        // Kolizní detekce — UNIQUE index na slot_start
+        const msg = String(dbErr?.message || '');
+        const isSlotCollision = msg.includes('UNIQUE') &&
+          (msg.includes('idx_bookings_slot_unique') || msg.includes('slot_start'));
+        if (isSlotCollision) {
+          return json({ ok: false, error: 'Tento čas je již obsazen. Vyberte prosím jiný slot.' }, 409);
+        }
+        throw dbErr;
+      }
+    }
+
+    // Status změna (G2 logika — bez přesunu)
     const newStatus = body.status;
-    if (!['confirmed', 'cancelled', 'done', 'pending'].includes(newStatus)) {
+    if (newStatus && !['confirmed', 'cancelled', 'done', 'pending'].includes(newStatus)) {
       return json({ ok: false, error: 'Neplatný status.' }, 400);
     }
 
@@ -98,6 +200,11 @@ export async function onRequestPut({ env, data, request }) {
     // Validuj jen když bylo pole zadáno a není null/prázdné string
     if (hasAssignedTo && assignedTo !== undefined && assignedTo !== null && !['Jana', 'Tereza'].includes(assignedTo)) {
       return json({ ok: false, error: 'Neplatná volba operátora. Povoleno: Jana, Tereza, nebo prázdné.' }, 400);
+    }
+
+    // Pokud není status, vrať chybu
+    if (!newStatus) {
+      return json({ ok: false, error: 'Chybí status nebo slot pro přesun.' }, 400);
     }
 
     // G2: Pro 'confirmed' — guard + full workflow (e-mail, Google, assigned_to)
