@@ -55,6 +55,8 @@
 - **Google Calendar přes Domain-Wide Delegation** — impersonace `admin@bicom-pisek.cz`, událost ověřena přímo v kalendáři
 - Oprava e-mailu (termín místo „undefined"), Telegramu (datum), potvrzení rezervace (405/ID)
 - **F1 — datový základ** na produkci: tabulky `availability_rules`, `availability_exceptions`, `booking_settings` + sloupce `slot_start/end` (migrace 0012) — viz [ADR-004](docs/adr/ADR-004-rezervacni-system.md)
+- **F2 — backend `GET /api/availability`** (generátor volných slotů z pravidel — obsazené z `bookings.slot_start`) s rigorózní validací, formatem "HH:MM", guard (duration + gap > 0), audit log (PR #47 merged)
+- **F3 — admin UI: otevírací doba + parametry slotů** (7 dní, toggle otevřeno/zavřeno, booking_settings, potvrzení/záloha) s klientskou validací, toast notifikace, demo režim (PR #48 merged)
 
 ### Admin „Virtual Office"
 - Admin SPA (design systém, router, 7 modulů, CF Access JWT auth)
@@ -100,8 +102,7 @@
 ## 🟢 ČEKÁ (naplánováno)
 
 ### Rezervační systém — zbývající fáze (ADR-004, architektura = Cesta 2: sloty za běhu)
-- **F2** — backend `GET /api/availability` (generátor volných slotů z pravidel − obsazené z `bookings.slot_start`)
-- **F3** — admin UI: otevírací doba + délka slotu + pravidla
+
 - **F4** — admin UI: výjimky (svátky/dovolená/ad-hoc) + náhled/skrývání slotů
 - **F5** — frontend rezervace: výběr dne → času → údaje
 - **F6** — `POST /api/book` v2: kolizní zámek (UNIQUE na `slot_start`), konfigurovatelný tok (potvrzení/závaznost/záloha), přesný čas do kalendáře i e-mailu/SMS

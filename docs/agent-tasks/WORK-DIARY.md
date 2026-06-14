@@ -2288,3 +2288,20 @@ Teď `0` zůstane `0`, jen nevalidní input → `null`.
 - deposit_amount: 0 je 0, nevalidní je null ✓
 
 **Status:** HOTOVO — opravy commitnuty, PR #48 se aktualizuje, CodeRabbit projede znovu.
+
+---
+
+## F3 Dodělávka: Admin Menu — Static HTML (2026-06-14)
+
+**Branch:** `fix/f3-admin-nav-availability`
+
+**Zjištění:** Menu v admin konzoli se generuje STATICKY z `public/admin/index.html` (řádky 46–115), NE z ROUTES pole v `router.js`. Přidání nové route do routeru nestačilo — menu položka zůstala neviditelná.
+
+**Oprava:**
+
+- Přidána nová položka `<a class="sidebar-link" data-path="/dostupnost">Otevírací doba</a>` do `public/admin/index.html` hned za Kalendář
+- Lucide ikona `clock` (circle + polyline s ručičkami)
+- Struktura (class, SVG atributy, data-path) kopíruje sousedy (Kalendář, Blog)
+- ROADMAP aktualizován: F2 a F3 z ČEKÁ → HOTOVO sekce (s PR čísly #47, #48)
+
+**Status:** Připraveno na PR — admin menu nyní obsahuje "Otevírací doba".
