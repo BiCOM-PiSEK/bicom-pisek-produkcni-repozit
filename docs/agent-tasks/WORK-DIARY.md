@@ -2475,3 +2475,64 @@ if (hasAvailableSlots && !bookingSlotStartEl.value) { ... }
 - Logika: (a) den s volnem + slot nevybraný → blok + toast; (b) den s volnem + slot vybraný → projde; (c) den bez volna → projde bez slotu
 
 Status: Ready na PR (#51 se aktualizuje, NEMERGUJ).
+
+---
+
+## ADR-004 F6: POST /api/book v2 — přesný slot, kolizní zámek (2026-06-14)
+
+**Branch:** `feat/booking-f6-book-v2`
+
+**Cíl:** Backend zpracování slot_start (z F5). Atomická rezervace: dva lidé na stejný čas → jen jeden uspěje (409). Konfigurovatelný tok (booking_settings). NEJCITLIVĚJŠÍ ZMĚNA — book.js zpracovává reálné rezervace + šifruje zdravotní data (GDPR).
+
+### Implementace detaily
+
+#### Fáze A — Zachované beze změny (pojistka)
+
+- ✅ **Šifrování**: name_enc, email_enc, phone_enc, note_enc (DataCrypt AES-GCM 256-bit)
+- ✅ **Audit log**: každá akce zaznamenána v audit_log
+- ✅ **Resend e-mail**: sendBookingConfirmation (rozšířen o slot time)
+- ✅ **Google Calendar**: insertEvent (rozšířen na slot_start/end, barva yellow = pending)
+- ✅ **Consent pole**: GDPR processing consent (povinný)
+- ✅ **Stripe tok**: payment_method logika (bez změn)
+
+#### Implementace
+
+1. **Migrace 0013** (`db/migrations/0013_booking_slot_unique.sql`):
+   - Parciální UNIQUE index na slot_start
+   - Filtr: WHERE slot_start IS NOT NULL AND status IN ('pending','confirmed','pending_payment')
+   - Hotové/zrušené rezervace slot uvolní
+
+2. **book.js** (`functions/api/book.js`, +130 řádků):
+   - Načtení booking_settings (id=1) s defaulty: require_confirmation, require_deposit, min_lead_hours=24
+   - Přijetí slot_start, slot_end (VOLITELNÉ — zpětná kompatibilita)
+   - Validace slot_start: formát "YYYY-MM-DD HH:MM" + minulost + min_lead_hours check
+   - Slot_end: pokud chybí, default +60 minut
+   - Status logika: require_deposit → 'pending_payment', require_confirmation → 'pending'
+   - **KOLIZNÍ ZÁMEK**: UNIQUE index na slot_start → INSERT fail → catch UNIQUE error → 409 "Čas obsazen"
+   - Queue payload rozšířen o slot_start, slot_end
+
+3. **Queue consumer** (`functions/api/_queue-booking.js`, +20 řádků):
+   - Kalendář: calendarStart = slot_start || preferred_date
+   - Email: dateStr + timeStr (jen když slot_start)
+   - SMS reminders: displayDateTime = slot_start || preferred_date
+   - Zpětná kompatibilita: když slot_start chybí, chování jako dnes
+
+#### Zpětná kompatibilita (KRITICKÉ)
+
+- Request BEZ slot_start: všechno funguje PŘESNĚ jako dnes (status dle defaults, whole day v kalendáři)
+- Request SE slot_start: atomická rezervace s UNIQUE kolizí (409)
+- Payload rozšíření, nic se nemaže
+
+#### Poznámka: assigned_to
+
+Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k F6. Jen poznámka do Antnýho.
+
+#### Ověření F6
+
+- ✅ `node --check functions/api/book.js` — syntax OK
+- ✅ `node --check functions/api/_queue-booking.js` — syntax OK
+- ✅ `npm run build` — passed
+- Zpětná kompatibilita: lokálně netestováno, ale logika je čistá
+- UNIQUE kolize: catch blok na dbErr.message.includes('UNIQUE') → 409
+
+**Status:** Ready na PR (NEMERGUJ, F6 + F7 následují).

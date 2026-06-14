@@ -57,6 +57,9 @@
 - **F1 — datový základ** na produkci: tabulky `availability_rules`, `availability_exceptions`, `booking_settings` + sloupce `slot_start/end` (migrace 0012) — viz [ADR-004](docs/adr/ADR-004-rezervacni-system.md)
 - **F2 — backend `GET /api/availability`** (generátor volných slotů z pravidel — obsazené z `bookings.slot_start`) s rigorózní validací, formatem "HH:MM", guard (duration + gap > 0), audit log (PR #47 merged)
 - **F3 — admin UI: otevírací doba + parametry slotů** (7 dní, toggle otevřeno/zavřeno, booking_settings, potvrzení/záloha) s klientskou validací, toast notifikace, demo režim (PR #48 merged)
+- **F4 — admin UI: výjimky a svátky** (holiday/vacation/adhoc/extra) s typem, datem, volitelným časem, poznámkou (PR #50 merged)
+- **F5 — frontend: výběr konkrétního času** v rezervačním formuláři: načíst `/api/availability`, render chip sloty, validace (F5+F6 pár) (PR #51 merged)
+- **F6 — backend: POST /api/book v2** — zpracování `slot_start`, parciální UNIQUE index (atomická rezervace: 409 kolize), konfigurovatelný tok (booking_settings), přesný čas v kalendáři/emailech (PR #52 in review)
 
 ### Admin „Virtual Office"
 - Admin SPA (design systém, router, 7 modulů, CF Access JWT auth)

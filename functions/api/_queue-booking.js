@@ -26,6 +26,10 @@ export default {
         const booking = message.body;
 
         // 1. Insert event into Google Calendar (yellow = pending)
+        // F6: Použij přesný čas (slot_start/end) pokud je dostupný, jinak default (preferred_date +60min)
+        const calendarStart = booking.slot_start || booking.preferred_date;
+        const calendarEnd = booking.slot_end ? booking.slot_end : addMinutes(booking.preferred_date, 60);
+
         const calendarEvent = await calendar.insertEvent({
           summary: `Bicom Písek — ${booking.service}`,
           description: [
@@ -36,12 +40,11 @@ export default {
             `Cena (odhad): ${booking.estimated_price || '—'} Kč`,
           ].filter(Boolean).join('\n'),
           start: {
-            dateTime: booking.preferred_date,
+            dateTime: calendarStart,
             timeZone: 'Europe/Prague',
           },
           end: {
-            // Default session = 60 min
-            dateTime: addMinutes(booking.preferred_date, 60),
+            dateTime: calendarEnd,
             timeZone: 'Europe/Prague',
           },
           colorId: '5', // yellow = pending
@@ -54,13 +57,22 @@ export default {
           ).bind(calendarEvent.id, booking.bookingId).run();
         }
 
-        const dateObj = new Date(booking.preferred_date);
+        // F6: Použij slot_start pokud je dostupný (přesný čas), jinak preferred_date
+        const displayDateTime = booking.slot_start || booking.preferred_date;
+        const dateObj = new Date(displayDateTime);
         const dateStr = new Intl.DateTimeFormat('cs-CZ', {
           timeZone: 'Europe/Prague',
           year: 'numeric',
           month: 'numeric',
           day: 'numeric',
         }).format(dateObj);
+        const timeStr = booking.slot_start
+          ? new Intl.DateTimeFormat('cs-CZ', {
+              timeZone: 'Europe/Prague',
+              hour: '2-digit',
+              minute: '2-digit',
+            }).format(dateObj)
+          : null;
 
         // 3. Send confirmation email to client
         await resend.sendBookingConfirmation({
@@ -68,6 +80,7 @@ export default {
           email: booking.email,
           service: booking.service,
           date: dateStr,
+          time: timeStr,
           estimatedPrice: booking.estimated_price,
         });
 
