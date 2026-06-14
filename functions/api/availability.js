@@ -136,7 +136,7 @@ export function computeAvailability({ rules, exceptions, settings, busySlots, fr
 
   // Lead and horizon times
   const minLeadDate = addMinutes(now, settings.min_lead_hours * 60);
-  const maxHorizonDate = addDays(new Date(now.getFullYear(), now.getMonth(), now.getDate()), settings.max_horizon_days);
+  const maxHorizonExclusive = addDays(new Date(now.getFullYear(), now.getMonth(), now.getDate()), settings.max_horizon_days + 1);
 
   const days = [];
   let currentDate = new Date(fromDate);
@@ -164,19 +164,7 @@ export function computeAvailability({ rules, exceptions, settings, busySlots, fr
     // Build time ranges
     let timeRanges = [...dayRules];
 
-    // Apply adhoc removals
-    dayExceptions.filter((e) => e.type === 'adhoc').forEach((exc) => {
-      if (exc.start_time && exc.end_time) {
-        timeRanges = timeRanges.flatMap((range) => {
-          const [rs, re] = [range.start_time, range.end_time];
-          const [es, ee] = [exc.start_time, exc.end_time];
-          if (es <= rs && ee >= re) return [];
-          return [range];
-        });
-      }
-    });
-
-    // Apply extra additions
+    // Apply extra additions (before slot generation)
     dayExceptions.filter((e) => e.type === 'extra').forEach((exc) => {
       if (exc.start_time && exc.end_time) {
         timeRanges.push({ start_time: exc.start_time, end_time: exc.end_time });
@@ -185,6 +173,9 @@ export function computeAvailability({ rules, exceptions, settings, busySlots, fr
 
     // Generate slots
     const slots = [];
+    const seenSlotStarts = new Set();
+    const adhocExceptions = dayExceptions.filter((e) => e.type === 'adhoc');
+
     timeRanges.forEach((range) => {
       const [startH, startM] = range.start_time.split(':').map(Number);
       const [endH, endM] = range.end_time.split(':').map(Number);
@@ -200,9 +191,24 @@ export function computeAvailability({ rules, exceptions, settings, busySlots, fr
         const slotStartStr = formatDateTime(slotStart);
         const slotEndStr = formatDateTime(slotEnd);
 
-        if (slotStart >= minLeadDate && slotStart <= maxHorizonDate) {
-          if (!bookedSlots.has(slotStartStr)) {
-            slots.push({ start: slotStartStr, end: slotEndStr });
+        if (slotStart >= minLeadDate && slotStart < maxHorizonExclusive) {
+          if (!bookedSlots.has(slotStartStr) && !seenSlotStarts.has(slotStartStr)) {
+            // Filter out slots that overlap with adhoc exceptions
+            const isBlocked = adhocExceptions.some((exc) => {
+              if (!exc.start_time || !exc.end_time) return false;
+              const excStart = new Date(currentDate);
+              const [excStartH, excStartM] = exc.start_time.split(':').map(Number);
+              excStart.setHours(excStartH, excStartM, 0, 0);
+              const excEnd = new Date(currentDate);
+              const [excEndH, excEndM] = exc.end_time.split(':').map(Number);
+              excEnd.setHours(excEndH, excEndM, 0, 0);
+              return slotStart < excEnd && slotEnd > excStart;
+            });
+
+            if (!isBlocked) {
+              seenSlotStarts.add(slotStartStr);
+              slots.push({ start: slotStartStr, end: slotEndStr });
+            }
           }
         }
 
@@ -243,6 +249,13 @@ export async function onRequestGet({ request, env }) {
     const fromDate = parseLocalDate(from);
     const toDate = parseLocalDate(to);
 
+    if (formatDate(fromDate) !== from || formatDate(toDate) !== to) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatné datum. Použijte existující datum ve formátu YYYY-MM-DD.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
     if (fromDate > toDate) {
       return new Response(
         JSON.stringify({ success: false, error: 'Parametr "from" musí být menší nebo roven "to".' }),
@@ -262,7 +275,40 @@ export async function onRequestGet({ request, env }) {
       max_horizon_days: settingsRow?.max_horizon_days ?? 60,
     };
 
-    const maxDate = addDays(fromDate, settings.max_horizon_days);
+    const slotStepMin = settings.slot_duration_min + settings.slot_gap_min;
+    if (
+      !Number.isInteger(settings.slot_duration_min) ||
+      !Number.isInteger(settings.slot_gap_min) ||
+      settings.slot_duration_min <= 0 ||
+      settings.slot_gap_min < 0 ||
+      slotStepMin <= 0
+    ) {
+      throw new Error('Invalid booking_settings: slot step must be positive.');
+    }
+
+    const nowPrague = getNowInPrague();
+    const todayPrague = new Date(nowPrague.getFullYear(), nowPrague.getMonth(), nowPrague.getDate());
+    const maxDate = addDays(todayPrague, settings.max_horizon_days);
+
+    if (fromDate > maxDate) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          days: [],
+          meta: {
+            slot_duration_min: settings.slot_duration_min,
+            slot_gap_min: settings.slot_gap_min,
+            min_lead_hours: settings.min_lead_hours,
+            max_horizon_days: settings.max_horizon_days,
+            timezone: 'Europe/Prague',
+            from,
+            to: formatDate(maxDate),
+          },
+        }),
+        { status: 200, headers: CORS_HEADERS }
+      );
+    }
+
     const constrainedToDate = toDate > maxDate ? maxDate : toDate;
 
     // Load rules

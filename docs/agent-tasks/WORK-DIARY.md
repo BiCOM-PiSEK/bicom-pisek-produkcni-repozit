@@ -1997,7 +1997,7 @@ Vedlejší nález — calendar_slots (Legacy):
 
 ---
 
-## 2026-06-14 (sobota) — ADR-004 F2: GET /api/availability (generátor slotů za běhu)
+## 2026-06-14 (neděle) — ADR-004 F2: GET /api/availability (generátor slotů za běhu)
 
 **Branch:** `feat/booking-f2-availability`
 
@@ -2037,7 +2037,7 @@ Vedlejší nález — calendar_slots (Legacy):
 
 ### 📌 Příkladné testovací scénáře:
 
-```
+```text
 1. Normální rozsah (po-pá, volný čas):
    GET /api/availability?from=2026-06-23&to=2026-06-27
    → days: [
@@ -2078,3 +2078,57 @@ F2 je BACKEND. Frontend zatím posílá jen preferred_date (bez času). F3 bude:
 ---
 
 **Status:** ✅ GET /api/availability hotov, PR připraven na review
+
+---
+
+## F2 CodeRabbit Review + Opravy (2026-06-14)
+
+**Nový commit:** Opravy dle CodeRabbit PR #47 review (CR-3..8 + kosmetika)
+
+### Opraveno
+
+1. **CR-4 🔴 CRITICAL** — Validace settings proti infinite loop
+   - Přidán check: `slot_duration_min > 0 && (duration + gap) > 0`
+   - onRequestGet v catch vrací 500 s čitelnou hláškou
+
+2. **CR-6 🔴 MAJOR** — adhoc výjimka filtruje SLOTY, ne rozsahy
+   - Změna logiky: namísto split rozsahů → filtruj sloty po vygenerování
+   - Slot je blokován pokud: `slotStart < adhoc_end && slotEnd > adhoc_start`
+   - Nyní správně odstranuje sloty, které PŘEKRÝVAJÍ (ne jen plně pokryté)
+
+3. **CR-8 🟠 MAJOR** — horizont od dneška, ne od FROM
+   - `maxDate = addDays(todayInPrague, settings.max_horizon_days)`
+   - (ne `addDays(fromDate, ...)`), aby se shodoval s `computeAvailability()`
+   - Ošetřen `if (fromDate > maxDate)`: vrací empty days + realistické meta.to
+
+4. **CR-5 🟠 MAJOR** — horizont exclusive (+ 1 den)
+   - `maxHorizonExclusive = addDays(..., max_horizon_days + 1)`
+   - Slot check: `slotStart < maxHorizonExclusive` (ostrá nerovnost)
+   - Sjednoceno v `computeAvailability()` i `onRequestGet()`
+
+5. **CR-3 🟠 MAJOR** — Odmítni nevalidní data (2026-02-31)
+   - Po `parseLocalDate`: check `if (formatDate(parsed) !== input)`
+   - Vrátí 400 s chybou
+
+6. **CR-7 🟠 MINOR** — Deduplikace slotů
+   - Per-den `seenSlotStarts` Set
+   - Slot se vloží jen pokud není v bookedSlots A není v seenSlotStarts
+
+### Kosmetika:
+
+- **CR-1:** Opraveno "(sobota)" → "(neděle)" pro 2026-06-14 v WORK-DIARY.md
+- **CR-2:** Přidán jazyk `text` k fenced blocku v WORK-DIARY.md (MD040)
+
+### Re-test (8 scénářů — všechny PASS):
+
+- T1-T5: Regrese (weekday, víkend, obsazený, lead_hours, holiday) ✅
+- T6: adhoc ČÁST dne (CR-6) — sloty 11:20, 12:30 odstraněny ✅
+- T7: settings guard (CR-4) — throws na invalid step ✅
+- T8: date validation (CR-3) — detekce 2026-02-31 ✅
+
+### ✅ Ověřeno:
+- `node --check functions/api/availability.js` ✓
+- `npm run build` (ve finálním committu)
+- Všechny testy s reálným mock data (PASS/FAIL viditel)
+
+**Výsledek:** PR #47 v GitHub se aktualizuje s novým committem, CodeRabbit projede znovu.
