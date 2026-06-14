@@ -128,6 +128,59 @@ export class ResendConnector {
   }
 
   /**
+   * Send a booking reschedule notification (termín byl přesunut).
+   *
+   * @param {object} booking - Booking data.
+   * @param {string} booking.email - Customer email.
+   * @param {string} booking.name - Customer name.
+   * @param {string} booking.service - Service name.
+   * @param {string} booking.date - New appointment date string (e.g. "20. 6. 2026").
+   * @param {string} [booking.time] - New time (optional, e.g. "14:00").
+   * @returns {Promise<object|null>}
+   */
+  async sendBookingRescheduled(booking) {
+    const subject = `Změna termínu — ${booking.service}`;
+
+    const html = `
+<!DOCTYPE html>
+<html lang="cs">
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+  <div style="background: #faf8f3; padding: 24px; border-radius: 8px; margin-bottom: 16px;">
+    <h2 style="color: #6b5b4d; margin: 0 0 8px;">📅 Změna termínu</h2>
+    <p style="margin: 0;">Dobrý den, <strong>${escapeHtml(booking.name)}</strong>,</p>
+  </div>
+
+  <p>Váš termín byl přesunut na nový čas:</p>
+
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Služba:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.service)}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Nový termín:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.date)}${booking.time ? ` ${escapeHtml(booking.time)}` : ''}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Adresa:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${BUSINESS_ADDRESS}</td>
+    </tr>
+  </table>
+
+  <p>Pokud máte nějaké otázky, kontaktujte nás prosím co nejdříve.</p>
+
+  <p style="color: #888; font-size: 12px; margin-top: 24px; border-top: 1px solid #eee; padding-top: 12px;">
+    ${BUSINESS_ADDRESS}<br>
+    Tento e-mail byl vygenerován automaticky.
+  </p>
+</body>
+</html>`.trim();
+
+    return this.sendEmail(booking.email, subject, html);
+  }
+
+  /**
    * Send a booking reminder email (T-24h).
    *
    * @param {object} booking - Booking data.
