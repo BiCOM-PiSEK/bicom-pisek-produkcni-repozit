@@ -43,6 +43,12 @@ const ROUTES = [
     moduleId: 'availability',
   },
   {
+    path: '/vyjimky',
+    title: 'Výjimky a svátky',
+    icon: 'calendar-x',
+    moduleId: 'exceptions',
+  },
+  {
     path: '/blog',
     title: 'Blog & AI',
     icon: 'pen-tool',
