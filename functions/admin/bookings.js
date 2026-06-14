@@ -88,13 +88,15 @@ export async function onRequestPut({ env, data, request }) {
     // G3: Nejdřív zkontroluj, zda je to PŘESUN TERMÍNU
     const newSlotStart = body.new_slot_start;
     const newSlotEnd = body.new_slot_end;
-    const isReschedule = (newSlotStart && newSlotEnd);
+
+    // NÁLEZ #3: jeden bez druhého = neúplný přesun → chyba PŘED isReschedule
+    if ((newSlotStart && !newSlotEnd) || (!newSlotStart && newSlotEnd)) {
+      return json({ ok: false, error: 'Pro přesun je nutný začátek i konec slotu.' }, 400);
+    }
+
+    const isReschedule = !!(newSlotStart && newSlotEnd);
 
     if (isReschedule) {
-      // Validace: oba sloty musí být k dispozici
-      if (!newSlotStart || !newSlotEnd) {
-        return json({ ok: false, error: 'Pro přesun je nutný začátek i konec slotu.' }, 400);
-      }
 
       // Načti booking pro informace o stavu a Google kalendariu
       const booking = await env.DB.prepare(
@@ -102,27 +104,33 @@ export async function onRequestPut({ env, data, request }) {
          FROM bookings WHERE id = ?`
       ).bind(bookingId).first();
 
+      // NÁLEZ #2: guard na neexistující rezervaci
+      if (!booking) {
+        return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
+      }
+
       // Přesun povol jen pro pending/confirmed
       if (!['pending', 'confirmed'].includes(booking.status)) {
         return json({ ok: false, error: 'Přesunout lze jen čekající nebo potvrzenou rezervaci.' }, 409);
       }
 
-      // Pokus se UPDATE slot — UNIQUE kolizní detekce
+      // NÁLEZ #1: UPDATE + audit_log v JEDNOM batchi (governance pravidlo)
+      // UNIQUE kolizní detekce obal CELÝ batch do try/catch
       try {
-        const rescheduleResult = await env.DB.prepare(
-          'UPDATE bookings SET slot_start = ?, slot_end = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
-        ).bind(newSlotStart, newSlotEnd, bookingId).run();
-
-        // Vždy zapisuj do audit logu (i když se nic nezmění)
-        await env.DB.prepare(
-          `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-           VALUES (?, 'bookings', ?, 'reschedule', ?, ?)`
-        ).bind(
-          crypto.randomUUID(),
-          bookingId,
-          `operator:${data.operator.id}`,
-          `Slot: ${booking.slot_start || 'none'} → ${newSlotStart}`
-        ).run();
+        await env.DB.batch([
+          env.DB.prepare(
+            'UPDATE bookings SET slot_start = ?, slot_end = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+          ).bind(newSlotStart, newSlotEnd, bookingId),
+          env.DB.prepare(
+            `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+             VALUES (?, 'bookings', ?, 'reschedule', ?, ?)`
+          ).bind(
+            crypto.randomUUID(),
+            bookingId,
+            `operator:${data.operator.id}`,
+            `Slot: ${booking.slot_start || 'none'} → ${newSlotStart}`
+          ),
+        ]);
 
         // Side effects: Google Calendar + e-mail (mimo batch)
         const calendar = new GoogleCalendarConnector(env);
