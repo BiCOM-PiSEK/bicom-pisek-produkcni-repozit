@@ -11,8 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const priceEl = document.getElementById("guide-price");
   const ctaEl = document.getElementById("guide-cta");
   const formEl = document.getElementById("booking-form");
+  const bookingDateEl = document.getElementById("booking-date");
+  const bookingTimeWrapEl = document.getElementById("booking-time-wrap");
+  const bookingSlotsEl = document.getElementById("booking-slots");
+  const bookingSlotStartEl = document.getElementById("booking-slot-start");
 
   let servicesCache = null;
+  let selectedSlot = null;
+  let availabilityRequestSeq = 0;
 
   /**
    * Fetches services from API.
@@ -196,6 +202,90 @@ document.addEventListener("DOMContentLoaded", () => {
     initBookingConfig();
   }
 
+  // Load availability for a date
+  async function loadAvailability(dateStr) {
+    try {
+      const res = await fetch(`/api/availability?from=${dateStr}&to=${dateStr}`);
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.error("[guide] Availability error:", err);
+    }
+    return null;
+  }
+
+  // Render time slots
+  function renderTimeSlots(availData, dateStr) {
+    if (!availData || !availData.days) {
+      bookingSlotsEl.innerHTML = '';
+      const p = document.createElement('p');
+      p.textContent = 'Chyba při načítání dostupnosti. Zkuste znovu.';
+      p.style.cssText = 'color: var(--c-sage); font-size: 0.9rem;';
+      bookingSlotsEl.appendChild(p);
+      return;
+    }
+    const dayData = availData.days.find(d => d.date === dateStr);
+    if (!dayData || !dayData.slots || dayData.slots.length === 0) {
+      bookingSlotsEl.innerHTML = '';
+      const p = document.createElement('p');
+      p.textContent = 'V tento den není volno, zkuste jiný.';
+      p.style.cssText = 'color: var(--c-sage); font-size: 0.9rem;';
+      bookingSlotsEl.appendChild(p);
+      selectedSlot = null;
+      bookingSlotStartEl.value = '';
+      return;
+    }
+    bookingSlotsEl.innerHTML = '';
+    const container = document.createElement('div');
+    container.style.cssText = 'display: flex; flex-wrap: wrap; gap: 0.75rem;';
+    dayData.slots.forEach(slot => {
+      const time = slot.start.split(' ')[1];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = time;
+      btn.dataset.slotStart = slot.start;
+      btn.style.cssText = 'padding: 0.6rem 1.2rem; border: 1px solid var(--c-sage); background-color: transparent; color: var(--c-sage); border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease;';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('[data-slot-start]').forEach(b => {
+          b.style.backgroundColor = 'transparent';
+          b.style.color = 'var(--c-sage)';
+        });
+        btn.style.backgroundColor = 'var(--c-sage)';
+        btn.style.color = 'var(--c-white)';
+        selectedSlot = slot.start;
+        bookingSlotStartEl.value = slot.start;
+      });
+      container.appendChild(btn);
+    });
+    bookingSlotsEl.appendChild(container);
+  }
+
+  // Handle date change
+  if (bookingDateEl) {
+    bookingDateEl.addEventListener('change', async () => {
+      const dateStr = bookingDateEl.value;
+      if (!dateStr) {
+        bookingTimeWrapEl.hidden = true;
+        return;
+      }
+      // Clear slot immediately (CR-2: prevent race condition)
+      selectedSlot = null;
+      bookingSlotStartEl.value = '';
+      // Sequential guard: ignore out-of-order responses
+      const reqSeq = ++availabilityRequestSeq;
+      bookingSlotsEl.innerHTML = '';
+      const loading = document.createElement('p');
+      loading.textContent = 'Načítám dostupnost...';
+      loading.style.cssText = 'color: var(--c-sage); font-size: 0.9rem;';
+      bookingSlotsEl.appendChild(loading);
+      bookingTimeWrapEl.hidden = false;
+      const availData = await loadAvailability(dateStr);
+      // Ignore if newer request already arrived
+      if (reqSeq !== availabilityRequestSeq) return;
+      renderTimeSlots(availData, dateStr);
+    });
+  }
+
   // Handle booking form submission
   if (formEl) {
     formEl.addEventListener("submit", async (e) => {
@@ -210,13 +300,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const serviceName = serviceSelect.options[serviceSelect.selectedIndex].text;
 
       const reminderEl = document.getElementById("booking-reminder-channel");
+      const preferred_date = document.getElementById("booking-date").value;
+
+      // Validate: slot is required ONLY if actual slots exist (CR-1)
+      const hasAvailableSlots = Boolean(bookingSlotsEl?.querySelector('[data-slot-start]'));
+      if (hasAvailableSlots && !bookingSlotStartEl.value) {
+        showToast("Vyberte prosím čas", "error");
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+      }
+
       const data = {
         name: document.getElementById("booking-name").value,
         email: document.getElementById("booking-email").value,
         phone: document.getElementById("booking-phone").value,
         service: serviceSelect.value,
         serviceName: serviceName,
-        preferred_date: document.getElementById("booking-date").value,
+        preferred_date: preferred_date,
+        slot_start: bookingSlotStartEl.value || null,
         psc: document.getElementById("booking-psc").value || null,
         note: document.getElementById("booking-note").value || null,
         consent_processing: document.getElementById("booking-consent-processing").checked,

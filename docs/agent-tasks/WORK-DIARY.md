@@ -2395,3 +2395,83 @@ Teď `0` zůstane `0`, jen nevalidní input → `null`.
 - ✅ `grep "\.run()"` — žádné .run() v batch statements
 - ✅ `npm run build` — passed
 - Branch: `feat/booking-f4-exceptions` (ready for push/PR, NEMERGUJ)
+
+---
+
+## ADR-004 F5: Frontend rezervace — výběr konkrétního ČASU (2026-06-14)
+
+**Branch:** `feat/booking-f5-time-select`
+
+**Cíl:** Formulář s výběrem dne (booking-date) + času (sloty z /api/availability). F5 posílá slot_start navíc; F6 jej bude zpracovávat (F5 zpětně kompatibilní — neztrácí preferred_date).
+
+**Implementace:**
+
+- **HTML** (`public/index.html`):
+  - Přidán #booking-time-wrap za #booking-date (hidden, zobrazí se po výběru dne)
+  - #booking-slots: kontejner pro chip buttons
+  - #booking-slot-start: hidden input pro čas (YYYY-MM-DD HH:MM)
+
+- **Logika** (`public/assets/js/guide.js`, +90 řádků):
+  - bookingDateEl change: fetch /api/availability?from=den&to=den, render sloty
+  - renderTimeSlots: žádné sloty → msg "V tento den není volno"; sloty existují → chip buttons
+  - Klik slot: vizuální highlight + ulož do #booking-slot-start
+  - Nový den: reset slot selection
+  - Form submit: validace (pokud sloty existují, slot MUSÍ být vybraný), přidej slot_start do payloadu
+  - preferred_date zůstává beze změn (zpětná kompatibilita)
+
+- **CSS** (`public/assets/css/style.css`, +20 řádků):
+  - #booking-time-wrap, #booking-slots base styles
+  - [data-slot-start] chip: border-sage, hover effect, transition
+
+**Zpětná kompatibilita (F5 ↔ F6):**
+
+- Payload: { name, email, ..., preferred_date, **slot_start** (new), ... }
+- book.js zatím ignoruje slot_start (F6 bude zpracovávat)
+- Nic se nemaže — doplnění, ne změna
+
+**Test:**
+
+- ✅ `node --check guide.js` — syntax OK
+- ✅ `npm run build` — passed
+- Pokud dev: fetch /api/availability, render sloty, klik slot, inspect payload (slot_start přítomen)
+
+**Status:** ✅ CodeRabbit opravy hotovy (CR-1, CR-2).
+
+### F5 CodeRabbit opravy (2026-06-14)
+
+#### CR-1 (🟠 major): Validace gateuje na viditelnosti wrapperu místo na reálných slotech
+
+- Problém: Když den nemá volno ("V tento den není volno"), formulář nejde odeslat — to je OPAK zamýšlení
+- Změna: Nahrazen check na viditelnost za check na existenci slotů:
+
+```javascript
+const hasAvailableSlots = Boolean(bookingSlotsEl?.querySelector('[data-slot-start]'));
+if (hasAvailableSlots && !bookingSlotStartEl.value) { ... }
+```
+
+- Výsledek: Slot povinný JEN když existují reálné chips. Den bez volna → odeslání projde (F6 si poradí)
+
+#### CR-2 (🟠 major): Race condition v change handleru
+
+- Problém: bookingSlotStartEl.value se čistilo AŽ PO await → uživatel mohl odeslat starý slot s novým datem
+- Přidáno: `availabilityRequestSeq` state proměnná (globální sekvenční čítač)
+- Změny v change handleru:
+
+  1. Early clear: `selectedSlot = null; bookingSlotStartEl.value = '';` na ZAČÁTKU (po dateStr check)
+  2. Sequential guard: `const reqSeq = ++availabilityRequestSeq;` před await
+  3. Po await: `if (reqSeq !== availabilityRequestSeq) return;` — ignoruj zastaralé odpovědi
+
+- Výsledek: Rychlé přepínání dní neposílá stará data; pouze poslední request je vykreslován
+
+#### CR-3 (🟡 minor): Inline style.cssText → CSS třídy
+
+- Status: Odloženo (stejně jako F3/F4) — focus na business logice
+- Dluh: `public/assets/js/guide.js` má inline style.cssText, měli by být CSS třídy
+
+#### Ověření
+
+- ✅ `node --check public/assets/js/guide.js` — syntax OK
+- ✅ `npm run build` — passed
+- Logika: (a) den s volnem + slot nevybraný → blok + toast; (b) den s volnem + slot vybraný → projde; (c) den bez volna → projde bez slotu
+
+Status: Ready na PR (#51 se aktualizuje, NEMERGUJ).
