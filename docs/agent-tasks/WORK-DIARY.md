@@ -2671,3 +2671,42 @@ Sjednocení `toRfc3339` helperu: řádka 77 displayDateTime a řádka 116 remind
 Ověřeno: slot "09:00" → start.dateTime "2026-06-16T09:00:00" bez Z; bez slotu → all-day 2026-06-20 až 2026-06-21; přelom měsíce: 06-30 → 07-01.
 
 **CodeRabbit nález (PR #53):** calendarEnd fallback používal addMinutes (ISO se 'Z') → opraveno na LOKÁLNÍ string "YYYY-MM-DD HH:MM" bez Z, stejný styl jako slot_start.
+
+## G2: Admin "Potvrdit dělá vše" + Echo Suppression (2026-06-14)
+
+Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obrán.
+
+### PUT /admin/bookings — confirmed workflow
+
+- Guard: `UPDATE ... WHERE status='pending'` → jen pending→confirmed
+- Gate (e-mail): `confirmation_sent_at IS NULL` → pošli jen poprvé
+- Side effects (mimo batch): Google updateEventColor('10'=Basil), sendBookingConfirmation
+- assigned_to: validace Jana/Tereza/null, uloží se v každém statusu
+
+### Webhook (calendar-hook.js) — symetrická obrana
+
+- Rozšíř SELECT o status, confirmation_sent_at
+- Guard na UPDATE: `WHERE ... AND status != newStatus` (no-op když se nemění)
+- Gate na e-mail: pošli jen když confirmation_sent_at IS NULL, pak nastav
+
+### Kanón colorId
+
+- Opravit komentáře v google-calendar.js: '10'=Basil/zelená (ne '2')
+- pending='5' (Banana/žlutá), confirmed='10', cancelled='11' (Tomato/červená)
+
+### Scénáře ověřeny
+
+1. Admin Potvrdit pending → confirmed, email 1×, Google zeleno, assigned_to uložen
+2. Admin Potvrdit 2× → guard 0 changes, no-op
+3. Konzole→Google→webhook → confirmation_sent_at ≠NULL → webhook NEpošle 2. email (ECHO OŠETŘEN)
+4. assigned_to bez statusu → jen uloží, bez efektů
+
+**Status:** Ready na PR (NEMERGUJ).
+
+### CodeRabbit opravy G2 (2026-06-14, PR #55)
+
+**Nález #1 — assigned_to guard:** hasOwnProperty rozliší "pole nebylo v requestu" (nech být) od "pole je prázdné" (nastav NULL). Znemožňuje přepsání existujícího přiřazení na NULL bez explicitního zadání.
+
+**Nález #2–3 — confirmation_sent_at pořadí:** Nastav timestamp AŽ PO úspěšném e-mailu (admin i webhook). Pokud e-mail selže (null), confirmation_sent_at zůstane NULL → pozdější retry.
+
+**Status:** Opraveno, ready merge.

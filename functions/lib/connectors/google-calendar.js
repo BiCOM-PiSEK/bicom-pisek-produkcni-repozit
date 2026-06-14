@@ -172,7 +172,7 @@ export class GoogleCalendarConnector {
    * @param {string} [event.description] - Event description.
    * @param {{dateTime: string, timeZone: string}} event.start - Start time.
    * @param {{dateTime: string, timeZone: string}} event.end - End time.
-   * @param {string} [event.colorId] - Color ID: '5' = yellow (pending), '2' = green (confirmed).
+   * @param {string} [event.colorId] - Color ID: '5' = yellow (pending), '10' = basil/green (confirmed).
    * @returns {Promise<object|null>} Created event data or null on failure.
    */
   async insertEvent(event) {
@@ -202,7 +202,7 @@ export class GoogleCalendarConnector {
    * Update the color of an existing event.
    *
    * @param {string} eventId - Google Calendar event ID.
-   * @param {string} colorId - Color ID: '5' = yellow (pending), '2' = green (confirmed).
+   * @param {string} colorId - Color ID: '5' = yellow (pending), '10' = basil/green (confirmed), '11' = tomato/red (cancelled).
    * @returns {Promise<object|null>} Updated event data or null on failure.
    */
   async updateEventColor(eventId, colorId) {
