@@ -2535,4 +2535,39 @@ Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k 
 - Zpětná kompatibilita: lokálně netestováno, ale logika je čistá
 - UNIQUE kolize: catch blok na dbErr.message.includes('UNIQUE') → 409
 
-**Status:** Ready na PR (NEMERGUJ, F6 + F7 následují).
+### Opravy F6 (2026-06-14)
+
+#### OPRAVA #1 (🟠 major): Časová zóna slot_start — konzistentní s F2
+
+- **Problém**: Validace slot_start používala `new Date(isoString)` a `new Date()` (UTC). ALE F2 počítá sloty v čase Praha (getNowInPrague). V létě (Praha UTC+2) se min_lead_hours posunul → slot platný na webu mohl být backend odmítnut.
+- **Řešení**: Import helperů z availability.js: `getNowInPrague(), parseLocalDate(), addMinutes(), formatDateTime()` (všechny exportované)
+- **Změna**: Validace slot_start teď parsuje "YYYY-MM-DD HH:MM" jako lokální Praha (ne UTC):
+  ```javascript
+  const [y, mo, d] = datePart.split('-').map(Number);
+  const [hh, mm] = timePart.split(':').map(Number);
+  const slotDate = new Date(y, mo - 1, d, hh, mm, 0, 0);  // lokální Praha
+  const nowPrague = getNowInPrague();
+  const minLeadDate = addMinutes(nowPrague, min_lead_hours * 60);
+  if (slotDate < minLeadDate) → 400
+  ```
+- **Slot_end default**: `addMinutes(slotDate, 60)` → `formatDateTime()` (konzistentní formát)
+- **Výsledek**: Validace v čase Praha, stejná soustava jako F2 generátor
+
+#### OPRAVA #2 (🟠 major): Zpřísnění UNIQUE detekce
+
+- **Problém**: `dbErr.message.includes('UNIQUE')` — příliš volné, mohlo chytit JINÝ UNIQUE constraint
+- **Řešení**: Rozpoznej konkrétní náš index:
+  ```javascript
+  const isSlotCollision = msg.includes('UNIQUE') &&
+    (msg.includes('idx_bookings_slot_unique') || msg.includes('slot_start'));
+  if (isSlotCollision) → 409 "Čas obsazen"
+  else throw dbErr;  // jiné UNIQUE/chyby propadnou do 500
+  ```
+- **Výsledek**: 409 jen na slot kolizích, ostatní chyby se bezpečně propagují
+
+#### Zpětná kompatibilita
+
+- ✅ Request **BEZ** slot_start: `if (slot_start)` blok se přeskočí → chování jako dnes
+- ✅ Stávající timeout/rate-limit/šifrování/audit/Stripe — bez změn
+
+**Status:** Ready na PR (NEMERGUJ).

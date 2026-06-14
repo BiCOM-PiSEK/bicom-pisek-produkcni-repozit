@@ -5,6 +5,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { createBooking, addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
+import { getNowInPrague, parseLocalDate, addMinutes, formatDateTime } from './availability.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
 const ALLOWED_SERVICES = [
@@ -170,6 +171,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // F6: Validate slot_start if provided (zpětná kompatibilita: slot_start je volitelný)
+    // OPRAVA #1: Časová zóna — konzistentní s F2 (getNowInPrague, parseLocalDate)
     let validatedSlotStart = null;
     let validatedSlotEnd = null;
     if (slot_start) {
@@ -181,11 +183,24 @@ export async function onRequestPost({ request, env, waitUntil }) {
         );
       }
 
-      const slotDateTime = new Date(slot_start.replace(' ', 'T'));
-      const now = new Date();
-      const minLeadTime = new Date(now.getTime() + bookingSettings.min_lead_hours * 60 * 60 * 1000);
+      // Parsuj slot_start v čase Praha (ne UTC)
+      const [datePart, timePart] = slot_start.split(' ');
+      const [y, mo, d] = datePart.split('-').map(Number);
+      const [hh, mm] = timePart.split(':').map(Number);
+      const slotDate = new Date(y, mo - 1, d, hh, mm, 0, 0);
 
-      if (isNaN(slotDateTime.getTime()) || slotDateTime < minLeadTime) {
+      if (isNaN(slotDate.getTime())) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Neplatný slot_start — neexistující datum/čas.' }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      // Ověř min_lead_hours v čase Praha (konzistentní s F2)
+      const nowPrague = getNowInPrague();
+      const minLeadDate = addMinutes(nowPrague, bookingSettings.min_lead_hours * 60);
+
+      if (slotDate < minLeadDate) {
         return new Response(
           JSON.stringify({ success: false, error: `Slot musí být nejméně ${bookingSettings.min_lead_hours} hodin v budoucnosti.` }),
           { status: 400, headers: CORS_HEADERS }
@@ -204,14 +219,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
         }
         validatedSlotEnd = slot_end;
       } else {
-        // Default: 60 minut po startu
-        const endTime = new Date(slotDateTime.getTime() + 60 * 60 * 1000);
-        const year = endTime.getFullYear();
-        const month = String(endTime.getMonth() + 1).padStart(2, '0');
-        const day = String(endTime.getDate()).padStart(2, '0');
-        const hours = String(endTime.getHours()).padStart(2, '0');
-        const minutes = String(endTime.getMinutes()).padStart(2, '0');
-        validatedSlotEnd = `${year}-${month}-${day} ${hours}:${minutes}`;
+        // Default: 60 minut po startu (v čase Praha)
+        const endDate = addMinutes(slotDate, 60);
+        validatedSlotEnd = formatDateTime(endDate);
       }
     }
 
@@ -256,8 +266,11 @@ export async function onRequestPost({ request, env, waitUntil }) {
           ).bind(crypto.randomUUID(), bookingId, `Created booking, status: ${status}, slot_start: ${validatedSlotStart || 'none'}`),
         ]);
       } catch (dbErr) {
-        // F6: UNIQUE collision detection
-        if (dbErr.message && dbErr.message.includes('UNIQUE')) {
+        // OPRAVA #2: UNIQUE collision detection — zpřísnit na slot_start index
+        const msg = String(dbErr?.message || '');
+        const isSlotCollision = msg.includes('UNIQUE') &&
+          (msg.includes('idx_bookings_slot_unique') || msg.includes('slot_start'));
+        if (isSlotCollision) {
           return new Response(
             JSON.stringify({ success: false, error: 'Tento čas byl mezitím obsazen. Vyberte prosím jiný slot.' }),
             { status: 409, headers: CORS_HEADERS }
