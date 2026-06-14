@@ -93,7 +93,7 @@ export async function onRequestPost({ request, env }) {
 
     // 6. Find and update booking by calendar event ID
     const booking = await env.DB.prepare(
-      'SELECT id, email_enc, name_enc, phone_enc, service, preferred_date FROM bookings WHERE calendar_event_id = ?'
+      'SELECT id, email_enc, name_enc, phone_enc, service, preferred_date, slot_start, status, confirmation_sent_at FROM bookings WHERE calendar_event_id = ?'
     ).bind(eventId).first();
 
     if (!booking) {
@@ -104,12 +104,22 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
-    // Update booking status
-    await env.DB.prepare(
-      'UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP, operator_id = COALESCE(?, operator_id) WHERE id = ?'
-    ).bind(newStatus, operator?.id || null, booking.id).run();
+    // G2: Update booking status (guard: jen když se status mění)
+    const updateResult = await env.DB.prepare(
+      'UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP, operator_id = COALESCE(?, operator_id) WHERE id = ? AND status != ?'
+    ).bind(newStatus, operator?.id || null, booking.id, newStatus).run();
 
-    // 7. If confirmed, send confirmation email and schedule SMS reminder
+    const changes = updateResult?.meta?.changes || 0;
+    if (changes === 0) {
+      // Stav se nemění — skip e-mail a jiné efekty
+      await env.CACHE.put(dedupKey, '1', { expirationTtl: 86400 });
+      return new Response(
+        JSON.stringify({ success: true, message: 'No state change' }),
+        { status: 200, headers: CORS_HEADERS }
+      );
+    }
+
+    // 7. G2: If confirmed, send confirmation email (gated) and schedule SMS reminder
     if (newStatus === 'confirmed' && booking.email_enc) {
       try {
         const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
@@ -119,22 +129,40 @@ export async function onRequestPost({ request, env }) {
           booking.phone_enc ? crypt.decrypt(booking.phone_enc) : null,
         ]);
 
-        const dateObj = new Date(booking.preferred_date);
-        const dateStr = new Intl.DateTimeFormat('cs-CZ', {
-          timeZone: 'Europe/Prague',
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-        }).format(dateObj);
+        // G2: Gate: send email only if confirmation_sent_at IS NULL (first time)
+        const shouldSendEmail = !booking.confirmation_sent_at;
+        if (shouldSendEmail) {
+          const displayDateTime = booking.slot_start || booking.preferred_date;
+          const dateObj = new Date(displayDateTime.includes('T') ? displayDateTime : displayDateTime.replace(' ', 'T') + ':00');
+          const dateStr = new Intl.DateTimeFormat('cs-CZ', {
+            timeZone: 'Europe/Prague',
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+          }).format(dateObj);
+          const timeStr = booking.slot_start
+            ? new Intl.DateTimeFormat('cs-CZ', {
+                timeZone: 'Europe/Prague',
+                hour: '2-digit',
+                minute: '2-digit',
+              }).format(dateObj)
+            : null;
 
-        // Send confirmation email via Resend
-        const resend = new ResendConnector(env);
-        await resend.sendBookingConfirmation({
-          name,
-          email,
-          service: booking.service,
-          date: dateStr,
-        });
+          // Send confirmation email via Resend
+          const resend = new ResendConnector(env);
+          await resend.sendBookingConfirmation({
+            name,
+            email,
+            service: booking.service,
+            date: dateStr,
+            time: timeStr,
+          });
+
+          // Mark email sent
+          await env.DB.prepare(
+            'UPDATE bookings SET confirmation_sent_at = CURRENT_TIMESTAMP WHERE id = ?'
+          ).bind(booking.id).run();
+        }
 
         // 8. Schedule SMS reminder (T-24h before appointment)
         if (phone) {
