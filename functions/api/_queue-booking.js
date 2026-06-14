@@ -38,13 +38,10 @@ export default {
         const booking = message.body;
 
         // 1. Insert event into Google Calendar (yellow = pending)
-        // F6: Použij přesný čas (slot_start/end) pokud je dostupný, jinak default (preferred_date +60min)
-        // #1 RFC 3339: Calendar API vyžaduje "T" mezi datem a časem a sekundy
-        // #2 calendarEnd: fallback z calendarStart, ne z preferred_date
-        const calendarStart = booking.slot_start || booking.preferred_date;
-        const calendarEnd = booking.slot_end || addMinutes(toRfc3339(calendarStart), 60);
-
-        const calendarEvent = await calendar.insertEvent({
+        // Rozlišit: slot (přesný čas) vs. bez slotu (celodenní)
+        // Bug fix: bez slotu se preferred_date (ISO s 'Z'/UTC) posílal jako dateTime → 2:00 ráno
+        // Řešení: slot=dateTime+timeZone (lokální), bez slotu=all-day (jen date)
+        const eventData = {
           summary: `Bicom Písek — ${booking.service}`,
           description: [
             `Klient: ${booking.name}`,
@@ -53,16 +50,42 @@ export default {
             booking.note ? `Poznámka: ${booking.note}` : '',
             `Cena (odhad): ${booking.estimated_price || '—'} Kč`,
           ].filter(Boolean).join('\n'),
-          start: {
-            dateTime: toRfc3339(calendarStart),
+          colorId: '5', // yellow = pending
+        };
+
+        if (booking.slot_start) {
+          // Slotová rezervace: přesný čas s timeZone
+          let calendarEnd = booking.slot_end;
+          if (!calendarEnd) {
+            // Fallback: slot_start + 60 min jako LOKÁLNÍ string (bez Z)
+            const [d, t] = booking.slot_start.split(' ');
+            const [y, mo, da] = d.split('-').map(Number);
+            const [h, mi] = t.split(':').map(Number);
+            const endLocal = new Date(y, mo - 1, da, h, mi + 60, 0, 0);
+            const p = (n) => String(n).padStart(2, '0');
+            calendarEnd = `${endLocal.getFullYear()}-${p(endLocal.getMonth() + 1)}-${p(endLocal.getDate())} ${p(endLocal.getHours())}:${p(endLocal.getMinutes())}`;
+          }
+          eventData.start = {
+            dateTime: toRfc3339(booking.slot_start),
             timeZone: 'Europe/Prague',
-          },
-          end: {
+          };
+          eventData.end = {
             dateTime: toRfc3339(calendarEnd),
             timeZone: 'Europe/Prague',
-          },
-          colorId: '5', // yellow = pending
-        });
+          };
+        } else {
+          // Neslotová rezervace: celodenní (all-day) event
+          // preferred_date je ISO "2026-06-20T00:00:00.000Z" → vezmi prvních 10 znaků
+          const startDate = booking.preferred_date.slice(0, 10);
+          // end.date je EXKLUZIVNÍ → musí být +1 den
+          const endDateObj = new Date(startDate + 'T00:00:00Z');
+          endDateObj.setUTCDate(endDateObj.getUTCDate() + 1);
+          const endDate = endDateObj.toISOString().slice(0, 10);
+          eventData.start = { date: startDate };
+          eventData.end = { date: endDate };
+        }
+
+        const calendarEvent = await calendar.insertEvent(eventData);
 
         // 2. Update booking with calendar event ID (if insert succeeded)
         if (calendarEvent?.id) {

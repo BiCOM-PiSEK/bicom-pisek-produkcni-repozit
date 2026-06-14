@@ -2658,3 +2658,16 @@ Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k 
 Sjednocení `toRfc3339` helperu: řádka 77 displayDateTime a řádka 116 reminderTime nyní používají `toRfc3339()` místo holého `.replace(' ', 'T')`, zajišťuje konzistentní RFC 3339 se sekundami.
 
 **Status:** Ready na PR (NEMERGUJ).
+
+## BUG FIX: Kalendář 2:00 ráno (2026-06-14)
+
+**Root cause:** preferred_date (ISO s 'Z', UTC) se posílal jako dateTime do Google Calendar → Google interpretoval jako 00:00 UTC = 2:00 Praha.
+
+**Cesta 1 řešení:** Rozlišit slot vs. bez slotu:
+
+- **Slot existuje** (booking.slot_start): dateTime bez Z + timeZone: 'Europe/Prague' (lokální čas Praha)
+- **Slot chybí**: All-day event (start.date / end.date, bez dateTime), žádné 2:00 ráno
+
+Ověřeno: slot "09:00" → start.dateTime "2026-06-16T09:00:00" bez Z; bez slotu → all-day 2026-06-20 až 2026-06-21; přelom měsíce: 06-30 → 07-01.
+
+**CodeRabbit nález (PR #53):** calendarEnd fallback používal addMinutes (ISO se 'Z') → opraveno na LOKÁLNÍ string "YYYY-MM-DD HH:MM" bez Z, stejný styl jako slot_start.
