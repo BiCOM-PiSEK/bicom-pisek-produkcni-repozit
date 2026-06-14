@@ -2395,3 +2395,44 @@ Teď `0` zůstane `0`, jen nevalidní input → `null`.
 - ✅ `grep "\.run()"` — žádné .run() v batch statements
 - ✅ `npm run build` — passed
 - Branch: `feat/booking-f4-exceptions` (ready for push/PR, NEMERGUJ)
+
+---
+
+## ADR-004 F5: Frontend rezervace — výběr konkrétního ČASU (2026-06-14)
+
+**Branch:** `feat/booking-f5-time-select`
+
+**Cíl:** Formulář s výběrem dne (booking-date) + času (sloty z /api/availability). F5 posílá slot_start navíc; F6 jej bude zpracovávat (F5 zpětně kompatibilní — neztrácí preferred_date).
+
+**Implementace:**
+
+- **HTML** (`public/index.html`):
+  - Přidán #booking-time-wrap za #booking-date (hidden, zobrazí se po výběru dne)
+  - #booking-slots: kontejner pro chip buttons
+  - #booking-slot-start: hidden input pro čas (YYYY-MM-DD HH:MM)
+
+- **Logika** (`public/assets/js/guide.js`, +90 řádků):
+  - bookingDateEl change: fetch /api/availability?from=den&to=den, render sloty
+  - renderTimeSlots: žádné sloty → msg "V tento den není volno"; sloty existují → chip buttons
+  - Klik slot: vizuální highlight + ulož do #booking-slot-start
+  - Nový den: reset slot selection
+  - Form submit: validace (pokud sloty existují, slot MUSÍ být vybraný), přidej slot_start do payloadu
+  - preferred_date zůstává beze změn (zpětná kompatibilita)
+
+- **CSS** (`public/assets/css/style.css`, +20 řádků):
+  - #booking-time-wrap, #booking-slots base styles
+  - [data-slot-start] chip: border-sage, hover effect, transition
+
+**Zpětná kompatibilita (F5 ↔ F6):**
+
+- Payload: { name, email, ..., preferred_date, **slot_start** (new), ... }
+- book.js zatím ignoruje slot_start (F6 bude zpracovávat)
+- Nic se nemaže — doplnění, ne změna
+
+**Test:**
+
+- ✅ `node --check guide.js` — syntax OK
+- ✅ `npm run build` — passed
+- Pokud dev: fetch /api/availability, render sloty, klik slot, inspect payload (slot_start přítomen)
+
+**Status:** Ready na PR (NEMERGUJ).

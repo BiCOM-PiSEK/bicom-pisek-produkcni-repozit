@@ -1461,4 +1461,35 @@ footer {
   line-height: 1.8;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Booking Time Slots (F5)
+   ───────────────────────────────────────────────────────────── */
+
+#booking-time-wrap {
+  margin-top: 1.5rem;
+}
+
+#booking-slots {
+  margin-top: 0.75rem;
+}
+
+#booking-slots > p {
+  margin: 0;
+  padding: 0.75rem 0;
+}
+
+[data-slot-start] {
+  font-family: var(--font-body);
+}
+
+[data-slot-start]:hover {
+  border-color: var(--c-sage);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(114, 147, 120, 0.12);
+}
+
+[data-slot-start]:active {
+  transform: translateY(0);
+}
+
 
