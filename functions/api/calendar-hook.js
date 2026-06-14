@@ -148,9 +148,9 @@ export async function onRequestPost({ request, env }) {
               }).format(dateObj)
             : null;
 
-          // Send confirmation email via Resend
+          // NÁLEZ #3: Send confirmation email, set confirmation_sent_at JEN když e-mail uspěje
           const resend = new ResendConnector(env);
-          await resend.sendBookingConfirmation({
+          const sendResult = await resend.sendBookingConfirmation({
             name,
             email,
             service: booking.service,
@@ -158,10 +158,14 @@ export async function onRequestPost({ request, env }) {
             time: timeStr,
           });
 
-          // Mark email sent
-          await env.DB.prepare(
-            'UPDATE bookings SET confirmation_sent_at = CURRENT_TIMESTAMP WHERE id = ?'
-          ).bind(booking.id).run();
+          // Mark email sent — jen pokud e-mail vrátil non-null
+          if (sendResult) {
+            await env.DB.prepare(
+              'UPDATE bookings SET confirmation_sent_at = CURRENT_TIMESTAMP WHERE id = ?'
+            ).bind(booking.id).run();
+          } else {
+            console.warn('[calendar-hook] Confirmation email not sent (null response); confirmation_sent_at not updated');
+          }
         }
 
         // 8. Schedule SMS reminder (T-24h before appointment)

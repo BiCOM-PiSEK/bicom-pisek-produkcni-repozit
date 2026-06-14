@@ -70,9 +70,13 @@ export async function onRequestPut({ env, data, request }) {
       return json({ ok: false, error: 'Neplatný status.' }, 400);
     }
 
-    // Validate assigned_to (opcional, přípustné: Jana, Tereza, null/empty)
-    const assignedTo = body.assigned_to ? body.assigned_to.trim() : null;
-    if (assignedTo && !['Jana', 'Tereza'].includes(assignedTo)) {
+    // NÁLEZ #1: rozliš "pole nebylo v requestu" od "pole je prázdné"
+    const hasAssignedTo = Object.prototype.hasOwnProperty.call(body, 'assigned_to');
+    const assignedToRaw = hasAssignedTo ? body.assigned_to : undefined;
+    const assignedTo = assignedToRaw === null || assignedToRaw === '' ? null : (assignedToRaw ? String(assignedToRaw).trim() : undefined);
+
+    // Validuj jen když bylo pole zadáno a není null/prázdné string
+    if (hasAssignedTo && assignedTo !== undefined && assignedTo !== null && !['Jana', 'Tereza'].includes(assignedTo)) {
       return json({ ok: false, error: 'Neplatná volba operátora. Povoleno: Jana, Tereza, nebo prázdné.' }, 400);
     }
 
@@ -95,19 +99,16 @@ export async function onRequestPut({ env, data, request }) {
          FROM bookings WHERE id = ?`
       ).bind(bookingId).first();
 
-      // Batch: confirmation_sent_at + assigned_to + audit_log
-      const nowPrague = getNowInPrague().toISOString();
-      const confirmationSentAt = booking.confirmation_sent_at ? null : nowPrague;
-
+      // NÁLEZ #2: batch WITHOUT confirmation_sent_at — jen status + assigned_to + audit_log
+      // confirmation_sent_at se vyplní AŽ PO úspěšném e-mailu
       const updateOps = [
         env.DB.prepare(
-          `UPDATE bookings SET updated_at = CURRENT_TIMESTAMP${confirmationSentAt ? ', confirmation_sent_at = ?' : ''}${assignedTo !== undefined ? ', assigned_to = ?' : ''}
+          `UPDATE bookings SET updated_at = CURRENT_TIMESTAMP${hasAssignedTo ? ', assigned_to = ?' : ''}
            WHERE id = ?`
         ),
       ];
       const updateBindings = [];
-      if (confirmationSentAt) updateBindings.push(confirmationSentAt);
-      if (assignedTo !== undefined) updateBindings.push(assignedTo);
+      if (hasAssignedTo) updateBindings.push(assignedTo);
       updateBindings.push(bookingId);
       updateOps[0] = updateOps[0].bind(...updateBindings);
 
@@ -119,7 +120,7 @@ export async function onRequestPut({ env, data, request }) {
           crypto.randomUUID(),
           bookingId,
           `operator:${data.operator.id}`,
-          `Status → confirmed${confirmationSentAt ? ' (e-mail sent)' : ''}${assignedTo ? `, assigned_to=${assignedTo}` : ''}`
+          `Status → confirmed${hasAssignedTo && assignedTo ? `, assigned_to=${assignedTo}` : ''}`
         )
       );
 
@@ -135,8 +136,10 @@ export async function onRequestPut({ env, data, request }) {
           .catch((err) => console.warn(`[admin/bookings] Google color update failed: ${err.message}`));
       }
 
-      // Pošli e-mail pokud jsme právě nastavili confirmation_sent_at (tj. poprvé)
-      if (confirmationSentAt && booking.email_enc) {
+      // NÁLEZ #2: e-mail POD podmínkou: jen pokud jsem popup (confirmation_sent_at IS NULL)
+      // Až POTÉ co e-mail uspěje, vyplním confirmation_sent_at
+      let confirmationSentAt = null;
+      if (!booking.confirmation_sent_at && booking.email_enc) {
         try {
           const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
           const [email, name] = await Promise.all([
@@ -160,13 +163,23 @@ export async function onRequestPut({ env, data, request }) {
               }).format(dateObj)
             : null;
 
-          await resend.sendBookingConfirmation({
+          const sendResult = await resend.sendBookingConfirmation({
             name,
             email,
             service: booking.service,
             date: dateStr,
             time: timeStr,
           });
+
+          // Jen pokud e-mail uspěl, vyplň confirmation_sent_at
+          if (sendResult) {
+            confirmationSentAt = getNowInPrague().toISOString();
+            await env.DB.prepare(
+              'UPDATE bookings SET confirmation_sent_at = ? WHERE id = ?'
+            ).bind(confirmationSentAt, bookingId).run();
+          } else {
+            console.warn(`[admin/bookings] Email not sent (null response); confirmation_sent_at not updated`);
+          }
         } catch (err) {
           console.warn(`[admin/bookings] Email send failed: ${err.message}`);
         }
@@ -175,14 +188,14 @@ export async function onRequestPut({ env, data, request }) {
       return json({ ok: true, data: { id: bookingId, status: newStatus, confirmed_at: confirmationSentAt, assigned_to: assignedTo } });
     }
 
-    // Pro ostatní statusy: zachovej jednoduché chování
+    // Pro ostatní statusy: zachovej jednoduché chování (ale s hasAssignedTo guard)
     const updateOps = [
       env.DB.prepare(
-        `UPDATE bookings SET status = ?${assignedTo !== undefined ? ', assigned_to = ?' : ''} WHERE id = ?`
+        `UPDATE bookings SET status = ?${hasAssignedTo ? ', assigned_to = ?' : ''} WHERE id = ?`
       ),
     ];
     const updateBindings = [newStatus];
-    if (assignedTo !== undefined) updateBindings.push(assignedTo);
+    if (hasAssignedTo) updateBindings.push(assignedTo);
     updateBindings.push(bookingId);
     updateOps[0] = updateOps[0].bind(...updateBindings);
 
@@ -194,7 +207,7 @@ export async function onRequestPut({ env, data, request }) {
         crypto.randomUUID(),
         bookingId,
         `operator:${data.operator.id}`,
-        `Status → ${newStatus}${assignedTo ? `, assigned_to=${assignedTo}` : ''}`
+        `Status → ${newStatus}${hasAssignedTo && assignedTo ? `, assigned_to=${assignedTo}` : ''}`
       )
     );
 

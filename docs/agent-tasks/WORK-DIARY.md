@@ -2702,3 +2702,11 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 4. assigned_to bez statusu → jen uloží, bez efektů
 
 **Status:** Ready na PR (NEMERGUJ).
+
+### CodeRabbit opravy G2 (2026-06-14, PR #55)
+
+**Nález #1 — assigned_to guard:** hasOwnProperty rozliší "pole nebylo v requestu" (nech být) od "pole je prázdné" (nastav NULL). Znemožňuje přepsání existujícího přiřazení na NULL bez explicitního zadání.
+
+**Nález #2–3 — confirmation_sent_at pořadí:** Nastav timestamp AŽ PO úspěšném e-mailu (admin i webhook). Pokud e-mail selže (null), confirmation_sent_at zůstane NULL → pozdější retry.
+
+**Status:** Opraveno, ready merge.
