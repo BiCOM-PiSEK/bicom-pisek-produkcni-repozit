@@ -23,7 +23,7 @@ na REÁLNÝ PŘECHOD STAVU, ne na to, kdo změnu inicioval. Tři vrstvy:
 
 ## Datový model (migrace 0014)
 ALTER TABLE bookings ADD COLUMN: assigned_to TEXT (Jana/Tereza/NULL),
-confirmation_sent_at TEXT, cancellation_notified_at TEXT. Stav no_show jen
+confirmation_sent_at TIMESTAMP, cancellation_notified_at TIMESTAMP. Stav no_show jen
 aplikačně (žádný sloupec navíc). ALTER ADD COLUMN, nikdy remake.
 
 ## Rozsah (fáze G2–G5)
