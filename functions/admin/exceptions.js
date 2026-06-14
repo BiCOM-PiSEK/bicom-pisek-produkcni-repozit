@@ -16,6 +16,14 @@ const json = (data, status = 200) =>
     headers: { 'Content-Type': 'application/json' },
   });
 
+async function safeJson(request) {
+  try {
+    return { ok: true, body: await request.json() };
+  } catch {
+    return { ok: false, body: null };
+  }
+}
+
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -73,7 +81,11 @@ export async function onRequestPost({ env, data, request }) {
   }
 
   try {
-    const body = await request.json();
+    const parsed = await safeJson(request);
+    if (!parsed.ok) {
+      return json({ ok: false, error: 'Neplatné JSON tělo požadavku.' }, 400);
+    }
+    const body = parsed.body;
     const { date, type, start_time, end_time, note } = body;
 
     // ─── VALIDACE ───────────────────────────────────────────────
@@ -90,8 +102,8 @@ export async function onRequestPost({ env, data, request }) {
     }
 
     // Ověř, že je to reálné datum
-    const parsed = parseDate(date);
-    if (formatDate(parsed) !== date) {
+    const parsedDate = parseDate(date);
+    if (formatDate(parsedDate) !== date) {
       return json({
         ok: false,
         error: `Neplatné datum: ${date}. (Např. 2026-02-31 neexistuje.)`,
@@ -146,28 +158,29 @@ export async function onRequestPost({ env, data, request }) {
     }
 
     // Note: volitelný, max 200 znaků
-    const cleanNote = note
-      ? note.substring(0, 200).trim()
-      : null;
+    if (note != null && typeof note !== 'string') {
+      return json({ ok: false, error: 'Pole note musí být text.' }, 400);
+    }
+    const cleanNote = typeof note === 'string' ? (note.slice(0, 200).trim() || null) : null;
 
     // ─── ZÁPIS ──────────────────────────────────────────────────
 
     const exceptionId = `exc_${crypto.randomUUID().slice(0, 8)}`;
 
-    await env.DB.prepare(
-      `INSERT INTO availability_exceptions (id, date, start_time, end_time, type, note, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
-    ).bind(exceptionId, date, start_time || null, end_time || null, type, cleanNote).run();
-
-    // Audit log
-    await env.DB.prepare(
-      `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-       VALUES (?, 'availability_exceptions', 'global', 'create', ?, ?)`
-    ).bind(
-      crypto.randomUUID(),
-      `operator:${data.operator.id}`,
-      `typ=${type}, datum=${date}`
-    ).run();
+    await env.DB.batch([
+      env.DB.prepare(
+        `INSERT INTO availability_exceptions (id, date, start_time, end_time, type, note, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
+      ).bind(exceptionId, date, start_time || null, end_time || null, type, cleanNote),
+      env.DB.prepare(
+        `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+         VALUES (?, 'availability_exceptions', 'global', 'create', ?, ?)`
+      ).bind(
+        crypto.randomUUID(),
+        `operator:${data.operator.id}`,
+        `typ=${type}, datum=${date}`
+      )
+    ]);
 
     return json({
       ok: true,
@@ -198,8 +211,11 @@ export async function onRequestDelete({ env, data, request }) {
     let id = idFromQuery;
 
     if (!idFromQuery) {
-      const body = await request.json();
-      id = body.id;
+      const parsed = await safeJson(request);
+      if (!parsed.ok) {
+        return json({ ok: false, error: 'Neplatné JSON tělo požadavku.' }, 400);
+      }
+      id = parsed.body.id;
     }
 
     if (!id) {
@@ -215,20 +231,20 @@ export async function onRequestDelete({ env, data, request }) {
       return json({ ok: false, error: 'Výjimka nenalezena.' }, 404);
     }
 
-    // Delete
-    await env.DB.prepare(
-      'DELETE FROM availability_exceptions WHERE id = ?'
-    ).bind(id).run();
-
-    // Audit log
-    await env.DB.prepare(
-      `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-       VALUES (?, 'availability_exceptions', 'global', 'delete', ?, ?)`
-    ).bind(
-      crypto.randomUUID(),
-      `operator:${data.operator.id}`,
-      `id=${id}`
-    ).run();
+    // Delete with atomic audit log
+    await env.DB.batch([
+      env.DB.prepare(
+        'DELETE FROM availability_exceptions WHERE id = ?'
+      ).bind(id),
+      env.DB.prepare(
+        `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+         VALUES (?, 'availability_exceptions', 'global', 'delete', ?, ?)`
+      ).bind(
+        crypto.randomUUID(),
+        `operator:${data.operator.id}`,
+        `id=${id}`
+      )
+    ]);
 
     return json({
       ok: true,

@@ -2361,4 +2361,37 @@ Teď `0` zůstane `0`, jen nevalidní input → `null`.
 - Serverová: date regex + parseDate() check, type enum, times HH:MM, note max 200 znaků
 - Specifické: holiday/vacation bez časů (null), adhoc/extra jen s časy
 
-**Status:** Připraveno na PR (neplánuje se merge bez review).
+**Status:** ✅ CodeRabbit opravy hotovy (CR-1, CR-2, CR-3).
+
+### CodeRabbit Review opravy (2026-06-14)
+
+**CR-1 (🟠 major): JSON parsing errors return 500 instead of 400**
+
+- Přidáno: `safeJson()` helper function na začátek exceptions.js
+- Změna: POST handler nyní používá `const parsed = await safeJson(request)` a kontroluje `parsed.ok`
+- Změna: DELETE handler (fallback pro id z body) také přešel na safeJson()
+- Výsledek: Chybné JSON vrací nyní 400 místo 500
+
+**CR-2 (🟠 major): note field lacks type checking before .substring()**
+
+- Přidáno: `if (note != null && typeof note !== 'string')` check před zpracováním
+- Změna: cleanNote nyní používá ternární operátor: `typeof note === 'string' ? (note.slice(0,200).trim() || null) : null`
+- Výsledek: Pokud note není string, vrací 400 s chybou "Pole note musí být text."
+
+**CR-3 (🟠 major): POST a DELETE operations lack atomicity**
+
+- Změna: POST handler (INSERT exception + INSERT audit_log) nyní obaleny v `env.DB.batch([...])`
+- Změna: DELETE handler (DELETE exception + INSERT audit_log) také v batch
+- Důležitá poznámka: `.run()` se NEVOLÁ na prepare() statements v batch — statements se jen bindují a předávají poli
+- Výsledek: Obě operace jsou nyní atomické (oba success nebo oba fail)
+
+**CR-4 (🟡 minor): Inline styles in module**
+
+- Status: Odloženo (per user: "PŘESKOČ tentokrát") — focus zůstává na business logice
+
+**Ověření:**
+
+- ✅ `node --check functions/admin/exceptions.js` — syntax OK
+- ✅ `grep "\.run()"` — žádné .run() v batch statements
+- ✅ `npm run build` — passed
+- Branch: `feat/booking-f4-exceptions` (ready for push/PR, NEMERGUJ)
