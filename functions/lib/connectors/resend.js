@@ -181,6 +181,58 @@ export class ResendConnector {
   }
 
   /**
+   * Send a booking cancellation notification.
+   *
+   * @param {object} booking - Booking data.
+   * @param {string} booking.email - Customer email.
+   * @param {string} booking.name - Customer name.
+   * @param {string} booking.service - Service name.
+   * @param {string} booking.date - Cancelled appointment date (e.g. "20. 6. 2026").
+   * @returns {Promise<object|null>}
+   */
+  async sendBookingCancelled(booking) {
+    const subject = `Zrušení termínu — ${booking.service}`;
+
+    const html = `
+<!DOCTYPE html>
+<html lang="cs">
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+  <div style="background: #fce8e6; padding: 24px; border-radius: 8px; margin-bottom: 16px;">
+    <h2 style="color: #c5221f; margin: 0 0 8px;">❌ Zrušení termínu</h2>
+    <p style="margin: 0;">Dobrý den, <strong>${escapeHtml(booking.name)}</strong>,</p>
+  </div>
+
+  <p>Váš termín byl zrušen:</p>
+
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Služba:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.service)}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Zrušený termín:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.date)}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Adresa:</strong></td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${BUSINESS_ADDRESS}</td>
+    </tr>
+  </table>
+
+  <p>Pokud si přejete sjednat nový termín, kontaktujte nás prosím. Jsme připraveni vám pomoci.</p>
+
+  <p style="color: #888; font-size: 12px; margin-top: 24px; border-top: 1px solid #eee; padding-top: 12px;">
+    ${BUSINESS_ADDRESS}<br>
+    Tento e-mail byl vygenerován automaticky.
+  </p>
+</body>
+</html>`.trim();
+
+    return this.sendEmail(booking.email, subject, html);
+  }
+
+  /**
    * Send a booking reminder email (T-24h).
    *
    * @param {object} booking - Booking data.
