@@ -9,12 +9,15 @@ import { TelegramConnector } from '../lib/connectors/telegram.js';
 import { ResendConnector } from '../lib/connectors/resend.js';
 
 /**
- * Convert "YYYY-MM-DD HH:MM" to RFC 3339 with "T" (Calendar API requirement).
+ * Convert "YYYY-MM-DD HH:MM" to RFC 3339 with "T" and seconds (Calendar API requirement).
  * Already ISO-formatted strings (with "T") pass through unchanged.
  */
 function toRfc3339(dateTimeStr) {
   if (!dateTimeStr || typeof dateTimeStr !== 'string') return dateTimeStr;
-  return dateTimeStr.replace(' ', 'T');  // "YYYY-MM-DD HH:MM" → "YYYY-MM-DDTHH:MM"
+  // Already ISO with 'T' (from toISOString) → keep as is
+  if (dateTimeStr.includes('T')) return dateTimeStr;
+  // "YYYY-MM-DD HH:MM" → "YYYY-MM-DDTHH:MM:00"
+  return dateTimeStr.replace(' ', 'T') + ':00';
 }
 
 /**
@@ -36,10 +39,10 @@ export default {
 
         // 1. Insert event into Google Calendar (yellow = pending)
         // F6: Použij přesný čas (slot_start/end) pokud je dostupný, jinak default (preferred_date +60min)
-        // #1 RFC 3339: Calendar API vyžaduje "T" mezi datem a časem
+        // #1 RFC 3339: Calendar API vyžaduje "T" mezi datem a časem a sekundy
         // #2 calendarEnd: fallback z calendarStart, ne z preferred_date
         const calendarStart = booking.slot_start || booking.preferred_date;
-        const calendarEnd = booking.slot_end || addMinutes(calendarStart, 60);
+        const calendarEnd = booking.slot_end || addMinutes(toRfc3339(calendarStart), 60);
 
         const calendarEvent = await calendar.insertEvent({
           summary: `Bicom Písek — ${booking.service}`,

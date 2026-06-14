@@ -2618,7 +2618,39 @@ Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k 
 #### #8 🟡 Email time zobrazení
 
 - **Problém**: Queue předává `time`, ale email template ho nezobrazuje (mrtvý parametr)
-- **Oprava**: Resend.js — řádka "Termín:" teď zahrnuje čas: `${booking.date}${booking.time ? ` ${booking.time}` : ''}`
+- **Oprava**: Resend.js — řádka "Termín:" teď zahrnuje čas:
+
+  ```javascript
+  ${booking.date}${booking.time ? ` ${booking.time}` : ''}
+  ```
+
 - **Výsledek**: Email zobrazí přesný čas; bez času jen datum (zpětně kompat.)
+
+### 3. KOLO CodeRabbit review F6 (2026-06-14)
+
+#### A 🔴 CRITICAL — Sekundy v RFC 3339
+
+- **Problém**: `toRfc3339()` vrací "YYYY-MM-DDTHH:MM" bez sekund, ale Google Calendar API vyžaduje RFC 3339 s sekundami (e.g., "YYYY-MM-DDTHH:MM:SS")
+- **Oprava**: Helper teď rozlišuje:
+  - ISO s 'T' (z `toISOString()`): nechá jak je (už má sekundy a '.sssZ')
+  - "YYYY-MM-DD HH:MM" (se mezerou): převede na "YYYY-MM-DDTHH:MM:00"
+- **Výsledek**: Calendar API dostane validní RFC 3339 formát
+
+#### B 🔴 CRITICAL — Převod před addMinutes
+
+- **Problém**: `addMinutes(calendarStart, 60)` obdrží calendarStart, který může být "YYYY-MM-DD HH:MM" (mezera). Uvnitř `addMinutes` je `new Date()`, což je pro strings se mezerou nespolehlivé.
+- **Oprava**: Nejdřív převést přes `toRfc3339(calendarStart)` PŘED odevzdáním do `addMinutes`:
+
+  ```javascript
+  const calendarEnd = booking.slot_end || addMinutes(toRfc3339(calendarStart), 60);
+  ```
+
+- **Výsledek**: Fallback calendarEnd je vždy ISO string s 'T', dvojitý toRfc3339 nerozbije výsledek (ISO s 'T' projde bez změny)
+
+#### C 🟡 Kosmetika — MD031 lint
+
+- **Problém**: MD038 inline code s mezerama, pak MD031 chybí prázdné řádky okolo fenced code bloku
+- **Oprava**: Přesunutí příkladu do fenced code bloku s prázdnými řádky
+- **Výsledek**: Markdown je nyní čistý
 
 **Status:** Ready na PR (NEMERGUJ).
