@@ -37,6 +37,12 @@ const ROUTES = [
     moduleId: 'calendar',
   },
   {
+    path: '/dostupnost',
+    title: 'Otevírací doba',
+    icon: 'clock',
+    moduleId: 'availability',
+  },
+  {
     path: '/blog',
     title: 'Blog & AI',
     icon: 'pen-tool',

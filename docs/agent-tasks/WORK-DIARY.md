@@ -2132,3 +2132,159 @@ F2 je BACKEND. Frontend zatím posílá jen preferred_date (bez času). F3 bude:
 - Všechny testy s reálným mock data (PASS/FAIL viditel)
 
 **Výsledek:** PR #47 v GitHub se aktualizuje s novým committem, CodeRabbit projede znovu.
+
+---
+
+## ADR-004 F3: Admin UI pro otevírací dobu + parametry slotů (2026-06-14)
+
+**Branch:** `feat/booking-f3-availability-admin`
+
+**Cíl:** Admin obrazovka, kde majitelky spravují:
+
+- **availability_rules** (otevírací dobu po dnech — všech 7 dní)
+- **booking_settings** (délka slotu, pauza, předstih, horizont, ověřené zálohy)
+
+Zápisový protějšek F2 (GET /api/availability). Vzor: settings.js (frontend) + settings.js/bookings.js (backend).
+
+### ✅ Implementováno
+
+**1. Backend — functions/admin/availability.js (288 řádků)**
+
+- **GET /admin/availability:** SELECT rules + settings, vrátí json
+- **PUT /admin/availability:** Uložení s rigorózní validací
+  - Weekday: 0–6, dedup (max 1× per den)
+  - start_time / end_time: regex HH:MM s vedoucí nulou, start < end
+  - slot_duration_min > 0, slot_gap_min ≥ 0, (duration + gap) > 0 (guard CR-4)
+  - min_lead_hours ≥ 0, max_horizon_days > 0
+  - require_confirmation/require_deposit: 0/1, deposit_amount ≥ 0
+  - Konkrétní error message na každé pole (400 badvalidation)
+- **Zápis transakčně (batch)**
+  - DELETE staré rules, INSERT nové
+  - UPDATE booking_settings WHERE id = 1
+  - INSERT audit_log (entity, action, details)
+- Role check: `if (operator.role !== 'admin' && !operator.isDev) return 403`
+
+**2. API Client — public/admin/js/api.js (+14 řádků)**
+
+- `getAvailability()` → GET /admin/availability
+- `saveAvailability(data)` → PUT /admin/availability
+- Přidáno do AdminAPI objektu
+
+**3. Frontend Modul — public/admin/js/modules/availability.js (220 řádků)**
+
+- Renderuje 7 řádků (Po–Ne), checkbox "otevřeno" + time inputy (od/do)
+- Když vypnuté → den se neuloží (zavřeno)
+- Sekce: "Otevírací doba" + "Parametry slotů" + "Rezervační chování"
+- Klientská validace: start < end, duration > 0, duration + gap > 0
+- Submit handler: posbírá rules + settings, `api.saveAvailability()`, toast notifikace
+- Demo režim: pokud !api, jen simuluje toast
+- Enable/disable time inputy dle checkbox
+
+**4. Router — public/admin/js/router.js (+6 řádků)**
+
+- Nová route: `{ path: '/dostupnost', title: 'Otevírací doba', icon: 'clock', moduleId: 'availability' }`
+- Zaregistrováno v ROUTES, lazy-load funguje automaticky
+
+### ⚠️ Kritické detaily
+
+- **Čas "HH:MM" s vedoucí nulou** → input type="time" vrací správný formát
+- **slot_duration_min + slot_gap_min > 0 guard** → shoduje se s F2 CR-4
+- **Transitive validace:** server vrací konkrétní field error (ne vágní "bad data")
+- **Demo režim:** pokud `!api`, formulář pracuje, ale ukládání je jen simulované
+
+### ✅ Ověřeno
+
+- `node --check functions/admin/availability.js` ✓
+- Frontend modul syntakticky validní JS
+- Router regel zaregistrován
+- API convenience methods přidány do AdminAPI objektu
+- Validace "HH:MM" formátu (regex /^([01]\d|2[0-3]):[0-5]\d$/)
+
+**Status:** PŘIPRAVENO NA PR (NEmerguj) — frontend + backend + router gotov. Chybí: dev test (wrangler pages dev nelze spustit bez secretů, ale logika je ověřená code-review).
+
+---
+
+## F3 CodeRabbit Review Fixes (2026-06-14)
+
+**Branch:** `feat/booking-f3-availability-admin`
+**PR:** #48
+**Upstream:** CodeRabbit review s 3 actionable + 1 nitpick
+
+### 🔴 CR-1: DELETE .run() přeruší atomicitu batche
+
+**Problém:** `batch.push(env.DB.prepare('DELETE ...').run())` — DELETE se spustí hned mimo batch transakcí. Pak INSERT/UPDATE běží v batchi. Pokud INSERT selže, DELETE už běžel → data corruption.
+
+**Oprava:** Odebrat `.run()`, poslat jen prepared statement.
+
+```javascript
+// Bylo: batch.push(env.DB.prepare('DELETE FROM availability_rules').run());
+// Opraveno: batch.push(env.DB.prepare('DELETE FROM availability_rules'));
+```
+
+**Ověřeno:** `grep "\.run()" functions/admin/availability.js` → žádný výskyt (OK)
+
+---
+
+### 🔴 CR-2: UPDATE booking_settings → UPSERT (ON CONFLICT)
+
+**Problém:** `UPDATE booking_settings SET ... WHERE id = 1` — pokud řádek `id=1` neexistuje (nepravidlo v DB), UPDATE tiše nic neudělá. Uživatel myslí, že nastavení uložil, ale nic se neuložilo → silent failure.
+
+**Oprava:** UPSERT — `INSERT ... ON CONFLICT(id) DO UPDATE SET`. Zajistí, že řádek existuje (INSERT ho vytvoří, nebo UPDATE přepíše).
+
+```javascript
+// SQL s 7 placeholders:
+INSERT INTO booking_settings
+  (id, slot_duration_min, slot_gap_min, min_lead_hours,
+   max_horizon_days, require_confirmation, require_deposit, deposit_amount)
+VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+  slot_duration_min = excluded.slot_duration_min,
+  slot_gap_min = excluded.slot_gap_min,
+  min_lead_hours = excluded.min_lead_hours,
+  max_horizon_days = excluded.max_horizon_days,
+  require_confirmation = excluded.require_confirmation,
+  require_deposit = excluded.require_deposit,
+  deposit_amount = excluded.deposit_amount
+
+// .bind(slot_duration_min, slot_gap_min, min_lead_hours, max_horizon_days,
+//       require_confirmation, require_deposit, deposit_amount)  ← 7 argumentů
+```
+
+**Mapování placeholders:** ? 1→slot_duration_min, ? 2→slot_gap_min, ? 3→min_lead_hours, ? 4→max_horizon_days, ? 5→require_confirmation, ? 6→require_deposit, ? 7→deposit_amount ✓
+
+---
+
+### 🟠 CR-3: deposit_amount 0 → null bug
+
+**Problém:** Frontend kód `parseInt(...) || null` — logická OR konvertuje 0 na null. Uživatel chce zálohu 0 Kč (vypnout zálohu) → kód pošle `null` místo `0`.
+
+**Oprava:** Kontrola `Number.isNaN()` místo falsy check.
+
+```javascript
+// Bylo: deposit_amount: parseInt(...) || null  (0 → null)
+// Opraveno:
+const depVal = parseInt(form.querySelector('input[name="deposit_amount"]')?.value || '', 10);
+const newSettings = { ..., deposit_amount: Number.isNaN(depVal) ? null : depVal, };
+```
+
+Teď `0` zůstane `0`, jen nevalidní input → `null`.
+
+---
+
+### 🟡 CR-4: Inline styly → Tailwind (ODLOŽENO)
+
+**Problém:** Lines 44–139 modulu mají inline `style="..."` místo Tailwind tříd. Driftuje od konvence, těžší údržba.
+
+**Rozhodnutí:** Přeskočit. Modul funguje, inline styly nejsou chyba, jen estetika. Zaznamenáno jako malý dluhu na později.
+
+---
+
+### ✅ Ověření oprav
+
+- `node --check functions/admin/availability.js` ✓
+- `node --check public/admin/js/modules/availability.js` ✓
+- Žádný `.run()` v batchi (grep check) ✓
+- UPSERT má 7 placeholders vs 7 bind args ✓
+- deposit_amount: 0 je 0, nevalidní je null ✓
+
+**Status:** HOTOVO — opravy commitnuty, PR #48 se aktualizuje, CodeRabbit projede znovu.
