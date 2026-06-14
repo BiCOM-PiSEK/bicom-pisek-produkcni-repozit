@@ -11,6 +11,15 @@ import { getNowInPrague } from '../api/availability.js';
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
+/**
+ * GET /admin/bookings — seznam všech rezervací s filtrací dle statusu.
+ * PII (jméno, email, telefon) se automaticky dešifrují. Vyžaduje oprávnění operátora.
+ *
+ * @param {object} env - Cloudflare Worker bindings (DB, SECRET_ENCRYPTION_KEY).
+ * @param {object} data - Context data s operátor info.
+ * @param {Request} request - HTTP request (params: status, limit, offset).
+ * @returns {Response} JSON { ok, data: { bookings[], total } } nebo { ok: false, error }.
+ */
 export async function onRequestGet({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
   try {
@@ -56,6 +65,17 @@ export async function onRequestGet({ env, data, request }) {
   }
 }
 
+/**
+ * PUT /admin/bookings — aktualizace statusu a přiřazení operátora.
+ * G2 potvrzení (pending→confirmed): guarded (no-op když není pending), e-mail gated
+ * (confirmation_sent_at IS NULL — jen jednou), Google event přebarven na '10' (Basil/zelená),
+ * assigned_to uložen. Konfirmace e-mailu je nutná před persistence confirmation_sent_at (retry-safe).
+ *
+ * @param {object} env - Cloudflare Worker bindings (DB, SECRET_ENCRYPTION_KEY, SECRET_GOOGLE_CALENDAR_*).
+ * @param {object} data - Context data s operátor info.
+ * @param {Request} request - HTTP request s JSON body: { id, status, assigned_to? }.
+ * @returns {Response} JSON { ok, data: { id, status, confirmed_at?, assigned_to? } } nebo { ok: false, error }.
+ */
 export async function onRequestPut({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
   try {

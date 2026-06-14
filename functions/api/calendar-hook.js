@@ -30,7 +30,14 @@ export async function onRequestOptions() {
 }
 
 /**
- * POST /api/calendar-hook — Google Calendar webhook handler.
+ * POST /api/calendar-hook — Google Calendar webhook receiver. Implementuje echo suppression
+ * (3 vrstvy: KV dedup 24h + guard status!=newStatus + gate confirmation_sent_at IS NULL).
+ * Mapuje event barvu na status: '5'=pending, '10'=confirmed, '11'=cancelled.
+ * Jen reálné přechody spouští e-mail (gated), přeuspořádávání a SMS remindery.
+ *
+ * @param {Request} request - HTTP POST s X-Webhook-Secret headerem a JSON payloadem.
+ * @param {object} env - Cloudflare Worker bindings (DB, CACHE, SECRET_CALENDAR_WEBHOOK_SECRET).
+ * @returns {Response} JSON { success: true/false } (200 OK i u dedup/no-op, 401 na nevalidní secret).
  */
 export async function onRequestPost({ request, env }) {
   try {
