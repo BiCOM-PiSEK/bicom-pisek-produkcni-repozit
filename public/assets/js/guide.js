@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let servicesCache = null;
   let selectedSlot = null;
+  let availabilityRequestSeq = 0;
 
   /**
    * Fetches services from API.
@@ -267,6 +268,11 @@ document.addEventListener("DOMContentLoaded", () => {
         bookingTimeWrapEl.hidden = true;
         return;
       }
+      // Clear slot immediately (CR-2: prevent race condition)
+      selectedSlot = null;
+      bookingSlotStartEl.value = '';
+      // Sequential guard: ignore out-of-order responses
+      const reqSeq = ++availabilityRequestSeq;
       bookingSlotsEl.innerHTML = '';
       const loading = document.createElement('p');
       loading.textContent = 'Načítám dostupnost...';
@@ -274,9 +280,9 @@ document.addEventListener("DOMContentLoaded", () => {
       bookingSlotsEl.appendChild(loading);
       bookingTimeWrapEl.hidden = false;
       const availData = await loadAvailability(dateStr);
+      // Ignore if newer request already arrived
+      if (reqSeq !== availabilityRequestSeq) return;
       renderTimeSlots(availData, dateStr);
-      selectedSlot = null;
-      bookingSlotStartEl.value = '';
     });
   }
 
@@ -296,8 +302,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const reminderEl = document.getElementById("booking-reminder-channel");
       const preferred_date = document.getElementById("booking-date").value;
 
-      // Validate: if slots exist for this date, a time must be selected
-      if (bookingTimeWrapEl && !bookingTimeWrapEl.hidden && !bookingSlotStartEl.value) {
+      // Validate: slot is required ONLY if actual slots exist (CR-1)
+      const hasAvailableSlots = Boolean(bookingSlotsEl?.querySelector('[data-slot-start]'));
+      if (hasAvailableSlots && !bookingSlotStartEl.value) {
         showToast("Vyberte prosím čas", "error");
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;

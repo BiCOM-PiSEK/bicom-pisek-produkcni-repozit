@@ -2435,4 +2435,43 @@ Teď `0` zůstane `0`, jen nevalidní input → `null`.
 - ✅ `npm run build` — passed
 - Pokud dev: fetch /api/availability, render sloty, klik slot, inspect payload (slot_start přítomen)
 
-**Status:** Ready na PR (NEMERGUJ).
+**Status:** ✅ CodeRabbit opravy hotovy (CR-1, CR-2).
+
+### F5 CodeRabbit opravy (2026-06-14)
+
+#### CR-1 (🟠 major): Validace gateuje na viditelnosti wrapperu místo na reálných slotech
+
+- Problém: Když den nemá volno ("V tento den není volno"), formulář nejde odeslat — to je OPAK zamýšlení
+- Změna: Nahrazen check na viditelnost za check na existenci slotů:
+
+```javascript
+const hasAvailableSlots = Boolean(bookingSlotsEl?.querySelector('[data-slot-start]'));
+if (hasAvailableSlots && !bookingSlotStartEl.value) { ... }
+```
+
+- Výsledek: Slot povinný JEN když existují reálné chips. Den bez volna → odeslání projde (F6 si poradí)
+
+#### CR-2 (🟠 major): Race condition v change handleru
+
+- Problém: bookingSlotStartEl.value se čistilo AŽ PO await → uživatel mohl odeslat starý slot s novým datem
+- Přidáno: `availabilityRequestSeq` state proměnná (globální sekvenční čítač)
+- Změny v change handleru:
+
+  1. Early clear: `selectedSlot = null; bookingSlotStartEl.value = '';` na ZAČÁTKU (po dateStr check)
+  2. Sequential guard: `const reqSeq = ++availabilityRequestSeq;` před await
+  3. Po await: `if (reqSeq !== availabilityRequestSeq) return;` — ignoruj zastaralé odpovědi
+
+- Výsledek: Rychlé přepínání dní neposílá stará data; pouze poslední request je vykreslován
+
+#### CR-3 (🟡 minor): Inline style.cssText → CSS třídy
+
+- Status: Odloženo (stejně jako F3/F4) — focus na business logice
+- Dluh: `public/assets/js/guide.js` má inline style.cssText, měli by být CSS třídy
+
+#### Ověření
+
+- ✅ `node --check public/assets/js/guide.js` — syntax OK
+- ✅ `npm run build` — passed
+- Logika: (a) den s volnem + slot nevybraný → blok + toast; (b) den s volnem + slot vybraný → projde; (c) den bez volna → projde bez slotu
+
+Status: Ready na PR (#51 se aktualizuje, NEMERGUJ).
