@@ -1994,3 +1994,87 @@ Vedlejší nález — calendar_slots (Legacy):
 ---
 
 **Status:** ✅ ROADMAP HOTOVA, PR připraven na review
+
+---
+
+## 2026-06-14 (sobota) — ADR-004 F2: GET /api/availability (generátor slotů za běhu)
+
+**Branch:** `feat/booking-f2-availability`
+
+**Cíl:** Implementovat read-only endpoint GET /api/availability, který spočítá volné sloty za běhu (Cesta 2) bez zápisu do DB, bez materializace calendar_slots.
+
+### ✅ Hotovo:
+
+1. **Soubor functions/api/availability.js** (311 řádků)
+   - Architektura: kopíruje styl /api/book.js (CORS, OPTIONS, onRequestGet, error handling)
+   - READ-ONLY: jen SELECT (booking_settings, availability_rules, availability_exceptions, bookings)
+   - Parametry: ?from=YYYY-MM-DD&to=YYYY-MM-DD (povinné, validace, max horizont = booking_settings.max_horizon_days)
+
+2. **Algoritmus (Cesta 2 — počítej za běhu):**
+   - Načti booking_settings (id=1 SINGLETON) — defaults: slot_duration_min=60, slot_gap_min=10, min_lead_hours=24, max_horizon_days=60
+   - Načti availability_rules (active=1) → mapa weekday → [{start_time, end_time}]
+   - Načti availability_exceptions pro rozsah → aplikuj holiday/vacation/adhoc/extra
+   - Generuj sloty pro KAŽDÝ den: start_time → end_time, krok = (slot_duration + slot_gap)
+   - Odečti obsazené: SELECT slot_start FROM bookings WHERE status IN (pending/confirmed/pending_payment)
+   - Aplikuj min_lead_hours (vyřaď dříví než teď + 24h) a max_horizon_days (vyřaď za 60 dní)
+   - Vrať { success, days: [{date, weekday, slots}], meta }
+
+3. **Čas v LOKÁLNÍM formátu Praha:**
+   - Všechny časy jako string "YYYY-MM-DD HH:MM" (NE UTC, NE ISO se Z)
+   - Pragmatismus: 10:00 je 10:00 (letní čas se neřeší, prostá aritmetika)
+   - getNowInPrague() počítá reálný čas v Europe/Prague (Intl.DateTimeFormat)
+   - Helper: addMinutes(date, minutes), formatDateTime(date)
+
+4. **Globální dostupnost (bez operátora):**
+   - Kapacita = 1 (bez vícenásobného booking_id na stejný slot)
+   - Parametry: jen from/to, žádný operator_id
+   - Všechny operátoři sdílejí stejná pravidla (availability_rules)
+
+5. **Parametrizované SQL dotazy (.bind), žádné interpolace**
+   - Bezpečnost: SELECT ... WHERE date >= ? AND date <= ? (.bind(from, to))
+
+6. **Syntax ověřen: node --check ✓**
+
+### 📌 Příkladné testovací scénáře:
+
+```
+1. Normální rozsah (po-pá, volný čas):
+   GET /api/availability?from=2026-06-23&to=2026-06-27
+   → days: [
+     { date: "2026-06-23", weekday: 1, slots: [{start: "2026-06-23 09:00", end: "2026-06-23 10:00"}, ...] },
+     { date: "2026-06-24", weekday: 2, slots: [...] },
+     ...
+   ]
+   (víkendy vynechány — žádné rules pro weekday 0/6)
+
+2. Čas v minulosti (min_lead_hours=24):
+   GET /api/availability?from=2026-06-14&to=2026-06-14 (dnes)
+   → pokud dnes < 24h, slots vyřazeny
+   → nebo { date: "2026-06-14", slots: [] } (prázdné)
+
+3. Chybný formát:
+   GET /api/availability?from=abc&to=def
+   → 400 { success: false, error: 'Parametr "from" je povinný a musí být ve formátu YYYY-MM-DD.' }
+
+4. Příliš dlouhý rozsah:
+   GET /api/availability?from=2026-06-14&to=2026-09-15 (93 dní, max_horizon_days=60)
+   → ořízne na 60 dní (vrátí jen do 2026-08-13)
+```
+
+### ⚠️ Pozorné věci v kódu:
+
+- **weekday mapping:** JS Date.getDay() vrací 0=Ne..6=So. Schema má CHECK(weekday BETWEEN 0 AND 6), takže shoduje se.
+- **Adhoc exceptions:** zjednodušeno — pokud exception pokrývá celý den, přeskakuje se (full coverage check); střihání intervalů je omezené (todo pro budoucnost, pokud třeba).
+- **Bez DST:** lokální čas bez korektury — 10:00 Prahy v létě NENÍ 10:00 v UTC. Ale pro API je to správně — uživatel si rezervuje v Praze čas, ne UTC offset.
+- **calendar_slots:** záměrně NEpoužíván (legacy). Všechny sloty se počítají za běhu.
+
+### 🎯 Příští: F3 (frontend time-picker)
+
+F2 je BACKEND. Frontend zatím posílá jen preferred_date (bez času). F3 bude:
+- GET /api/availability pro daný den
+- UI time picker ("Vyberte čas")
+- POST /api/book bude mít slot_start/slot_end místo samotného preferred_date
+
+---
+
+**Status:** ✅ GET /api/availability hotov, PR připraven na review
