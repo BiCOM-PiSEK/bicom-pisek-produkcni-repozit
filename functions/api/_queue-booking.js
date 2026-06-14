@@ -55,7 +55,16 @@ export default {
 
         if (booking.slot_start) {
           // Slotová rezervace: přesný čas s timeZone
-          const calendarEnd = booking.slot_end || addMinutes(toRfc3339(booking.slot_start), 60);
+          let calendarEnd = booking.slot_end;
+          if (!calendarEnd) {
+            // Fallback: slot_start + 60 min jako LOKÁLNÍ string (bez Z)
+            const [d, t] = booking.slot_start.split(' ');
+            const [y, mo, da] = d.split('-').map(Number);
+            const [h, mi] = t.split(':').map(Number);
+            const endLocal = new Date(y, mo - 1, da, h, mi + 60, 0, 0);
+            const p = (n) => String(n).padStart(2, '0');
+            calendarEnd = `${endLocal.getFullYear()}-${p(endLocal.getMonth() + 1)}-${p(endLocal.getDate())} ${p(endLocal.getHours())}:${p(endLocal.getMinutes())}`;
+          }
           eventData.start = {
             dateTime: toRfc3339(booking.slot_start),
             timeZone: 'Europe/Prague',

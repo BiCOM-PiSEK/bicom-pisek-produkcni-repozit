@@ -2669,3 +2669,5 @@ Sjednocení `toRfc3339` helperu: řádka 77 displayDateTime a řádka 116 remind
 - **Slot chybí**: All-day event (start.date / end.date, bez dateTime), žádné 2:00 ráno
 
 Ověřeno: slot "09:00" → start.dateTime "2026-06-16T09:00:00" bez Z; bez slotu → all-day 2026-06-20 až 2026-06-21; přelom měsíce: 06-30 → 07-01.
+
+**CodeRabbit nález (PR #53):** calendarEnd fallback používal addMinutes (ISO se 'Z') → opraveno na LOKÁLNÍ string "YYYY-MM-DD HH:MM" bez Z, stejný styl jako slot_start.
