@@ -2,6 +2,7 @@
  * ═══════════════════════════════════════════════════════════════
  * BICOM PÍSEK — Calendar Module (Kalendář)
  * ═══════════════════════════════════════════════════════════════
+ * FE-1: Admin bookings management — statuses, buttons, modals
  */
 
 export async function render(container, ctx) {
@@ -84,25 +85,51 @@ export async function render(container, ctx) {
     });
   });
 
-  // Action buttons
-  container.querySelectorAll('.btn-action').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const { id, action } = btn.dataset;
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Zpracovávám…';
+  // Delegated listeners pro všechny akce (Potvrdit, Zrušit, Smazat, Detail)
+  container.addEventListener('click', async (e) => {
+    const confirmBtn = e.target.closest('[data-action="confirmed"]');
+    const cancelBtn = e.target.closest('[data-action="cancel"]');
+    const deleteBtn = e.target.closest('[data-action="delete"]');
+    const detailBtn = e.target.closest('[data-action="detail"]');
 
-      const res = await api.updateBooking(id, { status: action });
+    if (confirmBtn) {
+      const id = confirmBtn.dataset.id;
+      const originalText = confirmBtn.textContent;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Zpracovávám…';
+
+      const res = await api.updateBooking(id, { status: 'confirmed' });
       if (res.ok) {
-        showToast(action === 'confirmed' ? 'Potvrzeno ✓' : 'Zrušeno', action === 'confirmed' ? 'success' : 'warning');
+        showToast('Potvrzeno ✓', 'success');
         render(container, ctx);
         return;
       }
 
       showToast('Chyba: ' + res.error, 'error');
-      btn.disabled = false;
-      btn.textContent = originalText;
-    });
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalText;
+    }
+
+    if (cancelBtn) {
+      const id = cancelBtn.dataset.id;
+      const booking = findBookingById(bookings, id);
+      if (booking) {
+        showCancelModal(booking, api, showToast, container, ctx);
+      }
+    }
+
+    if (deleteBtn) {
+      const id = deleteBtn.dataset.id;
+      const booking = findBookingById(bookings, id);
+      if (booking) {
+        showDeleteModal(booking, api, showToast, container, ctx);
+      }
+    }
+
+    if (detailBtn) {
+      const id = detailBtn.dataset.id;
+      showDetailModal(id, api, showToast);
+    }
   });
 }
 
@@ -115,16 +142,33 @@ function renderBookingsTable(bookings) {
   const rows = bookings.map((b) => {
     const badge = { pending: 'badge-pending', confirmed: 'badge-confirmed', done: 'badge-done', cancelled: 'badge-cancelled' };
     const label = { pending: 'Čeká', confirmed: 'Potvrzeno', done: 'Dokončeno', cancelled: 'Zrušeno' };
-    const actions = b.status === 'pending' ? `
-      <button class="btn btn-champagne btn-sm btn-action" data-id="${esc(b.id)}" data-action="confirmed">Potvrdit</button>
-      <button class="btn btn-ghost btn-sm btn-action" data-id="${esc(b.id)}" data-action="cancelled">Zrušit</button>
-    ` : '';
+
+    let actions = '';
+
+    if (b.status === 'pending') {
+      actions = `
+        <button class="btn btn-champagne btn-sm" data-id="${esc(b.id)}" data-action="confirmed">Potvrdit</button>
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="cancel">Zrušit</button>
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="detail">Detail</button>
+      `;
+    } else if (b.status === 'confirmed') {
+      actions = `
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="cancel">Zrušit</button>
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="detail">Detail</button>
+      `;
+    } else if (b.status === 'cancelled' || b.status === 'done') {
+      actions = `
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="detail">Detail</button>
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="delete">Smazat</button>
+      `;
+    }
+
     return `<tr class="booking-row" data-status="${b.status}">
       <td><strong>${esc(b.name || '(šifrováno)')}</strong></td>
       <td>${esc(b.service)}</td>
       <td>${fmtDate(b.preferred_date)}</td>
       <td><span class="badge ${badge[b.status] || ''}">${label[b.status] || b.status}</span></td>
-      <td>${actions}</td>
+      <td style="display: flex; gap: var(--sp-2); flex-wrap: wrap;">${actions}</td>
     </tr>`;
   }).join('');
 
@@ -139,3 +183,236 @@ function renderSkeleton() {
 
 function esc(s) { if (!s) return ''; const e = document.createElement('span'); e.textContent = s; return e.innerHTML; }
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' }); }
+function fmtDateTime(d) { if (!d) return '—'; return new Date(d).toLocaleString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+
+function findBookingById(bookings, id) {
+  return bookings.find((b) => b.id === id);
+}
+
+function showModal(html, onMount, onCleanup) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+
+  const closeBtn = overlay.querySelector('.btn-close') || overlay.querySelector('.btn-cancel');
+  const closeModal = () => {
+    if (onCleanup) onCleanup(overlay);
+    overlay.remove();
+  };
+
+  closeBtn?.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  if (onMount) onMount(overlay, closeModal);
+}
+
+function showCancelModal(booking, api, showToast, container, ctx) {
+  const html = `
+    <div class="modal" style="max-width: 480px; width: 90%;">
+      <div class="modal-header">
+        <h3 class="modal-title">Zrušit rezervaci</h3>
+        <button type="button" class="btn-close" aria-label="Zavřít" style="position: absolute; top: var(--sp-4); right: var(--sp-4); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--c-sage);">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: var(--sp-4); color: var(--c-forest);">
+          Opravdu zrušit rezervaci <strong>${esc(booking.name || 'neznámý klient')}</strong>
+          na službu <strong>${esc(booking.service)}</strong>?
+        </p>
+        <label style="display: flex; align-items: center; gap: var(--sp-2); cursor: pointer; margin-bottom: var(--sp-4);">
+          <input type="checkbox" id="cancel-notify" style="cursor: pointer;">
+          <span style="color: var(--c-sage);">Informovat klienta e-mailem o zrušení</span>
+        </label>
+      </div>
+      <div class="modal-footer" style="display: flex; gap: var(--sp-3); justify-content: flex-end;">
+        <button class="btn btn-cancel btn-ghost" style="border: 1px solid var(--c-sage);">Zpět</button>
+        <button class="btn btn-delete" style="background-color: #ef4444; color: white; border: none;">Zrušit rezervaci</button>
+      </div>
+    </div>
+  `;
+
+  showModal(html, (overlay, closeModal) => {
+    const notifyCheckbox = overlay.querySelector('#cancel-notify');
+    const deleteBtn = overlay.querySelector('.btn-delete');
+
+    deleteBtn.addEventListener('click', async () => {
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = 'Zpracovávám…';
+
+      const res = await api.updateBooking(booking.id, {
+        status: 'cancelled',
+        notify_client: notifyCheckbox.checked,
+      });
+
+      if (res.ok) {
+        showToast('Rezervace zrušena', 'success');
+        closeModal();
+        render(container, ctx);
+      } else {
+        showToast('Chyba: ' + res.error, 'error');
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Zrušit rezervaci';
+      }
+    });
+  });
+}
+
+function showDeleteModal(booking, api, showToast, container, ctx) {
+  const html = `
+    <div class="modal" style="max-width: 480px; width: 90%;">
+      <div class="modal-header">
+        <h3 class="modal-title">Trvalé smazání</h3>
+        <button type="button" class="btn-close" aria-label="Zavřít" style="position: absolute; top: var(--sp-4); right: var(--sp-4); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--c-sage);">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: var(--sp-4); margin-bottom: var(--sp-4);">
+          <p style="color: #991b1b; font-weight: 600; margin: 0 0 var(--sp-2);">⚠️ Trvalé smazání — NEVRATNÉ</p>
+          <p style="color: #7f1d1d; font-size: 0.9rem; margin: 0;">Záznam a všechny jeho údaje budou nenávratně odstraněny. Použij jen pro spam nebo testovací rezervace.</p>
+        </div>
+        <div style="background-color: #f3f4f6; border-radius: 8px; padding: var(--sp-3); margin-bottom: var(--sp-4); font-size: 0.9rem;">
+          <p style="margin: 0 0 var(--sp-1);"><strong>Klient:</strong> ${esc(booking.name || '—')}</p>
+          <p style="margin: 0 0 var(--sp-1);"><strong>Služba:</strong> ${esc(booking.service || '—')}</p>
+          <p style="margin: 0;"><strong>Termín:</strong> ${fmtDate(booking.preferred_date || '—')}</p>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; gap: var(--sp-3); justify-content: flex-end;">
+        <button class="btn btn-cancel btn-ghost" style="border: 1px solid var(--c-sage);">Zpět</button>
+        <button class="btn btn-delete" style="background-color: #dc2626; color: white; border: none;">Trvale smazat</button>
+      </div>
+    </div>
+  `;
+
+  showModal(html, (overlay, closeModal) => {
+    const deleteBtn = overlay.querySelector('.btn-delete');
+
+    deleteBtn.addEventListener('click', async () => {
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = 'Mažu…';
+
+      const res = await api.deleteBooking(booking.id);
+
+      if (res.ok) {
+        showToast('Rezervace smazána', 'success');
+        closeModal();
+        render(container, ctx);
+      } else {
+        showToast('Chyba: ' + res.error, 'error');
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Trvale smazat';
+      }
+    });
+  });
+}
+
+function showDetailModal(bookingId, api, showToast) {
+  const html = `
+    <div class="modal" style="max-width: 700px; width: 95%; max-height: 80vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title">Detail rezervace</h3>
+        <button type="button" class="btn-close" aria-label="Zavřít" style="position: absolute; top: var(--sp-4); right: var(--sp-4); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--c-sage);">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; padding: var(--sp-6);">
+          <div class="spinner" style="margin: 0 auto var(--sp-3);"></div>
+          <p style="color: var(--c-sage);">Načítám detaily…</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  showModal(html, async (overlay, closeModal) => {
+    const modalBody = overlay.querySelector('.modal-body');
+
+    const res = await api.getBookingDetail(bookingId);
+
+    if (!res.ok) {
+      showToast('Nepodařilo se načíst detail: ' + res.error, 'error');
+      closeModal();
+      return;
+    }
+
+    const { booking, history, history_has_more } = res.data;
+
+    let historyHtml = '';
+    if (history && history.length > 0) {
+      const historyRows = history.map((h) => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #f0f0f0';
+        tr.innerHTML = `
+          <td style="padding: var(--sp-2);"><strong>${esc(h.action)}</strong></td>
+          <td style="padding: var(--sp-2);">${esc(h.actor || '—')}</td>
+          <td style="padding: var(--sp-2);">${fmtDateTime(h.created_at)}</td>
+          <td style="padding: var(--sp-2); color: var(--c-sage);">${esc(h.details || '—')}</td>
+        `;
+        return tr.outerHTML;
+      }).join('');
+
+      historyHtml = `
+        <div style="margin-top: var(--sp-6); padding-top: var(--sp-6); border-top: 1px solid rgba(115,138,117,0.15);">
+          <h4 style="margin: 0 0 var(--sp-3); color: var(--c-forest);">Historie akcí</h4>
+          <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+            <thead style="background-color: #f3f4f6;">
+              <tr>
+                <th style="padding: var(--sp-2); text-align: left; border-bottom: 1px solid #e5e7eb;">Akce</th>
+                <th style="padding: var(--sp-2); text-align: left; border-bottom: 1px solid #e5e7eb;">Operátor</th>
+                <th style="padding: var(--sp-2); text-align: left; border-bottom: 1px solid #e5e7eb;">Čas</th>
+                <th style="padding: var(--sp-2); text-align: left; border-bottom: 1px solid #e5e7eb;">Detaily</th>
+              </tr>
+            </thead>
+            <tbody>${historyRows}</tbody>
+          </table>
+          ${history_has_more ? `<p style="margin-top: var(--sp-2); font-size: 0.8rem; color: var(--c-sage); font-style: italic;">Zobrazeno posledních 100 záznamů.</p>` : ''}
+        </div>
+      `;
+    }
+
+    const badgeMap = { pending: 'badge-pending', confirmed: 'badge-confirmed', done: 'badge-done', cancelled: 'badge-cancelled' };
+    const badgeClass = badgeMap[booking.status] || '';
+    const statusLabel = { pending: 'Čeká', confirmed: 'Potvrzeno', done: 'Dokončeno', cancelled: 'Zrušeno' }[booking.status] || booking.status;
+
+    const contentHtml = `
+      <div>
+        <h4 style="margin: 0 0 var(--sp-3); color: var(--c-forest);">Rezervace</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); margin-bottom: var(--sp-4);">
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Klient</p>
+            <p style="margin: 0; color: var(--c-forest); font-weight: 500;">${esc(booking.name || '—')}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Služba</p>
+            <p style="margin: 0; color: var(--c-forest); font-weight: 500;">${esc(booking.service || '—')}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">E-mail</p>
+            <p style="margin: 0; color: var(--c-forest); word-break: break-all;">${esc(booking.email || '—')}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Telefon</p>
+            <p style="margin: 0; color: var(--c-forest);">${esc(booking.phone || '—')}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Termín (slot)</p>
+            <p style="margin: 0; color: var(--c-forest);">${fmtDateTime(booking.slot_start || booking.preferred_date || '—')}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Stav</p>
+            <p style="margin: 0;"><span class="badge ${badgeClass}">${statusLabel}</span></p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Přiřazeno</p>
+            <p style="margin: 0; color: var(--c-forest);">${esc(booking.assigned_to || '—')}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Poznámka</p>
+            <p style="margin: 0; color: var(--c-forest);">${esc(booking.note || '—')}</p>
+          </div>
+        </div>
+      </div>
+      ${historyHtml}
+    `;
+
+    modalBody.innerHTML = contentHtml;
+  });
+}

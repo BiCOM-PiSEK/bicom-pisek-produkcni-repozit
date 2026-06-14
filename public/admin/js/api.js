@@ -297,6 +297,24 @@ function updateBooking(id, updates) {
 }
 
 /**
+ * DELETE /admin/bookings — trvalé smazání rezervace (NEVRATNÉ).
+ * @param {string} id
+ * @returns {Promise<ApiResponse>}
+ */
+function deleteBooking(id) {
+  return request('/bookings', { method: 'DELETE', body: { id, confirm: true } });
+}
+
+/**
+ * GET /admin/booking-detail — detail rezervace s dešifrovanými PII a audit historií.
+ * @param {string} id
+ * @returns {Promise<ApiResponse>}
+ */
+function getBookingDetail(id) {
+  return request(`/booking-detail?id=${encodeURIComponent(id)}`);
+}
+
+/**
  * POST /admin/copywriter — generování obsahu AI.
  * @param {Object} data
  * @param {string} data.prompt     — zadání pro AI
@@ -474,6 +492,8 @@ const AdminAPI = {
   getDashboard,
   getBookings,
   updateBooking,
+  deleteBooking,
+  getBookingDetail,
   generateContent,
   publishContent,
   getInvoices,
