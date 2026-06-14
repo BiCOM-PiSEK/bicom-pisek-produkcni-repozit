@@ -2653,4 +2653,8 @@ Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k 
 - **Oprava**: Přesunutí příkladu do fenced code bloku s prázdnými řádky
 - **Výsledek**: Markdown je nyní čistý
 
+### 4. KOLO CodeRabbit review F6 (2026-06-14)
+
+Sjednocení `toRfc3339` helperu: řádka 77 displayDateTime a řádka 116 reminderTime nyní používají `toRfc3339()` místo holého `.replace(' ', 'T')`, zajišťuje konzistentní RFC 3339 se sekundami.
+
 **Status:** Ready na PR (NEMERGUJ).

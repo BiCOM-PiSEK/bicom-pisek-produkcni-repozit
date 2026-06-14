@@ -72,9 +72,9 @@ export default {
         }
 
         // F6: Použij slot_start pokud je dostupný (přesný čas), jinak preferred_date
-        // #3 displayDateTime: parsuj spolehlivě s .replace(' ','T') pro slot_start
+        // #3 displayDateTime: parsuj spolehlivě přes toRfc3339 helper
         const displayDateTime = booking.slot_start || booking.preferred_date;
-        const dateObj = new Date(displayDateTime.replace(' ', 'T'));
+        const dateObj = new Date(toRfc3339(displayDateTime));
         const dateStr = new Intl.DateTimeFormat('cs-CZ', {
           timeZone: 'Europe/Prague',
           year: 'numeric',
@@ -113,7 +113,7 @@ export default {
         // 5. Schedule reminders (T-24h)
         // #4 reminderTime: z reálného času schůzky (slot_start), ne z preferred_date
         const reminderBase = booking.slot_start || booking.preferred_date;
-        const reminderTime = addMinutes(reminderBase.replace(' ', 'T'), -24 * 60);
+        const reminderTime = addMinutes(toRfc3339(reminderBase), -24 * 60);
         const reminderChannel = booking.reminder_channel || 'email';
 
         // Email reminder is always scheduled (core channel)
