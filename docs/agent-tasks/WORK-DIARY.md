@@ -2570,4 +2570,55 @@ Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k 
 - ✅ Request **BEZ** slot_start: `if (slot_start)` blok se přeskočí → chování jako dnes
 - ✅ Stávající timeout/rate-limit/šifrování/audit/Stripe — bez změn
 
+### CodeRabbit 2. kolo — 8 nálezů (2026-06-14)
+
+#### #1 🔴 CRITICAL: Calendar RFC 3339 formát
+
+- **Problém**: slot_start/slot_end jsou "YYYY-MM-DD HH:MM" (mezera), ale Google Calendar API vyžaduje RFC 3339 s "T"
+- **Oprava**: Helper `toRfc3339(dateTimeStr)` — nahradí mezeru za "T"
+- **Použití**: `toRfc3339(calendarStart)` a `toRfc3339(calendarEnd)` před insertEvent
+- **Výsledek**: Calendar API dostane validní formát "YYYY-MM-DDTHH:MM"
+
+#### #2 🟠 calendarEnd fallback
+
+- **Problém**: Když slot_start je, ale slot_end chybí, fallback počítá +60 min z preferred_date místo z calendarStart
+- **Oprava**: `const calendarEnd = booking.slot_end || addMinutes(calendarStart, 60);`
+- **Výsledek**: Konec slotu správně navazuje na začátek
+
+#### #3 🟠 displayDateTime parsing
+
+- **Problém**: `new Date(displayDateTime)` kde displayDateTime = "YYYY-MM-DD HH:MM" (mezera) je nespolehlivé (UTC interpretace)
+- **Oprava**: `new Date(displayDateTime.replace(' ', 'T'))`
+- **Výsledek**: Spolehlivá konverze string → Date
+
+#### #4 🟠 reminderTime slot-aware
+
+- **Problém**: reminderTime počítá z preferred_date místo z reálného času schůzky
+- **Oprava**: `const reminderBase = booking.slot_start || booking.preferred_date; const reminderTime = addMinutes(reminderBase.replace(' ', 'T'), -24 * 60);`
+- **Výsledek**: Upomínka jde vůči skutečnému slotu
+
+#### #5 🟠 ?? coalescing místo ||
+
+- **Problém**: `deposit_amount || null` a `min_lead_hours || 24` přepíší legitimní 0 defaultem
+- **Oprava**: `deposit_amount ?? null` a `min_lead_hours ?? 24`
+- **Výsledek**: Nula je platná hodnota, ne fallback trigger
+
+#### #6 🟠 slot_end > slot_start validace
+
+- **Problém**: Validuje se formát slot_end, ne pořadí → nulová/záporná délka projde
+- **Oprava**: Parsuj oba sloty v Praze konzistentně, pak check `if (endDate <= slotDate) → 400`
+- **Výsledek**: Nesmyslné intervaly jsou zamítnuty
+
+#### #7 🟡 ROADMAP dedup F6
+
+- **Problém**: F6 byla zároveň v HOTOVO i jako "PR #52 in review" (rozpor)
+- **Oprava**: Odebrání F6 z HOTOVO sekce — zůstane jen jako "PR #52 in review"
+- **Výsledek**: Kanonický záznam — F6 není merged
+
+#### #8 🟡 Email time zobrazení
+
+- **Problém**: Queue předává `time`, ale email template ho nezobrazuje (mrtvý parametr)
+- **Oprava**: Resend.js — řádka "Termín:" teď zahrnuje čas: `${booking.date}${booking.time ? ` ${booking.time}` : ''}`
+- **Výsledek**: Email zobrazí přesný čas; bez času jen datum (zpětně kompat.)
+
 **Status:** Ready na PR (NEMERGUJ).

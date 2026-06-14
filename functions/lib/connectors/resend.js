@@ -92,7 +92,7 @@ export class ResendConnector {
     </tr>
     <tr>
       <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Termín:</strong></td>
-      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.date)}</td>
+      <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${escapeHtml(booking.date)}${booking.time ? ` ${escapeHtml(booking.time)}` : ''}</td>
     </tr>
     ${booking.estimated_price != null ? `
     <tr>

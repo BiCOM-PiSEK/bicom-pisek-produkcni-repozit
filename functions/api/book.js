@@ -88,8 +88,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
         bookingSettings = {
           require_confirmation: Boolean(settingsRow.require_confirmation),
           require_deposit: Boolean(settingsRow.require_deposit),
-          deposit_amount: settingsRow.deposit_amount || null,
-          min_lead_hours: settingsRow.min_lead_hours || 24,
+          deposit_amount: settingsRow.deposit_amount ?? null,  // #5: ?? aby 0 nebyl přepsán
+          min_lead_hours: settingsRow.min_lead_hours ?? 24,
         };
       }
     } catch (err) {
@@ -209,6 +209,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
       validatedSlotStart = slot_start;
       // slot_end: pokud chybí, defaultně +60 minut
+      let endDate;
       if (slot_end) {
         const endRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
         if (!endRegex.test(slot_end)) {
@@ -217,11 +218,24 @@ export async function onRequestPost({ request, env, waitUntil }) {
             { status: 400, headers: CORS_HEADERS }
           );
         }
+        // Parsuj slot_end stejně jako slot_start (Praha, komponenty)
+        const [endDatePart, endTimePart] = slot_end.split(' ');
+        const [ey, emo, ed] = endDatePart.split('-').map(Number);
+        const [ehh, emm] = endTimePart.split(':').map(Number);
+        endDate = new Date(ey, emo - 1, ed, ehh, emm, 0, 0);
         validatedSlotEnd = slot_end;
       } else {
         // Default: 60 minut po startu (v čase Praha)
-        const endDate = addMinutes(slotDate, 60);
+        endDate = addMinutes(slotDate, 60);
         validatedSlotEnd = formatDateTime(endDate);
+      }
+
+      // #6: Validace slot_end > slot_start
+      if (endDate <= slotDate) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Konec slotu musí být po jeho začátku.' }),
+          { status: 400, headers: CORS_HEADERS }
+        );
       }
     }
 
