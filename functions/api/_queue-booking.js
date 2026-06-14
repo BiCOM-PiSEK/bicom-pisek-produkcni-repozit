@@ -9,6 +9,18 @@ import { TelegramConnector } from '../lib/connectors/telegram.js';
 import { ResendConnector } from '../lib/connectors/resend.js';
 
 /**
+ * Convert "YYYY-MM-DD HH:MM" to RFC 3339 with "T" and seconds (Calendar API requirement).
+ * Already ISO-formatted strings (with "T") pass through unchanged.
+ */
+function toRfc3339(dateTimeStr) {
+  if (!dateTimeStr || typeof dateTimeStr !== 'string') return dateTimeStr;
+  // Already ISO with 'T' (from toISOString) → keep as is
+  if (dateTimeStr.includes('T')) return dateTimeStr;
+  // "YYYY-MM-DD HH:MM" → "YYYY-MM-DDTHH:MM:00"
+  return dateTimeStr.replace(' ', 'T') + ':00';
+}
+
+/**
  * Queue consumer for booking-jobs.
  * Each message contains the booking data (already saved to D1).
  * @param {MessageBatch} batch - Batch of queue messages
@@ -26,6 +38,12 @@ export default {
         const booking = message.body;
 
         // 1. Insert event into Google Calendar (yellow = pending)
+        // F6: Použij přesný čas (slot_start/end) pokud je dostupný, jinak default (preferred_date +60min)
+        // #1 RFC 3339: Calendar API vyžaduje "T" mezi datem a časem a sekundy
+        // #2 calendarEnd: fallback z calendarStart, ne z preferred_date
+        const calendarStart = booking.slot_start || booking.preferred_date;
+        const calendarEnd = booking.slot_end || addMinutes(toRfc3339(calendarStart), 60);
+
         const calendarEvent = await calendar.insertEvent({
           summary: `Bicom Písek — ${booking.service}`,
           description: [
@@ -36,12 +54,11 @@ export default {
             `Cena (odhad): ${booking.estimated_price || '—'} Kč`,
           ].filter(Boolean).join('\n'),
           start: {
-            dateTime: booking.preferred_date,
+            dateTime: toRfc3339(calendarStart),
             timeZone: 'Europe/Prague',
           },
           end: {
-            // Default session = 60 min
-            dateTime: addMinutes(booking.preferred_date, 60),
+            dateTime: toRfc3339(calendarEnd),
             timeZone: 'Europe/Prague',
           },
           colorId: '5', // yellow = pending
@@ -54,13 +71,23 @@ export default {
           ).bind(calendarEvent.id, booking.bookingId).run();
         }
 
-        const dateObj = new Date(booking.preferred_date);
+        // F6: Použij slot_start pokud je dostupný (přesný čas), jinak preferred_date
+        // #3 displayDateTime: parsuj spolehlivě přes toRfc3339 helper
+        const displayDateTime = booking.slot_start || booking.preferred_date;
+        const dateObj = new Date(toRfc3339(displayDateTime));
         const dateStr = new Intl.DateTimeFormat('cs-CZ', {
           timeZone: 'Europe/Prague',
           year: 'numeric',
           month: 'numeric',
           day: 'numeric',
         }).format(dateObj);
+        const timeStr = booking.slot_start
+          ? new Intl.DateTimeFormat('cs-CZ', {
+              timeZone: 'Europe/Prague',
+              hour: '2-digit',
+              minute: '2-digit',
+            }).format(dateObj)
+          : null;
 
         // 3. Send confirmation email to client
         await resend.sendBookingConfirmation({
@@ -68,6 +95,7 @@ export default {
           email: booking.email,
           service: booking.service,
           date: dateStr,
+          time: timeStr,
           estimatedPrice: booking.estimated_price,
         });
 
@@ -83,7 +111,9 @@ export default {
         });
 
         // 5. Schedule reminders (T-24h)
-        const reminderTime = addMinutes(booking.preferred_date, -24 * 60);
+        // #4 reminderTime: z reálného času schůzky (slot_start), ne z preferred_date
+        const reminderBase = booking.slot_start || booking.preferred_date;
+        const reminderTime = addMinutes(toRfc3339(reminderBase), -24 * 60);
         const reminderChannel = booking.reminder_channel || 'email';
 
         // Email reminder is always scheduled (core channel)

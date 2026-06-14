@@ -5,6 +5,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { createBooking, addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
+import { getNowInPrague, parseLocalDate, addMinutes, formatDateTime } from './availability.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
 const ALLOWED_SERVICES = [
@@ -74,8 +75,29 @@ export async function onRequestPost({ request, env, waitUntil }) {
       );
     }
 
+    // 2. Load booking settings (F6: configurability)
+    let bookingSettings = {
+      require_confirmation: false,
+      require_deposit: false,
+      deposit_amount: null,
+      min_lead_hours: 24,
+    };
+    try {
+      const settingsRow = await env.DB.prepare('SELECT * FROM booking_settings WHERE id = 1').first();
+      if (settingsRow) {
+        bookingSettings = {
+          require_confirmation: Boolean(settingsRow.require_confirmation),
+          require_deposit: Boolean(settingsRow.require_deposit),
+          deposit_amount: settingsRow.deposit_amount ?? null,  // #5: ?? aby 0 nebyl přepsán
+          min_lead_hours: settingsRow.min_lead_hours ?? 24,
+        };
+      }
+    } catch (err) {
+      console.warn('[book] Could not load booking_settings, using defaults:', err);
+    }
+
     // 2. Validate required fields
-    const { name, email, phone, service, preferred_date, note, psc, consent_marketing, reminder_channel, consent_processing } = data;
+    const { name, email, phone, service, preferred_date, note, psc, consent_marketing, reminder_channel, consent_processing, slot_start, slot_end } = data;
 
     if (!name || !email || !phone || !service || !preferred_date) {
       return new Response(
@@ -148,22 +170,135 @@ export async function onRequestPost({ request, env, waitUntil }) {
       );
     }
 
+    // F6: Validate slot_start if provided (zpětná kompatibilita: slot_start je volitelný)
+    // OPRAVA #1: Časová zóna — konzistentní s F2 (getNowInPrague, parseLocalDate)
+    let validatedSlotStart = null;
+    let validatedSlotEnd = null;
+    if (slot_start) {
+      const slotRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+      if (!slotRegex.test(slot_start)) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Chybný formát slot_start. Očekáno: YYYY-MM-DD HH:MM.' }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      // Parsuj slot_start v čase Praha (ne UTC)
+      const [datePart, timePart] = slot_start.split(' ');
+      const [y, mo, d] = datePart.split('-').map(Number);
+      const [hh, mm] = timePart.split(':').map(Number);
+      const slotDate = new Date(y, mo - 1, d, hh, mm, 0, 0);
+
+      if (isNaN(slotDate.getTime())) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Neplatný slot_start — neexistující datum/čas.' }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      // Ověř min_lead_hours v čase Praha (konzistentní s F2)
+      const nowPrague = getNowInPrague();
+      const minLeadDate = addMinutes(nowPrague, bookingSettings.min_lead_hours * 60);
+
+      if (slotDate < minLeadDate) {
+        return new Response(
+          JSON.stringify({ success: false, error: `Slot musí být nejméně ${bookingSettings.min_lead_hours} hodin v budoucnosti.` }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      validatedSlotStart = slot_start;
+      // slot_end: pokud chybí, defaultně +60 minut
+      let endDate;
+      if (slot_end) {
+        const endRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!endRegex.test(slot_end)) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Chybný formát slot_end. Očekáno: YYYY-MM-DD HH:MM.' }),
+            { status: 400, headers: CORS_HEADERS }
+          );
+        }
+        // Parsuj slot_end stejně jako slot_start (Praha, komponenty)
+        const [endDatePart, endTimePart] = slot_end.split(' ');
+        const [ey, emo, ed] = endDatePart.split('-').map(Number);
+        const [ehh, emm] = endTimePart.split(':').map(Number);
+        endDate = new Date(ey, emo - 1, ed, ehh, emm, 0, 0);
+        validatedSlotEnd = slot_end;
+      } else {
+        // Default: 60 minut po startu (v čase Praha)
+        endDate = addMinutes(slotDate, 60);
+        validatedSlotEnd = formatDateTime(endDate);
+      }
+
+      // #6: Validace slot_end > slot_start
+      if (endDate <= slotDate) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Konec slotu musí být po jeho začátku.' }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+    }
+
     // 3. Init encryption
     const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
 
-    // 4. Create booking in D1 (encrypts PII inside createBooking)
-    const bookingId = await createBooking(env.DB, crypt, {
-      name: cleanName,
-      email,
-      phone,
-      service,
-      preferred_date: preferredDate.toISOString(),
-      note: cleanNote,
-      psc: psc ? sanitize(psc) : null,
-      consent_version: CONSENT_VERSION,
-      consent_marketing: parsedConsentMarketing ? 1 : 0,
-      reminder_channel: reminderChannel,
-    });
+    // 4. Encrypt PII
+    let bookingId;
+    try {
+      const [nameEnc, emailEnc, phoneEnc, noteEnc, emailHash] = await Promise.all([
+        crypt.encrypt(cleanName),
+        crypt.encrypt(email),
+        crypt.encrypt(phone),
+        cleanNote ? crypt.encrypt(cleanNote) : Promise.resolve(null),
+        DataCrypt.hash(email.toLowerCase().trim()),
+      ]);
+
+      // Determine status based on booking_settings (F6)
+      let status = 'pending';
+      if (bookingSettings.require_deposit) {
+        status = 'pending_payment';
+      } else if (bookingSettings.require_confirmation) {
+        status = 'pending';
+      }
+
+      // 5. Insert into D1 with slot_start/end (F6) + UNIQUE collision handling
+      bookingId = crypto.randomUUID();
+      try {
+        await env.DB.batch([
+          env.DB.prepare(
+            `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, slot_start, slot_end, psc, estimated_price, consent_version, consent_marketing, reminder_channel, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          ).bind(
+            bookingId, nameEnc, emailEnc, phoneEnc, service, noteEnc,
+            preferredDate.toISOString(), validatedSlotStart, validatedSlotEnd,
+            psc ? sanitize(psc) : null, null, CONSENT_VERSION,
+            parsedConsentMarketing ? 1 : 0, reminderChannel, status
+          ),
+          env.DB.prepare(
+            `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+             VALUES (?, 'bookings', ?, 'create', 'system', ?)`
+          ).bind(crypto.randomUUID(), bookingId, `Created booking, status: ${status}, slot_start: ${validatedSlotStart || 'none'}`),
+        ]);
+      } catch (dbErr) {
+        // OPRAVA #2: UNIQUE collision detection — zpřísnit na slot_start index
+        const msg = String(dbErr?.message || '');
+        const isSlotCollision = msg.includes('UNIQUE') &&
+          (msg.includes('idx_bookings_slot_unique') || msg.includes('slot_start'));
+        if (isSlotCollision) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Tento čas byl mezitím obsazen. Vyberte prosím jiný slot.' }),
+            { status: 409, headers: CORS_HEADERS }
+          );
+        }
+        throw dbErr;
+      }
+    } catch (err) {
+      console.error('[book] Encryption or booking creation error:', err);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Interní chyba serveru. Zkuste to prosím později.' }),
+        { status: 500, headers: CORS_HEADERS }
+      );
+    }
 
     // 5. GEO lead tracking (non-blocking)
     if (psc) {
@@ -184,6 +319,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // 7. Enqueue async processing (calendar, email, Telegram, reminders)
+    // F6: Rozšíření o slot_start/slot_end pro přesný čas v kalendáři a mailech
     waitUntil(
       env.BOOKING_QUEUE.send({
         bookingId,
@@ -192,6 +328,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
         phone,
         service,
         preferred_date: preferredDate.toISOString(),
+        slot_start: validatedSlotStart,
+        slot_end: validatedSlotEnd,
         note: cleanNote,
         reminder_channel: reminderChannel,
       }).catch((err) => console.error('[book] Queue send error:', err))

@@ -2475,3 +2475,186 @@ if (hasAvailableSlots && !bookingSlotStartEl.value) { ... }
 - Logika: (a) den s volnem + slot nevybraný → blok + toast; (b) den s volnem + slot vybraný → projde; (c) den bez volna → projde bez slotu
 
 Status: Ready na PR (#51 se aktualizuje, NEMERGUJ).
+
+---
+
+## ADR-004 F6: POST /api/book v2 — přesný slot, kolizní zámek (2026-06-14)
+
+**Branch:** `feat/booking-f6-book-v2`
+
+**Cíl:** Backend zpracování slot_start (z F5). Atomická rezervace: dva lidé na stejný čas → jen jeden uspěje (409). Konfigurovatelný tok (booking_settings). NEJCITLIVĚJŠÍ ZMĚNA — book.js zpracovává reálné rezervace + šifruje zdravotní data (GDPR).
+
+### Implementace detaily
+
+#### Fáze A — Zachované beze změny (pojistka)
+
+- ✅ **Šifrování**: name_enc, email_enc, phone_enc, note_enc (DataCrypt AES-GCM 256-bit)
+- ✅ **Audit log**: každá akce zaznamenána v audit_log
+- ✅ **Resend e-mail**: sendBookingConfirmation (rozšířen o slot time)
+- ✅ **Google Calendar**: insertEvent (rozšířen na slot_start/end, barva yellow = pending)
+- ✅ **Consent pole**: GDPR processing consent (povinný)
+- ✅ **Stripe tok**: payment_method logika (bez změn)
+
+#### Implementace
+
+1. **Migrace 0013** (`db/migrations/0013_booking_slot_unique.sql`):
+   - Parciální UNIQUE index na slot_start
+   - Filtr: WHERE slot_start IS NOT NULL AND status IN ('pending','confirmed','pending_payment')
+   - Hotové/zrušené rezervace slot uvolní
+
+2. **book.js** (`functions/api/book.js`, +130 řádků):
+   - Načtení booking_settings (id=1) s defaulty: require_confirmation, require_deposit, min_lead_hours=24
+   - Přijetí slot_start, slot_end (VOLITELNÉ — zpětná kompatibilita)
+   - Validace slot_start: formát "YYYY-MM-DD HH:MM" + minulost + min_lead_hours check
+   - Slot_end: pokud chybí, default +60 minut
+   - Status logika: require_deposit → 'pending_payment', require_confirmation → 'pending'
+   - **KOLIZNÍ ZÁMEK**: UNIQUE index na slot_start → INSERT fail → catch UNIQUE error → 409 "Čas obsazen"
+   - Queue payload rozšířen o slot_start, slot_end
+
+3. **Queue consumer** (`functions/api/_queue-booking.js`, +20 řádků):
+   - Kalendář: calendarStart = slot_start || preferred_date
+   - Email: dateStr + timeStr (jen když slot_start)
+   - SMS reminders: displayDateTime = slot_start || preferred_date
+   - Zpětná kompatibilita: když slot_start chybí, chování jako dnes
+
+#### Zpětná kompatibilita (KRITICKÉ)
+
+- Request BEZ slot_start: všechno funguje PŘESNĚ jako dnes (status dle defaults, whole day v kalendáři)
+- Request SE slot_start: atomická rezervace s UNIQUE kolizí (409)
+- Payload rozšíření, nic se nemaže
+
+#### Poznámka: assigned_to
+
+Pole assigned_to (Jana/Tereza) patří k pozdějšímu admin confirm flow, NE k F6. Jen poznámka do Antnýho.
+
+#### Ověření F6
+
+- ✅ `node --check functions/api/book.js` — syntax OK
+- ✅ `node --check functions/api/_queue-booking.js` — syntax OK
+- ✅ `npm run build` — passed
+- Zpětná kompatibilita: lokálně netestováno, ale logika je čistá
+- UNIQUE kolize: catch blok na dbErr.message.includes('UNIQUE') → 409
+
+### Opravy F6 (2026-06-14)
+
+#### OPRAVA #1 (🟠 major): Časová zóna slot_start — konzistentní s F2
+
+- **Problém**: Validace slot_start používala `new Date(isoString)` a `new Date()` (UTC). ALE F2 počítá sloty v čase Praha (getNowInPrague). V létě (Praha UTC+2) se min_lead_hours posunul → slot platný na webu mohl být backend odmítnut.
+- **Řešení**: Import helperů z availability.js: `getNowInPrague(), parseLocalDate(), addMinutes(), formatDateTime()` (všechny exportované)
+- **Změna**: Validace slot_start teď parsuje "YYYY-MM-DD HH:MM" jako lokální Praha (ne UTC):
+  ```javascript
+  const [y, mo, d] = datePart.split('-').map(Number);
+  const [hh, mm] = timePart.split(':').map(Number);
+  const slotDate = new Date(y, mo - 1, d, hh, mm, 0, 0);  // lokální Praha
+  const nowPrague = getNowInPrague();
+  const minLeadDate = addMinutes(nowPrague, min_lead_hours * 60);
+  if (slotDate < minLeadDate) → 400
+  ```
+- **Slot_end default**: `addMinutes(slotDate, 60)` → `formatDateTime()` (konzistentní formát)
+- **Výsledek**: Validace v čase Praha, stejná soustava jako F2 generátor
+
+#### OPRAVA #2 (🟠 major): Zpřísnění UNIQUE detekce
+
+- **Problém**: `dbErr.message.includes('UNIQUE')` — příliš volné, mohlo chytit JINÝ UNIQUE constraint
+- **Řešení**: Rozpoznej konkrétní náš index:
+  ```javascript
+  const isSlotCollision = msg.includes('UNIQUE') &&
+    (msg.includes('idx_bookings_slot_unique') || msg.includes('slot_start'));
+  if (isSlotCollision) → 409 "Čas obsazen"
+  else throw dbErr;  // jiné UNIQUE/chyby propadnou do 500
+  ```
+- **Výsledek**: 409 jen na slot kolizích, ostatní chyby se bezpečně propagují
+
+#### Zpětná kompatibilita
+
+- ✅ Request **BEZ** slot_start: `if (slot_start)` blok se přeskočí → chování jako dnes
+- ✅ Stávající timeout/rate-limit/šifrování/audit/Stripe — bez změn
+
+### CodeRabbit 2. kolo — 8 nálezů (2026-06-14)
+
+#### #1 🔴 CRITICAL: Calendar RFC 3339 formát
+
+- **Problém**: slot_start/slot_end jsou "YYYY-MM-DD HH:MM" (mezera), ale Google Calendar API vyžaduje RFC 3339 s "T"
+- **Oprava**: Helper `toRfc3339(dateTimeStr)` — nahradí mezeru za "T"
+- **Použití**: `toRfc3339(calendarStart)` a `toRfc3339(calendarEnd)` před insertEvent
+- **Výsledek**: Calendar API dostane validní formát "YYYY-MM-DDTHH:MM"
+
+#### #2 🟠 calendarEnd fallback
+
+- **Problém**: Když slot_start je, ale slot_end chybí, fallback počítá +60 min z preferred_date místo z calendarStart
+- **Oprava**: `const calendarEnd = booking.slot_end || addMinutes(calendarStart, 60);`
+- **Výsledek**: Konec slotu správně navazuje na začátek
+
+#### #3 🟠 displayDateTime parsing
+
+- **Problém**: `new Date(displayDateTime)` kde displayDateTime = "YYYY-MM-DD HH:MM" (mezera) je nespolehlivé (UTC interpretace)
+- **Oprava**: `new Date(displayDateTime.replace(' ', 'T'))`
+- **Výsledek**: Spolehlivá konverze string → Date
+
+#### #4 🟠 reminderTime slot-aware
+
+- **Problém**: reminderTime počítá z preferred_date místo z reálného času schůzky
+- **Oprava**: `const reminderBase = booking.slot_start || booking.preferred_date; const reminderTime = addMinutes(reminderBase.replace(' ', 'T'), -24 * 60);`
+- **Výsledek**: Upomínka jde vůči skutečnému slotu
+
+#### #5 🟠 ?? coalescing místo ||
+
+- **Problém**: `deposit_amount || null` a `min_lead_hours || 24` přepíší legitimní 0 defaultem
+- **Oprava**: `deposit_amount ?? null` a `min_lead_hours ?? 24`
+- **Výsledek**: Nula je platná hodnota, ne fallback trigger
+
+#### #6 🟠 slot_end > slot_start validace
+
+- **Problém**: Validuje se formát slot_end, ne pořadí → nulová/záporná délka projde
+- **Oprava**: Parsuj oba sloty v Praze konzistentně, pak check `if (endDate <= slotDate) → 400`
+- **Výsledek**: Nesmyslné intervaly jsou zamítnuty
+
+#### #7 🟡 ROADMAP dedup F6
+
+- **Problém**: F6 byla zároveň v HOTOVO i jako "PR #52 in review" (rozpor)
+- **Oprava**: Odebrání F6 z HOTOVO sekce — zůstane jen jako "PR #52 in review"
+- **Výsledek**: Kanonický záznam — F6 není merged
+
+#### #8 🟡 Email time zobrazení
+
+- **Problém**: Queue předává `time`, ale email template ho nezobrazuje (mrtvý parametr)
+- **Oprava**: Resend.js — řádka "Termín:" teď zahrnuje čas:
+
+  ```javascript
+  ${booking.date}${booking.time ? ` ${booking.time}` : ''}
+  ```
+
+- **Výsledek**: Email zobrazí přesný čas; bez času jen datum (zpětně kompat.)
+
+### 3. KOLO CodeRabbit review F6 (2026-06-14)
+
+#### A 🔴 CRITICAL — Sekundy v RFC 3339
+
+- **Problém**: `toRfc3339()` vrací "YYYY-MM-DDTHH:MM" bez sekund, ale Google Calendar API vyžaduje RFC 3339 s sekundami (e.g., "YYYY-MM-DDTHH:MM:SS")
+- **Oprava**: Helper teď rozlišuje:
+  - ISO s 'T' (z `toISOString()`): nechá jak je (už má sekundy a '.sssZ')
+  - "YYYY-MM-DD HH:MM" (se mezerou): převede na "YYYY-MM-DDTHH:MM:00"
+- **Výsledek**: Calendar API dostane validní RFC 3339 formát
+
+#### B 🔴 CRITICAL — Převod před addMinutes
+
+- **Problém**: `addMinutes(calendarStart, 60)` obdrží calendarStart, který může být "YYYY-MM-DD HH:MM" (mezera). Uvnitř `addMinutes` je `new Date()`, což je pro strings se mezerou nespolehlivé.
+- **Oprava**: Nejdřív převést přes `toRfc3339(calendarStart)` PŘED odevzdáním do `addMinutes`:
+
+  ```javascript
+  const calendarEnd = booking.slot_end || addMinutes(toRfc3339(calendarStart), 60);
+  ```
+
+- **Výsledek**: Fallback calendarEnd je vždy ISO string s 'T', dvojitý toRfc3339 nerozbije výsledek (ISO s 'T' projde bez změny)
+
+#### C 🟡 Kosmetika — MD031 lint
+
+- **Problém**: MD038 inline code s mezerama, pak MD031 chybí prázdné řádky okolo fenced code bloku
+- **Oprava**: Přesunutí příkladu do fenced code bloku s prázdnými řádky
+- **Výsledek**: Markdown je nyní čistý
+
+### 4. KOLO CodeRabbit review F6 (2026-06-14)
+
+Sjednocení `toRfc3339` helperu: řádka 77 displayDateTime a řádka 116 reminderTime nyní používají `toRfc3339()` místo holého `.replace(' ', 'T')`, zajišťuje konzistentní RFC 3339 se sekundami.
+
+**Status:** Ready na PR (NEMERGUJ).
