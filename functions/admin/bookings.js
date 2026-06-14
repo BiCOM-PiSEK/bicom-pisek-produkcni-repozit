@@ -334,9 +334,9 @@ export async function onRequestPut({ env, data, request }) {
 
     // G4: Zrušení (měkké) — cancelled
     if (newStatus === 'cancelled') {
-      // Předem se ujisti, že je to pending/confirmed (abychom věděli jestli dělat side-effecty)
+      // Načti booking data pro efekty (ale rozhodnutí řiď podle UPDATE guard)
       const booking = await env.DB.prepare(
-        `SELECT id, calendar_event_id, email_enc, name_enc, service, preferred_date, slot_start, cancellation_notified_at, status
+        `SELECT id, calendar_event_id, email_enc, name_enc, service, preferred_date, slot_start, cancellation_notified_at
          FROM bookings WHERE id = ?`
       ).bind(bookingId).first();
 
@@ -344,17 +344,12 @@ export async function onRequestPut({ env, data, request }) {
         return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
       }
 
-      if (!['pending', 'confirmed'].includes(booking.status)) {
-        return json({ ok: true, message: 'Žádná změna (status není pending nebo confirmed, nebo je již zrušeno)' });
-      }
-
-      // NÁLEZ #2 + #3: Business UPDATE (status + updated_at + audit_log) v JEDNOM batchi
-      // Audit musí být NEUTRÁLNÍ (ne nepravdivé tvrzení o e-mailu)
+      // NÁLEZ #1: Guard PŘÍMO v UPDATE, rozhodn efekty podle changes
       const notifyClient = body.notify_client === true;
       const updateOps = [
         env.DB.prepare(
           `UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP${hasAssignedTo ? ', assigned_to = ?' : ''}
-           WHERE id = ?`
+           WHERE id = ? AND status IN ('pending','confirmed')`
         ),
       ];
       const updateBindings = [newStatus];
@@ -362,7 +357,7 @@ export async function onRequestPut({ env, data, request }) {
       updateBindings.push(bookingId);
       updateOps[0] = updateOps[0].bind(...updateBindings);
 
-      // NÁLEZ #3: Audit detail — neutrální text (ne nepravdivé "klient informován")
+      // Audit detail — neutrální text
       updateOps.push(
         env.DB.prepare(
           `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
@@ -375,7 +370,13 @@ export async function onRequestPut({ env, data, request }) {
         )
       );
 
-      await env.DB.batch(updateOps);
+      const batchResults = await env.DB.batch(updateOps);
+      const changes = batchResults?.[0]?.meta?.changes || 0;
+
+      // Efekty JEN když se status opravdu změnil (souběh guard)
+      if (changes === 0) {
+        return json({ ok: true, message: 'Žádná změna (rezervace již není pending nebo confirmed)' });
+      }
 
       // Side effects: Google + e-mail (mimo batch)
       const calendar = new GoogleCalendarConnector(env);
