@@ -32,6 +32,12 @@ export async function onRequestGet({ env, data, request }) {
       return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
     }
 
+    // NÁLEZ #1a: Guard na SECRET_ENCRYPTION_KEY
+    if (!env.SECRET_ENCRYPTION_KEY) {
+      console.warn('[booking-detail] SECRET_ENCRYPTION_KEY not configured');
+      return json({ ok: false, error: 'Šifrování není nakonfigurováno.' }, 500);
+    }
+
     // Dešifruj PII
     const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
     let decrypted = { ...booking };
@@ -49,22 +55,24 @@ export async function onRequestGet({ env, data, request }) {
         phone,
         note,
       };
-      // Odstraň _enc pole
-      delete decrypted.name_enc;
-      delete decrypted.email_enc;
-      delete decrypted.phone_enc;
-      delete decrypted.note_enc;
     } catch (err) {
       console.warn('[booking-detail] Decryption error:', err);
       decrypted.name = '(chyba dešifrování)';
     }
 
-    // Načti audit historii
+    // NÁLEZ #1b: VŽDY odstraň _enc pole (i při chybě dešifrování) — ochrana PII
+    delete decrypted.name_enc;
+    delete decrypted.email_enc;
+    delete decrypted.phone_enc;
+    delete decrypted.note_enc;
+
+    // NÁLEZ #4: Načti audit historii + LIMIT 100
     const history = await env.DB.prepare(
       `SELECT id, action, actor, details, created_at
        FROM audit_log
        WHERE entity = 'bookings' AND entity_id = ?
-       ORDER BY created_at DESC`
+       ORDER BY created_at DESC
+       LIMIT 100`
     ).bind(bookingId).all();
 
     const historyItems = (history?.results || []).map((row) => ({

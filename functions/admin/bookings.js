@@ -334,19 +334,9 @@ export async function onRequestPut({ env, data, request }) {
 
     // G4: Zrušení (měkké) — cancelled
     if (newStatus === 'cancelled') {
-      // Guard: změňuj jen pending/confirmed → cancelled
-      const updateResult = await env.DB.prepare(
-        `UPDATE bookings SET status = ? WHERE id = ? AND status IN ('pending','confirmed')`
-      ).bind(newStatus, bookingId).run();
-
-      const changes = updateResult?.meta?.changes || 0;
-      if (changes === 0) {
-        return json({ ok: true, message: 'Žádná změna (status není pending nebo confirmed, nebo je již zrušeno)' });
-      }
-
-      // Načti booking
+      // Předem se ujisti, že je to pending/confirmed (abychom věděli jestli dělat side-effecty)
       const booking = await env.DB.prepare(
-        `SELECT id, calendar_event_id, email_enc, name_enc, service, preferred_date, slot_start, cancellation_notified_at
+        `SELECT id, calendar_event_id, email_enc, name_enc, service, preferred_date, slot_start, cancellation_notified_at, status
          FROM bookings WHERE id = ?`
       ).bind(bookingId).first();
 
@@ -354,19 +344,25 @@ export async function onRequestPut({ env, data, request }) {
         return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
       }
 
-      // G4: Business UPDATE (status) + audit_log v JEDNOM batchi
+      if (!['pending', 'confirmed'].includes(booking.status)) {
+        return json({ ok: true, message: 'Žádná změna (status není pending nebo confirmed, nebo je již zrušeno)' });
+      }
+
+      // NÁLEZ #2 + #3: Business UPDATE (status + updated_at + audit_log) v JEDNOM batchi
+      // Audit musí být NEUTRÁLNÍ (ne nepravdivé tvrzení o e-mailu)
       const notifyClient = body.notify_client === true;
       const updateOps = [
         env.DB.prepare(
-          `UPDATE bookings SET updated_at = CURRENT_TIMESTAMP${hasAssignedTo ? ', assigned_to = ?' : ''}
+          `UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP${hasAssignedTo ? ', assigned_to = ?' : ''}
            WHERE id = ?`
         ),
       ];
-      const updateBindings = [];
+      const updateBindings = [newStatus];
       if (hasAssignedTo) updateBindings.push(assignedTo);
       updateBindings.push(bookingId);
       updateOps[0] = updateOps[0].bind(...updateBindings);
 
+      // NÁLEZ #3: Audit detail — neutrální text (ne nepravdivé "klient informován")
       updateOps.push(
         env.DB.prepare(
           `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
@@ -375,7 +371,7 @@ export async function onRequestPut({ env, data, request }) {
           crypto.randomUUID(),
           bookingId,
           `operator:${data.operator.id}`,
-          `Zrušeno${notifyClient ? ', klient informován' : ''}`
+          'Zrušeno operátorem'
         )
       );
 
@@ -502,7 +498,8 @@ export async function onRequestDelete({ env, data, request }) {
     }
 
     // G4: Tvrdé smazání — AUDIT FIRST pořadí
-    // 1) Zapiš audit log PRVNÍ (DŘÍVE než DELETE)
+    // NÁLEZ #3: Audit text musí být realistický (záznam akce, ne tvrzení o dokončení)
+    // 1) Zapiš audit log PRVNÍ (DŘÍVE než DELETE) — ať přežije i při selhání
     await env.DB.prepare(
       `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
        VALUES (?, 'bookings', ?, 'delete', ?, ?)`
@@ -510,7 +507,7 @@ export async function onRequestDelete({ env, data, request }) {
       crypto.randomUUID(),
       bookingId,
       `operator:${data.operator.id}`,
-      'Tvrdě smazáno operátorem (NEVRATNÉ)'
+      'Požadavek na tvrdé smazání operátorem'
     ).run();
 
     // 2) Smaž Google událost
