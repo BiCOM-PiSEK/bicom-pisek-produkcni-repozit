@@ -175,6 +175,7 @@ export async function render(container, ctx) {
     }
 
     // Collect settings
+    const depVal = parseInt(form.querySelector('input[name="deposit_amount"]')?.value || '', 10);
     const newSettings = {
       slot_duration_min: parseInt(form.querySelector('input[name="slot_duration_min"]')?.value || '60', 10),
       slot_gap_min: parseInt(form.querySelector('input[name="slot_gap_min"]')?.value || '10', 10),
@@ -182,7 +183,7 @@ export async function render(container, ctx) {
       max_horizon_days: parseInt(form.querySelector('input[name="max_horizon_days"]')?.value || '60', 10),
       require_confirmation: form.querySelector('input[name="require_confirmation"]')?.checked ? 1 : 0,
       require_deposit: form.querySelector('input[name="require_deposit"]')?.checked ? 1 : 0,
-      deposit_amount: parseInt(form.querySelector('input[name="deposit_amount"]')?.value || '0', 10) || null,
+      deposit_amount: Number.isNaN(depVal) ? null : depVal,
     };
 
     if (newSettings.slot_duration_min <= 0) {

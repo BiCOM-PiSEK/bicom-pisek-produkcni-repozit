@@ -225,7 +225,7 @@ export async function onRequestPut({ env, data, request }) {
     const batch = [];
 
     // 1. Delete old rules
-    batch.push(env.DB.prepare('DELETE FROM availability_rules').run());
+    batch.push(env.DB.prepare('DELETE FROM availability_rules'));
 
     // 2. Insert new rules
     for (const rule of validatedRules) {
@@ -236,18 +236,21 @@ export async function onRequestPut({ env, data, request }) {
       );
     }
 
-    // 3. Update booking_settings
+    // 3. Upsert booking_settings (ensure row exists, then update)
     batch.push(
       env.DB.prepare(
-        `UPDATE booking_settings SET
-         slot_duration_min = COALESCE(?, slot_duration_min),
-         slot_gap_min = COALESCE(?, slot_gap_min),
-         min_lead_hours = COALESCE(?, min_lead_hours),
-         max_horizon_days = COALESCE(?, max_horizon_days),
-         require_confirmation = COALESCE(?, require_confirmation),
-         require_deposit = COALESCE(?, require_deposit),
-         deposit_amount = CASE WHEN ? IS NOT NULL THEN ? ELSE deposit_amount END
-         WHERE id = 1`
+        `INSERT INTO booking_settings
+          (id, slot_duration_min, slot_gap_min, min_lead_hours,
+           max_horizon_days, require_confirmation, require_deposit, deposit_amount)
+         VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           slot_duration_min = excluded.slot_duration_min,
+           slot_gap_min = excluded.slot_gap_min,
+           min_lead_hours = excluded.min_lead_hours,
+           max_horizon_days = excluded.max_horizon_days,
+           require_confirmation = excluded.require_confirmation,
+           require_deposit = excluded.require_deposit,
+           deposit_amount = excluded.deposit_amount`
       ).bind(
         slot_duration_min,
         slot_gap_min,
@@ -255,7 +258,6 @@ export async function onRequestPut({ env, data, request }) {
         max_horizon_days,
         require_confirmation,
         require_deposit,
-        deposit_amount,
         deposit_amount
       )
     );
