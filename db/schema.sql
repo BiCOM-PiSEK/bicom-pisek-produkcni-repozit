@@ -31,6 +31,11 @@ CREATE TABLE IF NOT EXISTS bookings (
     stripe_payment_status TEXT,
     paid_amount INTEGER,
     paid_at TIMESTAMP,
+    slot_start TEXT,
+    slot_end TEXT,
+    assigned_to TEXT,
+    confirmation_sent_at TEXT,
+    cancellation_notified_at TEXT,
     FOREIGN KEY (operator_id) REFERENCES operators(id)
 );
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
