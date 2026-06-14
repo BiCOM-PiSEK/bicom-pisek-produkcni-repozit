@@ -266,6 +266,43 @@ export class GoogleCalendarConnector {
   }
 
   /**
+   * Delete an event from the calendar (hard delete).
+   * 204 (OK), 404/410 (already deleted) → true (success).
+   * Other errors → console.warn + false (no throw).
+   *
+   * @param {string} eventId - Google Calendar event ID.
+   * @returns {Promise<boolean>} true on success (incl. 404/410), false on error.
+   */
+  async deleteEvent(eventId) {
+    const token = await this._getAccessToken();
+    if (!token) return false;
+
+    const url = `${CALENDAR_API}/calendars/${encodeURIComponent(this.calendarId)}/events/${encodeURIComponent(eventId)}`;
+
+    try {
+      const res = await fetchWithRetry(url, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // 204 (OK), 404/410 (already gone) → success
+      if (res && (res.status === 204 || res.status === 404 || res.status === 410)) {
+        return true;
+      }
+
+      if (!res || !res.ok) {
+        console.warn('[GoogleCalendar] deleteEvent failed:', res?.status);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.warn('[GoogleCalendar] deleteEvent error:', err.message);
+      return false;
+    }
+  }
+
+  /**
    * List events in a time range.
    *
    * @param {string} timeMin - RFC 3339 start time (inclusive).

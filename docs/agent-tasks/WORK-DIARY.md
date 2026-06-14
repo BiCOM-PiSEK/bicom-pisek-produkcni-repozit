@@ -2728,3 +2728,17 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **no_show do ADR:** Zapsáno jako "Odloženo" — SQL CHECK constraint neumí ALTER; alternativy: (a) REBUILD tabulky v další migraci, (b) boolean flag `no_show_flag`.
 
 **Status:** Ready na PR (NEMERGUJ).
+
+## G4: Zrušení (měkké) + Smazání (tvrdé) + Detail (2026-06-15)
+
+**Zrušení (měkké):** admin/bookings.js PUT status='cancelled' — guard pending/confirmed → cancelled; gate cancellation_notified_at IS NULL → email; Google barva '11' (Tomato); notify_client flag; batch atomicita.
+
+**Smazání (tvrdé):** onRequestDelete DELETE endpoint — pojistka confirm=true; audit-first pořadí (audit zapsán PŘED výmazem, aby přežil); Google deleteEvent; NEVRATNÉ.
+
+**Connector deleteEvent:** google-calendar.js — DELETE metoda, 204/404/410 → true (success), errors → warn+false (no throw).
+
+**Šablona sendBookingCancelled:** resend.js — HTML e-mail "Zrušení termínu", možnost nového termínu.
+
+**Detail endpoint:** nový soubor booking-detail.js GET /admin/booking-detail — dešifrovaná PII (bez _enc), audit_log historia.
+
+**Status:** Ready na PR (NEMERGUJ).

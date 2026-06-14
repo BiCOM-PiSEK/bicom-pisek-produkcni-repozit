@@ -332,6 +332,103 @@ export async function onRequestPut({ env, data, request }) {
       return json({ ok: true, data: { id: bookingId, status: newStatus, confirmed_at: confirmationSentAt, assigned_to: assignedTo } });
     }
 
+    // G4: Zrušení (měkké) — cancelled
+    if (newStatus === 'cancelled') {
+      // Načti booking data pro efekty (ale rozhodnutí řiď podle UPDATE guard)
+      const booking = await env.DB.prepare(
+        `SELECT id, calendar_event_id, email_enc, name_enc, service, preferred_date, slot_start, cancellation_notified_at
+         FROM bookings WHERE id = ?`
+      ).bind(bookingId).first();
+
+      if (!booking) {
+        return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
+      }
+
+      // NÁLEZ #1: Guard PŘÍMO v UPDATE, rozhodn efekty podle changes
+      const notifyClient = body.notify_client === true;
+      const updateOps = [
+        env.DB.prepare(
+          `UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP${hasAssignedTo ? ', assigned_to = ?' : ''}
+           WHERE id = ? AND status IN ('pending','confirmed')`
+        ),
+      ];
+      const updateBindings = [newStatus];
+      if (hasAssignedTo) updateBindings.push(assignedTo);
+      updateBindings.push(bookingId);
+      updateOps[0] = updateOps[0].bind(...updateBindings);
+
+      // Audit detail — neutrální text
+      updateOps.push(
+        env.DB.prepare(
+          `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+           VALUES (?, 'bookings', ?, 'cancel', ?, ?)`
+        ).bind(
+          crypto.randomUUID(),
+          bookingId,
+          `operator:${data.operator.id}`,
+          'Zrušeno operátorem'
+        )
+      );
+
+      const batchResults = await env.DB.batch(updateOps);
+      const changes = batchResults?.[0]?.meta?.changes || 0;
+
+      // Efekty JEN když se status opravdu změnil (souběh guard)
+      if (changes === 0) {
+        return json({ ok: true, message: 'Žádná změna (rezervace již není pending nebo confirmed)' });
+      }
+
+      // Side effects: Google + e-mail (mimo batch)
+      const calendar = new GoogleCalendarConnector(env);
+      const resend = new ResendConnector(env);
+
+      // Přebarvi Google na '11' (Tomato/červená)
+      if (booking.calendar_event_id) {
+        calendar.updateEventColor(booking.calendar_event_id, '11')
+          .catch((err) => console.warn(`[admin/bookings] Google cancel color update failed: ${err.message}`));
+      }
+
+      // Informuj klienta (gate: cancellation_notified_at IS NULL)
+      if (notifyClient && !booking.cancellation_notified_at && booking.email_enc) {
+        try {
+          const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
+          const [email, name] = await Promise.all([
+            crypt.decrypt(booking.email_enc),
+            booking.name_enc ? crypt.decrypt(booking.name_enc) : 'Klient',
+          ]);
+
+          const displayDateTime = booking.slot_start || booking.preferred_date;
+          const dateObj = new Date(displayDateTime.includes('T') ? displayDateTime : displayDateTime.replace(' ', 'T') + ':00');
+          const dateStr = new Intl.DateTimeFormat('cs-CZ', {
+            timeZone: 'Europe/Prague',
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+          }).format(dateObj);
+
+          const sendResult = await resend.sendBookingCancelled({
+            name,
+            email,
+            service: booking.service,
+            date: dateStr,
+          });
+
+          if (sendResult) {
+            // Jen když e-mail uspěl, vyplň cancellation_notified_at
+            await env.DB.prepare(
+              'UPDATE bookings SET cancellation_notified_at = ? WHERE id = ?'
+            ).bind(getNowInPrague().toISOString(), bookingId).run();
+          } else {
+            console.warn(`[admin/bookings] Cancellation email not sent (null response)`);
+          }
+        } catch (err) {
+          console.warn(`[admin/bookings] Cancellation email failed: ${err.message}`);
+        }
+      }
+
+      return json({ ok: true, data: { id: bookingId, status: newStatus, assigned_to: assignedTo } });
+    }
+
     // Pro ostatní statusy: zachovej jednoduché chování (ale s hasAssignedTo guard)
     const updateOps = [
       env.DB.prepare(
@@ -360,5 +457,77 @@ export async function onRequestPut({ env, data, request }) {
   } catch (err) {
     console.error('[admin/bookings] PUT error:', err);
     return json({ ok: false, error: 'Chyba při aktualizaci.' }, 500);
+  }
+}
+
+/**
+ * DELETE /admin/bookings — tvrdé smazání (NEVRATNÉ).
+ * Pojistka: vyžaduje confirm=true. Audit zapsán PŘED výmazem řádku (audit_log přežije).
+ *
+ * @param {object} env - Cloudflare Worker bindings (DB, SECRET_GOOGLE_CALENDAR_*).
+ * @param {object} data - Context data s operátor info.
+ * @param {Request} request - HTTP request (query: ?id=...&confirm=true).
+ * @returns {Response} JSON { ok, data: { id, deleted:true } } nebo { ok: false, error }.
+ */
+export async function onRequestDelete({ env, data, request }) {
+  if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
+  try {
+    const url = new URL(request.url);
+    let body = {};
+    try {
+      body = await request.json();
+    } catch {
+      // Body nemusí být JSON pro DELETE
+    }
+
+    const bookingId = body.id || url.searchParams.get('id');
+    if (!bookingId) return json({ ok: false, error: 'Chybí ID rezervace.' }, 400);
+
+    // POJISTKA: vyžaduj explicitní potvrzení
+    const confirm = body.confirm === true || url.searchParams.get('confirm') === 'true';
+    if (!confirm) {
+      return json({ ok: false, error: 'Smazání vyžaduje potvrzení (confirm=true).' }, 400);
+    }
+
+    // Načti booking
+    const booking = await env.DB.prepare(
+      'SELECT id, calendar_event_id FROM bookings WHERE id = ?'
+    ).bind(bookingId).first();
+
+    if (!booking) {
+      return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
+    }
+
+    // G4: Tvrdé smazání — AUDIT FIRST pořadí
+    // NÁLEZ #3: Audit text musí být realistický (záznam akce, ne tvrzení o dokončení)
+    // 1) Zapiš audit log PRVNÍ (DŘÍVE než DELETE) — ať přežije i při selhání
+    await env.DB.prepare(
+      `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+       VALUES (?, 'bookings', ?, 'delete', ?, ?)`
+    ).bind(
+      crypto.randomUUID(),
+      bookingId,
+      `operator:${data.operator.id}`,
+      'Požadavek na tvrdé smazání operátorem'
+    ).run();
+
+    // 2) Smaž Google událost
+    if (booking.calendar_event_id) {
+      const calendar = new GoogleCalendarConnector(env);
+      const deleted = await calendar.deleteEvent(booking.calendar_event_id);
+      if (!deleted) {
+        console.warn(`[admin/bookings] Google delete event failed for ${booking.calendar_event_id}; proceeding with DB delete`);
+      }
+    }
+
+    // 3) Fyzicky smaž řádek (teď)
+    await env.DB.prepare(
+      'DELETE FROM bookings WHERE id = ?'
+    ).bind(bookingId).run();
+
+    return json({ ok: true, data: { id: bookingId, deleted: true } });
+  } catch (err) {
+    console.error('[admin/bookings] DELETE error:', err);
+    return json({ ok: false, error: 'Chyba při smazání.' }, 500);
   }
 }
