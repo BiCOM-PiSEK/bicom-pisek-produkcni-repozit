@@ -5,6 +5,13 @@
  * FE-1: Admin bookings management — statuses, buttons, modals
  */
 
+/**
+ * Loads bookings, renders calendar tabs and table, attaches delegated event listeners.
+ * Handles Confirm, Cancel, Delete, Detail actions via modals.
+ * @async
+ * @param {Element} container - DOM element to render into
+ * @param {Object} ctx - Router context { api, showToast }
+ */
 export async function render(container, ctx) {
   const { api, showToast } = ctx;
 
@@ -135,6 +142,11 @@ export async function render(container, ctx) {
 
 export function destroy() {}
 
+/**
+ * Renders table rows for all bookings with status-specific action buttons.
+ * @param {Array} bookings - Array of booking objects
+ * @returns {string} HTML table markup
+ */
 function renderBookingsTable(bookings) {
   if (bookings.length === 0) {
     return '<div class="empty-state"><h4 class="empty-state-title">Žádné rezervace</h4></div>';
@@ -182,13 +194,37 @@ function renderSkeleton() {
 }
 
 function esc(s) { if (!s) return ''; const e = document.createElement('span'); e.textContent = s; return e.innerHTML; }
+
+/**
+ * Formats ISO date to Czech locale (DD. MMM YYYY), or '—' if empty.
+ * @param {string} d - ISO date string
+ * @returns {string} Formatted date or placeholder
+ */
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+/**
+ * Formats ISO datetime to Czech locale (DD. MMM YYYY HH:MM), or '—' if empty.
+ * @param {string} d - ISO datetime string
+ * @returns {string} Formatted datetime or placeholder
+ */
 function fmtDateTime(d) { if (!d) return '—'; return new Date(d).toLocaleString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
+/**
+ * Finds a booking in the list by ID.
+ * @param {Array} bookings - Array of booking objects
+ * @param {string} id - Booking ID to search
+ * @returns {Object|undefined} Booking object or undefined
+ */
 function findBookingById(bookings, id) {
   return bookings.find((b) => b.id === id);
 }
 
+/**
+ * Creates and displays a modal overlay. Handles closing on button click or overlay click.
+ * @param {string} html - HTML content for the modal
+ * @param {Function} [onMount] - Callback (overlay, closeModal) after modal is inserted
+ * @param {Function} [onCleanup] - Callback (overlay) before modal is removed
+ */
 function showModal(html, onMount, onCleanup) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -209,6 +245,15 @@ function showModal(html, onMount, onCleanup) {
   if (onMount) onMount(overlay, closeModal);
 }
 
+/**
+ * Displays modal to cancel (soft delete) a booking with optional client notification.
+ * Updates booking status to 'cancelled' and sends email if checkbox checked.
+ * @param {Object} booking - Booking object with id, name, service
+ * @param {Object} api - API client
+ * @param {Function} showToast - Toast notification function
+ * @param {Element} container - Container to re-render after action
+ * @param {Object} ctx - Router context
+ */
 function showCancelModal(booking, api, showToast, container, ctx) {
   const html = `
     <div class="modal" style="max-width: 480px; width: 90%;">
@@ -259,6 +304,15 @@ function showCancelModal(booking, api, showToast, container, ctx) {
   });
 }
 
+/**
+ * Displays modal to hard-delete (IRREVERSIBLE) a booking from database and calendar.
+ * Shows red warning and booking details before confirmation.
+ * @param {Object} booking - Booking object with id, name, service, preferred_date
+ * @param {Object} api - API client
+ * @param {Function} showToast - Toast notification function
+ * @param {Element} container - Container to re-render after action
+ * @param {Object} ctx - Router context
+ */
 function showDeleteModal(booking, api, showToast, container, ctx) {
   const html = `
     <div class="modal" style="max-width: 480px; width: 90%;">
@@ -274,7 +328,7 @@ function showDeleteModal(booking, api, showToast, container, ctx) {
         <div style="background-color: #f3f4f6; border-radius: 8px; padding: var(--sp-3); margin-bottom: var(--sp-4); font-size: 0.9rem;">
           <p style="margin: 0 0 var(--sp-1);"><strong>Klient:</strong> ${esc(booking.name || '—')}</p>
           <p style="margin: 0 0 var(--sp-1);"><strong>Služba:</strong> ${esc(booking.service || '—')}</p>
-          <p style="margin: 0;"><strong>Termín:</strong> ${fmtDate(booking.preferred_date || '—')}</p>
+          <p style="margin: 0;"><strong>Termín:</strong> ${fmtDate(booking.preferred_date)}</p>
         </div>
       </div>
       <div class="modal-footer" style="display: flex; gap: var(--sp-3); justify-content: flex-end;">
@@ -306,6 +360,13 @@ function showDeleteModal(booking, api, showToast, container, ctx) {
   });
 }
 
+/**
+ * Displays modal with booking details (decrypted PII) and audit history.
+ * Fetches data from getBookingDetail endpoint, handles errors gracefully.
+ * @param {string} bookingId - ID of booking to display
+ * @param {Object} api - API client
+ * @param {Function} showToast - Toast notification function
+ */
 function showDetailModal(bookingId, api, showToast) {
   const html = `
     <div class="modal" style="max-width: 700px; width: 95%; max-height: 80vh; overflow-y: auto;">
@@ -394,7 +455,7 @@ function showDetailModal(bookingId, api, showToast) {
           </div>
           <div>
             <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Termín (slot)</p>
-            <p style="margin: 0; color: var(--c-forest);">${fmtDateTime(booking.slot_start || booking.preferred_date || '—')}</p>
+            <p style="margin: 0; color: var(--c-forest);">${fmtDateTime(booking.slot_start || booking.preferred_date)}</p>
           </div>
           <div>
             <p style="margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; color: var(--c-sage); font-weight: 600;">Stav</p>
