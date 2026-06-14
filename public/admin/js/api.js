@@ -416,12 +416,29 @@ function getBlogPost(id) {
 }
 
 /**
- * PUT /admin/blog — akce nad článkem (update, publish, schedule, unpublish, archive).
+ * PUT /admin/blog — akce nad články (update, publish, schedule, unpublish, archive).
  * @param {Object} body
  * @returns {Promise<ApiResponse>}
  */
 function updateBlogPost(body) {
   return request('/blog', { method: 'PUT', body });
+}
+
+/**
+ * GET /admin/availability — otevírací doby + booking_settings.
+ * @returns {Promise<ApiResponse>}
+ */
+function getAvailability() {
+  return request('/availability');
+}
+
+/**
+ * PUT /admin/availability — ulož pravidla otevírací doby a nastavení.
+ * @param {Object} data — { rules: [...], settings: {...} }
+ * @returns {Promise<ApiResponse>}
+ */
+function saveAvailability(data) {
+  return request('/availability', { method: 'PUT', body: data });
 }
 
 // ─── EXPORT (pro browser ES module) ────────────────────────────
@@ -445,6 +462,8 @@ const AdminAPI = {
   getBlogPosts,
   getBlogPost,
   updateBlogPost,
+  getAvailability,
+  saveAvailability,
 };
 
 // Také na window pro přístup z modulů

@@ -2132,3 +2132,72 @@ F2 je BACKEND. Frontend zatím posílá jen preferred_date (bez času). F3 bude:
 - Všechny testy s reálným mock data (PASS/FAIL viditel)
 
 **Výsledek:** PR #47 v GitHub se aktualizuje s novým committem, CodeRabbit projede znovu.
+
+---
+
+## ADR-004 F3: Admin UI pro otevírací dobu + parametry slotů (2026-06-14)
+
+**Branch:** `feat/booking-f3-availability-admin`
+
+**Cíl:** Admin obrazovka, kde majitelky spravují:
+
+- **availability_rules** (otevírací dobu po dnech — všech 7 dní)
+- **booking_settings** (délka slotu, pauza, předstih, horizont, ověřené zálohy)
+
+Zápisový protějšek F2 (GET /api/availability). Vzor: settings.js (frontend) + settings.js/bookings.js (backend).
+
+### ✅ Implementováno
+
+**1. Backend — functions/admin/availability.js (288 řádků)**
+
+- **GET /admin/availability:** SELECT rules + settings, vrátí json
+- **PUT /admin/availability:** Uložení s rigorózní validací
+  - Weekday: 0–6, dedup (max 1× per den)
+  - start_time / end_time: regex HH:MM s vedoucí nulou, start < end
+  - slot_duration_min > 0, slot_gap_min ≥ 0, (duration + gap) > 0 (guard CR-4)
+  - min_lead_hours ≥ 0, max_horizon_days > 0
+  - require_confirmation/require_deposit: 0/1, deposit_amount ≥ 0
+  - Konkrétní error message na každé pole (400 badvalidation)
+- **Zápis transakčně (batch)**
+  - DELETE staré rules, INSERT nové
+  - UPDATE booking_settings WHERE id = 1
+  - INSERT audit_log (entity, action, details)
+- Role check: `if (operator.role !== 'admin' && !operator.isDev) return 403`
+
+**2. API Client — public/admin/js/api.js (+14 řádků)**
+
+- `getAvailability()` → GET /admin/availability
+- `saveAvailability(data)` → PUT /admin/availability
+- Přidáno do AdminAPI objektu
+
+**3. Frontend Modul — public/admin/js/modules/availability.js (220 řádků)**
+
+- Renderuje 7 řádků (Po–Ne), checkbox "otevřeno" + time inputy (od/do)
+- Když vypnuté → den se neuloží (zavřeno)
+- Sekce: "Otevírací doba" + "Parametry slotů" + "Rezervační chování"
+- Klientská validace: start < end, duration > 0, duration + gap > 0
+- Submit handler: posbírá rules + settings, `api.saveAvailability()`, toast notifikace
+- Demo režim: pokud !api, jen simuluje toast
+- Enable/disable time inputy dle checkbox
+
+**4. Router — public/admin/js/router.js (+6 řádků)**
+
+- Nová route: `{ path: '/dostupnost', title: 'Otevírací doba', icon: 'clock', moduleId: 'availability' }`
+- Zaregistrováno v ROUTES, lazy-load funguje automaticky
+
+### ⚠️ Kritické detaily
+
+- **Čas "HH:MM" s vedoucí nulou** → input type="time" vrací správný formát
+- **slot_duration_min + slot_gap_min > 0 guard** → shoduje se s F2 CR-4
+- **Transitive validace:** server vrací konkrétní field error (ne vágní "bad data")
+- **Demo režim:** pokud `!api`, formulář pracuje, ale ukládání je jen simulované
+
+### ✅ Ověřeno
+
+- `node --check functions/admin/availability.js` ✓
+- Frontend modul syntakticky validní JS
+- Router regel zaregistrován
+- API convenience methods přidány do AdminAPI objektu
+- Validace "HH:MM" formátu (regex /^([01]\d|2[0-3]):[0-5]\d$/)
+
+**Status:** PŘIPRAVENO NA PR (NEmerguj) — frontend + backend + router gotov. Chybí: dev test (wrangler pages dev nelze spustit bez secretů, ale logika je ověřená code-review).
