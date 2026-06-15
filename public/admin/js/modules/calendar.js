@@ -513,7 +513,8 @@ function showDetailModal(bookingId, api, showToast) {
  * @param {Object} ctx - Router context
  */
 function showRescheduleModal(booking, api, showToast, container, ctx) {
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   let selectedStart = null;
   let selectedEnd = null;
   let availabilityRequestSeq = 0;
