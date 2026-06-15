@@ -2780,3 +2780,21 @@ Dotažení jediného explicitně odloženého bodu ADR-005 (varianta b).
 **Pozn. k prověření (mimo rozsah):** G3/G4 zapisují audit akce `'reschedule'`/`'cancel'`, které nejsou v CHECK seznamu `audit_log.action` — možný latentní bug.
 
 **Status:** Ready na PR (draft).
+
+## GEO-Marketing: odstranění mock dat, příprava na reálný provoz (2026-06-15)
+
+Cíl: „dát bordel pryč", aby modul ukazoval jen reálná data a šel připravit na ostrý provoz.
+
+**Frontend (`public/admin/js/modules/geo.js`) — přepsán:**
+- Odstraněno `getDemoGeo()` (vymyšlená města Písek 42, Strakonice 15…) a `getDemoRecommendations()` (falešná „AI doporučení").
+- Odstraněno divadelní tlačítko (`onclick` jen měnil text přes setTimeout).
+- Nově: výhradně reálná data z `/admin/geo`; poctivé prázdné stavy (žádné poptávky → „Data se začnou zobrazovat po spuštění webu"); reálné „Nejžádanější služby" (backend je vracel, FE je ignoroval); badge dle skutečného počtu; funkční „Obnovit" (re-fetch + re-render).
+
+**Backend (`functions/admin/geo.js`):** doplněn `insights[]` z reálných agregací (top město; tip na lokální kampaň při ≥5 poptávkách — práh dle cronu `_cron-geo.js`; nejžádanější služba). Pravidlové, žádná AI/mock.
+
+**Edge (read-only, NIC nemazáno):** produkční `geo_leads` = 2 reálné testovací leady (Písek), 0× `gl_demo%`. Detail + návrh příkazu na smazání před spuštěním → `docs/EDGE_OPS_LOG.md` (ČEKÁ na pokyn).
+
+**Odloženo:** skutečná AI doporučení (ne pravidlová) → AI Studio, ADR-003.
+
+**QA:** `node --check` ✅.
+**Status:** Ready na PR (draft, stejná větev jako no_show).

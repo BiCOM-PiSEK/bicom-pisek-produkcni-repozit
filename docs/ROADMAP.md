@@ -67,6 +67,7 @@
 - Blog management: generovat → upravit → publikovat → plánovat → archivovat (migrace 0011)
 - Správa rezervací (ADR-005 G2–G4 + FE-1/FE-2): Potvrdit/Přesunout/Zrušit/Smazat/Detail + obousměrná Google sync
 - **no_show „klient nedorazil"** — tlačítko/badge/filtr v konzoli, `no_show_flag` (migrace 0015, ADR-005 varianta b)
+- **GEO-Marketing modul** — odstraněna demo/mock data i falešná „AI doporučení"; jen reálná data z `geo_leads` + poctivé prázdné stavy + pravidlové postřehy (skutečná AI doporučení → AI Studio ADR-003)
 
 ### Platby — Stripe (mechanika hotová) — viz [STRIPE_INTEGRATION](docs/STRIPE_INTEGRATION.md)
 - Endpointy `/api/stripe-checkout` (Checkout Session, záloha 500 Kč) + `/api/stripe-webhook` (potvrzení platby, ověření podpisu)

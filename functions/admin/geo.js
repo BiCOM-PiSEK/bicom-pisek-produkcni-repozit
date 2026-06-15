@@ -70,11 +70,36 @@ export async function onRequestGet({ env, data }) {
       count: r.count,
     }));
 
+    // Postřehy odvozené z REÁLNÝCH dat (žádná AI/mock — pravidlové shrnutí).
+    // Zrcadlí logiku týdenního cronu _cron-geo.js (práh 5 pro tip na kampaň).
+    const insights = [];
+    if (cities.length > 0) {
+      const top = cities[0];
+      insights.push({
+        title: `Nejvíce poptávek: ${top.name}`,
+        description: `${top.count}× — největší zájem o služby v tomto regionu.`,
+      });
+      if (top.count >= 5) {
+        insights.push({
+          title: `Tip: lokální kampaň pro ${top.name}`,
+          description: `Vyšší koncentrace poptávek (${top.count}×) — zvažte cílenou kampaň nebo článek na blog.`,
+        });
+      }
+    }
+    if (topServices.length > 0) {
+      const s = topServices[0];
+      insights.push({
+        title: `Nejžádanější služba: ${s.service}`,
+        description: `${s.count}× napříč regiony.`,
+      });
+    }
+
     return json({
       ok: true,
       data: {
         cities,
         topServices,
+        insights,
         totalLeads: cities.reduce((s, c) => s + c.count, 0),
       },
     });
