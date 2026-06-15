@@ -98,9 +98,10 @@ export async function render(container, ctx) {
     });
   });
 
-  // Delegated listeners pro všechny akce (Potvrdit, Zrušit, Smazat, Detail)
+  // Delegated listeners pro všechny akce (Potvrdit, Přesunout, Zrušit, Smazat, Detail)
   container.addEventListener('click', async (e) => {
     const confirmBtn = e.target.closest('[data-action="confirmed"]');
+    const rescheduleBtn = e.target.closest('[data-action="reschedule"]');
     const cancelBtn = e.target.closest('[data-action="cancel"]');
     const deleteBtn = e.target.closest('[data-action="delete"]');
     const detailBtn = e.target.closest('[data-action="detail"]');
@@ -121,6 +122,14 @@ export async function render(container, ctx) {
       showToast('Chyba: ' + res.error, 'error');
       confirmBtn.disabled = false;
       confirmBtn.textContent = originalText;
+    }
+
+    if (rescheduleBtn) {
+      const id = rescheduleBtn.dataset.id;
+      const booking = findBookingById(bookings, id);
+      if (booking) {
+        showRescheduleModal(booking, api, showToast, container, ctx);
+      }
     }
 
     if (cancelBtn) {
@@ -166,11 +175,13 @@ function renderBookingsTable(bookings) {
     if (b.status === 'pending') {
       actions = `
         <button class="btn btn-champagne btn-sm" data-id="${esc(b.id)}" data-action="confirmed">Potvrdit</button>
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="reschedule">Přesunout</button>
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="cancel">Zrušit</button>
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="detail">Detail</button>
       `;
     } else if (b.status === 'confirmed') {
       actions = `
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="reschedule">Přesunout</button>
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="cancel">Zrušit</button>
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="detail">Detail</button>
       `;
@@ -489,5 +500,143 @@ function showDetailModal(bookingId, api, showToast) {
     `;
 
     modalBody.innerHTML = contentHtml;
+  });
+}
+
+/**
+ * Displays modal to reschedule a booking by selecting a new slot from /api/availability.
+ * Fetches available slots, renders picker, and sends new_slot_start/end to G3 PUT endpoint.
+ * @param {Object} booking - Booking object with id, name, service, slot_start/preferred_date
+ * @param {Object} api - API client
+ * @param {Function} showToast - Toast notification function
+ * @param {Element} container - Container to re-render after action
+ * @param {Object} ctx - Router context
+ */
+function showRescheduleModal(booking, api, showToast, container, ctx) {
+  const today = new Date().toISOString().split('T')[0];
+  let selectedStart = null;
+  let selectedEnd = null;
+  let availabilityRequestSeq = 0;
+
+  const html = `
+    <div class="modal" style="max-width: 600px; width: 90%;">
+      <div class="modal-header">
+        <h3 class="modal-title">Přesunout rezervaci</h3>
+        <button type="button" class="btn-close" aria-label="Zavřít" style="position: absolute; top: var(--sp-4); right: var(--sp-4); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--c-sage);">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: var(--sp-4);">
+          <p style="color: var(--c-forest); margin: 0 0 var(--sp-2);">
+            <strong>${esc(booking.name || 'Klient')}</strong> • ${esc(booking.service)}
+          </p>
+          <p style="color: var(--c-sage); font-size: 0.9rem; margin: 0;">
+            Aktuální termín: <strong>${fmtDateTime(booking.slot_start || booking.preferred_date)}</strong>
+          </p>
+        </div>
+        <div style="margin-bottom: var(--sp-4);">
+          <label for="reschedule-date" style="display: block; margin-bottom: var(--sp-2); color: var(--c-forest); font-weight: 500;">Vyberte nový den</label>
+          <input type="date" id="reschedule-date" min="${today}" style="width: 100%; padding: 0.5rem; border: 1px solid var(--c-sage); border-radius: 6px; font-size: 0.9rem;">
+        </div>
+        <div style="margin-bottom: var(--sp-4);">
+          <label style="display: block; margin-bottom: var(--sp-2); color: var(--c-forest); font-weight: 500;">Volné časy</label>
+          <div id="reschedule-slots" style="display: flex; flex-wrap: wrap; gap: 0.75rem; min-height: 2.5rem;">
+            <p style="color: var(--c-sage); font-size: 0.9rem; margin: 0;">Vyberte prosím den</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; gap: var(--sp-3); justify-content: flex-end;">
+        <button class="btn btn-cancel btn-ghost" style="border: 1px solid var(--c-sage);">Zpět</button>
+        <button class="btn btn-reschedule" style="background-color: #3A4A3C; color: white; border: none; cursor: pointer;" disabled>Přesunout</button>
+      </div>
+    </div>
+  `;
+
+  showModal(html, (overlay, closeModal) => {
+    const dateInput = overlay.querySelector('#reschedule-date');
+    const slotsContainer = overlay.querySelector('#reschedule-slots');
+    const rescheduleBtn = overlay.querySelector('.btn-reschedule');
+
+    dateInput.addEventListener('change', async () => {
+      const dateStr = dateInput.value;
+      if (!dateStr) {
+        slotsContainer.innerHTML = '<p style="color: var(--c-sage); font-size: 0.9rem; margin: 0;">Vyberte prosím den</p>';
+        selectedStart = null;
+        selectedEnd = null;
+        rescheduleBtn.disabled = true;
+        return;
+      }
+
+      const reqSeq = ++availabilityRequestSeq;
+      slotsContainer.innerHTML = '<p style="color: var(--c-sage); font-size: 0.9rem; margin: 0;">Načítám dostupnost…</p>';
+
+      try {
+        const res = await fetch(`/api/availability?from=${dateStr}&to=${dateStr}`);
+        if (reqSeq !== availabilityRequestSeq) return;
+
+        if (!res.ok) {
+          slotsContainer.innerHTML = '<p style="color: #ef4444; font-size: 0.9rem; margin: 0;">Chyba při načítání dostupnosti</p>';
+          return;
+        }
+
+        const availData = await res.json();
+        const dayData = availData.days && availData.days[0];
+        const slots = dayData && dayData.slots ? dayData.slots : [];
+
+        if (slots.length === 0) {
+          slotsContainer.innerHTML = '<p style="color: var(--c-sage); font-size: 0.9rem; margin: 0;">Žádné volné termíny pro tento den</p>';
+          selectedStart = null;
+          selectedEnd = null;
+          rescheduleBtn.disabled = true;
+          return;
+        }
+
+        slotsContainer.innerHTML = '';
+        slots.forEach((slot) => {
+          const time = slot.start.split(' ')[1];
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = time;
+          btn.style.cssText = 'padding: 0.6rem 1.2rem; border: 1px solid var(--c-sage); background-color: transparent; color: var(--c-sage); border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease;';
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            slotsContainer.querySelectorAll('button').forEach((b) => {
+              b.style.backgroundColor = 'transparent';
+              b.style.color = 'var(--c-sage)';
+            });
+            btn.style.backgroundColor = 'var(--c-sage)';
+            btn.style.color = 'var(--c-white)';
+            selectedStart = slot.start;
+            selectedEnd = slot.end;
+            rescheduleBtn.disabled = false;
+          });
+          slotsContainer.appendChild(btn);
+        });
+      } catch (err) {
+        console.error('[calendar] Availability fetch error:', err);
+        slotsContainer.innerHTML = '<p style="color: #ef4444; font-size: 0.9rem; margin: 0;">Chyba při načítání dostupnosti</p>';
+      }
+    });
+
+    rescheduleBtn.addEventListener('click', async () => {
+      if (!selectedStart || !selectedEnd) return;
+
+      rescheduleBtn.disabled = true;
+      rescheduleBtn.textContent = 'Přesouvám…';
+
+      const res = await api.updateBooking(booking.id, {
+        new_slot_start: selectedStart,
+        new_slot_end: selectedEnd,
+      });
+
+      if (res.ok) {
+        showToast('Termín přesunut', 'success');
+        closeModal();
+        render(container, ctx);
+      } else {
+        showToast('Chyba: ' + res.error, 'error');
+        rescheduleBtn.disabled = false;
+        rescheduleBtn.textContent = 'Přesunout';
+      }
+    });
   });
 }

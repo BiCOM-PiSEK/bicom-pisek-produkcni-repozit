@@ -2754,3 +2754,11 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **Modaly:** (1) Cancel — checkbox "informovat klienta" → notify_client. (2) Delete — červené varování NEVRATNÉ + data klienta. (3) Detail — grid PII/stav/přiřazeno, tabulka historie (action/actor/čas/detaily), has_more.
 
 **FE-2:** Přesun s pickerem zarezervován — samostatný PR.
+
+## FE-2: Admin konzole — tlačítko Přesunout + slot picker modal (2026-06-15)
+
+**Tlačítko Přesunout:** pending a confirmed řádky (obě lze přesouvat). data-action="reschedule", styl btn btn-ghost btn-sm.
+
+**showRescheduleModal (slot picker):** Modal s date inputem (min=dnes), kontejnerem na sloty. Fetch /api/availability (from=to=den), race guard (availabilityRequestSeq), render tlačítek pro slot.start časů. Výběr slotu (closure: selectedStart/End) povolí [Přesunout]. Bez new Date() na slot string — posílá PŘESNĚ "YYYY-MM-DD HH:MM" do api.updateBooking({new_slot_start, new_slot_end}). Na 409 kolize → toast s hláškou backend; úspěch → toast + render tabulky.
+
+**Napojení:** delegovaný listener v container click (AbortController) → rescheduleBtn → showRescheduleModal. Formát bez 'Z', bez ISO konverze.
