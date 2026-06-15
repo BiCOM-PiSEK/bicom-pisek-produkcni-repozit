@@ -58,6 +58,7 @@ export async function render(container, ctx) {
   const pending = bookings.filter((b) => b.status === 'pending');
   const confirmed = bookings.filter((b) => b.status === 'confirmed');
   const done = bookings.filter((b) => b.status === 'done');
+  const noShow = bookings.filter((b) => b.no_show_flag);
 
   container.innerHTML = `
     <div class="canvas-header">
@@ -71,6 +72,7 @@ export async function render(container, ctx) {
       <button class="btn btn-ghost btn-sm tab-btn" data-filter="pending">Čekající (${pending.length})</button>
       <button class="btn btn-ghost btn-sm tab-btn" data-filter="confirmed">Potvrzené (${confirmed.length})</button>
       <button class="btn btn-ghost btn-sm tab-btn" data-filter="done">Dokončené (${done.length})</button>
+      <button class="btn btn-ghost btn-sm tab-btn" data-filter="noshow">Nedorazili (${noShow.length})</button>
     </div>
 
     <!-- Tabulka -->
@@ -93,7 +95,9 @@ export async function render(container, ctx) {
 
       const filter = btn.dataset.filter;
       container.querySelectorAll('.booking-row').forEach((row) => {
-        row.style.display = (filter === 'all' || row.dataset.status === filter) ? '' : 'none';
+        const match = filter === 'all'
+          || (filter === 'noshow' ? row.dataset.noshow === '1' : row.dataset.status === filter);
+        row.style.display = match ? '' : 'none';
       });
     });
   });
@@ -102,6 +106,7 @@ export async function render(container, ctx) {
   container.addEventListener('click', async (e) => {
     const confirmBtn = e.target.closest('[data-action="confirmed"]');
     const rescheduleBtn = e.target.closest('[data-action="reschedule"]');
+    const noShowBtn = e.target.closest('[data-action="noshow"]');
     const cancelBtn = e.target.closest('[data-action="cancel"]');
     const deleteBtn = e.target.closest('[data-action="delete"]');
     const detailBtn = e.target.closest('[data-action="detail"]');
@@ -129,6 +134,14 @@ export async function render(container, ctx) {
       const booking = findBookingById(bookings, id);
       if (booking) {
         showRescheduleModal(booking, api, showToast, container, ctx);
+      }
+    }
+
+    if (noShowBtn) {
+      const id = noShowBtn.dataset.id;
+      const booking = findBookingById(bookings, id);
+      if (booking) {
+        showNoShowModal(booking, api, showToast, container, ctx);
       }
     }
 
@@ -167,9 +180,6 @@ function renderBookingsTable(bookings) {
     return '<div class="empty-state"><h4 class="empty-state-title">Žádné rezervace</h4></div>';
   }
   const rows = bookings.map((b) => {
-    const badge = { pending: 'badge-pending', confirmed: 'badge-confirmed', done: 'badge-done', cancelled: 'badge-cancelled' };
-    const label = { pending: 'Čeká', confirmed: 'Potvrzeno', done: 'Dokončeno', cancelled: 'Zrušeno' };
-
     let actions = '';
 
     if (b.status === 'pending') {
@@ -182,6 +192,7 @@ function renderBookingsTable(bookings) {
     } else if (b.status === 'confirmed') {
       actions = `
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="reschedule">Přesunout</button>
+        <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="noshow">Nedorazil</button>
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="cancel">Zrušit</button>
         <button class="btn btn-ghost btn-sm" data-id="${esc(b.id)}" data-action="detail">Detail</button>
       `;
@@ -192,11 +203,12 @@ function renderBookingsTable(bookings) {
       `;
     }
 
-    return `<tr class="booking-row" data-status="${b.status}">
+    const { cls, label } = statusBadge(b);
+    return `<tr class="booking-row" data-status="${b.status}" data-noshow="${b.no_show_flag ? '1' : '0'}">
       <td><strong>${esc(b.name || '(šifrováno)')}</strong></td>
       <td>${esc(b.service)}</td>
       <td>${fmtDate(b.preferred_date)}</td>
-      <td><span class="badge ${badge[b.status] || ''}">${label[b.status] || b.status}</span></td>
+      <td><span class="badge ${cls}">${label}</span></td>
       <td style="display: flex; gap: var(--sp-2); flex-wrap: wrap;">${actions}</td>
     </tr>`;
   }).join('');
@@ -211,6 +223,19 @@ function renderSkeleton() {
 }
 
 function esc(s) { if (!s) return ''; const e = document.createElement('span'); e.textContent = s; return e.innerHTML; }
+
+/**
+ * Resolves the status badge (CSS class + label) for a booking.
+ * A no_show_flag overrides the 'done' status with a distinct "Nedorazil" badge.
+ * @param {Object} b - Booking object with status and no_show_flag
+ * @returns {{cls: string, label: string}}
+ */
+function statusBadge(b) {
+  if (b.no_show_flag) return { cls: 'badge-noshow', label: 'Nedorazil' };
+  const cls = { pending: 'badge-pending', confirmed: 'badge-confirmed', done: 'badge-done', cancelled: 'badge-cancelled' };
+  const label = { pending: 'Čeká', confirmed: 'Potvrzeno', done: 'Dokončeno', cancelled: 'Zrušeno' };
+  return { cls: cls[b.status] || '', label: label[b.status] || b.status };
+}
 
 /**
  * Formats ISO date to Czech locale (DD. MMM YYYY), or '—' if empty.
@@ -324,6 +349,60 @@ function showCancelModal(booking, api, showToast, container, ctx) {
         showToast('Chyba: ' + res.error, 'error');
         deleteBtn.disabled = false;
         deleteBtn.textContent = 'Zrušit rezervaci';
+      }
+    });
+  });
+}
+
+/**
+ * Displays modal to mark a confirmed booking as no-show ("klient nedorazil").
+ * Sets status to 'done' + no_show_flag; client is NOT notified. Recolors Google event grey.
+ * @param {Object} booking - Booking object with id, name, service
+ * @param {Object} api - API client
+ * @param {Function} showToast - Toast notification function
+ * @param {Element} container - Container to re-render after action
+ * @param {Object} ctx - Router context
+ */
+function showNoShowModal(booking, api, showToast, container, ctx) {
+  const html = `
+    <div class="modal" style="max-width: 480px; width: 90%;">
+      <div class="modal-header">
+        <h3 class="modal-title">Klient nedorazil</h3>
+        <button type="button" class="btn-close" aria-label="Zavřít" style="position: absolute; top: var(--sp-4); right: var(--sp-4); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--c-sage);">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: var(--sp-3); color: var(--c-forest);">
+          Označit rezervaci <strong>${esc(booking.name || 'neznámý klient')}</strong>
+          na službu <strong>${esc(booking.service)}</strong> jako „klient nedorazil"?
+        </p>
+        <p style="margin: 0; color: var(--c-sage); font-size: 0.9rem;">
+          Rezervace se přesune mezi dokončené s označením „Nedorazil". Klient <strong>nebude informován</strong> e-mailem.
+        </p>
+      </div>
+      <div class="modal-footer" style="display: flex; gap: var(--sp-3); justify-content: flex-end;">
+        <button class="btn btn-cancel btn-ghost" style="border: 1px solid var(--c-sage);">Zpět</button>
+        <button class="btn btn-confirm" style="background-color: var(--c-sage); color: white; border: none;">Označit jako nedorazil</button>
+      </div>
+    </div>
+  `;
+
+  showModal(html, (overlay, closeModal) => {
+    const confirmBtn = overlay.querySelector('.btn-confirm');
+
+    confirmBtn.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Zpracovávám…';
+
+      const res = await api.markNoShow(booking.id);
+
+      if (res.ok) {
+        showToast('Označeno: klient nedorazil', 'success');
+        closeModal();
+        render(container, ctx);
+      } else {
+        showToast('Chyba: ' + res.error, 'error');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Označit jako nedorazil';
       }
     });
   });
@@ -454,9 +533,7 @@ function showDetailModal(bookingId, api, showToast) {
       `;
     }
 
-    const badgeMap = { pending: 'badge-pending', confirmed: 'badge-confirmed', done: 'badge-done', cancelled: 'badge-cancelled' };
-    const badgeClass = badgeMap[booking.status] || '';
-    const statusLabel = { pending: 'Čeká', confirmed: 'Potvrzeno', done: 'Dokončeno', cancelled: 'Zrušeno' }[booking.status] || booking.status;
+    const { cls: badgeClass, label: statusLabel } = statusBadge(booking);
 
     const contentHtml = `
       <div>

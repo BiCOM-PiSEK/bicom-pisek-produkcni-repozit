@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     assigned_to TEXT,
     confirmation_sent_at TIMESTAMP,
     cancellation_notified_at TIMESTAMP,
+    no_show_flag INTEGER DEFAULT 0,
     FOREIGN KEY (operator_id) REFERENCES operators(id)
 );
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);

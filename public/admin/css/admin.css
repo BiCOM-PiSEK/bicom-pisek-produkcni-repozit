@@ -849,6 +849,7 @@ input, select, textarea {
 .badge-confirmed { background: var(--c-success-bg); color: var(--c-success); }
 .badge-done      { background: var(--c-sage-light); color: var(--c-sage); }
 .badge-cancelled { background: var(--c-error-bg);   color: var(--c-error); }
+.badge-noshow    { background: var(--c-graphite, #e5e7eb); color: var(--c-forest, #374151); }
 .badge-new       { background: var(--c-champagne-glow); color: var(--c-champagne); }
 .badge-ai        { background: var(--c-info-bg);    color: var(--c-info); }
 

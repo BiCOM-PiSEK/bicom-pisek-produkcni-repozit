@@ -14,6 +14,20 @@
 
 ---
 
+## no_show „Klient nedorazil" (ADR-005, dotažení odloženého bodu)
+- **Datum:** 2026-06-15 14:30
+- **Agent:** Claude Code
+- **Úkol:** Implementovat označení „klient nedorazil" v admin konzoli (správa rezervací).
+- **Změny:**
+  - `db/migrations/0015_booking_no_show.sql` (nový) + `db/schema.sql` — sloupec `no_show_flag INTEGER DEFAULT 0` (ALTER ADD COLUMN, varianta b z ADR-005).
+  - `functions/admin/bookings.js` — nová PUT větev `action:'no_show'`: guard confirmed→done + no_show_flag=1, audit (`action='update'`), Google event šedý ('8'), bez e-mailu klientovi.
+  - `public/admin/js/api.js` — metoda `markNoShow(id)`.
+  - `public/admin/js/modules/calendar.js` — tlačítko „Nedorazil" (confirmed), modal, badge „Nedorazil", filtr-tab „Nedorazili"; sdílený helper `statusBadge`.
+  - `public/admin/css/admin.css` — `.badge-noshow`.
+- **Rozhodnutí/odchylky:** `audit_log.action` má CHECK bez `'no_show'` → použito povolené `action='update'` se sémantikou v `details` (stejný vzor jako G2). Stav drží `status='done' + no_show_flag`, nikoli novou hodnotu statusu (CHECK na bookings.status nelze v D1 měnit přes ALTER).
+- **QA:** `node --check` ✅ na všech 3 JS souborech. Lint/vitest v kontejneru nenastaveny (chybí eslint.config.js, vitest neinstalován) — předaná stav repa, netýká se změny. Migrace na produkční D1 ZATÍM NEAPLIKOVÁNA (čeká na pokyn).
+- **Pro orchestrátora:** Před nasazením spustit `npm run db:migrate` (aplikuje 0015 na produkční D1). Upozornění: stávající G3/G4 zapisují do `audit_log` akce `'reschedule'`/`'cancel'`, které NEJSOU v CHECK seznamu — možný latentní bug k prověření (mimo rozsah tohoto úseku).
+
 ## Záznam o Fázi 2 (Management Vrstva a Style Brief)
 - **Datum:** 2026-05-25 22:41
 - **Agent:** Gemini/Antigravity

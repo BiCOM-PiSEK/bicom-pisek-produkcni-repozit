@@ -2762,3 +2762,21 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **showRescheduleModal (slot picker):** Modal s date inputem (min=dnes), kontejnerem na sloty. Fetch /api/availability (from=to=den), race guard (availabilityRequestSeq), render tlačítek pro slot.start časů. Výběr slotu (closure: selectedStart/End) povolí [Přesunout]. Bez new Date() na slot string — posílá PŘESNĚ "YYYY-MM-DD HH:MM" do api.updateBooking({new_slot_start, new_slot_end}). Na 409 kolize → toast s hláškou backend; úspěch → toast + render tabulky.
 
 **Napojení:** delegovaný listener v container click (AbortController) → rescheduleBtn → showRescheduleModal. Formát bez 'Z', bez ISO konverze.
+
+## no_show: "Klient nedorazil" (2026-06-15)
+
+Dotažení jediného explicitně odloženého bodu ADR-005 (varianta b).
+
+**DB:** migrace `0015_booking_no_show.sql` + `db/schema.sql` — `no_show_flag INTEGER DEFAULT 0` (ALTER ADD COLUMN, additivní/bezpečné; CHECK na `bookings.status` se nemění).
+
+**Backend (`functions/admin/bookings.js`):** PUT větev `action:'no_show'` — guard `UPDATE ... WHERE status='confirmed'` → `status='done', no_show_flag=1`; efekty podle `changes` (no-op jinak). Side effect: Google `updateEventColor('8')` (Graphite/šedá), bez e-mailu klientovi. Audit `action='update'` (CHECK na `audit_log.action` neobsahuje `no_show`), sémantika v `details`.
+
+**Frontend:** `api.markNoShow(id)`; v `calendar.js` tlačítko „Nedorazil" (jen confirmed), potvrzovací modal (klient nebude informován), badge „Nedorazil" (helper `statusBadge`), filtr-tab „Nedorazili"; `.badge-noshow` v admin.css.
+
+**Sémantika:** confirmed → done + no_show_flag; záznam zůstává mezi „Dokončenými" s odlišným badge.
+
+**QA:** `node --check` ✅. Migrace na produkční D1 čeká na pokyn (`npm run db:migrate`).
+
+**Pozn. k prověření (mimo rozsah):** G3/G4 zapisují audit akce `'reschedule'`/`'cancel'`, které nejsou v CHECK seznamu `audit_log.action` — možný latentní bug.
+
+**Status:** Ready na PR (draft).

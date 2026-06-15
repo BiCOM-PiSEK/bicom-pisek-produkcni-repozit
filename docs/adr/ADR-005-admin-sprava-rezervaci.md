@@ -60,3 +60,11 @@ aplikačně (žádný sloupec navíc). ALTER ADD COLUMN, nikdy remake.
 - **(b)** Řešit "nedorazil" bez nového statusu — samostatným boolean polem (`no_show_flag`), přidaným přes ALTER ADD COLUMN.
 
 Rozhodnutí: až při realizaci G4 nebo G5, v závislosti na náročnosti ostatních sloupců.
+
+**REALIZOVÁNO (2026-06-15) — varianta (b):** Migrace `0015_booking_no_show.sql`
+přidává `no_show_flag INTEGER DEFAULT 0` přes ALTER ADD COLUMN (bez rebuildu).
+Sémantika: označení „klient nedorazil" převede potvrzenou rezervaci na
+`status='done'` + `no_show_flag=1`. Klient se neinformuje, Google událost se
+přebarví na šedou (`colorId '8'`). Audit zapsán jako `action='update'` (kvůli
+CHECK na `audit_log.action`), sémantika v `details`. UI: tlačítko „Nedorazil"
+u potvrzených rezervací, badge „Nedorazil" a filtr-tab „Nedorazili" v konzoli.

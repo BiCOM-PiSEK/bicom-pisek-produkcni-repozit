@@ -306,6 +306,15 @@ function deleteBooking(id) {
 }
 
 /**
+ * PUT /admin/bookings — označení "klient nedorazil" (confirmed → done + no_show_flag).
+ * @param {string} id
+ * @returns {Promise<ApiResponse>}
+ */
+function markNoShow(id) {
+  return request('/bookings', { method: 'PUT', body: { id, action: 'no_show' } });
+}
+
+/**
  * GET /admin/booking-detail — detail rezervace s dešifrovanými PII a audit historií.
  * @param {string} id
  * @returns {Promise<ApiResponse>}
@@ -493,6 +502,7 @@ const AdminAPI = {
   getBookings,
   updateBooking,
   deleteBooking,
+  markNoShow,
   getBookingDetail,
   generateContent,
   publishContent,
