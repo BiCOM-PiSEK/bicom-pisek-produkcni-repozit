@@ -2742,3 +2742,15 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **Detail endpoint:** nový soubor booking-detail.js GET /admin/booking-detail — dešifrovaná PII (bez _enc), audit_log historia.
 
 **Status:** Ready na PR (NEMERGUJ).
+
+## FE-1: Admin konzole — tlačítka + modaly (2026-06-15)
+
+**API metody:** public/admin/js/api.js — deleteBooking(id, confirm:true) + getBookingDetail(id); styl jako updateBooking.
+
+**showModal helper:** calendar.js — zkopírován z blog.js (overlay, close, ESC); lokální funkce, ne import.
+
+**Tlačítka dle stavu:** pending=Potvrdit/Zrušit/Detail; confirmed=Zrušit/Detail; cancelled/done=Detail/Smazat. Delegované listenery.
+
+**Modaly:** (1) Cancel — checkbox "informovat klienta" → notify_client. (2) Delete — červené varování NEVRATNÉ + data klienta. (3) Detail — grid PII/stav/přiřazeno, tabulka historie (action/actor/čas/detaily), has_more.
+
+**FE-2:** Přesun s pickerem zarezervován — samostatný PR.
