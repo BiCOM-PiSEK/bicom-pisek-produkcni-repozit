@@ -60,11 +60,17 @@
 - **F4 — admin UI: výjimky a svátky** (holiday/vacation/adhoc/extra) s typem, datem, volitelným časem, poznámkou (PR #50 merged)
 - **F5 — frontend: výběr konkrétního času** v rezervačním formuláři: načíst `/api/availability`, render chip sloty, validace (F5+F6 pár) (PR #51 merged)
 
-### Admin „Virtual Office"
+### Admin „Virtual Office" — ADR-005
 - Admin SPA (design systém, router, 7 modulů, CF Access JWT auth)
 - Admin API (dashboard, bookings, geo, copywriter, invoices, settings)
 - Oprava `api.js` wrapperu, Přehledu, health, /admin/me, logout
 - Blog management: generovat → upravit → publikovat → plánovat → archivovat (migrace 0011)
+- **G2: Potvrzení (confirmed workflow)** — přesun pending→confirmed, e-mail 1×, Google zeleno (barva '10'), assigned_to, echo suppression (PR #55)
+- **G3: Přesun termínu** — connector updateEventTime, slot picker z /api/availability, kolize 409, e-mail změny (PR #56)
+- **G4: Zrušení (měkké) + Smazání (tvrdé)** — status cancelled, notify_client flag, deleteEvent, audit-first (PR #57)
+- **FE-1: Tlačítka + modaly** — pending/confirmed/done řádky, modaly Zrušit/Smazat/Detail, api metody deleteBooking/getBookingDetail (PR #58)
+- **FE-2: Slot picker modal** — tlačítko Přesunout, date input, fetch /api/availability, race guard, výběr slotu, POST new_slot_start/end (PR #59)
+- Migrace 0014 (assigned_to, confirmation_sent_at, cancellation_notified_at) aplikována na produkci
 
 ### Platby — Stripe (mechanika hotová) — viz [STRIPE_INTEGRATION](docs/STRIPE_INTEGRATION.md)
 - Endpointy `/api/stripe-checkout` (Checkout Session, záloha 500 Kč) + `/api/stripe-webhook` (potvrzení platby, ověření podpisu)
@@ -92,12 +98,23 @@
 
 ---
 
+## ⚠️ ZNÁMÉ CHYBY / BLOKERY (aktivní)
+
+| # | Chyba | Příčina | Dopad | Opravy |
+|---|---|---|---|---|
+| **BUG-001** | Admin operace (Zrušit/Přesun/Smazat) vracejí HTTP 500 | `audit_log.action` CHECK constraint povoluje jen 7 hodnot (create/update/anonymize/export/delete/login/config); handlery v `functions/admin/bookings.js` zapisují mimo seznam (cancel/reschedule/delete apod.) → batch padá | Frontend: Toast "Chyba při aktualizaci"; Backend: unhandled SQL constraint exception | **(a)** Mapovat action hodnoty na povolené z constraintu (cancel→update+detail, reschedule→update), NEBO **(b)** Rozšířit CHECK constraint migrací 0015 o nové hodnoty; **HOTFIX:** FE tolerovat 500 a znovu zkoušet, BE logovat constraint chybu výrazně |
+| **BUG-002** (vedlejší) | Potvrzení (G2) nezelenaje Google event | Ověřování: updateEventColor('10') vrací v queue, ale nepotvrzuje se | UI: barva zůstane žlutá | Po opravě BUG-001 ověřit a opravit updateEventColor call |
+| **TODO-001** | UI dropdown pro assigned_to (Jana/Tereza) chybí | Nedodělaná funkce (pole je v DB, ale bez UI selectu) | Admin nemůže graficky vybrat operátora | Přidat `<select>` v modal potvrzení / reschedule; pole assigned_to již je v DB a handlery ho zpracovávají |
+
+---
+
 ## 🟡 PROBÍHÁ
 
 | Co | Stav | Odkaz |
 |---|---|---|
 | **Rezervační systém F2–F7** | F1 hotová, pokračuje se | [ADR-004](docs/adr/ADR-004-rezervacni-system.md) |
-| Admin konzole — doladění použitelnosti | průběžně | WORK-DIARY |
+| **Admin konzole — bugfix BUG-001 (audit_log)** | kritické (blokuje Zrušit/Přesun) | WORK-DIARY |
+| Admin konzole — doladění UI (assigned_to dropdown) | TODO-001 | WORK-DIARY |
 
 ---
 

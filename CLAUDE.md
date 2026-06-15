@@ -6,6 +6,14 @@ Produkční web ordinace biorezonance. Cloudflare-first: Pages (HTML5+Tailwind+V
 ## Zdroj pravdy
 db/schema.sql (kanonické schéma) + db/seed/ + db/migrations/NNNN_*.sql. D1 má = repo.
 
+## Aktuální stav (15.6.2026)
+- ✅ **Rezervační systém (ADR-004):** F1 hotová, F2-F6 pokračuje se
+- ✅ **Admin konzole (ADR-005):** G2–G4 backend + FE-1/FE-2 frontend hotovo (PR #54–#59 merged)
+  - Potvrzení, přesun, zrušení, smazání, detail; slot picker, e-mail notifikace, Google Calendar integrace
+- ⚠️ **BUG-001 (kritické):** audit_log CHECK constraint → admin operace vracejí HTTP 500 (reschedule/cancel nepatří do constraintu)
+  - Řešení: mapovat action na povolené NEBO rozšířit constraint (migrace 0015)
+- 🔴 **LAUNCH-BLOKERY:** L1–L9 — produkční Stripe/iDoklad klíče, GoSMS kredit, právní audit, Resend domain
+
 ## REŽIM PRÁCE: aktivní vývoj (post-audit)
 - Tato pravidla platí pro VŠECHNY kódovací agenty (Claude, Gemini/Antigravity, Copilot, …), ne jen pro Claude.
 - Tento soubor je POVINNÉ čtení na začátku každé práce: nový chat, návrat po odmlce, ztráta kontextu, nebo když je potřeba oživit pravidla hry.

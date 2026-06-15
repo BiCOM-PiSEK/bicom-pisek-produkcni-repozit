@@ -1,6 +1,6 @@
 # 🌿 Bicom Písek — Virtual Office & produkční web
 
-Verze: **v1.0 RC — aktivní finalizace před předáním**
+Verze: **v1.0 RC** (hotová admin fáze ADR-005, BUG-001 audit_log čeká na opravu)
 
 Hlavní produkční repozitář organizace **BiCOM-PiSEK** (`bicom-pisek-produkcni-repozit`). Tento repozitář představuje autoritativní zdroj pravdy (Single Source of Truth) pro celé technologické a programové řešení lokálního centra. Projekt je navržen a realizován podle standardu **MEVERIK STUDIO** s využitím moderní architektury **Edge-First** – veškerá aplikační logika, databáze i umělá inteligence běží na okraji sítě (Edge), což zajišťuje bleskovou odezvu (typicky < 200 ms), vysokou spolehlivost a nulové fixní provozní náklady za pronájem klasických serverů.
 

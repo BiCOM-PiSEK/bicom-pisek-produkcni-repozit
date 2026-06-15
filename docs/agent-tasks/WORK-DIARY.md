@@ -2762,3 +2762,71 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **showRescheduleModal (slot picker):** Modal s date inputem (min=dnes), kontejnerem na sloty. Fetch /api/availability (from=to=den), race guard (availabilityRequestSeq), render tlačítek pro slot.start časů. Výběr slotu (closure: selectedStart/End) povolí [Přesunout]. Bez new Date() na slot string — posílá PŘESNĚ "YYYY-MM-DD HH:MM" do api.updateBooking({new_slot_start, new_slot_end}). Na 409 kolize → toast s hláškou backend; úspěch → toast + render tabulky.
 
 **Napojení:** delegovaný listener v container click (AbortController) → rescheduleBtn → showRescheduleModal. Formát bez 'Z', bez ISO konverze.
+
+---
+
+## Admin fáze ADR-005 dokončena — PR #54–#59 (2026-06-15)
+
+**Rozsah:** G2–G4 backend workflow + FE-1/FE-2 frontend konzole. Všechny PR mergnuty na `main` (HEAD c6b74df).
+
+**Hotovo:** 
+- **G2** (Potvrdit): pending→confirmed, e-mail 1×, Google updateEventColor('10'), assigned_to, echo suppression (PR #55)
+- **G3** (Přesun): connector updateEventTime, slot picker /api/availability, kolize 409, sendBookingRescheduled (PR #56)
+- **G4** (Zrušit/Smazat/Detail): status cancelled, notify_client, deleteEvent, detail s audit historií, tvrdé smazání (PR #57)
+- **FE-1** (Tlačítka/Modaly): pending/confirmed/done akce, modaly Cancel/Delete/Detail, api.deleteBooking/getBookingDetail (PR #58)
+- **FE-2** (Slot picker): tlačítko Přesunout, date input (lokální čas), race guard, POST new_slot_start/end (PR #59)
+- **Migrace 0014** (assigned_to, confirmation_sent_at, cancellation_notified_at) — aplikována na produkčním D1
+
+**Zdroje:**
+- Backend: `functions/admin/bookings.js` (reschedule/confirmed/cancelled/delete workflow)
+- Connector: `functions/lib/connectors/google-calendar.js` (updateEventTime, updateEventColor, deleteEvent)
+- Email: `functions/lib/connectors/resend.js` (sendBookingRescheduled, sendBookingCancelled)
+- Frontend: `public/admin/js/modules/calendar.js` (renderBookingsTable, showRescheduleModal, modaly)
+
+---
+
+## ⚠️ OTEVŘENÝ BUG — audit_log CHECK constraint (2026-06-15) ❌
+
+**VÝRAZNĚ:** Operace Zrušit / Přesun / Smazat vracejí HTTP 500.
+
+**Diagnóza:**
+- `db/schema.sql`, tabulka `audit_log`, sloupec `action`: CHECK constraint
+  ```sql
+  CHECK (action IN ('create','update','anonymize','export','delete','login','config'))
+  ```
+  Povoluje jen 7 hodnot.
+
+- `functions/admin/bookings.js` handlery zapisují audit_log s action mimo seznam:
+  - Řádka 135 (reschedule): `'action': 'reschedule'` ❌ není v constraintu
+  - Řádka 267 (confirmed): `'action': 'update'` ✓ OK
+  - Řádka 350 (cancelled): `'action': 'cancel'` ❌ není v constraintu
+  - Řádka 507 (delete): `'action': 'delete'` ✓ OK
+
+- Batch DB operace (UPDATE + INSERT audit_log) se posílá jako atomická transakce. Pokud INSERT selže na CHECK constraint, padá **celý batch** → handler vyhodí SQL exception → globální catch vrátí HTTP 500.
+
+**Bod selhání:**
+- Není to Google Calendar, není to Domain-Wide Delegation impersonace
+- Handler padne na audit DB INSERT **PŘED** voláním updateEventTime/updateEventColor/deleteEvent
+- Detail (GET) funguje, protože jen čte, neinsertuje audit
+
+**Opravy (rozhodnout):**
+1. **Mapovat action hodnoty** na povolené:
+   - reschedule → 'update' (+ detail: "Slot: X → Y")
+   - cancel → 'update' (+ detail: "Status → cancelled")
+   - deleteEvent call zahodit ze 500 chyby perspective (je OK)
+   
+2. **Rozšířit CHECK constraint** migrací 0015:
+   ```sql
+   ALTER TABLE audit_log 
+   DROP CONSTRAINT chk_audit_action;
+   ALTER TABLE audit_log 
+   ADD CONSTRAINT chk_audit_action 
+   CHECK (action IN ('create','update','anonymize','export','delete','login','config','reschedule','cancel','confirm'));
+   ```
+   (Vyžaduje ALTER TABLE, kterou D1 podporuje)
+
+**Vedlejší efekt:**
+- G2 potvrzení (confirmed) nezelenaje Google event (updateEventColor vrací promise fire-and-forget, ale chyba v Google API by se měla logovat; ověřit po opravě audit bugu)
+- UI dropdown pro `assigned_to` (Jana/Tereza) chybí, ale pole je v DB a backend ho zpracovává
+
+**Status:** Čeká na rozhodnutí a opravy (NEopraveno k 15.6.2026 ráno).
