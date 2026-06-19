@@ -8,11 +8,19 @@ import { GoSmsConnector } from '../lib/connectors/gosms.js';
 
 export default {
   async scheduled(event, env, ctx) {
-    // Check if reminders are enabled
-    const config = await env.DB.prepare(
-      "SELECT value FROM process_states WHERE key = 'booking_sms_reminder'"
-    ).first();
-    if (config?.value !== 'active') return;
+    // Check if reminders are enabled (new keys + backward-compatible legacy key)
+    const configRows = await env.DB.prepare(
+      "SELECT key, value FROM process_states WHERE key IN ('reminder_sms', 'reminder_email', 'booking_sms_reminder')"
+    ).all();
+    const configMap = new Map((configRows?.results || []).map((row) => [row.key, row.value]));
+    const legacySmsEnabled = configMap.get('booking_sms_reminder') === 'active';
+    const smsEnabled = configMap.has('reminder_sms')
+      ? configMap.get('reminder_sms') === '1'
+      : legacySmsEnabled;
+    const emailEnabled = configMap.has('reminder_email')
+      ? configMap.get('reminder_email') === '1'
+      : true;
+    if (!smsEnabled && !emailEnabled) return;
 
     const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
     const resend = new ResendConnector(env);
@@ -61,10 +69,13 @@ export default {
           date: dateStr,
         };
 
-        if (reminder.channel === 'sms') {
+        if (reminder.channel === 'sms' && smsEnabled) {
           await gosms.sendBookingReminder(booking);
-        } else if (reminder.channel === 'email') {
+        } else if (reminder.channel === 'email' && emailEnabled) {
           await resend.sendBookingReminder(booking);
+        } else {
+          console.debug(`[cron-reminders] Skipped reminder ${reminder.id}: channel '${reminder.channel}' disabled`);
+          continue;
         }
 
         // Mark as sent

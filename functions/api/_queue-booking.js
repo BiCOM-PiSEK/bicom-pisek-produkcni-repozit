@@ -36,6 +36,14 @@ export default {
     for (const message of batch.messages) {
       try {
         const booking = message.body;
+        const existing = await env.DB.prepare(
+          'SELECT calendar_event_id FROM bookings WHERE id = ?'
+        ).bind(booking.bookingId).first();
+        if (existing?.calendar_event_id) {
+          console.info(`[queue-booking] Booking ${booking.bookingId} already processed, skipping duplicate message.`);
+          message.ack();
+          continue;
+        }
 
         // 1. Insert event into Google Calendar (yellow = pending)
         // Rozlišit: slot (přesný čas) vs. bez slotu (celodenní)

@@ -114,6 +114,18 @@ export async function onRequestPost({ request, env, waitUntil }) {
       console.warn('[book] Could not load booking_settings, using defaults:', err);
     }
 
+    // Sjednocení s veřejným configem (process_states) pro povinnou Stripe zálohu
+    try {
+      const depositToggleRow = await env.DB.prepare(
+        "SELECT value FROM process_states WHERE key = 'stripe_deposit_required'"
+      ).first();
+      if (depositToggleRow && (depositToggleRow.value === '0' || depositToggleRow.value === '1')) {
+        bookingSettings.require_deposit = depositToggleRow.value === '1';
+      }
+    } catch (err) {
+      console.warn('[book] Could not load stripe_deposit_required process_state:', err);
+    }
+
     // 2. Validate required fields
     const { name, email, phone, service, preferred_date, note, psc, consent_marketing, reminder_channel, consent_processing, slot_start, slot_end } = data;
 

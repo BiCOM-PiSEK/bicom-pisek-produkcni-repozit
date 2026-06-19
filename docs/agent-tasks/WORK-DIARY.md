@@ -4,6 +4,48 @@
 
 ---
 
+## 2026-06-19 PR #67 follow-up — zapracování review připomínek
+**Model:** GPT-5.3-Codex  
+**Branch:** booking-f6-f7-pass1-l1l9  
+**Status:** ✅ Hotovo
+
+### Co bylo doplněno po review
+- `functions/api/stripe-checkout.js`
+  - přidána explicitní validace `slot_end` (`isNaN(endDate.getTime())`)
+- `functions/api/_cron-reminders.js`
+  - přidán debug log při přeskočení reminderu kvůli vypnutému kanálu
+- `functions/api/stripe-webhook.js`
+  - upravena idempotentní větev dle připomínky: DB recovery path při duplicate delivery
+  - zachován retry enqueue pro případy, kdy booking ještě nemá `calendar_event_id`
+- `functions/api/_queue-booking.js`
+  - doplněna ochrana proti duplicate queue message (skip pokud už je `calendar_event_id`)
+
+---
+
+## 2026-06-19 Globální hardening po auditu toků (security + data flow)
+**Model:** GPT-5.3-Codex  
+**Branch:** booking-f6-f7-pass1  
+**Status:** ✅ Hotovo (kódové opravy)
+
+### Opravené nálezy
+- `functions/admin/_middleware.js`
+  - doplněno **kryptografické ověření podpisu Cloudflare Access JWT** proti JWKS (`/cdn-cgi/access/certs`)
+  - přidán JWKS cache (TTL 10 min), validace `alg/kid`, verifikace RS256 přes `crypto.subtle.verify`
+- `functions/api/book.js`
+  - sjednocen zdroj pravdy pro `require_deposit` s veřejným configem (`process_states.stripe_deposit_required`)
+- `functions/api/stripe-checkout.js`
+  - doplněna validace slotu/horizontu i pro Stripe větev
+  - ukládání `slot_start/slot_end` i u `pending_payment` rezervací
+  - collision guard pro unikátní slot (`idx_bookings_slot_unique`) i ve Stripe flow
+- `functions/api/stripe-webhook.js`
+  - idempotentní zpracování webhooku (`INSERT OR IGNORE` do `payment_transactions`)
+  - duplicate delivery už nepadá na 500
+  - queue payload nově nese i `slot_start/slot_end`
+- `functions/api/_cron-reminders.js`
+  - cron sjednocen s admin přepínači `reminder_sms` / `reminder_email` (+ backward kompatibilita na legacy key)
+
+---
+
 ## 2026-06-19 Launch integrace L1/L5/L8/L9 — readiness dashboard + runbook
 **Model:** GPT-5.3-Codex  
 **Branch:** booking-f6-f7-pass1  
