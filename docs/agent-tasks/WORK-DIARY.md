@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-06-19 F6/F7 — booking v2 (první implementační dávka)
+**Model:** GPT-5.4  
+**Branch:** booking-f6-f7-pass1  
+**Status:** ✅ Hotovo
+
+### Změny v této dávce
+- `functions/api/book.js`
+  - zpřísněna validace `preferred_date` na formát `YYYY-MM-DD` + validní kalendářní datum
+  - zavedena kontrola horizontu (`max_horizon_days`) a konzistence dne (`slot_start` musí odpovídat `preferred_date`)
+  - default `slot_end` nově respektuje `booking_settings.slot_duration_min` (ne hardcoded 60 min)
+  - doplněna kontrola slotu mimo horizont
+- `functions/api/availability.js`
+  - přidáno krátké KV cache vrstvení (TTL 45s, klíč po minutovém bucketu) pro opakované čtení dostupnosti
+  - cache je behavior-safe (krátké TTL kvůli průběžným změnám slotů a lead-time)
+
+### Otevřeno do další dávky
+- dokončení F6/F7 QA scénářů (kolize + min lead + horizon + admin operace)
+- finální potvrzení edge-case chování kolem časových pásem / DST
+
+---
+
 ## 2026-06-19 PR #63 — triage review připomínek (CodeRabbit/Copilot)
 **Model:** GPT-5.4
 **Branch:** meverik-solution-repo-pr-audit

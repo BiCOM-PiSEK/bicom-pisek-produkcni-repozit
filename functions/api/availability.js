@@ -226,11 +226,12 @@ export function computeAvailability({ rules, exceptions, settings, busySlots, fr
   return days;
 }
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request, env, waitUntil }) {
   try {
     const url = new URL(request.url);
     const from = url.searchParams.get('from');
     const to = url.searchParams.get('to');
+    const requestNowPrague = getNowInPrague();
 
     if (!from || !DATE_REGEX.test(from)) {
       return new Response(
@@ -263,6 +264,19 @@ export async function onRequestGet({ request, env }) {
       );
     }
 
+    const cacheBucketMin = Math.floor(requestNowPrague.getTime() / 60000);
+    const cacheKey = `availability:v1:${from}:${to}:${cacheBucketMin}`;
+    if (env.CACHE) {
+      try {
+        const cached = await env.CACHE.get(cacheKey, 'text');
+        if (cached) {
+          return new Response(cached, { status: 200, headers: CORS_HEADERS });
+        }
+      } catch (err) {
+        console.warn('[availability] Cache read failed:', err);
+      }
+    }
+
     // Load settings
     const settingsRow = await env.DB.prepare(
       'SELECT slot_duration_min, slot_gap_min, min_lead_hours, max_horizon_days FROM booking_settings WHERE id = 1'
@@ -286,8 +300,7 @@ export async function onRequestGet({ request, env }) {
       throw new Error('Invalid booking_settings: slot step must be positive.');
     }
 
-    const nowPrague = getNowInPrague();
-    const todayPrague = new Date(nowPrague.getFullYear(), nowPrague.getMonth(), nowPrague.getDate());
+    const todayPrague = new Date(requestNowPrague.getFullYear(), requestNowPrague.getMonth(), requestNowPrague.getDate());
     const maxDate = addDays(todayPrague, settings.max_horizon_days);
 
     if (fromDate > maxDate) {
@@ -336,25 +349,35 @@ export async function onRequestGet({ request, env }) {
       busySlots,
       from,
       to: formatDate(constrainedToDate),
-      now: getNowInPrague(),
+      now: requestNowPrague,
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        days,
-        meta: {
-          slot_duration_min: settings.slot_duration_min,
-          slot_gap_min: settings.slot_gap_min,
-          min_lead_hours: settings.min_lead_hours,
-          max_horizon_days: settings.max_horizon_days,
-          timezone: 'Europe/Prague',
-          from,
-          to: formatDate(constrainedToDate),
-        },
-      }),
-      { status: 200, headers: CORS_HEADERS }
-    );
+    const payload = JSON.stringify({
+      success: true,
+      days,
+      meta: {
+        slot_duration_min: settings.slot_duration_min,
+        slot_gap_min: settings.slot_gap_min,
+        min_lead_hours: settings.min_lead_hours,
+        max_horizon_days: settings.max_horizon_days,
+        timezone: 'Europe/Prague',
+        from,
+        to: formatDate(constrainedToDate),
+      },
+    });
+
+    if (env.CACHE) {
+      const cacheWrite = env.CACHE
+        .put(cacheKey, payload, { expirationTtl: 45 })
+        .catch((err) => console.warn('[availability] Cache write failed:', err));
+      if (waitUntil) {
+        waitUntil(cacheWrite);
+      } else {
+        await cacheWrite;
+      }
+    }
+
+    return new Response(payload, { status: 200, headers: CORS_HEADERS });
   } catch (err) {
     console.error('[availability] Unexpected error:', err);
     return new Response(
