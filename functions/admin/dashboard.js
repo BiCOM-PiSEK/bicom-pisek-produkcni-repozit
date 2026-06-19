@@ -204,6 +204,31 @@ export async function onRequestGet({ env, data }) {
       } catch { /* estimation fallback */ }
     }
 
+    // ─── Launch blockers readiness (L1/L5/L8/L9) ────────
+    const launchBlockers = {
+      L1: {
+        label: 'Resend (produkční odesílání e-mailů)',
+        ready: Boolean(env.SECRET_RESEND_API_KEY),
+      },
+      L5: {
+        label: 'GoSMS (SMS upomínky + kredit)',
+        ready: Boolean(env.SECRET_SMS_GATEWAY_CLIENT_ID && env.SECRET_SMS_GATEWAY_CLIENT_SECRET),
+      },
+      L8: {
+        label: 'Stripe (live key + webhook secret)',
+        ready: Boolean(env.SECRET_STRIPE_SECRET_KEY && env.SECRET_STRIPE_WEBHOOK_SECRET),
+      },
+      L9: {
+        label: 'iDoklad (produkční OAuth klíče)',
+        ready: Boolean(env.SECRET_IDOKLAD_CLIENT_ID && env.SECRET_IDOKLAD_CLIENT_SECRET),
+      },
+    };
+    const launchBlockersSummary = {
+      total: Object.keys(launchBlockers).length,
+      ready: Object.values(launchBlockers).filter((item) => item.ready).length,
+      blocked: Object.values(launchBlockers).filter((item) => !item.ready).length,
+    };
+
     // ─── System health ───────────────────────────────────
     const system = {
       d1: 'ok', // we just queried it successfully
@@ -211,8 +236,11 @@ export async function onRequestGet({ env, data }) {
       kv: env.CACHE ? 'ok' : 'standby',
       telegram: env.SECRET_TELEGRAM_BOT_TOKEN ? 'ok' : 'standby',
       calendar: env.SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL ? 'ok' : 'standby',
-      idoklad: env.SECRET_IDOKLAD_CLIENT_ID ? 'ok' : 'standby',
+      resend: env.SECRET_RESEND_API_KEY ? 'ok' : 'standby',
+      gosms: (env.SECRET_SMS_GATEWAY_CLIENT_ID && env.SECRET_SMS_GATEWAY_CLIENT_SECRET) ? 'ok' : 'standby',
+      idoklad: (env.SECRET_IDOKLAD_CLIENT_ID && env.SECRET_IDOKLAD_CLIENT_SECRET) ? 'ok' : 'standby',
       stripe: env.SECRET_STRIPE_SECRET_KEY ? 'ok' : 'standby',
+      stripeWebhook: env.SECRET_STRIPE_WEBHOOK_SECRET ? 'ok' : 'standby',
     };
 
     // ─── Response ────────────────────────────────────────
@@ -231,6 +259,8 @@ export async function onRequestGet({ env, data }) {
         recentBookings,
         topCities,
         system,
+        launchBlockers,
+        launchBlockersSummary,
         operator: {
           name: operator.name,
           role: operator.role,

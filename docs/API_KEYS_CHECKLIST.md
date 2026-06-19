@@ -25,14 +25,18 @@ Všechny níže uvedené parametry musí být správně nakonfigurovány v pří
 | **`SECRET_RESEND_API_KEY`** | Secret | booking, cron | API klíč pro odesílání transakčních e-mailů z domény `bicom-pisek.cz` přes resend.com. |
 | **`SECRET_TELEGRAM_BOT_TOKEN`** | Secret | booking, cron, social | Token Telegram bota pro odesílání provozních upozornění a logů. |
 | **`SECRET_TELEGRAM_CHAT_ID`** | Secret | booking, cron, social | ID chatovací místnosti/kanálu, kam bot zasílá provozní zprávy. |
-| **`SECRET_SMS_GATEWAY_API_KEY`** | Secret | booking, cron | API klíč pro odesílání SMS upomínek (GoSMS.cz nebo BulkGate). |
+| **`SECRET_SMS_GATEWAY_CLIENT_ID`** | Secret | booking, cron | OAuth client ID pro GoSMS API (`client_credentials`). |
+| **`SECRET_SMS_GATEWAY_CLIENT_SECRET`** | Secret | booking, cron | OAuth client secret pro GoSMS API (`client_credentials`). |
+| **`SMS_GATEWAY_CHANNEL`** | Variable | booking, cron | Volitelný channel ID v GoSMS (fallback = interní default connectoru). |
 | **`SECRET_META_GRAPH_ACCESS_TOKEN`** | Secret | cron | Dlouhodobý access token pro automatické čtení příspěvků z Instagramu. |
 | **`SECRET_META_IG_USER_ID`** | Secret | cron | Numerické ID Instagram Business účtu. |
 | **`SECRET_GROQ_API_KEY`** | Secret | Pages (`bicom-pisek`) | API klíč pro Groq Cloud (rychlé Llama 3/3.1 inference) jako primární chatovací LLM backend. |
 | **`SECRET_GEMINI_API_KEY`** | Secret | Pages (`bicom-pisek`) | API klíč pro Google AI Studio (Gemini 1.5 Pro) jako backup chatovacího backendu. |
 | **`SECRET_ADMIN_TOKEN`** | Secret | Pages (`bicom-pisek`) | *Záložní token pro administraci (pozn. v S0 nahrazeno Cloudflare Access JWT).* |
-| **`SECRET_IDOKLAD_CLIENT_ID`** | Secret | booking, cron | *Plánováno:* Klientské ID pro integraci fakturačního systému iDoklad. |
-| **`SECRET_IDOKLAD_CLIENT_SECRET`** | Secret | booking, cron | *Plánováno:* Klientský secret pro iDoklad API. |
+| **`SECRET_STRIPE_SECRET_KEY`** | Secret | Pages (`bicom-pisek`) | Live secret key pro Stripe Checkout session (`/api/stripe-checkout`). |
+| **`SECRET_STRIPE_WEBHOOK_SECRET`** | Secret | Pages (`bicom-pisek`) | Webhook signing secret pro ověření Stripe eventů (`/api/stripe-webhook`). |
+| **`SECRET_IDOKLAD_CLIENT_ID`** | Secret | booking, cron | Produkční klientské ID pro OAuth2 integraci iDoklad. |
+| **`SECRET_IDOKLAD_CLIENT_SECRET`** | Secret | booking, cron | Produkční klientský secret pro OAuth2 integraci iDoklad. |
 
 ---
 

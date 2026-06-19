@@ -19,6 +19,19 @@
 - [ ] **Vyčištění databáze:** Vymazat demo data z produkční D1 databáze před ostrým spuštěním provedením příkazu `npm run db:clean-demo` (odstraní testovací rezervace, poptávky a odběratele s placeholdery).
 - [ ] **Zaučení (Virtual Office):** 1-pager — barevné kódy v Google Kalendáři (žlutá=předběžné, zelená=potvrdit→spustí notifikaci) + jak namluvit poznámku do AI Copywritera.
 
+### 2.1 Launch integrace před ostrým spuštěním (L1/L5/L8/L9)
+
+> Cíl: dokončit produkční napojení e-mail/SMS/platby/fakturace bez improvizace.
+
+| Blocker | Co musí být nastaveno | Jak ověřit (akceptace) |
+|---|---|---|
+| **L1 — Resend** | `SECRET_RESEND_API_KEY`, ověřená doména odesílatele (`info@bicom-pisek.cz`), SPF/DKIM v DNS | Testovací transakční e-mail z flow rezervace přijde do schránky a není ve spamu; v Resend dashboardu stav doručení = delivered. |
+| **L5 — GoSMS** | `SECRET_SMS_GATEWAY_CLIENT_ID`, `SECRET_SMS_GATEWAY_CLIENT_SECRET`, volitelně `SMS_GATEWAY_CHANNEL`, aktivní kredit | Test reminder SMS v kontrolovaném scénáři (bez klientských dat) dorazí do 1 zařízení; v GoSMS dashboardu je vidět úspěšné doručení + odečtený kredit. |
+| **L8 — Stripe** | `SECRET_STRIPE_SECRET_KEY` (live), `SECRET_STRIPE_WEBHOOK_SECRET` (live), Stripe webhook na `/api/stripe-webhook` | Live test platby 500 Kč: checkout proběhne, webhook projde verifikací, booking přejde z `pending_payment` na `pending`, transakce je v `payment_transactions`. |
+| **L9 — iDoklad** | `SECRET_IDOKLAD_CLIENT_ID`, `SECRET_IDOKLAD_CLIENT_SECRET`, nastavený vystavovatel v iDoklad | Po úspěšné Stripe platbě se vytvoří faktura (nebo jde vytvořit přes admin fakturaci), v audit logu je záznam o vystavení. |
+
+**Technická poznámka:** stav připravenosti L1/L5/L8/L9 je dostupný v admin endpointu `GET /admin/dashboard` (`data.launchBlockers` + `data.launchBlockersSummary`).
+
 ## 3. Provozní „playbook" pro Lenku (bez technické bariéry)
 **A. AI Copywriter (hlas → článek):** otevři diktafon → namluv krátkou poznámku (bez jména klienta) → přepis klávesnicí → vlož do administrace → „Generovat" → „Zveřejnit". Hotovo, článek je online v tónu Quiet Luxury.
 **B. Rezervace v Kalendáři:** nová poptávka = světle žlutá událost. Změníš barvu na zelenou (potvrzeno) → systém automaticky pošle klientovi potvrzení + naplánuje SMS upomínku 24 h předem.
