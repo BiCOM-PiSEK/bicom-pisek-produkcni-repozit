@@ -17,6 +17,9 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
+const JWKS_CACHE_TTL_MS = 10 * 60 * 1000;
+const jwksCache = new Map();
+
 /**
  * Middleware pro admin endpointy.
  * Cloudflare Pages Functions middleware — export onRequest.
@@ -128,15 +131,27 @@ async function verifyJWT(token, team, aud) {
   // Rozděl JWT
   const parts = token.split('.');
   if (parts.length !== 3) return null;
+  const [encodedHeader, encodedPayload, encodedSignature] = parts;
+  const header = parseJwtPart(encodedHeader);
+  const payload = parseJwtPart(encodedPayload);
+  if (!header || !payload) return null;
 
-  // TODO: Doplňte plnohodnotné ověření PODPISU Cloudflare Access JWT proti JWKS certifikátům.
-  // Dnes se pro zjednodušení ověřují pouze claims (iss, aud, exp), což spoléhá na to,
-  // že Cloudflare Access aktivně vynucuje ochranu na edge (před vstupem do Workeru).
-  // Implementační kroky pro budoucí PR:
-  // 1. Načíst JWKS certifikáty z: https://<team>.cloudflareaccess.com/cdn-cgi/access/certs
-  // 2. Parsnout token header, získat 'kid' a vyhledat odpovídající veřejný klíč v JWKS.
-  // 3. Použít Web Crypto API (crypto.subtle.importKey a crypto.subtle.verify) pro ověření podpisu tokenu.
-  const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+  if (header.alg !== 'RS256' || !header.kid) {
+    console.warn(`[admin-auth] Unsupported JWT header: alg=${header.alg}, kid=${header.kid || 'missing'}`);
+    return null;
+  }
+
+  const jwk = await getCfAccessJwk(team, header.kid);
+  if (!jwk) {
+    console.warn('[admin-auth] Matching JWKS key not found.');
+    return null;
+  }
+
+  const signatureValid = await verifyRs256Signature(encodedHeader, encodedPayload, encodedSignature, jwk);
+  if (!signatureValid) {
+    console.warn('[admin-auth] Invalid JWT signature');
+    return null;
+  }
 
   // Kontrola issuer
   const expectedIss = `https://${team}.cloudflareaccess.com`;
@@ -170,6 +185,76 @@ async function verifyJWT(token, team, aud) {
   }
 
   return payload;
+}
+
+async function getCfAccessJwk(team, kid) {
+  const cached = jwksCache.get(team);
+  const now = Date.now();
+  if (cached && cached.expiresAt > now) {
+    return cached.keysByKid.get(kid) || null;
+  }
+
+  const certsUrl = `https://${team}.cloudflareaccess.com/cdn-cgi/access/certs`;
+  const response = await fetch(certsUrl, { method: 'GET' });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch CF Access certs: ${response.status}`);
+  }
+
+  const body = await response.json();
+  const keys = Array.isArray(body?.keys) ? body.keys : [];
+  const keysByKid = new Map();
+  keys.forEach((key) => {
+    if (key?.kid) {
+      keysByKid.set(key.kid, key);
+    }
+  });
+
+  jwksCache.set(team, {
+    expiresAt: now + JWKS_CACHE_TTL_MS,
+    keysByKid,
+  });
+
+  return keysByKid.get(kid) || null;
+}
+
+async function verifyRs256Signature(encodedHeader, encodedPayload, encodedSignature, jwk) {
+  const publicKey = await crypto.subtle.importKey(
+    'jwk',
+    jwk,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['verify']
+  );
+
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+  const encoder = new TextEncoder();
+  const signature = decodeBase64Url(encodedSignature);
+  return crypto.subtle.verify(
+    'RSASSA-PKCS1-v1_5',
+    publicKey,
+    signature,
+    encoder.encode(signingInput)
+  );
+}
+
+function parseJwtPart(encodedPart) {
+  try {
+    const json = new TextDecoder().decode(decodeBase64Url(encodedPart));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function decodeBase64Url(value) {
+  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 }
 
 // ─── DB LOOKUP ─────────────────────────────────────────────────
