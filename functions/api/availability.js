@@ -226,7 +226,7 @@ export function computeAvailability({ rules, exceptions, settings, busySlots, fr
   return days;
 }
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request, env, waitUntil }) {
   try {
     const url = new URL(request.url);
     const from = url.searchParams.get('from');
@@ -367,8 +367,14 @@ export async function onRequestGet({ request, env }) {
     });
 
     if (env.CACHE) {
-      env.CACHE.put(cacheKey, payload, { expirationTtl: 45 })
+      const cacheWrite = env.CACHE
+        .put(cacheKey, payload, { expirationTtl: 45 })
         .catch((err) => console.warn('[availability] Cache write failed:', err));
+      if (waitUntil) {
+        waitUntil(cacheWrite);
+      } else {
+        await cacheWrite;
+      }
     }
 
     return new Response(payload, { status: 200, headers: CORS_HEADERS });

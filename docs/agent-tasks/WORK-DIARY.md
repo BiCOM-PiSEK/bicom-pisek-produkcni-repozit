@@ -6,8 +6,8 @@
 
 ## 2026-06-19 F6/F7 — booking v2 (první implementační dávka)
 **Model:** GPT-5.4  
-**Branch:** meverik-solution-repo-pr-audit  
-**Status:** 🟡 Probíhá
+**Branch:** booking-f6-f7-pass1  
+**Status:** ✅ Hotovo
 
 ### Změny v této dávce
 - `functions/api/book.js`

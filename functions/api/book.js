@@ -225,13 +225,6 @@ export async function onRequestPost({ request, env, waitUntil }) {
         );
       }
 
-      if (slotDate > maxDatePrague) {
-        return new Response(
-          JSON.stringify({ success: false, error: `Slot je mimo maximální horizont ${bookingSettings.max_horizon_days} dní.` }),
-          { status: 400, headers: CORS_HEADERS }
-        );
-      }
-
       // Ověř min_lead_hours v čase Praha (konzistentní s F2)
       const minLeadDate = addMinutes(nowPrague, bookingSettings.min_lead_hours * 60);
 
