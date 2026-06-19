@@ -21,6 +21,7 @@ Všechny níže uvedené parametry musí být správně nakonfigurovány v pří
 | **`SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL`** | Secret | booking, cron | E-mail Service Accountu Google Cloud pro přístup ke kalendáři ordinace. |
 | **`SECRET_GOOGLE_CALENDAR_PRIVATE_KEY`** | Secret | booking, cron | PEM privátní klíč ze staženého JSON souboru Service Accountu pro Google API autentizaci. |
 | **`SECRET_GOOGLE_CALENDAR_ID`** | Secret | booking, cron | Unikátní ID sdíleného kalendáře ordinace (např. e-mail majitelky). |
+| **`SECRET_GOOGLE_CALENDAR_IMPERSONATE`** | Secret | booking, cron | Uživatel pro Domain-Wide Delegation (impersonace při zápisu do kalendáře). |
 | **`SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL`**| Secret | booking, cron | Admin e-mail pro Workspace správu (`admin@bicom-pisek.cz`). |
 | **`SECRET_RESEND_API_KEY`** | Secret | booking, cron | API klíč pro odesílání transakčních e-mailů z domény `bicom-pisek.cz` přes resend.com. |
 | **`SECRET_TELEGRAM_BOT_TOKEN`** | Secret | booking, cron, social | Token Telegram bota pro odesílání provozních upozornění a logů. |
@@ -35,6 +36,7 @@ Všechny níže uvedené parametry musí být správně nakonfigurovány v pří
 | **`SECRET_ADMIN_TOKEN`** | Secret | Pages (`bicom-pisek`) | *Záložní token pro administraci (pozn. v S0 nahrazeno Cloudflare Access JWT).* |
 | **`SECRET_STRIPE_SECRET_KEY`** | Secret | Pages (`bicom-pisek`) | Live secret key pro Stripe Checkout session (`/api/stripe-checkout`). |
 | **`SECRET_STRIPE_WEBHOOK_SECRET`** | Secret | Pages (`bicom-pisek`) | Webhook signing secret pro ověření Stripe eventů (`/api/stripe-webhook`). |
+| **`SECRET_CALENDAR_WEBHOOK_SECRET`** | Secret | Pages (`bicom-pisek`) | Ochrana endpointu `/api/calendar-hook` pro příchozí webhook trigger. |
 | **`SECRET_IDOKLAD_CLIENT_ID`** | Secret | booking, cron | Produkční klientské ID pro OAuth2 integraci iDoklad. |
 | **`SECRET_IDOKLAD_CLIENT_SECRET`** | Secret | booking, cron | Produkční klientský secret pro OAuth2 integraci iDoklad. |
 
@@ -65,7 +67,8 @@ Při zakládání projektů v Cloudflare se držte následujících reálných n
 
 ## 📋 Kontaktní údaje od ordinace (pro sjednocení a ověření)
 
--   **IČO:** [Doplnit]
--   **Adresa ordinace:** [Doplnit přesnou adresu v Písku]
+-   **Provozovatel:** BIO ONE LIFE s.r.o.
+-   **IČO:** `23950978`
+-   **Adresa ordinace:** `Vladislavova 201 (technologický park), 397 01 Písek`
 -   **E-mail ordinace:** `info@bicom-pisek.cz` (vč. MX záznamů a SPF/DKIM u Resendu)
 -   **Google Calendar:** Kalendář sdílen s e-mailem Service Accountu (`SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL`) s právem provádět změny.

@@ -179,15 +179,19 @@
 ## 📦 PŘEDÁNÍ KLIENTKÁM (BIO ONE LIFE s.r.o.)
 
 Detailní checklist → [HANDOVER.md](HANDOVER.md). Klíčové zbývající:
-- Předávací dokumentace (PDF) — doplnit pole `[DOPLNIT]` (datum, IČO/adresa/telefon, Google Workspace, Calendar ID, Service Account, Lighthouse/QA skóre, SLA ceny, kontakty)
-- **🟠 Zanést identifikaci provozovatele** — provozovatel ordinace je **BIO ONE LIFE s.r.o., IČO 23950978** (majitelky Jana a Tereza; značka navenek „Bicom Písek"). Doplnit/sjednotit kam je třeba:
-  - patička webu, GDPR/zásady, obchodní podmínky, kontaktní stránka
-  - JSON-LD `LocalBusiness` (`legalName`, IČO jako `taxID`/`vatID` dle vhodnosti)
+- Předávací dokumentace (PDF) — doplnit zbývající metadata (datum, adresa sídla, Google Workspace, Calendar ID, Service Account, Lighthouse/QA skóre, SLA ceny, kontakty)
+- **✅ Identifikace provozovatele sjednocena** — provozovatel ordinace je **BIO ONE LIFE s.r.o., IČO 23950978** (majitelky Jana a Tereza; značka navenek „Bicom Písek"), zapracováno v:
+  - patička webu, GDPR/zásady a handover dokumentace
+  - JSON-LD `LocalBusiness` (`legalName`, IČO jako `taxID`)
   - fakturační údaje pro iDoklad (vystavovatel = provozovatel)
   - ⚠️ POZOR rozlišit: **WHC s.r.o.** = dodavatel/správce účtů během vývoje; **BIO ONE LIFE s.r.o.** = provozovatel ordinace. Nezaměňovat.
 - Zařadit do předávací dokumentace: SEC-6 protokol + skill „pravni-kontroling"
-- 🟠 **C3** ověřit, že HANDOVER sedí na aktuální CF účet/secrets
+- ✅ **C3** HANDOVER ověřen proti aktuálním secret názvům v kódu (doplněny chybějící položky `SECRET_GOOGLE_CALENDAR_IMPERSONATE`, `SECRET_CALENDAR_WEBHOOK_SECRET`, `SECRET_META_IG_USER_ID`).
 - Vyúčtování klientovi (~80 h odhad)
+
+### Aktivní zásahy (2 bloky)
+- **Blok A — Zpevnění webu:** rozšířená hyper-responzivita pro malé mobily, tablety, ultrawide monitory, zařízení s nízkou výškou viewportu a coarse-pointer ovládání (lepší čitelnost, tap targety, stabilnější chat/cookie layout).
+- **Blok B — Předávací a vývojová dokumentace:** komplet aktualizovaná mapa repozitáře (`REPO_MAPA_ULOZIST.md`) včetně aktuálního stromu složek/souborů a role jednotlivých oblastí.
 
 ---
 

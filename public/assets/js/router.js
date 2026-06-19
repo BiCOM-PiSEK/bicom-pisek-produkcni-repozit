@@ -377,11 +377,11 @@ function renderGdprPage() {
       
       <div style="background-color: var(--c-white); border-radius: var(--radius); padding: 2rem; border: 1px solid rgba(115, 138, 117, 0.1); box-shadow: var(--shadow-sm); line-height: 1.8;">
         <div style="background-color: #f4f6f4; border-left: 4px solid var(--c-sage); padding: 1.25rem; margin-bottom: 2rem; font-size: 0.9rem; color: var(--c-forest); line-height: 1.6; border-radius: 4px;">
-          <strong>Upozornění pro provozovatele:</strong> Tyto textové vzory jsou připraveny věcně v duchu právních předpisů EU (GDPR) a ČR. Nejedná se však o právní poradenství. Před spuštěním ostrého provozu je nezbytná kontrola a doplnění ze strany vašeho právního zástupce (doplnění konkrétního IČO, jména provozovatele, případně pověřence pro ochranu osobních údajů - DPO, konkrétních zpracovatelů a přesných lhůt).
+          <strong>Upozornění pro provozovatele:</strong> Text je připraven pro provozovatele BIO ONE LIFE s.r.o. (IČO 23950978). Nejedná se o právní poradenství; před ostrým spuštěním proveďte právní kontrolu.
         </div>
 
         <p><strong>1. Základní ustanovení</strong></p>
-        <p>Provozovatel (dále jen „správce“), se sídlem Písek, prohlašuje, že veškeré osobní údaje zpracovává v souladu s Nařízením Evropského parlamentu a Rady (EU) 2016/679 (GDPR).</p>
+        <p>BIO ONE LIFE s.r.o., IČO 23950978, provozovatel webu bicom-pisek.cz (dále jen „správce“), prohlašuje, že veškeré osobní údaje zpracovává v souladu s Nařízením Evropského parlamentu a Rady (EU) 2016/679 (GDPR).</p>
         
         <p><strong>2. Jaké osobní a citlivé údaje zpracováváme?</strong></p>
         <p>Při online rezervaci termínu a nastavení komunikace zpracováváme Vaše:</p>
