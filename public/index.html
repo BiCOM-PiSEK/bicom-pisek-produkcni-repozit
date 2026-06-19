@@ -318,7 +318,11 @@
 
           <div class="form-group">
             <label for="booking-phone">Telefon *</label>
-            <input type="tel" id="booking-phone" class="form-control" placeholder="+420 777 123 456" required>
+            <div class="phone-input-wrap" id="phone-input-wrap">
+              <span class="phone-prefix" id="phone-prefix-badge" aria-hidden="true">+420</span>
+              <input type="tel" id="booking-phone" class="form-control" placeholder="777 123 456" required autocomplete="tel-national" inputmode="numeric">
+            </div>
+            <span class="form-hint" id="phone-prefix-hint">Česká předvolba +420 je přidána automaticky. <button type="button" class="link-btn" id="phone-change-prefix-btn">Jiná předvolba?</button></span>
           </div>
 
           <div class="form-group">

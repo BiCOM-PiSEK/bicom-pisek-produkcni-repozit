@@ -697,6 +697,56 @@ textarea.form-control {
   min-height: 100px;
 }
 
+/* Phone input with prefix badge */
+.phone-input-wrap {
+  display: flex;
+  align-items: stretch;
+}
+.phone-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  background-color: rgba(115, 138, 117, 0.08);
+  border: 1px solid rgba(115, 138, 117, 0.25);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  color: var(--c-forest);
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  user-select: none;
+  transition: border-color 0.25s ease;
+}
+.phone-input-wrap .form-control {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  flex: 1;
+  min-width: 0;
+}
+.phone-input-wrap:focus-within .phone-prefix {
+  border-color: var(--c-sage);
+}
+.phone-input-wrap.phone-custom-prefix .form-control {
+  border-radius: var(--radius);
+}
+.form-hint {
+  display: block;
+  font-size: 0.82rem;
+  color: #767a7d;
+  margin-top: 5px;
+  line-height: 1.4;
+}
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: var(--c-sage);
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: inherit;
+}
+.link-btn:hover { color: var(--c-forest); }
+
 .form-checkbox {
   flex-direction: row;
   align-items: flex-start;

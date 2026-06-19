@@ -89,14 +89,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load configuration and initialize payment options if not mandatory
   let bookingConfig = {
-    stripe_deposit_required: true,
+    stripe_deposit_required: false,
+    stripe_enabled: false,
     require_phone: true,
     turnstile_enabled: false,
     turnstile_sitekey: null
   };
   let turnstileToken = null;
   let turnstileWidgetId = null;
-  
+
+  // Phone prefix UX: "Jiná předvolba?" toggle
+  (function initPhonePrefix() {
+    const wrap = document.getElementById('phone-input-wrap');
+    const badge = document.getElementById('phone-prefix-badge');
+    const hint = document.getElementById('phone-prefix-hint');
+    const btn = document.getElementById('phone-change-prefix-btn');
+    if (!wrap || !badge || !btn) return;
+    btn.addEventListener('click', () => {
+      wrap.classList.add('phone-custom-prefix');
+      badge.style.display = 'none';
+      hint.style.display = 'none';
+      const input = document.getElementById('booking-phone');
+      input.placeholder = '+420 777 123 456';
+      input.autocomplete = 'tel';
+      input.inputMode = 'tel';
+      input.focus();
+    });
+  })();
+
+  /**
+   * Normalizes a Czech phone number to E.164 (+420XXXXXXXXX).
+   * If the user is in "custom prefix" mode (full international format), returns as-is.
+   */
+  function normalizePhone(raw) {
+    const wrap = document.getElementById('phone-input-wrap');
+    const isCustom = wrap && wrap.classList.contains('phone-custom-prefix');
+    if (isCustom) {
+      // Full number entered — just strip spaces/dashes
+      return raw.trim().replace(/[\s\-]/g, '');
+    }
+    // Short Czech number: prepend +420
+    const digits = raw.trim().replace(/[\s\-\.]/g, '');
+    if (!digits) return digits;
+    if (digits.startsWith('+')) return digits;           // already international
+    if (digits.startsWith('00420')) return '+' + digits.slice(2);
+    if (digits.startsWith('420')) return '+' + digits;
+    if (digits.startsWith('0')) return '+420' + digits.slice(1); // 0777... → +420777...
+    return '+420' + digits; // 777123456 → +420777123456
+  }
+
   function updatePhoneRequirement() {
     const phoneInput = document.getElementById("booking-phone");
     if (!phoneInput) return;
@@ -150,8 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
       await renderTurnstile();
     }
 
-    if (formEl && !bookingConfig.stripe_deposit_required) {
-      // Insert payment choice HTML above submit actions
+    if (formEl && bookingConfig.stripe_enabled && !bookingConfig.stripe_deposit_required) {
+      // Stripe is configured but optional: show payment choice
       const actionsContainer = formEl.querySelector('.booking-actions');
       if (actionsContainer) {
         const choiceContainer = document.createElement('div');
@@ -182,7 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         formEl.insertBefore(choiceContainer, actionsContainer);
 
-        // Add change listeners to radios to adjust button text and classes
         const radios = choiceContainer.querySelectorAll('input[name="payment_method"]');
         radios.forEach(radio => {
           radio.addEventListener('change', (e) => {
@@ -199,23 +239,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 str.style.color = 'inherit';
               }
             });
-
             if (submitBtn) {
-              if (e.target.value === 'stripe') {
-                submitBtn.textContent = "Dokončit rezervaci a přejít k platbě";
-              } else {
-                submitBtn.textContent = "Odeslat předběžnou rezervaci";
-              }
+              submitBtn.textContent = e.target.value === 'stripe'
+                ? "Dokončit rezervaci a přejít k platbě"
+                : "Odeslat předběžnou rezervaci";
             }
           });
         });
 
-        if (submitBtn) {
-          submitBtn.textContent = "Dokončit rezervaci a přejít k platbě";
-        }
+        if (submitBtn) submitBtn.textContent = "Dokončit rezervaci a přejít k platbě";
       }
-    } else if (submitBtn && bookingConfig.stripe_deposit_required) {
+    } else if (submitBtn && bookingConfig.stripe_enabled && bookingConfig.stripe_deposit_required) {
+      // Stripe mandatory
       submitBtn.textContent = "Odeslat a zaplatit zálohu (500 Kč)";
+    } else if (submitBtn) {
+      // Stripe not configured: simple free booking
+      submitBtn.textContent = "Odeslat rezervaci";
     }
   }
 
@@ -387,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = {
         name: document.getElementById("booking-name").value,
         email: document.getElementById("booking-email").value,
-        phone: document.getElementById("booking-phone").value,
+        phone: normalizePhone(document.getElementById("booking-phone").value),
         service: serviceSelect.value,
         serviceName: serviceName,
         preferred_date: preferred_date,

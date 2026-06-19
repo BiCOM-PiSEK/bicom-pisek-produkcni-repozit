@@ -22,15 +22,17 @@ export async function onRequestGet({ env }) {
     ).first();
 
     // Default to mandatory ('1') if not explicitly configured in DB
-    const depositRequired = rowDeposit ? rowDeposit.value === '1' : true;
+    const depositRequired = rowDeposit ? rowDeposit.value === '1' : false;
     const phoneRequired = rowPhone ? rowPhone.value === '1' : true;
 
+    const stripeEnabled = Boolean(env.SECRET_STRIPE_SECRET_KEY);
     const turnstileEnabled = Boolean(env.TURNSTILE_SITEKEY && env.TURNSTILE_SECRET_KEY);
     const turnstileSitekey = turnstileEnabled ? env.TURNSTILE_SITEKEY : null;
 
     return new Response(
       JSON.stringify({
-        stripe_deposit_required: depositRequired,
+        stripe_enabled: stripeEnabled,
+        stripe_deposit_required: stripeEnabled ? depositRequired : false,
         require_phone: phoneRequired,
         turnstile_enabled: turnstileEnabled,
         turnstile_sitekey: turnstileSitekey,
@@ -39,10 +41,10 @@ export async function onRequestGet({ env }) {
     );
   } catch (err) {
     console.error('[booking-config] Error:', err);
-    // Graceful fallback to default behavior (mandatory)
     return new Response(
       JSON.stringify({
-        stripe_deposit_required: true,
+        stripe_enabled: false,
+        stripe_deposit_required: false,
         require_phone: true,
         turnstile_enabled: false,
         turnstile_sitekey: null,
