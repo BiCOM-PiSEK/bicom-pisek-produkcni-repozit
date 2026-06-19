@@ -21,10 +21,16 @@ na REÁLNÝ PŘECHOD STAVU, ne na to, kdo změnu inicioval. Tři vrstvy:
 2. Notifikace gated timestampem — e-mail jen když confirmation_sent_at IS NULL, pak se vyplní.
 3. Echo suppression na webhooku — webhook porovná Google stav s DB; pokud sedí → echo → no-op.
 
-## Datový model (migrace 0014)
-ALTER TABLE bookings ADD COLUMN: assigned_to TEXT (Jana/Tereza/NULL),
-confirmation_sent_at TIMESTAMP, cancellation_notified_at TIMESTAMP. Stav no_show jen
-aplikačně (žádný sloupec navíc). ALTER ADD COLUMN, nikdy remake.
+## Datový model (migrace 0014 + 0015)
+```sql
+ALTER TABLE bookings ADD COLUMN assigned_to TEXT;
+ALTER TABLE bookings ADD COLUMN confirmation_sent_at TIMESTAMP;
+ALTER TABLE bookings ADD COLUMN cancellation_notified_at TIMESTAMP;
+ALTER TABLE bookings ADD COLUMN no_show_flag INTEGER DEFAULT 0;
+```
+
+Migrace `0015_booking_no_show.sql` tak zvolila bezpečnou additivní variantu
+bez rebuildu celé tabulky.
 
 ## Rozsah (fáze G2–G5)
 - G2: "Potvrdit dělá vše" (e-mail gated + Google zelená + assigned_to) — jádro
@@ -41,25 +47,27 @@ aplikačně (žádný sloupec navíc). ALTER ADD COLUMN, nikdy remake.
 - Snazší: pracovnice spravují vše z konzole, klient vždy informován
 - Náročnější: sync logika, echo prevention, nutný ruční deploy workerů
 - Revidovat: pokud přibude víc operátorek, assigned_to → kapacitní model
+- Aktuálně je nutné dořešit BUG-001 v `audit_log.action`, protože část G3/G4
+  akcí (`reschedule`, `cancel`) může končit HTTP 500
 
 ## Rizika
 - Zpětná smyčka konzole→Google→webhook — ošetřeno 3 vrstvami
 - Deploy: změny v consumeru/cronu vyžadují ruční wrangler deploy
 
-## Odložená rozhodnutí
+## Původně odložené rozhodnutí — nyní uzavřeno
 
-### no_show (stav "klient nedorazil") — ODLOŽENO
+### no_show (stav "klient nedorazil")
 
 **Datum:** 2026-06-14
 
-**Problém:** Stav `no_show` NENÍ v této várce implementován. Sloupec `bookings.status` má CHECK constraint (`pending/confirmed/done/cancelled/pending_payment`). SQLite/D1 neumí změnit CHECK přes ALTER — přidání `'no_show'` by vyžadovalo REBUILD celé tabulky bookings (16 tabulek, FK vazby, ostrá data) = nepoměrné riziko.
+**Původní problém:** Sloupec `bookings.status` má CHECK constraint (`pending/confirmed/done/cancelled/pending_payment`). SQLite/D1 neumí změnit CHECK přes ALTER — přidání `'no_show'` by vyžadovalo REBUILD celé tabulky bookings (16 tabulek, FK vazby, ostrá data) = nepoměrné riziko.
 
 **Řešení příště:** Buď:
 
 - **(a)** Přidat `'no_show'` do CHECK v rámci příští migrace, kdy se tabulka bookings stejně upravuje (table rebuild s opatrností).
 - **(b)** Řešit "nedorazil" bez nového statusu — samostatným boolean polem (`no_show_flag`), přidaným přes ALTER ADD COLUMN.
 
-Rozhodnutí: až při realizaci G4 nebo G5, v závislosti na náročnosti ostatních sloupců.
+Původní rozhodnutí: až při realizaci G4 nebo G5, v závislosti na náročnosti ostatních sloupců.
 
 **REALIZOVÁNO (2026-06-15) — varianta (b):** Migrace `0015_booking_no_show.sql`
 přidává `no_show_flag INTEGER DEFAULT 0` přes ALTER ADD COLUMN (bez rebuildu).
