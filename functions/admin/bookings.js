@@ -132,12 +132,12 @@ export async function onRequestPut({ env, data, request }) {
           ).bind(newSlotStart, newSlotEnd, bookingId),
           env.DB.prepare(
             `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-             VALUES (?, 'bookings', ?, 'reschedule', ?, ?)`
+             VALUES (?, 'bookings', ?, 'update', ?, ?)`
           ).bind(
             crypto.randomUUID(),
             bookingId,
             `operator:${data.operator.id}`,
-            `Slot: ${booking.slot_start || 'none'} → ${newSlotStart}`
+            `Reschedule: ${booking.slot_start || 'none'} → ${newSlotStart}`
           ),
         ]);
 
@@ -406,12 +406,12 @@ export async function onRequestPut({ env, data, request }) {
       updateOps.push(
         env.DB.prepare(
           `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-           VALUES (?, 'bookings', ?, 'cancel', ?, ?)`
+           VALUES (?, 'bookings', ?, 'update', ?, ?)`
         ).bind(
           crypto.randomUUID(),
           bookingId,
           `operator:${data.operator.id}`,
-          'Zrušeno operátorem'
+          'Cancel: zrušeno operátorem'
         )
       );
 
