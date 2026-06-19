@@ -203,6 +203,51 @@ export async function onRequestPut({ env, data, request }) {
       }
     }
 
+    // no_show: "klient nedorazil" (ADR-005, varianta b — boolean příznak)
+    // Terminální označení potvrzené rezervace: confirmed → done + no_show_flag=1.
+    // Klient se neinformuje (jde o záznam po termínu); Google event zešedne.
+    if (body.action === 'no_show') {
+      const booking = await env.DB.prepare(
+        'SELECT id, calendar_event_id FROM bookings WHERE id = ?'
+      ).bind(bookingId).first();
+
+      if (!booking) {
+        return json({ ok: false, error: 'Rezervace nenalezena.' }, 404);
+      }
+
+      // Guard PŘÍMO v UPDATE — projde jen confirmed (no-op jinde), efekty řiď podle changes
+      const batchResults = await env.DB.batch([
+        env.DB.prepare(
+          `UPDATE bookings SET status = 'done', no_show_flag = 1, updated_at = CURRENT_TIMESTAMP
+           WHERE id = ? AND status = 'confirmed'`
+        ).bind(bookingId),
+        env.DB.prepare(
+          // action='update' kvůli CHECK na audit_log.action; sémantika v details
+          `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+           VALUES (?, 'bookings', ?, 'update', ?, ?)`
+        ).bind(
+          crypto.randomUUID(),
+          bookingId,
+          `operator:${data.operator.id}`,
+          'Klient nedorazil (no_show) → done'
+        ),
+      ]);
+
+      const changes = batchResults?.[0]?.meta?.changes || 0;
+      if (changes === 0) {
+        return json({ ok: true, message: 'Žádná změna (rezervace není potvrzená)' });
+      }
+
+      // Side effect: Google event na šedo (Graphite '8') — bez e-mailu klientovi
+      if (booking.calendar_event_id) {
+        const calendar = new GoogleCalendarConnector(env);
+        calendar.updateEventColor(booking.calendar_event_id, '8')
+          .catch((err) => console.warn(`[admin/bookings] Google no_show color update failed: ${err.message}`));
+      }
+
+      return json({ ok: true, data: { id: bookingId, status: 'done', no_show: true } });
+    }
+
     // Status změna (G2 logika — bez přesunu)
     const newStatus = body.status;
     if (newStatus && !['confirmed', 'cancelled', 'done', 'pending'].includes(newStatus)) {

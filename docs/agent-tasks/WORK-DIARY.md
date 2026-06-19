@@ -2762,3 +2762,39 @@ Rozsah: PUT /admin/bookings rozšíren na plný workflow; webhook symetricky obr
 **showRescheduleModal (slot picker):** Modal s date inputem (min=dnes), kontejnerem na sloty. Fetch /api/availability (from=to=den), race guard (availabilityRequestSeq), render tlačítek pro slot.start časů. Výběr slotu (closure: selectedStart/End) povolí [Přesunout]. Bez new Date() na slot string — posílá PŘESNĚ "YYYY-MM-DD HH:MM" do api.updateBooking({new_slot_start, new_slot_end}). Na 409 kolize → toast s hláškou backend; úspěch → toast + render tabulky.
 
 **Napojení:** delegovaný listener v container click (AbortController) → rescheduleBtn → showRescheduleModal. Formát bez 'Z', bez ISO konverze.
+
+## no_show: "Klient nedorazil" (2026-06-15)
+
+Dotažení jediného explicitně odloženého bodu ADR-005 (varianta b).
+
+**DB:** migrace `0015_booking_no_show.sql` + `db/schema.sql` — `no_show_flag INTEGER DEFAULT 0` (ALTER ADD COLUMN, additivní/bezpečné; CHECK na `bookings.status` se nemění).
+
+**Backend (`functions/admin/bookings.js`):** PUT větev `action:'no_show'` — guard `UPDATE ... WHERE status='confirmed'` → `status='done', no_show_flag=1`; efekty podle `changes` (no-op jinak). Side effect: Google `updateEventColor('8')` (Graphite/šedá), bez e-mailu klientovi. Audit `action='update'` (CHECK na `audit_log.action` neobsahuje `no_show`), sémantika v `details`.
+
+**Frontend:** `api.markNoShow(id)`; v `calendar.js` tlačítko „Nedorazil" (jen confirmed), potvrzovací modal (klient nebude informován), badge „Nedorazil" (helper `statusBadge`), filtr-tab „Nedorazili"; `.badge-noshow` v admin.css.
+
+**Sémantika:** confirmed → done + no_show_flag; záznam zůstává mezi „Dokončenými" s odlišným badge.
+
+**QA:** `node --check` ✅. Migrace na produkční D1 čeká na pokyn (`npm run db:migrate`).
+
+**Pozn. k prověření (mimo rozsah):** G3/G4 zapisují audit akce `'reschedule'`/`'cancel'`, které nejsou v CHECK seznamu `audit_log.action` — možný latentní bug.
+
+**Status:** Ready na PR (draft).
+
+## GEO-Marketing: odstranění mock dat, příprava na reálný provoz (2026-06-15)
+
+Cíl: „dát bordel pryč", aby modul ukazoval jen reálná data a šel připravit na ostrý provoz.
+
+**Frontend (`public/admin/js/modules/geo.js`) — přepsán:**
+- Odstraněno `getDemoGeo()` (vymyšlená města Písek 42, Strakonice 15…) a `getDemoRecommendations()` (falešná „AI doporučení").
+- Odstraněno divadelní tlačítko (`onclick` jen měnil text přes setTimeout).
+- Nově: výhradně reálná data z `/admin/geo`; poctivé prázdné stavy (žádné poptávky → „Data se začnou zobrazovat po spuštění webu"); reálné „Nejžádanější služby" (backend je vracel, FE je ignoroval); badge dle skutečného počtu; funkční „Obnovit" (re-fetch + re-render).
+
+**Backend (`functions/admin/geo.js`):** doplněn `insights[]` z reálných agregací (top město; tip na lokální kampaň při ≥5 poptávkách — práh dle cronu `_cron-geo.js`; nejžádanější služba). Pravidlové, žádná AI/mock.
+
+**Edge (read-only, NIC nemazáno):** produkční `geo_leads` = 2 reálné testovací leady (Písek), 0× `gl_demo%`. Detail + návrh příkazu na smazání před spuštěním → `docs/EDGE_OPS_LOG.md` (ČEKÁ na pokyn).
+
+**Odloženo:** skutečná AI doporučení (ne pravidlová) → AI Studio, ADR-003.
+
+**QA:** `node --check` ✅.
+**Status:** Ready na PR (draft, stejná větev jako no_show).
