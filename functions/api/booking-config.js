@@ -25,10 +25,15 @@ export async function onRequestGet({ env }) {
     const depositRequired = rowDeposit ? rowDeposit.value === '1' : true;
     const phoneRequired = rowPhone ? rowPhone.value === '1' : true;
 
+    const turnstileEnabled = Boolean(env.TURNSTILE_SITEKEY && env.TURNSTILE_SECRET_KEY);
+    const turnstileSitekey = turnstileEnabled ? env.TURNSTILE_SITEKEY : null;
+
     return new Response(
       JSON.stringify({
         stripe_deposit_required: depositRequired,
-        require_phone: phoneRequired
+        require_phone: phoneRequired,
+        turnstile_enabled: turnstileEnabled,
+        turnstile_sitekey: turnstileSitekey,
       }),
       { status: 200, headers: CORS_HEADERS }
     );
@@ -38,7 +43,9 @@ export async function onRequestGet({ env }) {
     return new Response(
       JSON.stringify({
         stripe_deposit_required: true,
-        require_phone: true
+        require_phone: true,
+        turnstile_enabled: false,
+        turnstile_sitekey: null,
       }),
       { status: 200, headers: CORS_HEADERS }
     );

@@ -3,6 +3,7 @@
 
 import { DataCrypt } from '../lib/datacrypt.js';
 import { subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
+import { verifyTurnstile } from '../lib/turnstile.js';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -18,6 +19,18 @@ export async function onRequestOptions() {
 export async function onRequestPost({ request, env, waitUntil }) {
   try {
     const data = await request.json();
+    const ip = request.headers.get('CF-Connecting-IP') || null;
+    const turnstileResult = await verifyTurnstile({
+      env,
+      token: data.turnstile_token,
+      remoteIp: ip,
+    });
+    if (!turnstileResult.ok) {
+      return new Response(
+        JSON.stringify({ error: 'invalid_input', message: 'Bezpečnostní ověření selhalo. Potvrďte prosím, že nejste robot, a odešlete formulář znovu.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
     
     // Validate inputs
     const { name, email, phone, service, preferred_date, note, psc, consent_marketing, reminder_channel, consent_processing } = data;

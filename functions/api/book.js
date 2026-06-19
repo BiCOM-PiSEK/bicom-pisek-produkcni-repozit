@@ -5,6 +5,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
+import { verifyTurnstile } from '../lib/turnstile.js';
 import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from './availability.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
@@ -72,6 +73,18 @@ export async function onRequestPost({ request, env, waitUntil }) {
     } catch {
       return new Response(
         JSON.stringify({ success: false, error: 'Neplatný formát požadavku.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    const turnstileResult = await verifyTurnstile({
+      env,
+      token: data.turnstile_token,
+      remoteIp: ip !== 'unknown' ? ip : null,
+    });
+    if (!turnstileResult.ok) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Bezpečnostní ověření selhalo. Potvrďte prosím, že nejste robot, a odešlete formulář znovu.' }),
         { status: 400, headers: CORS_HEADERS }
       );
     }
