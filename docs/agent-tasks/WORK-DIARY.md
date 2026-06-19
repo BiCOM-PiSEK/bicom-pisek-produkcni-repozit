@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-06-19 Launch integrace L1/L5/L8/L9 — readiness dashboard + runbook
+**Model:** GPT-5.3-Codex  
+**Branch:** booking-f6-f7-pass1  
+**Status:** ✅ Hotovo (technická připravenost + checklist)
+
+### Změny v této dávce
+- `functions/admin/dashboard.js`
+  - rozšířen health payload o:
+    - `data.launchBlockers` (L1/L5/L8/L9 ready/blocked)
+    - `data.launchBlockersSummary` (souhrn ready vs blocked)
+  - doplněny systémové indikátory `resend`, `gosms`, `stripeWebhook`
+- `docs/API_KEYS_CHECKLIST.md`
+  - sjednoceny reálné názvy GoSMS secrets (`SECRET_SMS_GATEWAY_CLIENT_ID/SECRET`)
+  - doplněn `SMS_GATEWAY_CHANNEL`
+  - doplněn `SECRET_STRIPE_WEBHOOK_SECRET`
+  - iDoklad secrets převedeny z „plánováno“ na produkční integraci
+- `docs/HANDOVER.md`
+  - přidána sekce **2.1 Launch integrace před ostrým spuštěním (L1/L5/L8/L9)**
+  - jasná akceptační kritéria pro Resend, GoSMS, Stripe a iDoklad
+
+---
+
 ## 2026-06-19 L2 — Turnstile anti-spam na rezervačním formuláři
 **Model:** GPT-5.3-Codex  
 **Branch:** booking-f6-f7-pass1  
