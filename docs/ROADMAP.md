@@ -99,7 +99,7 @@
 
 | Co | Stav | Odkaz |
 |---|---|---|
-| **Rezervační systém F6–F7** | F1–F5 hotové, zbývá booking v2 + QA | [ADR-004](adr/ADR-004-rezervacni-system.md) |
+| **Rezervační systém F6–F7** | Kódově dokončeno + hardening; průběžné provozní ověřování | [ADR-004](adr/ADR-004-rezervacni-system.md) |
 | Admin konzole — booking akce + handover režim | průběžně | WORK-DIARY |
 | Produkční integrace a launch readiness | Stripe/Resend/GoSMS/iDoklad/Turnstile | HANDOVER + launch blokery |
 
@@ -170,7 +170,7 @@
 | L4 | Meta App Review | publikace na IG/FB |
 | L5 | GoSMS — dobití kreditu | SMS upomínky |
 | L6 | SEC-7/8 — právní revize advokátem | zdravotní tvrzení, GDPR dokumenty |
-| L7 | Rezervační systém F6–F7 dokončen | jádro produktu |
+| L7 | Rezervační systém F6–F7 dokončen | kódově hotovo; držet průběžné live ověřování po release |
 | L8 | Stripe — produkční klíč + webhook secret + test platby | mechanika hotová, chybí ostré klíče |
 | L9 | iDoklad — produkční `SECRET_IDOKLAD_CLIENT_ID/SECRET` + test fakturace | mechanika hotová, chybí ostré klíče |
 
@@ -197,7 +197,7 @@ Detailní checklist → [HANDOVER.md](HANDOVER.md). Klíčové zbývající:
 | [ADR-001](adr/ADR-001-cloudflare-first.md) | Cloudflare-first produkční výseč | Přijato |
 | [ADR-002](adr/ADR-002-guardrail-modularni-vrstva.md) | Guardrail jako modulární vrstva | Přijato |
 | [ADR-003](adr/ADR-003-ai-studio.md) | AI Studio (skills architektura) | Schváleno |
-| [ADR-004](adr/ADR-004-rezervacni-system.md) | Rezervační systém s výběrem času | Schváleno (F1-F5 hotové; F6-F7 zbývá) |
+| [ADR-004](adr/ADR-004-rezervacni-system.md) | Rezervační systém s výběrem času | Schváleno (F1-F7 implementováno; běží hardening + provozní validace) |
 | [ADR-005](adr/ADR-005-admin-sprava-rezervaci.md) | Admin správa rezervací + sync konzole ↔ Google | Realizováno (G2-G4 + FE-1/FE-2 hotovo; G5 odloženo) |
 
 ---

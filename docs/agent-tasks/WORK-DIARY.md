@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-19 Handover pack — Google Workspace hardening + release strategy
+**Model:** GPT-5.3-Codex  
+**Branch:** booking-f6-f7-pass1-l1l9-rebased  
+**Status:** ✅ Hotovo
+
+### Změny v této dávce
+- `docs/HANDOVER.md`
+  - přidána sekce **2.2 Google Workspace + Domain-Wide Delegation** (konfigurace, akceptační testy, evidence do klíčenky)
+  - aktualizovány názvy produkčních secrets pro GoSMS/Stripe/iDoklad
+  - doplněna sekce **Release / Deploy / Rollback strategie**
+- `docs/ROADMAP.md`
+  - upraven status F6/F7 na dokončeno + hardening/provozní validace
+  - sladěn status ADR-004 s aktuálním stavem implementace
+
+---
+
 ## 2026-06-19 PR #67 follow-up — zapracování review připomínek
 **Model:** GPT-5.3-Codex  
 **Branch:** booking-f6-f7-pass1-l1l9  
