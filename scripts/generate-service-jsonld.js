@@ -49,9 +49,11 @@ async function generateJsonLd() {
       'name': name,
       'description': short_desc,
       'provider': {
-        '@type': ['MedicalBusiness', 'HealthAndBeautyBusiness', 'LocalBusiness'],
+        '@type': ['HealthAndBeautyBusiness', 'LocalBusiness'],
         '@id': `${BASE_URL}/#business`,
         'name': 'Bicom Písek',
+        'legalName': 'BIO ONE LIFE s.r.o.',
+        'taxID': '23950978',
         'address': {
           '@type': 'PostalAddress',
           'streetAddress': 'Vladislavova 201 (Technologický park)',

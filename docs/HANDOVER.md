@@ -213,17 +213,17 @@
 |---------------------|------|--------------|-------------|
 | SECRET_ENCRYPTION_KEY | šifrování dat | vlastní hash | CF Secrets (⚠ ztráta = nečitelná data) |
 | SECRET_ADMIN_TOKEN | admin endpointy | vlastní | CF Secrets |
-| SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL / _PRIVATE_KEY | kalendář | Google Cloud | CF Secrets |
-| SECRET_GOOGLE_CALENDAR_ID / _IMPERSONATE | kalendář (ID + DWD impersonace) | Google Cloud / Workspace | CF Secrets |
-| SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL | admin kontakt Workspace | Google Workspace | CF Secrets |
-| SECRET_RESEND_API_KEY | e-maily | Resend | CF Secrets |
-| SECRET_META_GRAPH_ACCESS_TOKEN | Instagram sync | Meta | CF Secrets |
-| SECRET_META_IG_USER_ID | Instagram účet ID | Meta | CF Secrets |
-| SECRET_SMS_GATEWAY_CLIENT_ID / _CLIENT_SECRET | SMS | GoSMS | CF Secrets |
-| SMS_GATEWAY_CHANNEL (variable) | SMS channel | GoSMS | CF Variables |
-| SECRET_STRIPE_SECRET_KEY / _WEBHOOK_SECRET | platby | Stripe | CF Secrets |
-| SECRET_IDOKLAD_CLIENT_ID / _CLIENT_SECRET | fakturace | iDoklad | CF Secrets |
-| SECRET_CALENDAR_WEBHOOK_SECRET | validace calendar webhooku | vlastní | CF Secrets |
+| `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL` / `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` | kalendář | Google Cloud | CF Secrets |
+| `SECRET_GOOGLE_CALENDAR_ID` / `SECRET_GOOGLE_CALENDAR_IMPERSONATE` | kalendář (ID + DWD impersonace) | Google Cloud / Workspace | CF Secrets |
+| `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL` | admin kontakt Workspace | Google Workspace | CF Secrets |
+| `SECRET_RESEND_API_KEY` | e-maily | Resend | CF Secrets |
+| `SECRET_META_GRAPH_ACCESS_TOKEN` | Instagram sync | Meta | CF Secrets |
+| `SECRET_META_IG_USER_ID` | Instagram účet ID | Meta | CF Secrets |
+| `SECRET_SMS_GATEWAY_CLIENT_ID` / `SECRET_SMS_GATEWAY_CLIENT_SECRET` | SMS | GoSMS | CF Secrets |
+| `SMS_GATEWAY_CHANNEL` (variable) | SMS channel | GoSMS | CF Variables |
+| `SECRET_STRIPE_SECRET_KEY` / `SECRET_STRIPE_WEBHOOK_SECRET` | platby | Stripe | CF Secrets |
+| `SECRET_IDOKLAD_CLIENT_ID` / `SECRET_IDOKLAD_CLIENT_SECRET` | fakturace | iDoklad | CF Secrets |
+| `SECRET_CALENDAR_WEBHOOK_SECRET` | validace calendar webhooku | vlastní | CF Secrets |
 | SECRET_GROQ_API_KEY | záložní LLM | Groq | CF Secrets |
 | SECRET_GEMINI_API_KEY | záložní LLM | Google AI | CF Secrets |
 
