@@ -54,6 +54,8 @@ function mapEventType(entity, action, details) {
     return 'booking';
   }
 
+  // Legacy map entries are kept for backward compatibility with historical audit rows
+  // created before BUG-001 fix (when some booking actions used dedicated action values).
   const map = {
     'bookings:create':   'booking',
     'bookings:confirm':  'booking',
@@ -92,6 +94,7 @@ function buildMessage(entity, action, actor, entityId, details) {
     return msg;
   }
 
+  // Legacy message entries are kept for historical audit rows for the same reason.
   const messages = {
     'bookings:create':     'Nová poptávka zaregistrována',
     'bookings:confirm':    'Rezervace potvrzena',
