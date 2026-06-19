@@ -32,6 +32,34 @@
 
 **Technická poznámka:** stav připravenosti L1/L5/L8/L9 je dostupný v admin endpointu `GET /admin/dashboard` (`data.launchBlockers` + `data.launchBlockersSummary`).
 
+### 2.2 Google Workspace + Domain-Wide Delegation (admin@bicom-pisek.cz)
+
+> Cíl: zajistit, že kalendářové operace systému běží bezpečně pod správným účtem a jsou předatelné bez ztráty provozu.
+
+**Konfigurační minimum (musí být splněno):**
+1. Google Workspace admin účet: `admin@bicom-pisek.cz`
+2. Service Account v Google Cloud s povoleným **Domain-Wide Delegation**
+3. V Admin Console (Workspace) autorizovaný OAuth scope pro SA:
+   - `https://www.googleapis.com/auth/calendar`
+4. V Cloudflare secrets:
+   - `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL`
+   - `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY`
+   - `SECRET_GOOGLE_CALENDAR_ID`
+   - `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL=admin@bicom-pisek.cz`
+
+**Akceptační test po předání:**
+- [ ] Vytvoření nové rezervace vytvoří událost v kalendáři `admin@bicom-pisek.cz`.
+- [ ] Potvrzení/přesun/zrušení rezervace z admin konzole provede odpovídající změnu v Google Calendar.
+- [ ] V audit logu je dohledatelná vazba mezi booking akcí a kalendářovou změnou.
+- [ ] Při dočasném výpadku Google API se rezervace neztratí (queue retry + provozní log).
+
+**Evidence do klíčenky (bez tajných hodnot):**
+- ID Google Cloud projektu
+- e-mail Service Accountu
+- datum poslední rotace SA klíče
+- kdo je Workspace super-admin owner
+- kde je uložen JSON klíč (trezor + odpovědná osoba)
+
 ## 3. Provozní „playbook" pro Lenku (bez technické bariéry)
 **A. AI Copywriter (hlas → článek):** otevři diktafon → namluv krátkou poznámku (bez jména klienta) → přepis klávesnicí → vlož do administrace → „Generovat" → „Zveřejnit". Hotovo, článek je online v tónu Quiet Luxury.
 **B. Rezervace v Kalendáři:** nová poptávka = světle žlutá událost. Změníš barvu na zelenou (potvrzeno) → systém automaticky pošle klientovi potvrzení + naplánuje SMS upomínku 24 h předem.
@@ -80,8 +108,13 @@
 | `SECRET_RESEND_API_KEY` | resend.com | ověřit doménu pro odesílání (SPF/DKIM) |
 | `SECRET_META_GRAPH_ACCESS_TOKEN` | developers.facebook.com | long-lived token, propojit IG business účet |
 | `SECRET_META_IG_USER_ID` | Graph API | |
-| `SECRET_SMS_GATEWAY_API_KEY` | GoSMS.cz / sms.sluzba.cz | dobít kredit |
-| `SECRET_STRIPE_SECRET_KEY` (volitelné) | stripe.com | jen pokud online platby záloh |
+| `SECRET_SMS_GATEWAY_CLIENT_ID` | GoSMS.cz | OAuth client ID pro SMS bránu |
+| `SECRET_SMS_GATEWAY_CLIENT_SECRET` | GoSMS.cz | OAuth client secret pro SMS bránu |
+| `SMS_GATEWAY_CHANNEL` (variable) | GoSMS.cz | volitelný channel ID |
+| `SECRET_STRIPE_SECRET_KEY` | stripe.com | live secret key pro checkout |
+| `SECRET_STRIPE_WEBHOOK_SECRET` | stripe.com | signing secret pro `/api/stripe-webhook` |
+| `SECRET_IDOKLAD_CLIENT_ID` | iDoklad | OAuth client ID |
+| `SECRET_IDOKLAD_CLIENT_SECRET` | iDoklad | OAuth client secret |
 | `SECRET_GROQ_API_KEY` | groq.com | API pro záložní kognitivní Llama model |
 | `SECRET_GEMINI_API_KEY` | Google AI Studio | API pro záložní kognitivní Gemini model |
 
@@ -183,8 +216,10 @@
 | SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL / _PRIVATE_KEY | kalendář | Google Cloud | CF Secrets |
 | SECRET_RESEND_API_KEY | e-maily | Resend | CF Secrets |
 | SECRET_META_GRAPH_ACCESS_TOKEN | Instagram sync | Meta | CF Secrets |
-| SECRET_SMS_GATEWAY_API_KEY | SMS | GoSMS | CF Secrets |
-| SECRET_STRIPE_SECRET_KEY (volit.) | platby | Stripe | CF Secrets |
+| SECRET_SMS_GATEWAY_CLIENT_ID / _CLIENT_SECRET | SMS | GoSMS | CF Secrets |
+| SMS_GATEWAY_CHANNEL (variable) | SMS channel | GoSMS | CF Variables |
+| SECRET_STRIPE_SECRET_KEY / _WEBHOOK_SECRET | platby | Stripe | CF Secrets |
+| SECRET_IDOKLAD_CLIENT_ID / _CLIENT_SECRET | fakturace | iDoklad | CF Secrets |
 | SECRET_GROQ_API_KEY | záložní LLM | Groq | CF Secrets |
 | SECRET_GEMINI_API_KEY | záložní LLM | Google AI | CF Secrets |
 
@@ -297,3 +332,31 @@ GitHub Org: BiCOM-PiSEK
 ## 6. Po předání
 - Dle dohody: MEVERIK ponechán jako collaborator pro podporu (SLA), nebo plně odpojen.
 - Doporučení: ponechat read přístup pro případnou údržbu, definovat v servisní smlouvě.
+
+---
+
+## 7. Release / Deploy / Rollback strategie (provozní minimum)
+
+### Release gate (co musí být green před merge do `main`)
+- [ ] Cloudflare Pages build = pass
+- [ ] CodeRabbit/Copilot review = bez otevřeného blockeru
+- [ ] Kritické endpointy nehlásí regresi (`/api/book`, `/api/stripe-checkout`, `/api/stripe-webhook`, `/admin/dashboard`)
+- [ ] Handover-impact změny jsou zapsané v `WORK-DIARY.md` + relevantních docs
+
+### Deploy postup (standard)
+1. PR squash merge do `main`
+2. Vyčkat na Pages deploy success
+3. Ověřit branch preview/prod smoke-check:
+   - booking create (free flow)
+   - booking create (stripe flow, pokud aktivní)
+   - admin login + dashboard load
+4. Zapsat release poznámku (co se měnilo / kdo schválil)
+
+### Rollback postup (když release selže)
+1. Vytvořit revert PR na poslední problémový commit (nepřepisovat historii `main`)
+2. Prioritně obnovit kritické toky:
+   - rezervace API
+   - admin přístup
+   - webhook processing
+3. Po revert deployi znovu provést smoke-check kritických toků
+4. Incident poznamenat do deníku (root cause + preventivní opatření)
