@@ -157,12 +157,12 @@ Architektura je postavena na principu **Edge-First, Cloudflare-native**. Produk�
 
 | Služba | Účel integrace | Stav |
 | :--- | :--- | :--- |
-| **Google Calendar & Workspace** | Zápis a čtení termínů rezervací, organizace kalendáře. | Integrováno; zápis termínů ve finalizaci |
+| **Google Calendar & Workspace** | Zápis a čtení termínů rezervací, organizace kalendáře. | Integrováno; Domain-Wide Delegation ověřena přes `admin@bicom-pisek.cz` |
 | **Resend** | Odesílání transakčních e-mailů s potvrzením rezervací a upomínkami. | Integrováno; ověření doručitelnosti před spuštěním |
 | **GoSMS** | Odesílání SMS upomínek 24h před konáním biorezonance. | Integrováno; aktivace kreditu před spuštěním |
 | **Meta Graph API** | Synchronizace příspěvků z Instagramu pro Magazín. | Integrováno; čeká na schválení Meta App Review |
-| **iDoklad** | Automatické vystavování zálohových a řádných faktur. | Integrováno; finalizace |
-| **Stripe** | Zpracování plateb online záloh na rezervované termíny. | Ve vývoji / integrační test |
+| **iDoklad** | Automatické vystavování zálohových a řádných faktur. | Mechanika hotová; chybí produkční klíče a ostrý test |
+| **Stripe** | Zpracování plateb online záloh na rezervované termíny. | Mechanika hotová; chybí produkční klíče, webhook a live test |
 | **Telegram** | Monitoring cashflow, chybových hlášení a denních/týdenních statistik. | Aktivní |
 
 ---
@@ -194,19 +194,19 @@ Projekt je od počátku navržen v souladu s nařízením **GDPR** (článek 9 �
 Projekt je v aktivní fázi dolaďování před konečným předáním. Produkční kód je postupně zrcadlen z vývojového balíku MEVERIK STUDIO do tohoto čistého repozitáře.
 
 ```
- HOTOVO 
- ├─ Bezpečnostní audit S0 a fix 403 zacyklení (Zero Trust dev-fallback)
- ├─ Repozitářová hygiena (odstranění mrtvého kódu a testovacích souborů)
- ├─ GDPR anonymizace (oprava constraintů, úspěšný živý produkční re-test)
- ├─ Sjednocení NAP (telefon a adresa Vladislavova 201 sjednocena napříč schématy a landingy)
- └─ AI Copywriter právní guardrail (preventivní modulární vrstva rules-health s volbou přísnosti)
+ HOTOVO
+ ├─ Veřejný web + lokální landingy + SEO/AEO základ
+ ├─ Rezervační systém F1-F5 (availability backend, admin otevírací doba/výjimky, frontend time-picker)
+ ├─ Admin konzole Virtual Office včetně ADR-005 G2-G4 + FE-1/FE-2
+ ├─ no_show workflow (`no_show_flag`, badge, filtr, šednutí Google eventu)
+ ├─ Google Calendar přes Domain-Wide Delegation (`admin@bicom-pisek.cz`)
+ └─ GEO modul bez mock dat — jen reálné `geo_leads` + poctivé empty stavy
 
  PRÁVĚ SE LADÍ / FIXUJE
- ├─ Administrační konzole Virtual Office (přihlašovací stav, datová pipeline, render)
- ├─ Veřejný chatbot (AI Rádce) — nefunkční odpovědi, oprava napojení
- ├─ Rendering markdownu v ČLÁNCÍCH magazínu
- ├─ Propojení D1 + odstranění demo/testovacích dat
- └─ Zápis schválených termínů do Google kalendáře
+ ├─ Rezervační systém F6-F7 (`POST /api/book` v2, kolizní zámek, DST/KV cache, QA)
+ ├─ Admin použitelnost a handover dokumentace pro klienta
+ ├─ Produkční integrace Stripe / iDoklad / Resend / GoSMS
+ └─ Latentní bug `audit_log.action` pro akce `cancel` / `reschedule`
 
  NA HORIZONTU (Budoucí rozvoj)
  ├─ Generování obrázků, bannerů a Instagram/Facebook postů přímo z AI Copywritera

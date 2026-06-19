@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-06-19 Docs sync po merge PR #61
+**Model:** GPT-5.4
+**Branch:** meverik-solution-repo-pr-audit
+**Status:** ✅ Hotovo
+
+### Co bylo upraveno
+- `README.md` srovnán s aktuálním stavem po merge PR #61:
+  - Google Workspace / Calendar už není popsaný jako „ve finalizaci", ale jako ověřená DWD integrace přes `admin@bicom-pisek.cz`
+  - Stripe a iDoklad popsány jako mechanicky hotové, ale stále bez produkčních klíčů / live testů
+  - sekce „Stav vývoje a migrace" přepsána z dříve zastaralého snapshotu na aktuální RC realitu
+- `docs/ROADMAP.md` synchronizován:
+  - F1-F5 booking označeny jako hotové, v běhu už jen F6-F7
+  - přidána tabulka známých otevřených bodů včetně latentního BUG-001 (`audit_log.action` pro `cancel` / `reschedule`)
+  - doplněn ADR-005 do mapy rozhodnutí a aktualizován status ADR-004
+- `docs/adr/ADR-005-admin-sprava-rezervaci.md` upraven tak, aby odrážel reálně dokončený `no_show_flag` přes migraci 0015 a už nemluvil o no_show jako o čistě odloženém tématu
+
+### Důležitý závěr
+- PR #61 už byl v době zásahu **squash-merged do main**.
+- Otevřený zůstává docs-only PR #60; po tomto docs syncu je vhodnější založit jeden nový čistý docs PR z aktuálního stavu, než mergovat starý snapshot beze změn.
+
+---
+
 ## 2026-05-26 Fáze A — Jádro a databáze (Sprint A.1–A.3)
 **Model:** Antigravity (Claude)
 **Branch:** agent/ag-w2-00-repo-init → squash merged to main

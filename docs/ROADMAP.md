@@ -99,8 +99,18 @@
 
 | Co | Stav | Odkaz |
 |---|---|---|
-| **Rezervační systém F2–F7** | F1 hotová, pokračuje se | [ADR-004](docs/adr/ADR-004-rezervacni-system.md) |
-| Admin konzole — doladění použitelnosti | průběžně | WORK-DIARY |
+| **Rezervační systém F6–F7** | F1–F5 hotové, zbývá booking v2 + QA | [ADR-004](docs/adr/ADR-004-rezervacni-system.md) |
+| Admin konzole — doladění použitelnosti a handover režimu | průběžně | WORK-DIARY |
+| Produkční integrace a launch readiness | Stripe/Resend/GoSMS/iDoklad/Turnstile | HANDOVER + launch blokery |
+
+---
+
+## 🟠 ZNÁMÉ OTEVŘENÉ BODY / BUGY
+
+| ID | Oblast | Stav | Poznámka |
+|---|---|---|---|
+| **BUG-001** | `audit_log.action` CHECK vs. admin booking akce | otevřeno | `functions/admin/bookings.js` stále zapisuje `reschedule` a `cancel`, které nejsou v CHECK seznamu; hrozí HTTP 500 při přesunu/zrušení. |
+| **OPS-001** | Handover / identita provozovatele | otevřeno | Dopsat BIO ONE LIFE s.r.o. a přenos vlastnictví účtů/secrets do finální dokumentace. |
 
 ---
 
@@ -108,8 +118,6 @@
 
 ### Rezervační systém — zbývající fáze (ADR-004, architektura = Cesta 2: sloty za běhu)
 
-- **F4** — admin UI: výjimky (svátky/dovolená/ad-hoc) + náhled/skrývání slotů
-- **F5** — frontend rezervace: výběr dne → času → údaje
 - **F6** — `POST /api/book` v2: kolizní zámek (UNIQUE na `slot_start`), konfigurovatelný tok (potvrzení/závaznost/záloha), přesný čas do kalendáře i e-mailu/SMS
 - **F7** — doladění: KV cache slotů, DST/časové pásmo, QA
 
@@ -161,7 +169,7 @@
 | L4 | Meta App Review | publikace na IG/FB |
 | L5 | GoSMS — dobití kreditu | SMS upomínky |
 | L6 | SEC-7/8 — právní revize advokátem | zdravotní tvrzení, GDPR dokumenty |
-| L7 | Rezervační systém F2–F7 dokončen | jádro produktu |
+| L7 | Rezervační systém F6–F7 dokončen | jádro produktu |
 | L8 | Stripe — produkční klíč + webhook secret + test platby | mechanika hotová, chybí ostré klíče |
 | L9 | iDoklad — produkční `SECRET_IDOKLAD_CLIENT_ID/SECRET` + test fakturace | mechanika hotová, chybí ostré klíče |
 
@@ -188,7 +196,8 @@ Detailní checklist → [docs/HANDOVER.md](docs/HANDOVER.md). Klíčové zbývaj
 | [ADR-001](docs/adr/ADR-001-cloudflare-first.md) | Cloudflare-first produkční výseč | Přijato |
 | [ADR-002](docs/adr/ADR-002-guardrail-modularni-vrstva.md) | Guardrail jako modulární vrstva | Přijato |
 | [ADR-003](docs/adr/ADR-003-ai-studio.md) | AI Studio (skills architektura) | Schváleno |
-| [ADR-004](docs/adr/ADR-004-rezervacni-system.md) | Rezervační systém s výběrem času | Schváleno (F1 hotová) |
+| [ADR-004](docs/adr/ADR-004-rezervacni-system.md) | Rezervační systém s výběrem času | Schváleno (F1-F5 hotové; F6-F7 zbývá) |
+| [ADR-005](docs/adr/ADR-005-admin-sprava-rezervaci.md) | Admin správa rezervací + sync konzole ↔ Google | Realizováno (G2-G4 + FE-1/FE-2 hotovo; G5 odloženo) |
 
 ---
 
