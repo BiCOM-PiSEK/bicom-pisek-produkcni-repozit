@@ -88,7 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Load configuration and initialize payment options if not mandatory
-  let bookingConfig = { stripe_deposit_required: true, require_phone: true };
+  let bookingConfig = {
+    stripe_deposit_required: true,
+    require_phone: true,
+    turnstile_enabled: false,
+    turnstile_sitekey: null
+  };
+  let turnstileToken = null;
+  let turnstileWidgetId = null;
   
   function updatePhoneRequirement() {
     const phoneInput = document.getElementById("booking-phone");
@@ -128,6 +135,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const submitBtn = formEl ? formEl.querySelector('button[type="submit"]') : null;
+
+    if (formEl && bookingConfig.turnstile_enabled && bookingConfig.turnstile_sitekey) {
+      const actionsContainer = formEl.querySelector('.booking-actions');
+      if (actionsContainer && !document.getElementById('booking-turnstile')) {
+        const turnstileWrap = document.createElement('div');
+        turnstileWrap.className = 'form-group form-full';
+        turnstileWrap.innerHTML = `
+          <div id="booking-turnstile" style="display:flex; justify-content:center;"></div>
+        `;
+        formEl.insertBefore(turnstileWrap, actionsContainer);
+      }
+
+      await renderTurnstile();
+    }
 
     if (formEl && !bookingConfig.stripe_deposit_required) {
       // Insert payment choice HTML above submit actions
@@ -195,6 +216,58 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else if (submitBtn && bookingConfig.stripe_deposit_required) {
       submitBtn.textContent = "Odeslat a zaplatit zálohu (500 Kč)";
+    }
+  }
+
+  function loadTurnstileScript() {
+    return new Promise((resolve, reject) => {
+      if (window.turnstile) {
+        resolve();
+        return;
+      }
+      const existing = document.querySelector('script[data-turnstile="booking"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve(), { once: true });
+        existing.addEventListener('error', () => reject(new Error('Turnstile script failed to load.')), { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.dataset.turnstile = 'booking';
+      script.addEventListener('load', () => resolve(), { once: true });
+      script.addEventListener('error', () => reject(new Error('Turnstile script failed to load.')), { once: true });
+      document.head.appendChild(script);
+    });
+  }
+
+  async function renderTurnstile() {
+    const container = document.getElementById('booking-turnstile');
+    if (!container) return;
+
+    try {
+      await loadTurnstileScript();
+      if (!window.turnstile) return;
+
+      if (turnstileWidgetId !== null) {
+        window.turnstile.remove(turnstileWidgetId);
+      }
+      turnstileToken = null;
+      turnstileWidgetId = window.turnstile.render('#booking-turnstile', {
+        sitekey: bookingConfig.turnstile_sitekey,
+        callback: (token) => {
+          turnstileToken = token;
+        },
+        'expired-callback': () => {
+          turnstileToken = null;
+        },
+        'error-callback': () => {
+          turnstileToken = null;
+        }
+      });
+    } catch (err) {
+      console.error('[booking] Turnstile init failed:', err);
     }
   }
 
@@ -323,8 +396,16 @@ document.addEventListener("DOMContentLoaded", () => {
         note: document.getElementById("booking-note").value || null,
         consent_processing: document.getElementById("booking-consent-processing").checked,
         consent_marketing: document.getElementById("booking-marketing").checked,
-        reminder_channel: reminderEl ? reminderEl.value : "email"
+        reminder_channel: reminderEl ? reminderEl.value : "email",
+        turnstile_token: turnstileToken
       };
+
+      if (bookingConfig.turnstile_enabled && !turnstileToken) {
+        showToast("Potvrďte prosím bezpečnostní ověření (nejsem robot).", "error");
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+      }
 
       // Determine which workflow to use (Stripe vs. Free)
       const selectedMethodEl = formEl.querySelector('input[name="payment_method"]:checked');

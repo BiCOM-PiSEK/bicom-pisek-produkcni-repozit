@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-06-19 L2 — Turnstile anti-spam na rezervačním formuláři
+**Model:** GPT-5.3-Codex  
+**Branch:** booking-f6-f7-pass1  
+**Status:** ✅ Hotovo (kód) / ⏳ čeká produkční klíče
+
+### Změny v této dávce
+- `functions/lib/turnstile.js`
+  - nový helper pro server-side ověření tokenu přes Cloudflare `siteverify`
+  - fail-closed chování při zapnuté konfiguraci (`TURNSTILE_SITEKEY` + `TURNSTILE_SECRET_KEY`)
+- `functions/api/book.js`
+  - před vytvořením rezervace přidáno ověření `turnstile_token`
+- `functions/api/stripe-checkout.js`
+  - stejné ověření přidáno i do Stripe větve, aby nešlo antispam obejít
+- `functions/api/booking-config.js`
+  - rozšířen response o `turnstile_enabled` + `turnstile_sitekey` (jen pokud jsou dostupné oba klíče)
+- `public/assets/js/guide.js`
+  - dynamické vložení a render Turnstile widgetu do formuláře
+  - odeslání `turnstile_token` do backendu
+  - klientská validace: bez tokenu se formulář neodešle
+
+### Poznámka k nasazení
+- Pro ostré zapnutí je potřeba mít v Pages nastavené:
+  - `TURNSTILE_SITEKEY` (public variable)
+  - `TURNSTILE_SECRET_KEY` (secret)
+
+---
+
 ## 2026-06-19 F6/F7 — booking v2 (první implementační dávka)
 **Model:** GPT-5.4  
 **Branch:** booking-f6-f7-pass1  
