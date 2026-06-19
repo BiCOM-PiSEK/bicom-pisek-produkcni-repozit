@@ -197,7 +197,7 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
  HOTOVO
  ├─ Veřejný web + lokální landingy + SEO/AEO základ
  ├─ Rezervační systém F1-F5 (availability backend, admin otevírací doba/výjimky, frontend time-picker)
- ├─ Admin konzole Virtual Office včetně ADR-005 G2-G4 + FE-1/FE-2
+ ├─ Admin konzole Virtual Office včetně dashboardu, blogu, GEO, fakturace a booking akcí
  ├─ no_show workflow (`no_show_flag`, badge, filtr, šednutí Google eventu)
  ├─ Google Calendar přes Domain-Wide Delegation (`admin@bicom-pisek.cz`)
  └─ GEO modul bez mock dat — jen reálné `geo_leads` + poctivé empty stavy
@@ -206,7 +206,7 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
  ├─ Rezervační systém F6-F7 (`POST /api/book` v2, kolizní zámek, DST/KV cache, QA)
  ├─ Admin použitelnost a handover dokumentace pro klienta
  ├─ Produkční integrace Stripe / iDoklad / Resend / GoSMS
- └─ Latentní bug `audit_log.action` pro akce `cancel` / `reschedule`
+ └─ Známý bug `audit_log.action` — akce `cancel` / `reschedule` dnes mohou vracet HTTP 500
 
  NA HORIZONTU (Budoucí rozvoj)
  ├─ Generování obrázků, bannerů a Instagram/Facebook postů přímo z AI Copywritera

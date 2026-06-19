@@ -22,12 +22,15 @@ na REÁLNÝ PŘECHOD STAVU, ne na to, kdo změnu inicioval. Tři vrstvy:
 3. Echo suppression na webhooku — webhook porovná Google stav s DB; pokud sedí → echo → no-op.
 
 ## Datový model (migrace 0014 + 0015)
-ALTER TABLE bookings ADD COLUMN: assigned_to TEXT (Jana/Tereza/NULL),
-confirmation_sent_at TIMESTAMP, cancellation_notified_at TIMESTAMP.
+```sql
+ALTER TABLE bookings ADD COLUMN assigned_to TEXT;
+ALTER TABLE bookings ADD COLUMN confirmation_sent_at TIMESTAMP;
+ALTER TABLE bookings ADD COLUMN cancellation_notified_at TIMESTAMP;
+ALTER TABLE bookings ADD COLUMN no_show_flag INTEGER DEFAULT 0;
+```
 
-Dodatečně bylo přes migraci `0015_booking_no_show.sql` přidáno
-`no_show_flag INTEGER DEFAULT 0` jako bezpečná varianta bez rebuildu tabulky.
-ALTER ADD COLUMN, nikdy remake.
+Migrace `0015_booking_no_show.sql` tak zvolila bezpečnou additivní variantu
+bez rebuildu celé tabulky.
 
 ## Rozsah (fáze G2–G5)
 - G2: "Potvrdit dělá vše" (e-mail gated + Google zelená + assigned_to) — jádro
@@ -44,6 +47,8 @@ ALTER ADD COLUMN, nikdy remake.
 - Snazší: pracovnice spravují vše z konzole, klient vždy informován
 - Náročnější: sync logika, echo prevention, nutný ruční deploy workerů
 - Revidovat: pokud přibude víc operátorek, assigned_to → kapacitní model
+- Aktuálně je nutné dořešit BUG-001 v `audit_log.action`, protože část G3/G4
+  akcí (`reschedule`, `cancel`) může končit HTTP 500
 
 ## Rizika
 - Zpětná smyčka konzole→Google→webhook — ošetřeno 3 vrstvami
