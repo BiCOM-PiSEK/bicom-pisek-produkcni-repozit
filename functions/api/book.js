@@ -3,9 +3,9 @@
 // and enqueues async processing (calendar, email, Telegram, reminders).
 
 import { DataCrypt } from '../lib/datacrypt.js';
-import { createBooking, addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
+import { addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
-import { getNowInPrague, parseLocalDate, addMinutes, formatDateTime } from './availability.js';
+import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from './availability.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
 const ALLOWED_SERVICES = [
@@ -24,6 +24,7 @@ const ALLOWED_SERVICES = [
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+420\d{9}$/;
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -80,7 +81,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
       require_confirmation: false,
       require_deposit: false,
       deposit_amount: null,
+      slot_duration_min: 60,
       min_lead_hours: 24,
+      max_horizon_days: 60,
     };
     try {
       const settingsRow = await env.DB.prepare('SELECT * FROM booking_settings WHERE id = 1').first();
@@ -89,7 +92,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
           require_confirmation: Boolean(settingsRow.require_confirmation),
           require_deposit: Boolean(settingsRow.require_deposit),
           deposit_amount: settingsRow.deposit_amount ?? null,  // #5: ?? aby 0 nebyl přepsán
+          slot_duration_min: settingsRow.slot_duration_min ?? 60,
           min_lead_hours: settingsRow.min_lead_hours ?? 24,
+          max_horizon_days: settingsRow.max_horizon_days ?? 60,
         };
       }
     } catch (err) {
@@ -162,10 +167,27 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // Validate preferred_date is a valid future date
-    const preferredDate = new Date(preferred_date);
-    if (isNaN(preferredDate.getTime()) || preferredDate <= new Date()) {
+    if (!DATE_ONLY_REGEX.test(preferred_date)) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Zvolte prosím budoucí datum.' }),
+        JSON.stringify({ success: false, error: 'Neplatný formát data. Očekáváno YYYY-MM-DD.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    const preferredDate = parseLocalDate(preferred_date);
+    if (formatDate(preferredDate) !== preferred_date) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Neplatné datum. Zvolte existující den.' }),
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    const nowPrague = getNowInPrague();
+    const todayPrague = new Date(nowPrague.getFullYear(), nowPrague.getMonth(), nowPrague.getDate(), 0, 0, 0, 0);
+    const maxDatePrague = addDays(todayPrague, bookingSettings.max_horizon_days);
+    if (preferredDate < todayPrague || preferredDate > maxDatePrague) {
+      return new Response(
+        JSON.stringify({ success: false, error: `Zvolte prosím datum v horizontu ${bookingSettings.max_horizon_days} dní.` }),
         { status: 400, headers: CORS_HEADERS }
       );
     }
@@ -196,8 +218,21 @@ export async function onRequestPost({ request, env, waitUntil }) {
         );
       }
 
+      if (datePart !== preferred_date) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Vybraný čas neodpovídá zvolenému dni rezervace.' }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      if (slotDate > maxDatePrague) {
+        return new Response(
+          JSON.stringify({ success: false, error: `Slot je mimo maximální horizont ${bookingSettings.max_horizon_days} dní.` }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
       // Ověř min_lead_hours v čase Praha (konzistentní s F2)
-      const nowPrague = getNowInPrague();
       const minLeadDate = addMinutes(nowPrague, bookingSettings.min_lead_hours * 60);
 
       if (slotDate < minLeadDate) {
@@ -225,8 +260,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
         endDate = new Date(ey, emo - 1, ed, ehh, emm, 0, 0);
         validatedSlotEnd = slot_end;
       } else {
-        // Default: 60 minut po startu (v čase Praha)
-        endDate = addMinutes(slotDate, 60);
+        // Default: podle slot_duration_min z booking_settings
+        endDate = addMinutes(slotDate, bookingSettings.slot_duration_min);
         validatedSlotEnd = formatDateTime(endDate);
       }
 
