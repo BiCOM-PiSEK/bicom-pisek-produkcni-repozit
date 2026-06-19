@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-06-19 PR #67 follow-up — zapracování review připomínek
+**Model:** GPT-5.3-Codex  
+**Branch:** booking-f6-f7-pass1-l1l9  
+**Status:** ✅ Hotovo
+
+### Co bylo doplněno po review
+- `functions/api/stripe-checkout.js`
+  - přidána explicitní validace `slot_end` (`isNaN(endDate.getTime())`)
+- `functions/api/_cron-reminders.js`
+  - přidán debug log při přeskočení reminderu kvůli vypnutému kanálu
+- `functions/api/stripe-webhook.js`
+  - upravena idempotentní větev dle připomínky: DB recovery path při duplicate delivery
+  - zachován retry enqueue pro případy, kdy booking ještě nemá `calendar_event_id`
+- `functions/api/_queue-booking.js`
+  - doplněna ochrana proti duplicate queue message (skip pokud už je `calendar_event_id`)
+
+---
+
 ## 2026-06-19 Globální hardening po auditu toků (security + data flow)
 **Model:** GPT-5.3-Codex  
 **Branch:** booking-f6-f7-pass1  

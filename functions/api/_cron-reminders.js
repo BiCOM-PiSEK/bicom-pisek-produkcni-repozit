@@ -74,6 +74,7 @@ export default {
         } else if (reminder.channel === 'email' && emailEnabled) {
           await resend.sendBookingReminder(booking);
         } else {
+          console.debug(`[cron-reminders] Skipped reminder ${reminder.id}: channel '${reminder.channel}' disabled`);
           continue;
         }
 

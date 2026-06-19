@@ -148,6 +148,12 @@ export async function onRequestPost({ request, env, waitUntil }) {
         const [ey, emo, ed] = endDatePart.split('-').map(Number);
         const [ehh, emm] = endTimePart.split(':').map(Number);
         endDate = new Date(ey, emo - 1, ed, ehh, emm, 0, 0);
+        if (isNaN(endDate.getTime())) {
+          return new Response(
+            JSON.stringify({ error: 'invalid_input', message: 'Neplatný slot_end — neexistující datum/čas.' }),
+            { status: 400, headers: CORS_HEADERS }
+          );
+        }
         validatedSlotEnd = slot_end;
       } else {
         endDate = addMinutes(slotDate, bookingSettings.slot_duration_min);

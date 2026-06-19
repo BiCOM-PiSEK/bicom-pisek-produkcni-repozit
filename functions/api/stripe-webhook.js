@@ -49,11 +49,6 @@ export async function onRequestPost({ request, env }) {
         console.error(`[stripe-webhook] Booking not found in D1: ${bookingId}`);
         return new Response(JSON.stringify({ error: 'not_found' }), { status: 404, headers: CORS_HEADERS });
       }
-      if (booking.stripe_payment_status === 'paid') {
-        console.info(`[stripe-webhook] Duplicate event ignored for already paid booking: ${bookingId}`);
-        return new Response(JSON.stringify({ received: true }), { status: 200, headers: CORS_HEADERS });
-      }
-
       const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
       const [clientName, clientEmail, clientPhone] = await Promise.all([
         crypt.decrypt(booking.name_enc),
@@ -63,31 +58,44 @@ export async function onRequestPost({ request, env }) {
 
       const paidAmount = session.amount_total / 100; // convert cents to CZK
 
-      // 2. Idempotent transaction insert (dedupe repeated webhook deliveries)
-      const txInsertResult = await env.DB.prepare(
-        `INSERT OR IGNORE INTO payment_transactions (id, booking_id, stripe_session_id, amount, status)
-         VALUES (?, ?, ?, ?, 'completed')`
-      ).bind(crypto.randomUUID(), bookingId, session.id, paidAmount).run();
-      const isDuplicateDelivery = (txInsertResult?.meta?.changes || 0) === 0;
-      if (isDuplicateDelivery) {
-        console.info(`[stripe-webhook] Duplicate delivery ignored for session ${session.id}`);
-        return new Response(JSON.stringify({ received: true }), { status: 200, headers: CORS_HEADERS });
+      // 2. Idempotent DB write with recovery path for duplicate deliveries
+      const txExists = await env.DB.prepare(
+        'SELECT id FROM payment_transactions WHERE stripe_session_id = ? LIMIT 1'
+      ).bind(session.id).first();
+      if (!txExists) {
+        await env.DB.batch([
+          env.DB.prepare(
+            `INSERT OR IGNORE INTO payment_transactions (id, booking_id, stripe_session_id, amount, status)
+             VALUES (?, ?, ?, ?, 'completed')`
+          ).bind(crypto.randomUUID(), bookingId, session.id, paidAmount),
+          env.DB.prepare(
+            `UPDATE bookings 
+             SET status = 'pending', stripe_payment_status = 'paid', 
+                 stripe_payment_intent_id = ?, paid_amount = ?, paid_at = CURRENT_TIMESTAMP
+             WHERE id = ?`
+          ).bind(session.payment_intent, paidAmount, bookingId),
+          env.DB.prepare(
+            `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+             VALUES (?, 'bookings', ?, 'update', 'system', 'Stripe payment confirmed, booking status set to pending')`
+          ).bind(crypto.randomUUID(), bookingId)
+        ]);
+      } else if (booking.stripe_payment_status !== 'paid') {
+        console.warn(`[stripe-webhook] Recovery path: transaction exists but booking not marked paid (${bookingId})`);
+        await env.DB.batch([
+          env.DB.prepare(
+            `UPDATE bookings 
+             SET status = 'pending', stripe_payment_status = 'paid', 
+                 stripe_payment_intent_id = ?, paid_amount = ?, paid_at = CURRENT_TIMESTAMP
+             WHERE id = ?`
+          ).bind(session.payment_intent, paidAmount, bookingId),
+          env.DB.prepare(
+            `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+             VALUES (?, 'bookings', ?, 'update', 'system', 'Stripe payment recovery update applied after duplicate webhook delivery')`
+          ).bind(crypto.randomUUID(), bookingId)
+        ]);
+      } else {
+        console.info(`[stripe-webhook] Duplicate delivery detected for session ${session.id}`);
       }
-
-      // 3. Update booking and audit log
-      await env.DB.batch([
-        env.DB.prepare(
-          `UPDATE bookings 
-           SET status = 'pending', stripe_payment_status = 'paid', 
-               stripe_payment_intent_id = ?, paid_amount = ?, paid_at = CURRENT_TIMESTAMP
-           WHERE id = ?`
-        ).bind(session.payment_intent, paidAmount, bookingId),
-
-        env.DB.prepare(
-          `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-           VALUES (?, 'bookings', ?, 'update', 'system', 'Stripe payment confirmed, booking status set to pending')`
-        ).bind(crypto.randomUUID(), bookingId)
-      ]);
 
       // 4. Optional: Automatically issue invoice in iDoklad
       const idoklad = new IDokladConnector(env);
@@ -125,20 +133,24 @@ export async function onRequestPost({ request, env }) {
         }
       }
 
-      // 5. Send job to booking-jobs Queue (notifies operator, adds to Google Calendar, sends confirmation e-mail)
-      await env.BOOKING_QUEUE.send({
-        bookingId,
-        name: clientName,
-        email: clientEmail,
-        phone: clientPhone,
-        service: booking.service,
-        preferred_date: booking.preferred_date,
-        slot_start: booking.slot_start,
-        slot_end: booking.slot_end,
-        estimated_price: booking.estimated_price,
-        stripe_paid: true,
-        reminder_channel: booking.reminder_channel || 'email',
-      });
+      // 5. Send async job (or retry it on duplicate webhook until booking gets calendar_event_id)
+      if (!booking.calendar_event_id) {
+        await env.BOOKING_QUEUE.send({
+          bookingId,
+          name: clientName,
+          email: clientEmail,
+          phone: clientPhone,
+          service: booking.service,
+          preferred_date: booking.preferred_date,
+          slot_start: booking.slot_start,
+          slot_end: booking.slot_end,
+          estimated_price: booking.estimated_price,
+          stripe_paid: true,
+          reminder_channel: booking.reminder_channel || 'email',
+        });
+      } else {
+        console.info(`[stripe-webhook] Queue dispatch skipped: booking ${bookingId} already has calendar_event_id.`);
+      }
 
       console.info(`[stripe-webhook] Successfully processed paid booking: ${bookingId}`);
     }
