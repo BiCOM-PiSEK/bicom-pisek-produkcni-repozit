@@ -65,7 +65,7 @@
 - Admin API (dashboard, bookings, geo, copywriter, invoices, settings)
 - Oprava `api.js` wrapperu, Přehledu, health, /admin/me, logout
 - Blog management: generovat → upravit → publikovat → plánovat → archivovat (migrace 0011)
-- Správa rezervací (ADR-005) je funkčně rozpracovaná: Potvrdit / Detail / no_show fungují, Přesunout a Zrušit mají známý BUG-001 v audit logu
+- Správa rezervací (ADR-005): Potvrdit/Přesunout/Zrušit/Smazat/Detail/no_show jsou funkční; BUG-001 (`audit_log.action`) opraven v PR #63
 - **no_show „klient nedorazil"** — tlačítko/badge/filtr v konzoli, `no_show_flag` (migrace 0015, ADR-005 varianta b)
 - **GEO-Marketing modul** — odstraněna demo/mock data i falešná „AI doporučení"; jen reálná data z `geo_leads` + poctivé prázdné stavy + pravidlové postřehy (skutečná AI doporučení → AI Studio ADR-003)
 
@@ -107,9 +107,10 @@
 
 ## 🟠 ZNÁMÉ OTEVŘENÉ BODY / BUGY
 
+> BUG-001 (`audit_log.action` pro `cancel` / `reschedule`) byl uzavřen opravou v PR #63.
+
 | ID | Oblast | Stav | Poznámka |
 |---|---|---|---|
-| **BUG-001** | `audit_log.action` CHECK vs. admin booking akce | otevřeno | `functions/admin/bookings.js` stále zapisuje `reschedule` a `cancel`, které nejsou v CHECK seznamu; hrozí HTTP 500 při přesunu/zrušení. |
 | **OPS-001** | Handover / identita provozovatele | otevřeno | Dopsat BIO ONE LIFE s.r.o. a přenos vlastnictví účtů/secrets do finální dokumentace. |
 
 ---
@@ -197,7 +198,7 @@ Detailní checklist → [HANDOVER.md](HANDOVER.md). Klíčové zbývající:
 | [ADR-002](adr/ADR-002-guardrail-modularni-vrstva.md) | Guardrail jako modulární vrstva | Přijato |
 | [ADR-003](adr/ADR-003-ai-studio.md) | AI Studio (skills architektura) | Schváleno |
 | [ADR-004](adr/ADR-004-rezervacni-system.md) | Rezervační systém s výběrem času | Schváleno (F1-F5 hotové; F6-F7 zbývá) |
-| [ADR-005](adr/ADR-005-admin-sprava-rezervaci.md) | Admin správa rezervací + sync konzole ↔ Google | Částečně realizováno; BUG-001 blokuje část G3/G4 |
+| [ADR-005](adr/ADR-005-admin-sprava-rezervaci.md) | Admin správa rezervací + sync konzole ↔ Google | Realizováno (G2-G4 + FE-1/FE-2 hotovo; G5 odloženo) |
 
 ---
 

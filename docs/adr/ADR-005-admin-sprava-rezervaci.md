@@ -47,8 +47,8 @@ bez rebuildu celé tabulky.
 - Snazší: pracovnice spravují vše z konzole, klient vždy informován
 - Náročnější: sync logika, echo prevention, nutný ruční deploy workerů
 - Revidovat: pokud přibude víc operátorek, assigned_to → kapacitní model
-- Aktuálně je nutné dořešit BUG-001 v `audit_log.action`, protože část G3/G4
-  akcí (`reschedule`, `cancel`) může končit HTTP 500
+- BUG-001 v `audit_log.action` (reschedule/cancel) byl uzavřen v PR #63
+  sjednocením na `action='update'` se sémantikou v `details`
 
 ## Rizika
 - Zpětná smyčka konzole→Google→webhook — ošetřeno 3 vrstvami

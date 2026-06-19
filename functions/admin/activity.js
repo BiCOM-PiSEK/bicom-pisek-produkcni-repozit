@@ -25,7 +25,7 @@ export async function onRequestGet({ env, data, request }) {
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '30', 10), 100);
 
     const result = await env.DB.prepare(
-      `SELECT id, entity, entity_id, action, actor, created_at
+      `SELECT id, entity, entity_id, action, actor, details, created_at
        FROM audit_log
        ORDER BY created_at DESC
        LIMIT ?`
@@ -33,8 +33,8 @@ export async function onRequestGet({ env, data, request }) {
 
     const items = (result?.results || []).map((row) => ({
       id: row.id,
-      type: mapEventType(row.entity, row.action),
-      message: buildMessage(row.entity, row.action, row.actor, row.entity_id),
+      type: mapEventType(row.entity, row.action, row.details),
+      message: buildMessage(row.entity, row.action, row.actor, row.entity_id, row.details),
       created_at: row.created_at,
     }));
 
@@ -48,7 +48,14 @@ export async function onRequestGet({ env, data, request }) {
 /**
  * Mapuje entity + action na typ pro Activity Feed ikonu.
  */
-function mapEventType(entity, action) {
+function mapEventType(entity, action, details) {
+  if (entity === 'bookings' && action === 'update') {
+    if (typeof details === 'string' && details.startsWith('Cancel:')) return 'alert';
+    return 'booking';
+  }
+
+  // Legacy map entries are kept for backward compatibility with historical audit rows
+  // created before BUG-001 fix (when some booking actions used dedicated action values).
   const map = {
     'bookings:create':   'booking',
     'bookings:confirm':  'booking',
@@ -69,7 +76,25 @@ function mapEventType(entity, action) {
 /**
  * Sestaví čitelnou zprávu pro Activity Feed.
  */
-function buildMessage(entity, action, actor, entityId) {
+function buildMessage(entity, action, actor, entityId, details) {
+  if (entity === 'bookings' && action === 'update' && typeof details === 'string') {
+    let msg = 'Rezervace upravena';
+    if (details.startsWith('Cancel:')) {
+      msg = 'Rezervace zrušena';
+    } else if (details.startsWith('Reschedule:')) {
+      msg = 'Rezervace přesunuta';
+    } else if (details.includes('no_show')) {
+      msg = 'Klient nedorazil';
+    } else if (details.startsWith('Status → confirmed')) {
+      msg = 'Rezervace potvrzena';
+    }
+    if (actor && actor !== 'system') {
+      msg += ` · ${actor}`;
+    }
+    return msg;
+  }
+
+  // Legacy message entries are kept for historical audit rows for the same reason.
   const messages = {
     'bookings:create':     'Nová poptávka zaregistrována',
     'bookings:confirm':    'Rezervace potvrzena',

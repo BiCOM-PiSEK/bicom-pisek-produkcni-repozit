@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-06-19 PR #63 — triage review připomínek (CodeRabbit/Copilot)
+**Model:** GPT-5.4
+**Branch:** meverik-solution-repo-pr-audit
+**Status:** ✅ Hotovo
+
+### Co bylo vyhodnoceno
+- **Relevantní připomínky:** ano
+  - docs po fixu BUG-001 stále lokálně tvrdily, že BUG-001 je otevřený
+  - v `functions/admin/activity.js` byly legacy map položky bez vysvětlení
+- **Nerelevantní/nízká priorita:** žádný nový blocker mimo výše uvedené
+
+### Co bylo opraveno
+- `README.md` — odstraněn rozpor, BUG-001 už není uveden jako aktuálně otevřený problém
+- `docs/ROADMAP.md` — BUG-001 označen jako uzavřený (PR #63), upraven status ADR-005
+- `docs/adr/ADR-005-admin-sprava-rezervaci.md` — BUG-001 převeden z „nutno dořešit“ na „uzavřen v PR #63“
+- `functions/admin/activity.js` — doplněn komentář, že `bookings:confirm/cancel` ve statických mapách jsou záměrně ponechány kvůli historickým audit řádkům
+
+---
+
 ## 2026-06-19 Docs sync po merge PR #61
 **Model:** GPT-5.4
 **Branch:** meverik-solution-repo-pr-audit
