@@ -228,6 +228,7 @@
 | SECRET_GEMINI_API_KEY | záložní LLM | Google AI | CF Secrets |
 
 ### B4 · Sociální a lokální profily (NAP)
+
 | Profil | URL/ID | Owner | Pozn. |
 |--------|--------|-------|-------|
 | Google Business Profile | vyplnit při předání | klient | NAP shoda |
@@ -236,6 +237,7 @@
 | Instagram / Facebook | vyplnit při předání | klient | sync zdroj |
 
 ### B5 · Podpora a kontakty
+
 | Role | Jméno | Kontakt | Odpovědnost |
 |------|-------|---------|-------------|
 | Vlastník/provoz | BIO ONE LIFE s.r.o. | admin@bicom-pisek.cz | obsah, potvrzování |

@@ -98,44 +98,32 @@ document.addEventListener("DOMContentLoaded", () => {
   let turnstileToken = null;
   let turnstileWidgetId = null;
 
-  // Phone prefix UX: "Jiná předvolba?" toggle
+  // Phone prefix UX: fixed +420 badge (backend only accepts Czech numbers)
   (function initPhonePrefix() {
     const wrap = document.getElementById('phone-input-wrap');
     const badge = document.getElementById('phone-prefix-badge');
     const hint = document.getElementById('phone-prefix-hint');
     const btn = document.getElementById('phone-change-prefix-btn');
-    if (!wrap || !badge || !btn) return;
-    btn.addEventListener('click', () => {
-      wrap.classList.add('phone-custom-prefix');
-      badge.style.display = 'none';
-      hint.style.display = 'none';
-      const input = document.getElementById('booking-phone');
-      input.placeholder = '+420 777 123 456';
-      input.autocomplete = 'tel';
-      input.inputMode = 'tel';
-      input.focus();
-    });
+    if (!wrap || !badge || !hint || !btn) return;
+    // Toggle is disabled: backend accepts +420 only.
+    // Hide the "Jiná předvolba?" hint to keep UI clean.
+    hint.style.display = 'none';
   })();
 
   /**
    * Normalizes a Czech phone number to E.164 (+420XXXXXXXXX).
-   * If the user is in "custom prefix" mode (full international format), returns as-is.
+   * Strips all non-digit chars (except leading +), then prepends +420
+   * if not already present. Backend validates /^\+420\d{9}$/.
    */
   function normalizePhone(raw) {
-    const wrap = document.getElementById('phone-input-wrap');
-    const isCustom = wrap && wrap.classList.contains('phone-custom-prefix');
-    if (isCustom) {
-      // Full number entered — just strip spaces/dashes
-      return raw.trim().replace(/[\s\-]/g, '');
-    }
-    // Short Czech number: prepend +420
-    const digits = raw.trim().replace(/[\s\-\.]/g, '');
-    if (!digits) return digits;
-    if (digits.startsWith('+')) return digits;           // already international
-    if (digits.startsWith('00420')) return '+' + digits.slice(2);
-    if (digits.startsWith('420')) return '+' + digits;
-    if (digits.startsWith('0')) return '+420' + digits.slice(1); // 0777... → +420777...
-    return '+420' + digits; // 777123456 → +420777123456
+    // Strip everything except digits and leading +
+    let s = raw.trim().replace(/[^\d+]/g, '');
+    if (!s) return s;
+    if (s.startsWith('+')) return s;           // already E.164
+    if (s.startsWith('00420')) return '+' + s.slice(2);
+    if (s.startsWith('420')) return '+' + s;
+    if (s.startsWith('0')) return '+420' + s.slice(1);
+    return '+420' + s;
   }
 
   function updatePhoneRequirement() {
@@ -448,7 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Determine which workflow to use (Stripe vs. Free)
       const selectedMethodEl = formEl.querySelector('input[name="payment_method"]:checked');
-      const method = selectedMethodEl ? selectedMethodEl.value : 'stripe';
+      const method = selectedMethodEl ? selectedMethodEl.value : (bookingConfig.stripe_enabled ? 'stripe' : 'free');
 
       try {
         if (method === 'stripe') {

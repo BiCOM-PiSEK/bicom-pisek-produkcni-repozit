@@ -21,7 +21,7 @@ export async function onRequestGet({ env }) {
       "SELECT value FROM process_states WHERE key = 'require_phone'"
     ).first();
 
-    // Default to mandatory ('1') if not explicitly configured in DB
+    // Default to optional (false) if not explicitly configured in DB
     const depositRequired = rowDeposit ? rowDeposit.value === '1' : false;
     const phoneRequired = rowPhone ? rowPhone.value === '1' : true;
 
