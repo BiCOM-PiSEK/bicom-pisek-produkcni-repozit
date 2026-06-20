@@ -99,7 +99,8 @@ function wireVersionControls(scope, entity, entityId, getPayload, afterLoad) {
 async function openVersionsModal(entity, entityId, afterLoad) {
   const { api, showToast } = _ctx;
   const res = await api.listDraftVersions(entity, entityId);
-  const versions = res.ok ? (res.data?.versions || []) : [];
+  if (!res.ok) { showToast('Chyba: ' + (res.error || 'Nepodařilo se načíst verze konceptu.'), 'error'); return; }
+  const versions = res.data?.versions || [];
   const rowsHtml = versions.length
     ? versions.map((v) => `
         <tr data-id="${esc(v.id)}">

@@ -99,34 +99,33 @@ export async function onRequestPost({ env, data, request }) {
     const prep = sanitizePayload(entity, body.payload || {}, existing);
     if (prep.error) return json({ ok: false, error: prep.error }, 400);
 
-    // Limit počtu verzí (nová jména) — přepis existující verze limitem neprochází.
-    const already = await env.DB.prepare(
-      'SELECT id FROM content_drafts WHERE entity = ? AND entity_id = ? AND name = ?'
-    ).bind(entity, entityId, name).first();
-    if (!already) {
-      const cnt = await env.DB.prepare(
-        'SELECT COUNT(*) AS c FROM content_drafts WHERE entity = ? AND entity_id = ?'
-      ).bind(entity, entityId).first();
-      if ((cnt?.c || 0) >= MAX_VERSIONS) {
-        return json({ ok: false, error: `Limit ${MAX_VERSIONS} verzí na položku byl dosažen. Smažte nepotřebnou verzi.` }, 400);
-      }
+    // Atomické vložení s vynucením limitu: řádek se vloží jen když jde o přepis
+    // existujícího jména NEBO je počet verzí pod limitem. Count i insert jsou jediný
+    // příkaz (SQLite serializuje zápisy) → žádný TOCTOU mezi kontrolou a zápisem.
+    const id = crypto.randomUUID();
+    const res = await env.DB.prepare(
+      `INSERT INTO content_drafts (id, entity, entity_id, name, payload_json, created_by, created_at, updated_at)
+       SELECT ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now')
+       WHERE EXISTS (SELECT 1 FROM content_drafts WHERE entity = ? AND entity_id = ? AND name = ?)
+          OR (SELECT COUNT(*) FROM content_drafts WHERE entity = ? AND entity_id = ?) < ?
+       ON CONFLICT(entity, entity_id, name)
+       DO UPDATE SET payload_json = excluded.payload_json, updated_at = datetime('now')`
+    ).bind(
+      id, entity, entityId, name, JSON.stringify(prep.payload), data.operator.id,
+      entity, entityId, name,
+      entity, entityId, MAX_VERSIONS
+    ).run();
+
+    if (!res?.meta?.changes) {
+      return json({ ok: false, error: `Limit ${MAX_VERSIONS} verzí na položku byl dosažen. Smažte nepotřebnou verzi.` }, 400);
     }
 
-    const id = already?.id || crypto.randomUUID();
-    await env.DB.batch([
-      env.DB.prepare(
-        `INSERT INTO content_drafts (id, entity, entity_id, name, payload_json, created_by, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-         ON CONFLICT(entity, entity_id, name)
-         DO UPDATE SET payload_json = excluded.payload_json, updated_at = datetime('now')`
-      ).bind(id, entity, entityId, name, JSON.stringify(prep.payload), data.operator.id),
-      auditStmt(env.DB, entity, entityId, 'update', data.operator, `Uložena verze konceptu „${name}"`),
-    ]);
-    // Při souběžném zápisu může ON CONFLICT zachovat cizí id — vrať skutečně uložené.
+    await auditStmt(env.DB, entity, entityId, 'update', data.operator, `Uložena verze konceptu „${name}"`).run();
+    // Při souběhu může ON CONFLICT zachovat cizí id — vrať skutečně uložené.
     const stored = await env.DB.prepare(
       'SELECT id FROM content_drafts WHERE entity = ? AND entity_id = ? AND name = ?'
     ).bind(entity, entityId, name).first();
-    return json({ ok: true, data: { id: stored?.id || id, name } }, already ? 200 : 201);
+    return json({ ok: true, data: { id: stored?.id || id, name } });
   } catch (err) {
     console.error('[admin/drafts] POST error:', err);
     return json({ ok: false, error: 'Chyba při ukládání verze.' }, 500);

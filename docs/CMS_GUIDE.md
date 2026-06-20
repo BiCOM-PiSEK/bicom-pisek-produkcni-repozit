@@ -21,8 +21,8 @@ Galerie se publikují okamžitě (bez konceptu).
 ### Pojmenované verze konceptu (F12-D)
 
 U textů, karet, FAQ, kontaktu/patičky, SEO, landing textů, hero bannerů a služeb
-si můžete koncept **uložit jako pojmenovanou verzi** (např. „Vánoční nabídka",
-„Letní akce") a kdykoli se k ní vrátit:
+si můžete koncept **uložit jako pojmenovanou verzi** (např. „Vánoční nabídka“,
+„Letní akce“) a kdykoli se k ní vrátit:
 
 - **🏷️ Uložit jako verzi…** — uloží aktuální koncept pod názvem (stejný název přepíše dřívější verzi).
 - **🗂️ Verze konceptu** — seznam uložených verzí; u každé **Načíst** (nahraje verzi
