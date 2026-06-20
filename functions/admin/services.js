@@ -82,11 +82,13 @@ export async function onRequestGet({ env, data, request }) {
     const slug = url.searchParams.get('slug');
 
     if (url.searchParams.get('preview')) {
-      const { results } = await env.DB.prepare('SELECT * FROM services ORDER BY sort_order').all();
-      const list = (results || []).filter((r) => effective(r).active).map((r) => {
-        const e = effective(r);
-        return { slug: r.slug, name: e.name, category: e.category, short_desc: e.short_desc, long_desc: e.long_desc, price_avg: e.price_avg, price_note: e.price_note, sessions_typ: e.sessions_typ, icon_url: e.icon_url, sort_order: e.sort_order };
-      });
+      const category = url.searchParams.get('category');
+      const { results } = await env.DB.prepare('SELECT * FROM services').all();
+      const list = (results || [])
+        .map((r) => ({ slug: r.slug, ...effective(r) }))
+        .filter((e) => e.active && (!category || e.category === category))
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        .map((e) => ({ slug: e.slug, name: e.name, category: e.category, short_desc: e.short_desc, long_desc: e.long_desc, price_avg: e.price_avg, price_note: e.price_note, sessions_typ: e.sessions_typ, icon_url: e.icon_url, sort_order: e.sort_order }));
       return json({ ok: true, data: { services: list } });
     }
 

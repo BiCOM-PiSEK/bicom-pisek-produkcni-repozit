@@ -166,7 +166,8 @@ export async function onRequestPut({ env, data, request }) {
     const existing = await env.DB.prepare('SELECT * FROM content_blocks WHERE section_key = ?').bind(section_key).first();
     if (!existing) return json({ ok: false, error: 'Sekce nenalezena.' }, 404);
 
-    const content_type = ALLOWED_TYPES.includes(body.content_type) ? body.content_type : existing.content_type;
+    // Typ se z konceptu NEmění (živý content_type zůstává) — slouží jen k validaci/sanitizaci obsahu.
+    const content_type = existing.content_type;
     const title = body.title != null ? stripTags(body.title, 200) : existing.title;
     const rawContent = body.content_markdown != null ? String(body.content_markdown) : existing.content_markdown;
     const prep = prepareContent(content_type, rawContent);
@@ -175,10 +176,10 @@ export async function onRequestPut({ env, data, request }) {
     await env.DB.batch([
       env.DB.prepare(
         `UPDATE content_blocks
-         SET draft_title = ?, draft_content_markdown = ?, content_type = ?,
+         SET draft_title = ?, draft_content_markdown = ?,
              has_draft = 1, draft_updated_at = datetime('now'), draft_updated_by = ?
          WHERE section_key = ?`
-      ).bind(title, prep.content, content_type, data.operator.id, section_key),
+      ).bind(title, prep.content, data.operator.id, section_key),
       auditStmt(env.DB, 'content_blocks', existing.id, 'update', data.operator, `Uložen koncept sekce „${section_key}"`),
     ]);
     // Koncept se necachuje ani nepublikuje — veřejná cache zůstává.

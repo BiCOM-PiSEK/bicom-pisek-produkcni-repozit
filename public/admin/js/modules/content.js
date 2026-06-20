@@ -353,6 +353,11 @@ async function renderFooter(body) {
     </div>`;
 
   body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
+  const setBadge = (hasDraft) => {
+    body.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
+    body.querySelector('#nap-publish').disabled = !hasDraft;
+    body.querySelector('#nap-discard').disabled = !hasDraft;
+  };
   const collect = () => {
     const out = {};
     body.querySelectorAll('[data-nap]').forEach((el) => { out[el.getAttribute('data-nap')] = el.value; });
@@ -361,7 +366,7 @@ async function renderFooter(body) {
   body.querySelector('#nap-save').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: 'site-nap', title: 'Kontaktní údaje a patička (NAP)', content_markdown: JSON.stringify(collect()), content_type: 'config' });
     showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
-    if (r.ok) refreshPreview(body);
+    if (r.ok) { setBadge(true); refreshPreview(body); }
   });
   body.querySelector('#nap-publish').addEventListener('click', async () => {
     const r = await api.publishContentSection('site-nap');
@@ -411,6 +416,11 @@ async function renderFaq(body) {
 
   const rowsWrap = body.querySelector('.faq-rows');
   body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
+  const setBadge = (hasDraft) => {
+    body.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
+    body.querySelector('[data-action="publish"]').disabled = !hasDraft;
+    body.querySelector('[data-action="discard"]').disabled = !hasDraft;
+  };
   const collect = () => Array.from(rowsWrap.querySelectorAll('.faq-row')).map((r) => ({
     q: r.querySelector('[data-faq="q"]').value, a: r.querySelector('[data-faq="a"]').value,
   }));
@@ -424,7 +434,7 @@ async function renderFaq(body) {
   body.querySelector('[data-action="save"]').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: 'faq-main', title: 'FAQ (sdílené)', content_markdown: JSON.stringify(collect()), content_type: 'config' });
     showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
-    if (r.ok) refreshPreview(body);
+    if (r.ok) { setBadge(true); refreshPreview(body); }
   });
   body.querySelector('[data-action="publish"]').addEventListener('click', async () => {
     const r = await api.publishContentSection('faq-main');
@@ -558,6 +568,11 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
       ${previewPaneHtml(previewPage)}
     </div>`;
   host.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(host));
+  const setBadge = (hasDraft) => {
+    host.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
+    host.querySelector('[data-action="publish"]').disabled = !hasDraft;
+    host.querySelector('[data-action="discard"]').disabled = !hasDraft;
+  };
   const collect = () => {
     const out = {};
     host.querySelectorAll('[data-cfg]').forEach((el) => { out[el.getAttribute('data-cfg')] = el.value; });
@@ -566,7 +581,7 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
   host.querySelector('[data-action="save"]').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: sectionKey, title: titleLabel, content_markdown: JSON.stringify(collect()), content_type: 'config' });
     showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
-    if (r.ok) refreshPreview(host);
+    if (r.ok) { setBadge(true); refreshPreview(host); }
   });
   host.querySelector('[data-action="publish"]').addEventListener('click', async () => {
     const r = await api.publishContentSection(sectionKey);

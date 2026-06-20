@@ -67,10 +67,14 @@ export const cacheKey = {
 export async function invalidateServicesCache(env) {
   try {
     if (!env.CACHE) return;
-    const list = await env.CACHE.list({ prefix: 'services:' });
-    for (const k of list?.keys || []) {
-      await env.CACHE.delete(k.name);
-    }
+    let cursor;
+    do {
+      const list = await env.CACHE.list({ prefix: 'services:', cursor });
+      for (const k of list?.keys || []) {
+        await env.CACHE.delete(k.name);
+      }
+      cursor = list?.list_complete ? undefined : list?.cursor;
+    } while (cursor);
   } catch (err) {
     console.warn('[cms] services cache invalidation failed:', err?.message);
   }

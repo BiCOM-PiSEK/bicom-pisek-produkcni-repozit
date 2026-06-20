@@ -236,7 +236,7 @@
       setMeta('property', 'og:title', seo.ogTitle);
       setMeta('property', 'og:description', seo.ogDescription);
       setMeta('property', 'og:image', seo.ogImage);
-      if (seo.canonical) {
+      if (seo.canonical && isSafeUrl(seo.canonical)) {
         var l = document.querySelector('link[rel="canonical"]');
         if (l) l.setAttribute('href', seo.canonical);
       }

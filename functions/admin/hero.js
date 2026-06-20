@@ -27,15 +27,20 @@ function isSafeUrl(value) {
   return /^(\/[^/]|\/$|https:\/\/|mailto:|tel:)/i.test(value);
 }
 
-/** Normalizuje a zvaliduje hero pole z těla požadavku. Vrací {hero}|{error}. */
-function prepareHero(body) {
+/**
+ * Normalizuje a zvaliduje hero pole z těla požadavku. Vrací {hero}|{error}.
+ * Pole, která tělo neobsahuje (undefined), se nepřepisují prázdnou hodnotou,
+ * ale dědí z živé verze (existing) — aby se částečný PUT nezahodil zbytek.
+ */
+function prepareHero(body, existing) {
+  const e = existing || {};
   const hero = {
-    headline: stripTags(body.headline, 200),
-    subheadline: stripTags(body.subheadline, 400),
-    cta_text: stripTags(body.cta_text, 80),
-    cta_link: stripTags(body.cta_link, 300),
-    background_image_url: stripTags(body.background_image_url, 500),
-    overlay_color: stripTags(body.overlay_color, 50) || 'rgba(0,0,0,0.3)',
+    headline: body.headline != null ? stripTags(body.headline, 200) : (e.headline || ''),
+    subheadline: body.subheadline != null ? stripTags(body.subheadline, 400) : (e.subheadline || ''),
+    cta_text: body.cta_text != null ? stripTags(body.cta_text, 80) : (e.cta_text || ''),
+    cta_link: body.cta_link != null ? stripTags(body.cta_link, 300) : (e.cta_link || ''),
+    background_image_url: body.background_image_url != null ? stripTags(body.background_image_url, 500) : (e.background_image_url || ''),
+    overlay_color: body.overlay_color != null ? (stripTags(body.overlay_color, 50) || 'rgba(0,0,0,0.3)') : (e.overlay_color || 'rgba(0,0,0,0.3)'),
   };
   if (!isSafeUrl(hero.cta_link)) return { error: 'Odkaz tlačítka musí být relativní cesta (např. /book) nebo https adresa.' };
   if (!isSafeUrl(hero.background_image_url)) return { error: 'Obrázek pozadí musí být relativní cesta (např. /api/media/…) nebo https adresa.' };
@@ -90,11 +95,11 @@ export async function onRequestPut({ env, data, request }) {
     if (!/^[a-z0-9-]+$/.test(page_key)) {
       return json({ ok: false, error: 'Klíč stránky smí obsahovat jen malá písmena, číslice a pomlčky.' }, 400);
     }
-    const prep = prepareHero(body);
+    const existing = await env.DB.prepare('SELECT * FROM hero_config WHERE page_key = ?').bind(page_key).first();
+    const prep = prepareHero(body, existing);
     if (prep.error) return json({ ok: false, error: prep.error }, 400);
     const draftJson = JSON.stringify(prep.hero);
 
-    const existing = await env.DB.prepare('SELECT id FROM hero_config WHERE page_key = ?').bind(page_key).first();
     if (existing) {
       await env.DB.batch([
         env.DB.prepare(

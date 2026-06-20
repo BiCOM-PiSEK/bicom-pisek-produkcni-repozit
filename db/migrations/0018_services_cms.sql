@@ -20,7 +20,7 @@ INSERT OR IGNORE INTO content_blocks (id, section_key, title, content_markdown, 
    '[{"title":"Certifikovaný prostředek","text":"Bicom Optima je v EU schválen jako zdravotnický prostředek třídy IIa. Splňuje normy ISO 13485 pro bezpečnost a kvalitu."},{"title":"Bezbolestné & Neinvazivní","text":"Metoda je zcela bezbolestná. Během sezení klidně odpočíváte v křesle, což je ideální i pro velmi malé děti nebo citlivé jedince."},{"title":"Osobní & Komplementární","text":"Každému klientovi věnujeme plnou pozornost. Nenahrazujeme lékaře, ale fungujeme jako šetrný doplněk klasické medicíny."}]',
    'config'),
   (lower(hex(randomblob(8))), 'home-cert-cards', 'Důvěra a bezpečí – karty',
-   '[{"title":"ISO 13485","text":"Výroba přístrojů Bicom podléhá nejpřísnějším mezinárodním certifikacím řízení kvality pro zdravotnické prostředky."},{"title":"Odborná certifikace","text":"Naše terapeutky jsou certifikovanými praktiky metody Bicom s rozsáhlým odborným školením v České republice."},{"title":"GDPR Compliance","text":"Osobní a citlivé údaje šifrujeme přímo na úrovni databáze (field-level encryption) pro stoprocentní ochranu vašeho soukromí."}]',
+   '[{"title":"ISO 13485","text":"Výroba přístrojů Bicom podléhá nejpřísnějším mezinárodním certifikacím řízení kvality pro zdravotnické prostředky."},{"title":"Odborná certifikace","text":"Naše terapeutky jsou certifikovanými praktiky metody Bicom s rozsáhlým odborným školením v České republice."},{"title":"GDPR Compliance","text":"Osobní a citlivé údaje šifrujeme na úrovni databáze (field-level encryption) a zpracováváme v souladu s GDPR."}]',
    'config');
 
 -- ============================================================
