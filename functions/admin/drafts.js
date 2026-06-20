@@ -122,7 +122,11 @@ export async function onRequestPost({ env, data, request }) {
       ).bind(id, entity, entityId, name, JSON.stringify(prep.payload), data.operator.id),
       auditStmt(env.DB, entity, entityId, 'update', data.operator, `Uložena verze konceptu „${name}"`),
     ]);
-    return json({ ok: true, data: { id, name } }, already ? 200 : 201);
+    // Při souběžném zápisu může ON CONFLICT zachovat cizí id — vrať skutečně uložené.
+    const stored = await env.DB.prepare(
+      'SELECT id FROM content_drafts WHERE entity = ? AND entity_id = ? AND name = ?'
+    ).bind(entity, entityId, name).first();
+    return json({ ok: true, data: { id: stored?.id || id, name } }, already ? 200 : 201);
   } catch (err) {
     console.error('[admin/drafts] POST error:', err);
     return json({ ok: false, error: 'Chyba při ukládání verze.' }, 500);

@@ -854,6 +854,9 @@ async function renderHero(body) {
 function renderHeroForm(detail, row) {
   const { api, showToast } = _ctx;
   row = row || {};
+  // Verze lze ukládat až když hero záznam v DB existuje (po prvním uložení konceptu);
+  // jinak by /admin/drafts vrátilo 404. Nová (neuložená) stránka → bez tlačítek verzí.
+  const heroExists = !!(row.id || row.has_draft);
   let d = {};
   if (row.has_draft && row.draft_json) { try { d = JSON.parse(row.draft_json); } catch { d = {}; } }
   const v = (f) => (d[f] != null ? d[f] : (row[f] != null ? row[f] : ''));
@@ -882,7 +885,7 @@ function renderHeroForm(detail, row) {
           <button class="btn btn-secondary btn-sm" id="cms-hero-save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" id="cms-hero-publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" id="cms-hero-discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
-          ${versionControlsHtml()}
+          ${heroExists ? versionControlsHtml() : ''}
         </div>
       </div>
     </div>`;
@@ -912,9 +915,11 @@ function renderHeroForm(detail, row) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); }
   });
-  wireVersionControls(detail, 'hero_config', row.page_key,
-    () => ({ headline: getf('headline'), subheadline: getf('subheadline'), cta_text: getf('cta_text'), cta_link: getf('cta_link'), background_image_url: getf('background_image_url'), overlay_color: getf('overlay_color') }),
-    async () => { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); });
+  if (heroExists) {
+    wireVersionControls(detail, 'hero_config', row.page_key,
+      () => ({ headline: getf('headline'), subheadline: getf('subheadline'), cta_text: getf('cta_text'), cta_link: getf('cta_link'), background_image_url: getf('background_image_url'), overlay_color: getf('overlay_color') }),
+      async () => { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); });
+  }
 }
 
 // ─── HISTORIE ─────────────────────────────────────────────────
