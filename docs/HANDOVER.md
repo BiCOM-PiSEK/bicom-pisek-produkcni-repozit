@@ -194,8 +194,8 @@
 ### B1 · Domény
 | Položka | Hodnota | Registrátor / správa | Vlastník účtu | Expirace |
 |---------|---------|----------------------|---------------|----------|
-| bicom-pisek.cz | (kanonická) | WEDOS (registrátor) / CZ.NIC | WHC s.r.o. → převést na klienta | doplnit |
-| bicompisek.cz | 301 → kanonická | WEDOS / CZ.NIC | WHC s.r.o. | doplnit |
+| bicom-pisek.cz | (kanonická) | WEDOS (registrátor) / CZ.NIC | BIO ONE LIFE s.r.o. | při předání potvrdit |
+| bicompisek.cz | 301 → kanonická | WEDOS / CZ.NIC | BIO ONE LIFE s.r.o. | při předání potvrdit |
 | DNS zóna | nameservery CF | Cloudflare | účet CF | — |
 | CZ.NIC kontakt ID | C0018624831-CZ (WEDOS-B2M-739975) | CZ.NIC | Matej Kocanda / WHC | — |
 
@@ -213,30 +213,34 @@
 |---------------------|------|--------------|-------------|
 | SECRET_ENCRYPTION_KEY | šifrování dat | vlastní hash | CF Secrets (⚠ ztráta = nečitelná data) |
 | SECRET_ADMIN_TOKEN | admin endpointy | vlastní | CF Secrets |
-| SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL / _PRIVATE_KEY | kalendář | Google Cloud | CF Secrets |
-| SECRET_RESEND_API_KEY | e-maily | Resend | CF Secrets |
-| SECRET_META_GRAPH_ACCESS_TOKEN | Instagram sync | Meta | CF Secrets |
-| SECRET_SMS_GATEWAY_CLIENT_ID / _CLIENT_SECRET | SMS | GoSMS | CF Secrets |
-| SMS_GATEWAY_CHANNEL (variable) | SMS channel | GoSMS | CF Variables |
-| SECRET_STRIPE_SECRET_KEY / _WEBHOOK_SECRET | platby | Stripe | CF Secrets |
-| SECRET_IDOKLAD_CLIENT_ID / _CLIENT_SECRET | fakturace | iDoklad | CF Secrets |
+| `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL` / `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` | kalendář | Google Cloud | CF Secrets |
+| `SECRET_GOOGLE_CALENDAR_ID` / `SECRET_GOOGLE_CALENDAR_IMPERSONATE` | kalendář (ID + DWD impersonace) | Google Cloud / Workspace | CF Secrets |
+| `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL` | admin kontakt Workspace | Google Workspace | CF Secrets |
+| `SECRET_RESEND_API_KEY` | e-maily | Resend | CF Secrets |
+| `SECRET_META_GRAPH_ACCESS_TOKEN` | Instagram sync | Meta | CF Secrets |
+| `SECRET_META_IG_USER_ID` | Instagram účet ID | Meta | CF Secrets |
+| `SECRET_SMS_GATEWAY_CLIENT_ID` / `SECRET_SMS_GATEWAY_CLIENT_SECRET` | SMS | GoSMS | CF Secrets |
+| `SMS_GATEWAY_CHANNEL` (variable) | SMS channel | GoSMS | CF Variables |
+| `SECRET_STRIPE_SECRET_KEY` / `SECRET_STRIPE_WEBHOOK_SECRET` | platby | Stripe | CF Secrets |
+| `SECRET_IDOKLAD_CLIENT_ID` / `SECRET_IDOKLAD_CLIENT_SECRET` | fakturace | iDoklad | CF Secrets |
+| `SECRET_CALENDAR_WEBHOOK_SECRET` | validace calendar webhooku | vlastní | CF Secrets |
 | SECRET_GROQ_API_KEY | záložní LLM | Groq | CF Secrets |
 | SECRET_GEMINI_API_KEY | záložní LLM | Google AI | CF Secrets |
 
 ### B4 · Sociální a lokální profily (NAP)
 | Profil | URL/ID | Owner | Pozn. |
 |--------|--------|-------|-------|
-| Google Business Profile | doplnit | klient | NAP shoda |
-| Apple Business Connect | doplnit | klient | iOS/Siri |
-| Firmy.cz / Mapy.cz | doplnit | klient | Seznam |
-| Instagram / Facebook | doplnit | klient | sync zdroj |
+| Google Business Profile | vyplnit při předání | klient | NAP shoda |
+| Apple Business Connect | vyplnit při předání | klient | iOS/Siri |
+| Firmy.cz / Mapy.cz | vyplnit při předání | klient | Seznam |
+| Instagram / Facebook | vyplnit při předání | klient | sync zdroj |
 
 ### B5 · Podpora a kontakty
 | Role | Jméno | Kontakt | Odpovědnost |
 |------|-------|---------|-------------|
-| Vlastník/provoz | Provozovatel | doplnit | obsah, potvrzování |
+| Vlastník/provoz | BIO ONE LIFE s.r.o. | admin@bicom-pisek.cz | obsah, potvrzování |
 | Technická podpora | MEVERIK / správce | matejkocanda@icloud.com | infrastruktura, incidenty |
-| Marketing | (Mikeš) | doplnit | kampaně, profily |
+| Marketing | interní/externí marketing dle dohody | určit při předání | kampaně, profily |
 
 ### B6 · Pravidla klíčenky
 - Tento soubor = evidence, **ne trezor**. Hesla/klíče jen ve správci hesel + CF Secrets.

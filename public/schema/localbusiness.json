@@ -1,8 +1,10 @@
 {
   "@context": "https://schema.org",
-  "@type": ["MedicalBusiness", "HealthAndBeautyBusiness", "LocalBusiness"],
+  "@type": ["HealthAndBeautyBusiness", "LocalBusiness"],
   "@id": "https://bicom-pisek.cz/#business",
   "name": "Bicom Písek",
+  "legalName": "BIO ONE LIFE s.r.o.",
+  "taxID": "23950978",
   "description": "Biorezonanční metoda Bicom Optima v Písku. Komplementární, šetrná podpora pro dospělé i děti. Doplněk klasické medicíny.",
   "url": "https://bicom-pisek.cz",
   "telephone": "+420735231025",

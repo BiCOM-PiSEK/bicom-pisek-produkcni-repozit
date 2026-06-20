@@ -2967,3 +2967,34 @@ Cíl: „dát bordel pryč", aby modul ukazoval jen reálná data a šel připra
 
 **QA:** `node --check` ✅.
 **Status:** Ready na PR (draft, stejná větev jako no_show).
+
+## Hyper-responzivita webu + kompletní mapa repozitáře (2026-06-19)
+
+Cíl: rozdělit aktivní zásahy do 2 bloků a realizovat je:
+1. **Zpevnění webu** (hyper-responzivita napříč zařízeními).
+2. **Předávací a vývojová dokumentace** (kompletní mapa repo + aktualizace roadmap kontextu).
+
+### Blok A — Zpevnění webu
+- `public/assets/css/style.css`
+  - Přidán text-size adjust a robustnější výpočet šířky wrapperu (`max-width: min(...)`) pro vyšší zoom a úzké viewporty.
+  - Doplněny breakpointy pro:
+    - ultrawide (`min-width:1600px`),
+    - velmi malé mobily (`max-width:575px`, `max-width:380px`),
+    - nízkou výšku viewportu (`max-height:760px`),
+    - touch/coarse pointer ergonomii (44px minimální tap targety).
+  - Stabilizován chat/cookie layout na mobilech (dynamická výška chat okna, lepší umístění launcheru, wrap tlačítek cookie lišty).
+  - Vylepšena čitelnost a rozpad layoutu komponent (`info-card`, `contact-item`, CTA tlačítka, mapa).
+- `public/index.html`
+  - Odstraněn inline `style="padding-left: 60px"` v kontaktu, nahrazen třídou `contact-details--offset` s responzivním řízením v CSS.
+
+### Blok B — Předávací a vývojová dokumentace
+- `docs/REPO_MAPA_ULOZIST.md`
+  - Kompletně přepsáno na aktuální stav repozitáře.
+  - Doplněna jednotná mapa úložišť (Git, D1, R2, KV, Queues) a plný strom tracked struktury.
+  - Přidána rychlá orientace „co je kde" + pravidla údržby mapy.
+- `docs/ROADMAP.md`
+  - Přidána explicitní sekce „Aktivní zásahy (2 bloky)" pro web hardening a dokumentační mapování.
+
+### Stav
+- Oba nové bloky jsou implementačně dokončené v repu.
+- Externě blokované zůstávají pouze live produkční kroky L1/L5/L8/L9 (mimo tento běh).
