@@ -58,3 +58,24 @@ export const cacheKey = {
   gallery: (key) => `cms:gallery:${key}`,
   hero: (key) => `cms:hero:${key}`,
 };
+
+/**
+ * Smaže všechny cache klíče služeb (`services:all`, `services:category:*`).
+ * Volá se po publish/zveřejnění změny služby.
+ * @param {Object} env
+ */
+export async function invalidateServicesCache(env) {
+  try {
+    if (!env.CACHE) return;
+    let cursor;
+    do {
+      const list = await env.CACHE.list({ prefix: 'services:', cursor });
+      for (const k of list?.keys || []) {
+        await env.CACHE.delete(k.name);
+      }
+      cursor = list?.list_complete ? undefined : list?.cursor;
+    } while (cursor);
+  } catch (err) {
+    console.warn('[cms] services cache invalidation failed:', err?.message);
+  }
+}

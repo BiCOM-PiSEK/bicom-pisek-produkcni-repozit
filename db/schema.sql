@@ -83,9 +83,13 @@ CREATE TABLE IF NOT EXISTS services (
     price_note TEXT,
     sessions_typ TEXT,
     jsonld TEXT,
+    icon_url TEXT,
     active INTEGER DEFAULT 1,
     sort_order INTEGER DEFAULT 0,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- CMS draft/publish (migrace 0017)
+    draft_json TEXT,
+    has_draft INTEGER NOT NULL DEFAULT 0
 );
 
 -- ============================================================
@@ -207,7 +211,13 @@ CREATE TABLE IF NOT EXISTS content_blocks (
     content_markdown TEXT NOT NULL,
     content_type TEXT DEFAULT 'text' CHECK(content_type IN ('text','prompt','config','faq')),
     last_updated_by TEXT,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- CMS draft/publish (migrace 0017): rozpracovaná verze vedle živé
+    draft_title TEXT,
+    draft_content_markdown TEXT,
+    has_draft INTEGER NOT NULL DEFAULT 0,
+    draft_updated_at TIMESTAMP,
+    draft_updated_by TEXT
 );
 
 CREATE TABLE IF NOT EXISTS process_states (
@@ -249,6 +259,9 @@ CREATE TABLE IF NOT EXISTS hero_config (
     overlay_color TEXT DEFAULT 'rgba(0,0,0,0.3)',
     updated_by TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- CMS draft/publish (migrace 0017)
+    draft_json TEXT,
+    has_draft INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (updated_by) REFERENCES operators(id)
 );
 

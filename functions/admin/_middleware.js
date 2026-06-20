@@ -336,17 +336,20 @@ async function handleSpaFallback(request, env, url) {
     '/admin/hero',
     '/admin/invoices',
     '/admin/payments',
+    '/admin/services',
     '/admin/settings'
   ];
 
   const isGet = request.method === 'GET';
   const wantsHtml = acceptHeader.includes('text/html');
-  const isApiHandler = apiHandlers.some(path => 
+  const isApiHandler = apiHandlers.some(path =>
     url.pathname === path || url.pathname === `${path}/`
   );
+  // Náhled veřejné stránky (F12) má vlastní handler — nepřepisovat na SPA.
+  const isPreview = url.pathname.startsWith('/admin/preview');
   const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/);
 
-  if (isGet && wantsHtml && !isApiHandler && !isStaticAsset) {
+  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset) {
     console.info(`[admin-auth] SPA fallback rewrite to /admin/index.html for: ${url.pathname}`);
     const fallbackUrl = new URL('/admin/index.html', request.url);
     const fallbackRequest = new Request(fallbackUrl.toString(), request);

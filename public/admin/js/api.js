@@ -512,6 +512,18 @@ function createContentSection(body) {
 function updateContentSection(body) {
   return request('/content', { method: 'PUT', body });
 }
+/** GET /admin/content?key= — detail sekce (živé + draft pole). @param {string} key @returns {Promise<ApiResponse>} */
+function getContentSection(key) {
+  return request(`/content?key=${encodeURIComponent(key)}`);
+}
+/** POST /admin/content {action:publish} — zveřejní koncept sekce. @param {string} section_key @returns {Promise<ApiResponse>} */
+function publishContentSection(section_key) {
+  return request('/content', { method: 'POST', body: { action: 'publish', section_key } });
+}
+/** POST /admin/content {action:discard} — zahodí koncept sekce. @param {string} section_key @returns {Promise<ApiResponse>} */
+function discardContentSection(section_key) {
+  return request('/content', { method: 'POST', body: { action: 'discard', section_key } });
+}
 /** DELETE /admin/content — smaže sekci dle klíče. @param {string} section_key @returns {Promise<ApiResponse>} */
 function deleteContentSection(section_key) {
   return request(`/content?key=${encodeURIComponent(section_key)}`, { method: 'DELETE' });
@@ -580,9 +592,46 @@ function getHeroes() {
 function getHero(key) {
   return request(`/hero?key=${encodeURIComponent(key)}`);
 }
-/** PUT /admin/hero — upsert hero konfigurace. @param {Object} body @returns {Promise<ApiResponse>} */
+/** PUT /admin/hero — uloží změnu hero jako koncept. @param {Object} body @returns {Promise<ApiResponse>} */
 function saveHero(body) {
   return request('/hero', { method: 'PUT', body });
+}
+/** POST /admin/hero {action:publish} — zveřejní koncept hero. @param {string} page_key @returns {Promise<ApiResponse>} */
+function publishHero(page_key) {
+  return request('/hero', { method: 'POST', body: { action: 'publish', page_key } });
+}
+/** POST /admin/hero {action:discard} — zahodí koncept hero. @param {string} page_key @returns {Promise<ApiResponse>} */
+function discardHero(page_key) {
+  return request('/hero', { method: 'POST', body: { action: 'discard', page_key } });
+}
+
+/** GET /admin/services — seznam služeb (vč. has_draft). @returns {Promise<ApiResponse>} */
+function getServicesAdmin() {
+  return request('/services');
+}
+/** GET /admin/services?slug= — detail služby (živé + draft_json). @param {string} slug @returns {Promise<ApiResponse>} */
+function getServiceAdmin(slug) {
+  return request(`/services?slug=${encodeURIComponent(slug)}`);
+}
+/** POST /admin/services — vytvoří službu. @param {Object} body @returns {Promise<ApiResponse>} */
+function createService(body) {
+  return request('/services', { method: 'POST', body });
+}
+/** PUT /admin/services — uloží změnu služby jako koncept. @param {Object} body @returns {Promise<ApiResponse>} */
+function saveServiceDraft(body) {
+  return request('/services', { method: 'PUT', body });
+}
+/** POST /admin/services {action:publish}. @param {string} slug @returns {Promise<ApiResponse>} */
+function publishService(slug) {
+  return request('/services', { method: 'POST', body: { action: 'publish', slug } });
+}
+/** POST /admin/services {action:discard}. @param {string} slug @returns {Promise<ApiResponse>} */
+function discardService(slug) {
+  return request('/services', { method: 'POST', body: { action: 'discard', slug } });
+}
+/** DELETE /admin/services?slug=. @param {string} slug @returns {Promise<ApiResponse>} */
+function deleteService(slug) {
+  return request(`/services?slug=${encodeURIComponent(slug)}`, { method: 'DELETE' });
 }
 
 // ─── EXPORT (pro browser ES module) ────────────────────────────
@@ -616,9 +665,12 @@ const AdminAPI = {
   deleteException,
   // CMS — obsah webu
   getContentSections,
+  getContentSection,
   getContentHistory,
   createContentSection,
   updateContentSection,
+  publishContentSection,
+  discardContentSection,
   deleteContentSection,
   getGalleries,
   getGalleryItems,
@@ -629,6 +681,15 @@ const AdminAPI = {
   getHeroes,
   getHero,
   saveHero,
+  publishHero,
+  discardHero,
+  getServicesAdmin,
+  getServiceAdmin,
+  createService,
+  saveServiceDraft,
+  publishService,
+  discardService,
+  deleteService,
 };
 
 // Také na window pro přístup z modulů

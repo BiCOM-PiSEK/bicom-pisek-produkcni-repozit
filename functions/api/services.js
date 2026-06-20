@@ -41,8 +41,11 @@ export async function onRequestGet({ request, env }) {
       );
     }
 
-    // 2. Query D1
-    let query = 'SELECT * FROM services WHERE active = 1';
+    // 2. Query D1 — explicitní veřejné sloupce (BEZ draft_json/has_draft,
+    //    aby se rozpracovaný koncept nikdy nepropsal na veřejný web).
+    let query = `SELECT slug, name, category, segment, short_desc, long_desc,
+                        price_avg, price_note, sessions_typ, jsonld, icon_url, sort_order
+                 FROM services WHERE active = 1`;
     const bindings = [];
 
     if (category) {
