@@ -38,8 +38,16 @@ function prepareService(body, existing) {
   if (!SEGMENTS.includes(segment)) return { error: 'Neplatný segment.' };
   const icon_url = body.icon_url != null ? stripTags(body.icon_url, 500) : e.icon_url;
   if (!isSafeUrl(icon_url)) return { error: 'Ikona musí být relativní cesta nebo https adresa.' };
-  const price = body.price_avg != null ? parseInt(body.price_avg, 10) : e.price_avg;
-  if (body.price_avg != null && (isNaN(price) || price < 0)) return { error: 'Cena musí být kladné číslo.' };
+  // Cena: prázdný vstup = vyčistit (null); jinak validní kladné číslo.
+  let price = e.price_avg;
+  if (body.price_avg != null) {
+    if (String(body.price_avg).trim() === '') {
+      price = null;
+    } else {
+      price = parseInt(body.price_avg, 10);
+      if (isNaN(price) || price < 0) return { error: 'Cena musí být kladné číslo.' };
+    }
+  }
   return {
     svc: {
       name,

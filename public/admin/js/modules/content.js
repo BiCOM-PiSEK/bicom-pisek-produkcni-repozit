@@ -227,7 +227,8 @@ function wireCardGroup(root, key) {
     rowsWrap.insertAdjacentHTML('beforeend', cardRow({ title: '', text: '' }, rowsWrap.children.length));
   });
   card.querySelector('[data-action="save"]').addEventListener('click', async () => {
-    const r = await api.updateContentSection({ section_key: key, title: card.querySelector('.card-title').textContent, content_markdown: JSON.stringify(collect()), content_type: 'config' });
+    // title NEposíláme — PUT zachová původní (DOM h3 má suffix „(karty)", řetězil by se)
+    const r = await api.updateContentSection({ section_key: key, content_markdown: JSON.stringify(collect()), content_type: 'config' });
     if (r.ok) { showToast('Koncept uložen ✓ — obnovte náhled (↻)', 'success'); setBadge(true); refreshPreview(root); }
     else showToast('Chyba: ' + r.error, 'error');
   });
