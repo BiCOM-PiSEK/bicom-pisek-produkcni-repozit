@@ -1,67 +1,73 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * BICOM PÍSEK — CMS klient pro veřejný web (F11)
+ * BICOM PÍSEK — CMS klient pro veřejný web (F11 + F12)
  * ═══════════════════════════════════════════════════════════════
- * Dynamicky doplňuje obsah z CMS API do stránky. Princip „progressive
- * enhancement": v HTML zůstává hardcoded obsah jako fallback; pokud API
- * odpoví, obsah se nahradí. Když API selže, návštěvník vidí původní obsah.
+ * Progressive enhancement: v HTML zůstává hardcoded fallback; pokud
+ * CMS API odpoví, obsah se nahradí. Když API selže, vidí návštěvník
+ * původní obsah.
  *
- * Použití v HTML (opt-in přes data-atributy):
- *   <div data-cms-section="ordinace-intro"> …fallback… </div>
- *   <div class="gallery-grid" data-cms-gallery="ordinace"> …fallback… </div>
- *   <section data-cms-hero="homepage">
- *     <h1 data-cms-hero-field="headline">…</h1>
- *     <p  data-cms-hero-field="subheadline">…</p>
- *     <a  data-cms-hero-field="cta_link">Tlačítko</a>
- *   </section>
+ * Data-atributy (opt-in):
+ *   <div data-cms-section="key">…fallback…</div>          — text/HTML sekce
+ *   <div class="gallery-grid" data-cms-gallery="key">…</div> — galerie
+ *   <section data-cms-hero="page"> … data-cms-hero-field … </section>
+ *   <span data-cms-nap="phone|email|street|…">…</span>     — sdílené NAP/footer
  *
- * Načítá se samo po DOMContentLoaded; lze volat i ručně přes window.CMS.
+ * Náhled (F12): když běží pod /admin/preview/* (window.__CMS_PREVIEW__),
+ * klient čte z chráněných /admin/* endpointů s ?preview=1 (zobrazí KONCEPTY).
  * ═══════════════════════════════════════════════════════════════
  */
 (function () {
   'use strict';
 
+  var PREVIEW = !!window.__CMS_PREVIEW__;
+
   /**
-   * Stáhne JSON z CMS API a vrátí pole `data` (vyhodí při chybě/ok:false).
+   * Sestaví URL endpointu dle režimu (veřejný vs. náhled konceptů).
+   * @param {'content'|'gallery'|'hero'} kind
+   * @param {string} key
+   * @returns {string}
+   */
+  function endpoint(kind, key) {
+    var k = encodeURIComponent(key);
+    if (PREVIEW) {
+      if (kind === 'gallery') return '/admin/gallery?key=' + k;
+      return '/admin/' + kind + '?key=' + k + '&preview=1';
+    }
+    return '/api/' + kind + '?key=' + k;
+  }
+
+  /**
+   * Stáhne JSON a vrátí pole `data` (vyhodí při chybě/ok:false).
    * @param {string} url
    * @returns {Promise<*>}
    */
   async function getJSON(url) {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    var res = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const body = await res.json();
+    var body = await res.json();
     if (body.ok === false) throw new Error(body.error || 'CMS error');
     return body.data;
   }
 
-  /**
-   * Bezpečná URL pro href/pozadí: jen http(s), mailto, tel, relativní cesta, kotva.
-   * @param {string} value
-   * @returns {boolean}
-   */
-  function isSafeUrl(value) {
-    return /^(https?:\/\/|\/|#|mailto:|tel:)/i.test(String(value || '').trim());
+  /** Bezpečná URL pro href/pozadí. @param {string} v @returns {boolean} */
+  function isSafeUrl(v) {
+    return /^(https?:\/\/|\/|#|mailto:|tel:)/i.test(String(v || '').trim());
   }
 
-  /**
-   * Escapuje hodnotu pro vložení do HTML atributu.
-   * @param {string} s
-   * @returns {string}
-   */
+  /** Escapuje hodnotu do HTML atributu. @param {string} s @returns {string} */
   function escAttr(s) {
     return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   /**
    * Nahradí obsah elementu textovou sekcí z CMS.
-   * Pozn.: `content` je sanitizováno na serveru při zápisu (functions/lib/sanitize.js),
-   * proto je vložení přes innerHTML bezpečné.
+   * (content je sanitizováno na serveru při zápisu → innerHTML je bezpečné.)
    * @param {string} key
    * @param {HTMLElement} el
    */
   async function renderSection(key, el) {
     try {
-      const data = await getJSON('/api/content?key=' + encodeURIComponent(key));
+      var data = await getJSON(endpoint('content', key));
       if (data && data.content) el.innerHTML = data.content;
     } catch (err) {
       console.warn('[cms] section "' + key + '" — ponechán fallback:', err.message);
@@ -75,9 +81,9 @@
    */
   async function loadGallery(key, el) {
     try {
-      const data = await getJSON('/api/gallery?key=' + encodeURIComponent(key));
-      const items = (data && data.items) || [];
-      if (!items.length) return; // necháme fallback
+      var data = await getJSON(endpoint('gallery', key));
+      var items = (data && data.items) || [];
+      if (!items.length) return;
       el.innerHTML = items.map(function (it) {
         return '<div class="gallery-item"><img src="' + escAttr(it.image_url) +
           '" alt="' + escAttr(it.caption || it.title || '') + '" loading="lazy"></div>';
@@ -89,13 +95,12 @@
 
   /**
    * Aplikuje hero konfiguraci na element a jeho [data-cms-hero-field] potomky.
-   * URL (cta_link, pozadí) se validují proti bezpečným schématům.
    * @param {string} key
    * @param {HTMLElement} el
    */
   async function applyHero(key, el) {
     try {
-      const data = await getJSON('/api/hero?key=' + encodeURIComponent(key));
+      var data = await getJSON(endpoint('hero', key));
       if (!data) return;
       el.querySelectorAll('[data-cms-hero-field]').forEach(function (node) {
         var f = node.getAttribute('data-cms-hero-field');
@@ -114,6 +119,32 @@
     }
   }
 
+  /**
+   * Naplní všechny [data-cms-nap] prvky ze sdíleného configu `site-nap`.
+   * Pole 'phone'/'email' na <a> nastaví i href (tel:/mailto:).
+   */
+  async function applyNap() {
+    var nodes = document.querySelectorAll('[data-cms-nap]');
+    if (!nodes.length) return;
+    try {
+      var data = await getJSON(endpoint('content', 'site-nap'));
+      if (!data || !data.content) return;
+      var nap = JSON.parse(data.content);
+      nodes.forEach(function (node) {
+        var field = node.getAttribute('data-cms-nap');
+        var val = nap[field];
+        if (val == null || val === '') return;
+        node.textContent = val;
+        if (node.tagName === 'A') {
+          if (field === 'phone') node.setAttribute('href', 'tel:' + (nap.phoneHref || val).replace(/\s+/g, ''));
+          else if (field === 'email') node.setAttribute('href', 'mailto:' + val);
+        }
+      });
+    } catch (err) {
+      console.warn('[cms] NAP — ponechán fallback:', err.message);
+    }
+  }
+
   /** Projde DOM a aplikuje CMS na všechny opt-in elementy. */
   function init() {
     document.querySelectorAll('[data-cms-section]').forEach(function (el) {
@@ -125,9 +156,10 @@
     document.querySelectorAll('[data-cms-hero]').forEach(function (el) {
       applyHero(el.getAttribute('data-cms-hero'), el);
     });
+    applyNap();
   }
 
-  window.CMS = { renderSection, loadGallery, applyHero, init };
+  window.CMS = { renderSection, loadGallery, applyHero, applyNap, init, preview: PREVIEW };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

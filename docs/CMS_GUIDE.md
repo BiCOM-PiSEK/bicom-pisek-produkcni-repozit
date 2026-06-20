@@ -6,11 +6,24 @@
 
 ---
 
+## 0. Workflow: koncept → náhled → zveřejnit (F12)
+
+Úpravy textů, kontaktu/patičky a hero bannerů se **neukládají rovnou na web**.
+Fungují jako **koncept**:
+
+1. Upravíte text a dáte **💾 Uložit koncept** — uloží se, ale na webu se zatím nic nezmění.
+2. V **náhledu vpravo** (klikněte na ↻ Obnovit) vidíte, jak změna bude vypadat.
+3. Když jste spokojeni, dáte **✅ Zveřejnit** — teprve teď se změna objeví na webu (do ~1 min).
+4. Nebo **↩︎ Zahodit koncept** — koncept se zruší a zůstane původní zveřejněná verze.
+
+Galerie se publikují okamžitě (bez konceptu).
+
 ## 1. Kde to najdu
 
 1. Přihlaste se do admin konzole (`/admin`) přes Cloudflare Access.
 2. V levém menu klikněte na **„Obsah webu“**.
-3. Nahoře jsou čtyři záložky: **Texty**, **Galerie**, **Hero bannery**, **Historie změn**.
+3. Nahoře jsou záložky: **Stránky** (texty homepage), **Footer & Kontakt** (NAP),
+   **Galerie**, **Hero bannery**, **Historie změn**.
 
 ---
 

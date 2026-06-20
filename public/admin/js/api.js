@@ -512,6 +512,18 @@ function createContentSection(body) {
 function updateContentSection(body) {
   return request('/content', { method: 'PUT', body });
 }
+/** GET /admin/content?key= — detail sekce (živé + draft pole). @param {string} key @returns {Promise<ApiResponse>} */
+function getContentSection(key) {
+  return request(`/content?key=${encodeURIComponent(key)}`);
+}
+/** POST /admin/content {action:publish} — zveřejní koncept sekce. @param {string} section_key @returns {Promise<ApiResponse>} */
+function publishContentSection(section_key) {
+  return request('/content', { method: 'POST', body: { action: 'publish', section_key } });
+}
+/** POST /admin/content {action:discard} — zahodí koncept sekce. @param {string} section_key @returns {Promise<ApiResponse>} */
+function discardContentSection(section_key) {
+  return request('/content', { method: 'POST', body: { action: 'discard', section_key } });
+}
 /** DELETE /admin/content — smaže sekci dle klíče. @param {string} section_key @returns {Promise<ApiResponse>} */
 function deleteContentSection(section_key) {
   return request(`/content?key=${encodeURIComponent(section_key)}`, { method: 'DELETE' });
@@ -580,9 +592,17 @@ function getHeroes() {
 function getHero(key) {
   return request(`/hero?key=${encodeURIComponent(key)}`);
 }
-/** PUT /admin/hero — upsert hero konfigurace. @param {Object} body @returns {Promise<ApiResponse>} */
+/** PUT /admin/hero — uloží změnu hero jako koncept. @param {Object} body @returns {Promise<ApiResponse>} */
 function saveHero(body) {
   return request('/hero', { method: 'PUT', body });
+}
+/** POST /admin/hero {action:publish} — zveřejní koncept hero. @param {string} page_key @returns {Promise<ApiResponse>} */
+function publishHero(page_key) {
+  return request('/hero', { method: 'POST', body: { action: 'publish', page_key } });
+}
+/** POST /admin/hero {action:discard} — zahodí koncept hero. @param {string} page_key @returns {Promise<ApiResponse>} */
+function discardHero(page_key) {
+  return request('/hero', { method: 'POST', body: { action: 'discard', page_key } });
 }
 
 // ─── EXPORT (pro browser ES module) ────────────────────────────
@@ -616,9 +636,12 @@ const AdminAPI = {
   deleteException,
   // CMS — obsah webu
   getContentSections,
+  getContentSection,
   getContentHistory,
   createContentSection,
   updateContentSection,
+  publishContentSection,
+  discardContentSection,
   deleteContentSection,
   getGalleries,
   getGalleryItems,
@@ -629,6 +652,8 @@ const AdminAPI = {
   getHeroes,
   getHero,
   saveHero,
+  publishHero,
+  discardHero,
 };
 
 // Také na window pro přístup z modulů
