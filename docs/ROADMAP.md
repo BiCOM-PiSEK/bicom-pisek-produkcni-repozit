@@ -99,9 +99,10 @@
 
 | Co | Stav | Odkaz |
 |---|---|---|
-| **Rezervační systém F6–F7** | Kódově dokončeno + hardening; průběžné provozní ověřování | [ADR-004](adr/ADR-004-rezervacni-system.md) |
+| **Rezervační systém F6–F7** | Kódově dokončeno + hardening; průběšné provozní ověřování | [ADR-004](adr/ADR-004-rezervacni-system.md) |
 | Admin konzole — booking akce + handover režim | průběžně | WORK-DIARY |
 | Produkční integrace a launch readiness | Stripe/Resend/GoSMS/iDoklad/Turnstile | HANDOVER + launch blokery |
+| **🆕 CMS — Editace obsahu bez deploymentu (F11)** | Naplánováno; čeká agentské zpracování | [CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md) |
 
 ---
 
@@ -116,6 +117,19 @@
 ---
 
 ## 🟢 ČEKÁ (naplánováno)
+
+### ⭐ CMS — Operátoři editují obsah bez vývoje (F11 — HANDOVER BLOCKER)
+
+**Spec + plán implementace:** [docs/agent-tasks/CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md)
+
+- Nové D1 tabulky: `page_sections`, `gallery_items`, `hero_config`, `content_audit_log`
+- 8 API endpointů (admin + public) — CRUD na texty, galerie, hero bannery
+- Admin UI v virtuální kanceláři: sekce textu, galerie (drag-n-drop, R2 upload), hero editor
+- Web dynamicky renderuje obsah z API (fallback na hardcoded)
+- Audit trail — operátor vidí kdo a kdy změnil
+- **Priorita:** 🔴 KRITICKÁ (bez toho nemohou operátoři spravovat web)
+- **Odhad:** ~12 hodin agentského zpracování
+- **Závislosti:** JWT (✅), R2 binding (✅), Vue admin app (✅)
 
 ### Rezervační systém — zbývající fáze (ADR-004, architektura = Cesta 2: sloty za běhu)
 
