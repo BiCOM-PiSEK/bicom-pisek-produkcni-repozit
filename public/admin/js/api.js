@@ -494,6 +494,87 @@ function deleteException(id) {
   return request(`/exceptions?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
+// ─── CMS: OBSAH WEBU ──────────────────────────────────────────
+
+/** GET /admin/content — seznam textových sekcí (nebo ?key= / ?history=1). */
+function getContentSections() {
+  return request('/content');
+}
+function getContentHistory() {
+  return request('/content?history=1');
+}
+function createContentSection(body) {
+  return request('/content', { method: 'POST', body });
+}
+function updateContentSection(body) {
+  return request('/content', { method: 'PUT', body });
+}
+function deleteContentSection(section_key) {
+  return request(`/content?key=${encodeURIComponent(section_key)}`, { method: 'DELETE' });
+}
+
+/** GET /admin/gallery — seznam galerií (nebo ?key= pro položky). */
+function getGalleries() {
+  return request('/gallery');
+}
+function getGalleryItems(key) {
+  return request(`/gallery?key=${encodeURIComponent(key)}`);
+}
+function updateGalleryItem(body) {
+  return request('/gallery', { method: 'PUT', body });
+}
+function reorderGallery(gallery_key, items) {
+  return request('/gallery', { method: 'PUT', body: { action: 'reorder', gallery_key, items } });
+}
+function deleteGalleryItem(id) {
+  return request(`/gallery?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+/**
+ * Upload obrázku do galerie (multipart/form-data — mimo standardní JSON request).
+ * @param {string} galleryKey
+ * @param {File} file
+ * @returns {Promise<ApiResponse>}
+ */
+async function uploadGalleryImage(galleryKey, file) {
+  const form = new FormData();
+  form.append('gallery_key', galleryKey);
+  form.append('file', file);
+  try {
+    const res = await fetch(`${API_BASE}/gallery`, {
+      method: 'POST',
+      body: form,
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    });
+    let body = null;
+    try { body = await res.json(); } catch { body = null; }
+    if (res.status === 401 || res.status === 403) {
+      handleAuthError(res.status);
+      return { ok: false, data: null, error: 'Neoprávněný přístup', status: res.status };
+    }
+    return {
+      ok: res.ok && body?.ok !== false,
+      data: body?.data ?? null,
+      error: body?.error ?? (res.ok ? null : `HTTP ${res.status}`),
+      status: res.status,
+    };
+  } catch (err) {
+    return { ok: false, data: null, error: err.message || 'Síťová chyba', status: 0 };
+  }
+}
+
+/** GET /admin/hero — seznam hero bannerů (nebo ?key=). */
+function getHeroes() {
+  return request('/hero');
+}
+function getHero(key) {
+  return request(`/hero?key=${encodeURIComponent(key)}`);
+}
+function saveHero(body) {
+  return request('/hero', { method: 'PUT', body });
+}
+
 // ─── EXPORT (pro browser ES module) ────────────────────────────
 
 const AdminAPI = {
@@ -523,6 +604,21 @@ const AdminAPI = {
   getExceptions,
   addException,
   deleteException,
+  // CMS — obsah webu
+  getContentSections,
+  getContentHistory,
+  createContentSection,
+  updateContentSection,
+  deleteContentSection,
+  getGalleries,
+  getGalleryItems,
+  updateGalleryItem,
+  reorderGallery,
+  deleteGalleryItem,
+  uploadGalleryImage,
+  getHeroes,
+  getHero,
+  saveHero,
 };
 
 // Také na window pro přístup z modulů

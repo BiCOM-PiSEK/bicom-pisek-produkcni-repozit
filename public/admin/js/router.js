@@ -55,6 +55,12 @@ const ROUTES = [
     moduleId: 'blog',
   },
   {
+    path: '/obsah',
+    title: 'Obsah webu',
+    icon: 'layout-template',
+    moduleId: 'content',
+  },
+  {
     path: '/fakturace',
     title: 'Fakturace',
     icon: 'receipt',
