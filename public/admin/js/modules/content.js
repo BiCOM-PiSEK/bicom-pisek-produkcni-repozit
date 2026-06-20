@@ -66,6 +66,87 @@ function refreshPreview(root) {
   if (f) f.contentWindow.location.reload();
 }
 
+// ─── POJMENOVANÉ KONCEPTY / VERZE (F12-D) ─────────────────────
+
+/** HTML tlačítek pro práci s pojmenovanými verzemi konceptu. @returns {string} */
+function versionControlsHtml() {
+  return `
+    <button class="btn btn-ghost btn-sm" data-action="save-version" title="Uložit aktuální koncept jako pojmenovanou verzi">🏷️ Uložit jako verzi…</button>
+    <button class="btn btn-ghost btn-sm" data-action="versions" title="Spravovat uložené verze konceptu">🗂️ Verze konceptu</button>`;
+}
+
+/**
+ * Naváže tlačítka verzí (uložit jako verzi / spravovat verze) v rámci scope.
+ * @param {HTMLElement} scope — element obsahující tlačítka [data-action]
+ * @param {string} entity — 'content_blocks' | 'hero_config' | 'services'
+ * @param {string} entityId — section_key | page_key | slug
+ * @param {Function} getPayload — () => Object (payload pro uložení verze)
+ * @param {Function} afterLoad — () => void (re-render editoru po načtení verze)
+ */
+function wireVersionControls(scope, entity, entityId, getPayload, afterLoad) {
+  const { api, showToast } = _ctx;
+  if (!api?.saveDraftVersion) return;
+  scope.querySelector('[data-action="save-version"]')?.addEventListener('click', async () => {
+    const name = (prompt('Název verze (např. „Vánoční nabídka"):') || '').trim();
+    if (!name) return;
+    const r = await api.saveDraftVersion(entity, entityId, name, getPayload());
+    showToast(r.ok ? `Verze „${name}" uložena ✓` : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+  });
+  scope.querySelector('[data-action="versions"]')?.addEventListener('click', () => openVersionsModal(entity, entityId, afterLoad));
+}
+
+/** Modal se seznamem verzí + akce načíst/přejmenovat/smazat. */
+async function openVersionsModal(entity, entityId, afterLoad) {
+  const { api, showToast } = _ctx;
+  const res = await api.listDraftVersions(entity, entityId);
+  if (!res.ok) { showToast('Chyba: ' + (res.error || 'Nepodařilo se načíst verze konceptu.'), 'error'); return; }
+  const versions = res.data?.versions || [];
+  const rowsHtml = versions.length
+    ? versions.map((v) => `
+        <tr data-id="${esc(v.id)}">
+          <td>${esc(v.name)}</td>
+          <td style="white-space:nowrap; color:var(--c-sage,#738A75); font-size:.85rem;">${fmtDate(v.updated_at)}</td>
+          <td style="text-align:right; white-space:nowrap;">
+            <button class="btn btn-primary btn-sm" data-v="load">Načíst</button>
+            <button class="btn btn-secondary btn-sm" data-v="rename">Přejmenovat</button>
+            <button class="btn btn-danger btn-sm" data-v="del" title="Smazat verzi">✕</button>
+          </td>
+        </tr>`).join('')
+    : `<tr><td colspan="3">${emptyCard('Zatím žádné uložené verze. Uložte aktuální koncept tlačítkem „Uložit jako verzi…".')}</td></tr>`;
+  showModal(`
+    <div class="modal" style="max-width:640px; width:95%;">
+      <div class="modal-header"><h3 class="card-title">🗂️ Verze konceptu</h3><button class="btn-icon" data-m="close">✕</button></div>
+      <div class="modal-body">
+        <table class="table" style="width:100%;"><tbody>${rowsHtml}</tbody></table>
+        <p class="form-hint">„Načíst" přepíše aktuální pracovní koncept zvolenou verzí (samo o sobě nic nezveřejní).</p>
+      </div>
+    </div>`, (overlay, close) => {
+    overlay.querySelector('[data-m="close"]').addEventListener('click', close);
+    overlay.querySelectorAll('tr[data-id]').forEach((tr) => {
+      const id = tr.dataset.id;
+      tr.querySelector('[data-v="load"]')?.addEventListener('click', async () => {
+        if (!confirm('Načíst tuto verzi do pracovního konceptu? Přepíše aktuální (i neuložené) změny konceptu.')) return;
+        const r = await api.loadDraftVersion(id);
+        if (r.ok) { showToast('Verze načtena do konceptu ✓', 'success'); close(); afterLoad?.(); }
+        else showToast('Chyba: ' + r.error, 'error');
+      });
+      tr.querySelector('[data-v="rename"]')?.addEventListener('click', async () => {
+        const name = (prompt('Nový název verze:') || '').trim();
+        if (!name) return;
+        const r = await api.renameDraftVersion(id, name);
+        showToast(r.ok ? 'Přejmenováno ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+        if (r.ok) { close(); openVersionsModal(entity, entityId, afterLoad); }
+      });
+      tr.querySelector('[data-v="del"]')?.addEventListener('click', async () => {
+        if (!confirm('Smazat tuto verzi konceptu?')) return;
+        const r = await api.deleteDraftVersion(id);
+        showToast(r.ok ? 'Verze smazána ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+        if (r.ok) { close(); openVersionsModal(entity, entityId, afterLoad); }
+      });
+    });
+  });
+}
+
 /**
  * Vstupní bod modulu — vykreslí záložky a načte výchozí (Stránky).
  * @param {HTMLElement} container
@@ -183,6 +264,7 @@ function cardGroupCard(s) {
           <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" data-action="publish" ${s.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" data-action="discard" ${s.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          ${versionControlsHtml()}
         </div>
       </div>
     </div>`;
@@ -243,6 +325,7 @@ function wireCardGroup(root, key) {
     if (r.ok) { showToast('Koncept zahozen ✓', 'success'); await renderStranky(root); }
     else showToast('Chyba: ' + r.error, 'error');
   });
+  wireVersionControls(card, 'content_blocks', key, () => ({ content_markdown: JSON.stringify(collect()) }), () => renderStranky(root));
 }
 
 /** Vrátí HTML karty jedné textové sekce. @param {Object} s @returns {string} */
@@ -269,6 +352,7 @@ function sectionCard(s) {
           <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" data-action="publish" ${s.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" data-action="discard" ${s.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          ${versionControlsHtml()}
         </div>
       </div>
     </div>`;
@@ -302,6 +386,7 @@ function wireSectionCard(root, key) {
     if (r.ok) { showToast('Koncept zahozen ✓', 'success'); await renderStranky(root); }
     else showToast('Chyba: ' + r.error, 'error');
   });
+  wireVersionControls(card, 'content_blocks', key, () => ({ title: val('title'), content_markdown: val('content_markdown') }), () => renderStranky(root));
 }
 
 // ─── FOOTER & KONTAKT (NAP config) ────────────────────────────
@@ -346,6 +431,7 @@ async function renderFooter(body) {
             <button class="btn btn-secondary btn-sm" id="nap-save">💾 Uložit koncept</button>
             <button class="btn btn-primary btn-sm" id="nap-publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
             <button class="btn btn-ghost btn-sm" id="nap-discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            ${versionControlsHtml()}
           </div>
         </div>
       </div>
@@ -379,6 +465,7 @@ async function renderFooter(body) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) renderFooter(body);
   });
+  wireVersionControls(body, 'content_blocks', 'site-nap', () => ({ content_markdown: JSON.stringify(collect()), title: 'Kontaktní údaje a patička (NAP)' }), () => renderFooter(body));
 }
 
 // ─── FAQ (sdílené, config [{q,a}]) ────────────────────────────
@@ -408,6 +495,7 @@ async function renderFaq(body) {
             <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
             <button class="btn btn-primary btn-sm" data-action="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
             <button class="btn btn-ghost btn-sm" data-action="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            ${versionControlsHtml()}
           </div>
         </div>
       </div>
@@ -447,6 +535,7 @@ async function renderFaq(body) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) renderFaq(body);
   });
+  wireVersionControls(body, 'content_blocks', 'faq-main', () => ({ content_markdown: JSON.stringify(collect()), title: 'FAQ (sdílené)' }), () => renderFaq(body));
 }
 
 /** Řádek FAQ (otázka + odpověď). @param {Object} it @returns {string} */
@@ -562,6 +651,7 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
             <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
             <button class="btn btn-primary btn-sm" data-action="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
             <button class="btn btn-ghost btn-sm" data-action="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            ${versionControlsHtml()}
           </div>
         </div>
       </div>
@@ -594,6 +684,7 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) configEditor(host, sectionKey, titleLabel, fields, previewPage);
   });
+  wireVersionControls(host, 'content_blocks', sectionKey, () => ({ content_markdown: JSON.stringify(collect()), title: titleLabel }), () => configEditor(host, sectionKey, titleLabel, fields, previewPage));
 }
 
 // ─── GALERIE (okamžitá publikace) ─────────────────────────────
@@ -764,6 +855,9 @@ async function renderHero(body) {
 function renderHeroForm(detail, row) {
   const { api, showToast } = _ctx;
   row = row || {};
+  // Verze lze ukládat až když hero záznam v DB existuje (po prvním uložení konceptu);
+  // jinak by /admin/drafts vrátilo 404. Nová (neuložená) stránka → bez tlačítek verzí.
+  const heroExists = !!(row.id || row.has_draft);
   let d = {};
   if (row.has_draft && row.draft_json) { try { d = JSON.parse(row.draft_json); } catch { d = {}; } }
   const v = (f) => (d[f] != null ? d[f] : (row[f] != null ? row[f] : ''));
@@ -792,6 +886,7 @@ function renderHeroForm(detail, row) {
           <button class="btn btn-secondary btn-sm" id="cms-hero-save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" id="cms-hero-publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" id="cms-hero-discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          ${heroExists ? versionControlsHtml() : ''}
         </div>
       </div>
     </div>`;
@@ -821,6 +916,11 @@ function renderHeroForm(detail, row) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); }
   });
+  if (heroExists) {
+    wireVersionControls(detail, 'hero_config', row.page_key,
+      () => ({ headline: getf('headline'), subheadline: getf('subheadline'), cta_text: getf('cta_text'), cta_link: getf('cta_link'), background_image_url: getf('background_image_url'), overlay_color: getf('overlay_color') }),
+      async () => { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); });
+  }
 }
 
 // ─── HISTORIE ─────────────────────────────────────────────────
@@ -935,6 +1035,8 @@ async function openServiceModal(body, slug) {
     : `<button class="btn btn-secondary" data-m="save">💾 Uložit koncept</button>
        <button class="btn btn-primary" data-m="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
        <button class="btn btn-ghost" data-m="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit</button>
+       <button class="btn btn-ghost" data-m="save-version" title="Uložit jako verzi">🏷️ Uložit verzi</button>
+       <button class="btn btn-ghost" data-m="versions" title="Verze konceptu">🗂️ Verze</button>
        <button class="btn btn-danger" data-m="delete" style="margin-left:auto;">🗑️ Smazat</button>`;
 
   showModal(`
@@ -953,6 +1055,13 @@ async function openServiceModal(body, slug) {
     overlay.querySelector('[data-m="publish"]')?.addEventListener('click', async () => after(await api.publishService(slug), 'Zveřejněno ✓'));
     overlay.querySelector('[data-m="discard"]')?.addEventListener('click', async () => after(await api.discardService(slug), 'Koncept zahozen ✓'));
     overlay.querySelector('[data-m="delete"]')?.addEventListener('click', async () => { if (confirm('Opravdu smazat tuto službu?')) after(await api.deleteService(slug), 'Smazáno ✓'); });
+    overlay.querySelector('[data-m="save-version"]')?.addEventListener('click', async () => {
+      const name = (prompt('Název verze (např. „Vánoční nabídka"):') || '').trim();
+      if (!name) return;
+      const r = await api.saveDraftVersion('services', slug, name, payload());
+      showToast(r.ok ? `Verze „${name}" uložena ✓` : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    });
+    overlay.querySelector('[data-m="versions"]')?.addEventListener('click', () => { close(); openVersionsModal('services', slug, () => openServiceModal(body, slug)); });
   });
 }
 

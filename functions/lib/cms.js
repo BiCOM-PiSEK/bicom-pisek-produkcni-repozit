@@ -59,6 +59,43 @@ export const cacheKey = {
   hero: (key) => `cms:hero:${key}`,
 };
 
+/** Entity, které mají draft/publish vrstvu (a tedy i pojmenované koncepty). */
+export const DRAFT_ENTITIES = ['content_blocks', 'hero_config', 'services'];
+
+/** Klíčový sloupec entity pro WHERE (entity_id). @param {string} entity @returns {string|null} */
+export function draftKeyColumn(entity) {
+  if (entity === 'content_blocks') return 'section_key';
+  if (entity === 'hero_config') return 'page_key';
+  if (entity === 'services') return 'slug';
+  return null;
+}
+
+/**
+ * Vrátí prepared statement, který zapíše payload do PRACOVNÍHO konceptu entity
+ * (draft sloupce, has_draft=1). Payload musí být už sanitizovaný (viz drafts.js).
+ * Sjednocuje zápis konceptu napříč entitami (reuse pro „načíst verzi").
+ * @param {Object} env @param {string} entity @param {string} entityId
+ * @param {Object} payload @param {string} operatorId
+ * @returns {D1PreparedStatement}
+ */
+export function applyWorkingDraftStmt(env, entity, entityId, payload, operatorId) {
+  if (entity === 'content_blocks') {
+    return env.DB.prepare(
+      `UPDATE content_blocks SET draft_title = ?, draft_content_markdown = ?, has_draft = 1,
+              draft_updated_at = datetime('now'), draft_updated_by = ? WHERE section_key = ?`
+    ).bind(payload.title ?? null, payload.content_markdown ?? '', operatorId, entityId);
+  }
+  if (entity === 'hero_config') {
+    return env.DB.prepare(
+      `UPDATE hero_config SET draft_json = ?, has_draft = 1, updated_by = ?, updated_at = datetime('now') WHERE page_key = ?`
+    ).bind(JSON.stringify(payload), operatorId, entityId);
+  }
+  // services
+  return env.DB.prepare(
+    `UPDATE services SET draft_json = ?, has_draft = 1, updated_at = datetime('now') WHERE slug = ?`
+  ).bind(JSON.stringify(payload), entityId);
+}
+
 /**
  * Smaže všechny cache klíče služeb (`services:all`, `services:category:*`).
  * Volá se po publish/zveřejnění změny služby.
