@@ -145,6 +145,66 @@
     }
   }
 
+  /**
+   * Naplní opakované karty (info-karty/cert-karty) z JSON pole dle pořadí —
+   * SVG ikony v HTML zůstávají, mění se jen nadpis (h3) a text (p).
+   * @param {string} key
+   * @param {HTMLElement} el
+   */
+  async function applyList(key, el) {
+    try {
+      var data = await getJSON(endpoint('content', key));
+      if (!data || !data.content) return;
+      var items = JSON.parse(data.content);
+      if (!Array.isArray(items)) return;
+      var cards = el.querySelectorAll('.info-card, .cert-card');
+      items.forEach(function (it, i) {
+        var card = cards[i];
+        if (!card) return;
+        var h = card.querySelector('h3');
+        if (h && it.title != null) h.textContent = it.title;
+        var p = card.querySelector('p');
+        if (p && it.text != null) p.textContent = it.text;
+      });
+    } catch (err) {
+      console.warn('[cms] list "' + key + '" — ponechán fallback:', err.message);
+    }
+  }
+
+  /**
+   * Naplní rezervační <select id="booking-service"> seznamem služeb z DB.
+   * Ponechá placeholder; při chybě nechá hardcoded options jako fallback.
+   */
+  async function populateBookingSelect() {
+    var sel = document.getElementById('booking-service');
+    if (!sel) return;
+    try {
+      var url = PREVIEW ? '/admin/services?preview=1' : '/api/services';
+      var res = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+      if (!res.ok) return;
+      var body = await res.json();
+      var list = Array.isArray(body) ? body : ((body.data && body.data.services) || []);
+      if (!list.length) return;
+      var placeholder = sel.querySelector('option[value=""]');
+      sel.innerHTML = '';
+      if (placeholder) {
+        sel.appendChild(placeholder);
+      } else {
+        var o = document.createElement('option');
+        o.value = ''; o.disabled = true; o.selected = true; o.textContent = 'Vyberte program...';
+        sel.appendChild(o);
+      }
+      list.forEach(function (s) {
+        var opt = document.createElement('option');
+        opt.value = s.slug;
+        opt.textContent = s.name;
+        sel.appendChild(opt);
+      });
+    } catch (err) {
+      console.warn('[cms] booking select — ponechán fallback:', err.message);
+    }
+  }
+
   /** Projde DOM a aplikuje CMS na všechny opt-in elementy. */
   function init() {
     document.querySelectorAll('[data-cms-section]').forEach(function (el) {
@@ -156,10 +216,14 @@
     document.querySelectorAll('[data-cms-hero]').forEach(function (el) {
       applyHero(el.getAttribute('data-cms-hero'), el);
     });
+    document.querySelectorAll('[data-cms-list]').forEach(function (el) {
+      applyList(el.getAttribute('data-cms-list'), el);
+    });
     applyNap();
+    populateBookingSelect();
   }
 
-  window.CMS = { renderSection, loadGallery, applyHero, applyNap, init, preview: PREVIEW };
+  window.CMS = { renderSection, loadGallery, applyHero, applyList, applyNap, populateBookingSelect, init, preview: PREVIEW };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

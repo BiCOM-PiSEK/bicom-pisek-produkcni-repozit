@@ -336,6 +336,7 @@ async function handleSpaFallback(request, env, url) {
     '/admin/hero',
     '/admin/invoices',
     '/admin/payments',
+    '/admin/services',
     '/admin/settings'
   ];
 

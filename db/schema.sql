@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS services (
     price_note TEXT,
     sessions_typ TEXT,
     jsonld TEXT,
+    icon_url TEXT,
     active INTEGER DEFAULT 1,
     sort_order INTEGER DEFAULT 0,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

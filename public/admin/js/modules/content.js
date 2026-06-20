@@ -74,6 +74,7 @@ export async function render(container, ctx) {
     </div>
     <div class="cms-tabs" style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; border-bottom:1px solid rgba(115,138,117,0.15); padding-bottom:.75rem;">
       <button class="btn btn-primary cms-tab" data-tab="stranky">📄 Stránky</button>
+      <button class="btn btn-secondary cms-tab" data-tab="sluzby">⚙️ Služby</button>
       <button class="btn btn-secondary cms-tab" data-tab="footer">📇 Footer &amp; Kontakt</button>
       <button class="btn btn-secondary cms-tab" data-tab="galerie">🖼️ Galerie</button>
       <button class="btn btn-secondary cms-tab" data-tab="hero">🎯 Hero bannery</button>
@@ -103,6 +104,7 @@ async function switchTab(container, tab) {
   body.innerHTML = `<div class="card"><div class="card-body">Načítám…</div></div>`;
   try {
     if (tab === 'stranky') return renderStranky(body);
+    if (tab === 'sluzby') return renderSluzby(body);
     if (tab === 'footer') return renderFooter(body);
     if (tab === 'galerie') return renderGalerie(body);
     if (tab === 'hero') return renderHero(body);
@@ -122,23 +124,112 @@ async function renderStranky(body) {
 
   const res = await api.getContentSections();
   const all = res.ok ? (res.data?.sections || []) : [];
-  const keys = all.filter((s) => s.content_type === 'text' &&
+  const textKeys = all.filter((s) => s.content_type === 'text' &&
     (s.section_key.startsWith('home-') || s.section_key === 'homepage-galerie-intro'))
     .map((s) => s.section_key);
+  const cardKeys = all.filter((s) => s.content_type === 'config' &&
+    (s.section_key === 'home-jakfunguje-cards' || s.section_key === 'home-cert-cards'))
+    .map((s) => s.section_key);
 
-  const details = await Promise.all(keys.map((k) => api.getContentSection(k)));
-  const sections = details.filter((r) => r.ok).map((r) => r.data);
+  const [textDetails, cardDetails] = await Promise.all([
+    Promise.all(textKeys.map((k) => api.getContentSection(k))),
+    Promise.all(cardKeys.map((k) => api.getContentSection(k))),
+  ]);
+  const sections = textDetails.filter((r) => r.ok).map((r) => r.data);
+  const cards = cardDetails.filter((r) => r.ok).map((r) => r.data);
 
   body.innerHTML = `
     <div style="display:grid; grid-template-columns: minmax(0,1fr) minmax(0,460px); gap:1.5rem; align-items:start;">
       <div id="cms-sections">
         ${sections.length ? sections.map(sectionCard).join('') : emptyCard('Žádné textové sekce.')}
+        ${cards.map(cardGroupCard).join('')}
       </div>
       ${previewPaneHtml()}
     </div>
   `;
   body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
   sections.forEach((s) => wireSectionCard(body, s.section_key));
+  cards.forEach((c) => wireCardGroup(body, c.section_key));
+}
+
+/** Vrátí HTML editoru skupiny karet (config JSON [{title,text}]). @param {Object} s @returns {string} */
+function cardGroupCard(s) {
+  let items = [];
+  try { items = JSON.parse(s.has_draft ? (s.draft_content_markdown ?? s.content_markdown) : s.content_markdown) || []; } catch { items = []; }
+  const rows = items.map((it, i) => cardRow(it, i)).join('');
+  return `
+    <div class="card mb-6 cms-cardgroup-card" data-key="${esc(s.section_key)}">
+      <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;">
+        <h3 class="card-title" style="margin:0; font-size:1rem;">${esc(s.title || s.section_key)} (karty)</h3>
+        <span class="cms-state">${draftBadge(!!s.has_draft)}</span>
+      </div>
+      <div class="card-body">
+        <div class="cms-card-rows">${rows}</div>
+        <button class="btn btn-ghost btn-sm" data-action="add-row" style="margin:.25rem 0 1rem;">➕ Přidat kartu</button>
+        <p class="form-hint">Ikony karet zůstávají dané designem; editují se nadpisy a texty. Pořadí = pořadí na webu.</p>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
+          <button class="btn btn-primary btn-sm" data-action="publish" ${s.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
+          <button class="btn btn-ghost btn-sm" data-action="discard" ${s.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+/** Vrátí HTML jednoho řádku karty. @param {Object} it @param {number} i @returns {string} */
+function cardRow(it, i) {
+  return `
+    <div class="cms-card-row" style="border:1px solid rgba(115,138,117,0.15); border-radius:8px; padding:.6rem; margin-bottom:.5rem;">
+      <div style="display:flex; gap:.5rem; align-items:center; margin-bottom:.4rem;">
+        <strong style="font-size:.8rem; color:var(--c-sage,#738A75);">Karta ${i + 1}</strong>
+        <button class="btn btn-danger btn-sm" data-action="del-row" style="margin-left:auto; padding:.1rem .45rem;">✕</button>
+      </div>
+      <input type="text" class="form-input" data-card="title" value="${esc(it.title || '')}" placeholder="Nadpis karty" style="margin-bottom:.4rem;">
+      <textarea class="form-input" data-card="text" rows="2" placeholder="Text karty">${esc(it.text || '')}</textarea>
+    </div>`;
+}
+
+/** Naváže akce editoru skupiny karet. @param {HTMLElement} root @param {string} key */
+function wireCardGroup(root, key) {
+  const { api, showToast } = _ctx;
+  const card = root.querySelector(`.cms-cardgroup-card[data-key="${CSS.escape(key)}"]`);
+  if (!card) return;
+  const rowsWrap = card.querySelector('.cms-card-rows');
+  const setBadge = (hasDraft) => {
+    card.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
+    card.querySelector('[data-action="publish"]').disabled = !hasDraft;
+    card.querySelector('[data-action="discard"]').disabled = !hasDraft;
+  };
+  const collect = () => Array.from(rowsWrap.querySelectorAll('.cms-card-row')).map((r) => ({
+    title: r.querySelector('[data-card="title"]').value,
+    text: r.querySelector('[data-card="text"]').value,
+  }));
+  const renumber = () => {
+    rowsWrap.querySelectorAll('.cms-card-row strong').forEach((el, i) => { el.textContent = `Karta ${i + 1}`; });
+  };
+  rowsWrap.addEventListener('click', (e) => {
+    const del = e.target.closest('[data-action="del-row"]');
+    if (del) { del.closest('.cms-card-row').remove(); renumber(); }
+  });
+  card.querySelector('[data-action="add-row"]').addEventListener('click', () => {
+    rowsWrap.insertAdjacentHTML('beforeend', cardRow({ title: '', text: '' }, rowsWrap.children.length));
+  });
+  card.querySelector('[data-action="save"]').addEventListener('click', async () => {
+    const r = await api.updateContentSection({ section_key: key, title: card.querySelector('.card-title').textContent, content_markdown: JSON.stringify(collect()), content_type: 'config' });
+    if (r.ok) { showToast('Koncept uložen ✓ — obnovte náhled (↻)', 'success'); setBadge(true); refreshPreview(root); }
+    else showToast('Chyba: ' + r.error, 'error');
+  });
+  card.querySelector('[data-action="publish"]').addEventListener('click', async () => {
+    const r = await api.publishContentSection(key);
+    if (r.ok) { showToast('Zveřejněno ✓', 'success'); setBadge(false); refreshPreview(root); }
+    else showToast('Chyba: ' + r.error, 'error');
+  });
+  card.querySelector('[data-action="discard"]').addEventListener('click', async () => {
+    if (!confirm('Zahodit koncept karet?')) return;
+    const r = await api.discardContentSection(key);
+    if (r.ok) { showToast('Koncept zahozen ✓', 'success'); await renderStranky(root); }
+    else showToast('Chyba: ' + r.error, 'error');
+  });
 }
 
 /** Vrátí HTML karty jedné textové sekce. @param {Object} s @returns {string} */
@@ -528,6 +619,119 @@ async function renderHistorie(body) {
         </table>` : emptyCard('Zatím žádné zaznamenané změny.')}
       </div>
     </div>`;
+}
+
+// ─── SLUŽBY (services, draft/publish) ─────────────────────────
+
+const SVC_CATEGORIES = ['imunita', 'energie', 'bolest', 'psychika', 'hormony', 'metabolismus', 'organy', 'patogeny', 'prostredi', 'onkologie', 'prevence'];
+const SVC_SEGMENTS = ['vsichni', 'zeny', 'deti', 'profesionalove', 'biohackeri'];
+
+/** Vykreslí záložku Služby (tabulka + tlačítko nová). @param {HTMLElement} body */
+async function renderSluzby(body) {
+  const { api, showToast } = _ctx;
+  if (!api) { body.innerHTML = demoNote(); return; }
+  const res = await api.getServicesAdmin();
+  const rows = res.ok ? (res.data?.services || []) : [];
+  body.innerHTML = `
+    <div class="card">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 class="card-title" style="margin:0;">⚙️ Služby / programy</h3>
+        <button class="btn btn-primary btn-sm" id="svc-new">➕ Nová služba</button>
+      </div>
+      <div class="card-body" style="overflow-x:auto;">
+        ${rows.length ? `
+        <table class="table" style="width:100%;">
+          <thead><tr><th>Název</th><th>Kategorie</th><th>Cena</th><th>Stav</th><th></th></tr></thead>
+          <tbody>
+            ${rows.map((s) => `
+              <tr data-slug="${esc(s.slug)}">
+                <td>${esc(s.name)}${s.active ? '' : ' <span class="badge badge-cancelled">skrytá</span>'}</td>
+                <td>${esc(s.category || '—')}</td>
+                <td>${s.price_avg != null ? esc(s.price_avg) + ' Kč' : '—'}</td>
+                <td>${draftBadge(!!s.has_draft)}</td>
+                <td><button class="btn btn-secondary btn-sm" data-action="edit">✍️ Upravit</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>` : emptyCard('Žádné služby.')}
+      </div>
+    </div>`;
+  body.querySelector('#svc-new')?.addEventListener('click', () => openServiceModal(body, null));
+  body.querySelectorAll('tr[data-slug] [data-action="edit"]').forEach((btn) => {
+    btn.addEventListener('click', () => openServiceModal(body, btn.closest('tr').dataset.slug));
+  });
+}
+
+/** Otevře modal editor služby. @param {HTMLElement} body @param {string|null} slug */
+async function openServiceModal(body, slug) {
+  const { api, showToast } = _ctx;
+  let row = {};
+  const isNew = !slug;
+  if (!isNew) {
+    const r = await api.getServiceAdmin(slug);
+    if (!r.ok) { showToast('Nepodařilo se načíst službu.', 'error'); return; }
+    row = r.data;
+  }
+  let d = {};
+  if (row.has_draft && row.draft_json) { try { d = JSON.parse(row.draft_json); } catch { d = {}; } }
+  const v = (f) => (d[f] != null ? d[f] : (row[f] != null ? row[f] : ''));
+
+  const formHtml = `
+    <div class="modal-body" style="display:grid; gap:.75rem;">
+      ${isNew ? `<div class="form-group"><label class="form-label">Slug (URL identifikátor)</label><input class="form-input" data-f="slug" placeholder="napr. nova-sluzba"></div>` : ''}
+      <div class="form-group"><label class="form-label">Název *</label><input class="form-input" data-f="name" value="${esc(v('name'))}"></div>
+      <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+        <div class="form-group" style="flex:1; min-width:160px;"><label class="form-label">Kategorie</label>
+          <select class="form-select" data-f="category">${SVC_CATEGORIES.map((c) => `<option value="${c}" ${v('category') === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+        <div class="form-group" style="flex:1; min-width:160px;"><label class="form-label">Segment</label>
+          <select class="form-select" data-f="segment">${SVC_SEGMENTS.map((c) => `<option value="${c}" ${v('segment') === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Krátký popis</label><textarea class="form-input" data-f="short_desc" rows="2">${esc(v('short_desc'))}</textarea></div>
+      <div class="form-group"><label class="form-label">Dlouhý popis</label><textarea class="form-input" data-f="long_desc" rows="4">${esc(v('long_desc'))}</textarea></div>
+      <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+        <div class="form-group" style="flex:1; min-width:120px;"><label class="form-label">Cena (Kč)</label><input type="number" class="form-input" data-f="price_avg" value="${esc(v('price_avg'))}"></div>
+        <div class="form-group" style="flex:1; min-width:120px;"><label class="form-label">Počet sezení</label><input class="form-input" data-f="sessions_typ" value="${esc(v('sessions_typ'))}"></div>
+        <div class="form-group" style="flex:1; min-width:120px;"><label class="form-label">Pořadí</label><input type="number" class="form-input" data-f="sort_order" value="${esc(v('sort_order') || 0)}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Poznámka k ceně</label><input class="form-input" data-f="price_note" value="${esc(v('price_note'))}"></div>
+      <div class="form-group"><label class="form-label">Ikona (cesta)</label><input class="form-input" data-f="icon_url" value="${esc(v('icon_url'))}" placeholder="/assets/img/icons/icon-...webp"></div>
+      <div class="form-group flex items-center" style="gap:.5rem;"><label class="toggle"><input type="checkbox" data-f="active" ${(v('active') ?? 1) ? 'checked' : ''}><span class="toggle-slider"></span></label><span>Zobrazit na webu</span></div>
+    </div>`;
+
+  const footer = isNew
+    ? `<button class="btn btn-primary" data-m="create">Vytvořit</button>`
+    : `<button class="btn btn-secondary" data-m="save">💾 Uložit koncept</button>
+       <button class="btn btn-primary" data-m="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
+       <button class="btn btn-ghost" data-m="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit</button>
+       <button class="btn btn-danger" data-m="delete" style="margin-left:auto;">🗑️ Smazat</button>`;
+
+  showModal(`
+    <div class="modal" style="max-width:680px; width:95%;">
+      <div class="modal-header"><h3 class="card-title">${isNew ? 'Nová služba' : 'Služba — ' + esc(slug)} ${row.has_draft ? draftBadge(true) : ''}</h3>
+        <button class="btn-icon" data-m="close">✕</button></div>
+      ${formHtml}
+      <div class="modal-footer" style="display:flex; gap:.5rem; flex-wrap:wrap;">${footer}</div>
+    </div>`, (overlay, close) => {
+    const gf = (f) => { const el = overlay.querySelector(`[data-f="${f}"]`); return el ? (el.type === 'checkbox' ? (el.checked ? 1 : 0) : el.value) : undefined; };
+    const payload = () => ({ slug: isNew ? (gf('slug') || '').trim().toLowerCase() : slug, name: gf('name'), category: gf('category'), segment: gf('segment'), short_desc: gf('short_desc'), long_desc: gf('long_desc'), price_avg: gf('price_avg'), price_note: gf('price_note'), sessions_typ: gf('sessions_typ'), icon_url: gf('icon_url'), sort_order: gf('sort_order'), active: gf('active') });
+    const after = (r, msg) => { if (r.ok) { showToast(msg, 'success'); close(); renderSluzby(body); } else showToast('Chyba: ' + r.error, 'error'); };
+    overlay.querySelector('[data-m="close"]').addEventListener('click', close);
+    overlay.querySelector('[data-m="create"]')?.addEventListener('click', async () => after(await api.createService(payload()), 'Služba vytvořena ✓'));
+    overlay.querySelector('[data-m="save"]')?.addEventListener('click', async () => after(await api.saveServiceDraft(payload()), 'Koncept uložen ✓'));
+    overlay.querySelector('[data-m="publish"]')?.addEventListener('click', async () => after(await api.publishService(slug), 'Zveřejněno ✓'));
+    overlay.querySelector('[data-m="discard"]')?.addEventListener('click', async () => after(await api.discardService(slug), 'Koncept zahozen ✓'));
+    overlay.querySelector('[data-m="delete"]')?.addEventListener('click', async () => { if (confirm('Opravdu smazat tuto službu?')) after(await api.deleteService(slug), 'Smazáno ✓'); });
+  });
+}
+
+/** Jednoduchý modal helper (vzor blog.js). @param {string} html @param {Function} onMount */
+function showModal(html, onMount) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active';
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  if (onMount) onMount(overlay, close);
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────
