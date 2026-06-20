@@ -28,7 +28,7 @@ function isSafeUrl(v) {
 }
 
 /** Normalizuje a zvaliduje pole služby z těla. Vrací {svc}|{error}. */
-function prepareService(body, existing) {
+export function prepareService(body, existing) {
   const e = existing || {};
   const name = body.name != null ? stripTags(body.name, 200) : e.name;
   if (!name) return { error: 'Název služby je povinný.' };

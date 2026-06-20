@@ -45,7 +45,7 @@ function sanitizeDeep(value) {
  * @param {string} type
  * @param {string} raw
  */
-function prepareContent(type, raw) {
+export function prepareContent(type, raw) {
   if (JSON_TYPES.includes(type)) {
     let parsed;
     try {

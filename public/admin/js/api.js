@@ -634,6 +634,28 @@ function deleteService(slug) {
   return request(`/services?slug=${encodeURIComponent(slug)}`, { method: 'DELETE' });
 }
 
+// ─── CMS — pojmenované koncepty / verze (F12-D) ────────────────
+/** GET /admin/drafts — seznam verzí entity. @param {string} entity @param {string} entityId @returns {Promise<ApiResponse>} */
+function listDraftVersions(entity, entityId) {
+  return request(`/drafts?entity=${encodeURIComponent(entity)}&entity_id=${encodeURIComponent(entityId)}`);
+}
+/** POST /admin/drafts — uloží/aktualizuje pojmenovanou verzi. @param {string} entity @param {string} entityId @param {string} name @param {Object} payload @returns {Promise<ApiResponse>} */
+function saveDraftVersion(entity, entityId, name, payload) {
+  return request('/drafts', { method: 'POST', body: { entity, entity_id: entityId, name, payload } });
+}
+/** POST /admin/drafts {action:load} — načte verzi do pracovního konceptu. @param {string} id @returns {Promise<ApiResponse>} */
+function loadDraftVersion(id) {
+  return request('/drafts', { method: 'POST', body: { action: 'load', id } });
+}
+/** PUT /admin/drafts — přejmenuje verzi. @param {string} id @param {string} name @returns {Promise<ApiResponse>} */
+function renameDraftVersion(id, name) {
+  return request('/drafts', { method: 'PUT', body: { id, name } });
+}
+/** DELETE /admin/drafts?id= — smaže verzi. @param {string} id @returns {Promise<ApiResponse>} */
+function deleteDraftVersion(id) {
+  return request(`/drafts?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
 // ─── EXPORT (pro browser ES module) ────────────────────────────
 
 const AdminAPI = {
@@ -690,6 +712,11 @@ const AdminAPI = {
   publishService,
   discardService,
   deleteService,
+  listDraftVersions,
+  saveDraftVersion,
+  loadDraftVersion,
+  renameDraftVersion,
+  deleteDraftVersion,
 };
 
 // Také na window pro přístup z modulů

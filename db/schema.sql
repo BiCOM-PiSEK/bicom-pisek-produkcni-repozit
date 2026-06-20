@@ -220,6 +220,22 @@ CREATE TABLE IF NOT EXISTS content_blocks (
     draft_updated_by TEXT
 );
 
+-- CMS — pojmenované koncepty / verze (F12-D, migrace 0020). Snapshoty
+-- pracovního konceptu entit content_blocks/hero_config/services; jen pod CF
+-- Access, nikdy se neservírují přes veřejné /api/*.
+CREATE TABLE IF NOT EXISTS content_drafts (
+    id TEXT PRIMARY KEY,
+    entity TEXT NOT NULL CHECK(entity IN ('content_blocks','hero_config','services')),
+    entity_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    created_by TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(entity, entity_id, name)
+);
+CREATE INDEX IF NOT EXISTS idx_content_drafts_entity ON content_drafts(entity, entity_id);
+
 CREATE TABLE IF NOT EXISTS process_states (
     key TEXT PRIMARY KEY,
     value TEXT,

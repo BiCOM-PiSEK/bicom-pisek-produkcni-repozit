@@ -32,7 +32,7 @@ function isSafeUrl(value) {
  * Pole, která tělo neobsahuje (undefined), se nepřepisují prázdnou hodnotou,
  * ale dědí z živé verze (existing) — aby se částečný PUT nezahodil zbytek.
  */
-function prepareHero(body, existing) {
+export function prepareHero(body, existing) {
   const e = existing || {};
   const hero = {
     headline: body.headline != null ? stripTags(body.headline, 200) : (e.headline || ''),

@@ -18,6 +18,20 @@ Fungují jako **koncept**:
 
 Galerie se publikují okamžitě (bez konceptu).
 
+### Pojmenované verze konceptu (F12-D)
+
+U textů, karet, FAQ, kontaktu/patičky, SEO, landing textů, hero bannerů a služeb
+si můžete koncept **uložit jako pojmenovanou verzi** (např. „Vánoční nabídka",
+„Letní akce") a kdykoli se k ní vrátit:
+
+- **🏷️ Uložit jako verzi…** — uloží aktuální koncept pod názvem (stejný název přepíše dřívější verzi).
+- **🗂️ Verze konceptu** — seznam uložených verzí; u každé **Načíst** (nahraje verzi
+  zpět do pracovního konceptu — publikaci neprovede, tu pak potvrdíte **Zveřejnit**),
+  **Přejmenovat**, **Smazat**.
+
+Verze jsou jen pomůcka v konzoli — na web se nikdy samy nedostanou (zveřejní se
+vždy jen aktuální koncept přes **Zveřejnit**). Na položku lze uložit max. 20 verzí.
+
 ## 1. Kde to najdu
 
 1. Přihlaste se do admin konzole (`/admin`) přes Cloudflare Access.
