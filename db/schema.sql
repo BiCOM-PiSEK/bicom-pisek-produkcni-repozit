@@ -217,6 +217,41 @@ CREATE TABLE IF NOT EXISTS process_states (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- CMS — galerie obrázků (F11, migrace 0016). Texty využívají content_blocks výše,
+-- audit změn obsahu se zapisuje do existující tabulky audit_log.
+CREATE TABLE IF NOT EXISTS gallery_items (
+    id TEXT PRIMARY KEY,
+    gallery_key TEXT NOT NULL,
+    title TEXT,
+    caption TEXT,
+    image_url TEXT NOT NULL,
+    image_filename TEXT,
+    sort_order INTEGER DEFAULT 0,
+    active INTEGER DEFAULT 1 CHECK(active IN (0, 1)),
+    updated_by TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (updated_by) REFERENCES operators(id)
+);
+CREATE INDEX IF NOT EXISTS idx_gallery_key ON gallery_items(gallery_key);
+CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items(gallery_key, sort_order);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gallery_unique ON gallery_items(gallery_key, image_url);
+
+-- CMS — hero bannery jednotlivých stránek (F11, migrace 0016).
+CREATE TABLE IF NOT EXISTS hero_config (
+    id TEXT PRIMARY KEY,
+    page_key TEXT UNIQUE NOT NULL,
+    headline TEXT,
+    subheadline TEXT,
+    cta_text TEXT,
+    cta_link TEXT,
+    background_image_url TEXT,
+    overlay_color TEXT DEFAULT 'rgba(0,0,0,0.3)',
+    updated_by TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (updated_by) REFERENCES operators(id)
+);
+
 -- ============================================================
 -- BOOKING SYSTEM (ADR-004 F1): Availability & Settings
 -- ============================================================

@@ -102,7 +102,7 @@
 | **Rezervační systém F6–F7** | Kódově dokončeno + hardening; průběšné provozní ověřování | [ADR-004](adr/ADR-004-rezervacni-system.md) |
 | Admin konzole — booking akce + handover režim | průběžně | WORK-DIARY |
 | Produkční integrace a launch readiness | Stripe/Resend/GoSMS/iDoklad/Turnstile | HANDOVER + launch blokery |
-| **🆕 CMS — Editace obsahu bez deploymentu (F11)** | Naplánováno; čeká agentské zpracování | [CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md) |
+| **🆕 CMS — Editace obsahu bez deploymentu (F11)** | Kódově dokončeno (PR); čeká migrace 0016 na produkci + provozní ověření | [CMS_GUIDE.md](CMS_GUIDE.md) · [CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md) |
 
 ---
 
@@ -118,18 +118,24 @@
 
 ## 🟢 ČEKÁ (naplánováno)
 
-### ⭐ CMS — Operátoři editují obsah bez vývoje (F11 — HANDOVER BLOCKER)
+### ⭐ CMS — Operátoři editují obsah bez vývoje (F11 — HANDOVER BLOCKER) — KÓDOVĚ HOTOVO
 
-**Spec + plán implementace:** [docs/agent-tasks/CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md)
+**Návod + technická část:** [docs/CMS_GUIDE.md](CMS_GUIDE.md) · spec: [CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md)
 
-- Nové D1 tabulky: `page_sections`, `gallery_items`, `hero_config`, `content_audit_log`
-- 8 API endpointů (admin + public) — CRUD na texty, galerie, hero bannery
-- Admin UI v virtuální kanceláři: sekce textu, galerie (drag-n-drop, R2 upload), hero editor
-- Web dynamicky renderuje obsah z API (fallback na hardcoded)
-- Audit trail — operátor vidí kdo a kdy změnil
+> ⚠️ **Pozn. k realizaci:** Spec/examples v `agent-tasks/` byly psané pro jiný stack
+> (Module Workers + Vue + Node). Implementace byla **přizpůsobena skutečné architektuře**:
+> Cloudflare Pages Functions (`onRequest*`), vanilla ES6 admin modul, bindingy `DB`/`MEDIA`/`CACHE`,
+> migrace **0016** (ne 0013 — kolidovala s booking migracemi). Texty využívají existující
+> `content_blocks`, audit existující `audit_log`; nově jen `gallery_items` + `hero_config`.
+
+- ✅ D1 tabulky: `gallery_items`, `hero_config` (migrace 0016) + reuse `content_blocks`/`audit_log`
+- ✅ API: admin CRUD (`/admin/content`, `/admin/gallery`, `/admin/hero`) + veřejné cache (`/api/content|gallery|hero`) + servírování médií (`/api/media/*` z R2)
+- ✅ Admin UI „Obsah webu“ (vanilla modul, 4 záložky: texty, galerie+upload+reorder, hero, historie)
+- ✅ Web dynamicky renderuje obsah z API (progressive enhancement, fallback na hardcoded; napojena homepage galerie)
+- ✅ Audit trail — operátorka vidí kdo a kdy co změnil
+- 🟢 **Zbývá:** spustit migraci 0016 na produkci + provozní ověření uploadu na produkci
 - **Priorita:** 🔴 KRITICKÁ (bez toho nemohou operátoři spravovat web)
-- **Odhad:** ~12 hodin agentského zpracování
-- **Závislosti:** JWT (✅), R2 binding (✅), Vue admin app (✅)
+- **Závislosti:** JWT (✅), R2 binding `MEDIA` (✅), admin SPA (✅)
 
 ### Rezervační systém — zbývající fáze (ADR-004, architektura = Cesta 2: sloty za běhu)
 

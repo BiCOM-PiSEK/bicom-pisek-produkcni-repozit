@@ -328,9 +328,12 @@ async function handleSpaFallback(request, env, url) {
   const apiHandlers = [
     '/admin/activity',
     '/admin/bookings',
+    '/admin/content',
     '/admin/copywriter',
     '/admin/dashboard',
+    '/admin/gallery',
     '/admin/geo',
+    '/admin/hero',
     '/admin/invoices',
     '/admin/payments',
     '/admin/settings'
