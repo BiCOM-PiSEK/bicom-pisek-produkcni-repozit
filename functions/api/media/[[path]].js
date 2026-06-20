@@ -14,9 +14,20 @@ export async function onRequestGet({ env, params, request }) {
     return new Response('Media storage unavailable', { status: 503 });
   }
 
-  // Catch-all [[path]] → pole segmentů; složit zpět na R2 klíč
+  // Catch-all [[path]] → pole segmentů; složit zpět na R2 klíč.
+  // Pro /api/media (bez cesty) je params.path undefined → 400.
+  if (params.path == null) {
+    return new Response('Bad request', { status: 400 });
+  }
   const segments = Array.isArray(params.path) ? params.path : [params.path];
-  const key = segments.map((s) => decodeURIComponent(s)).join('/');
+
+  let key;
+  try {
+    key = segments.map((s) => decodeURIComponent(s)).join('/');
+  } catch {
+    // neplatný percent-encoding
+    return new Response('Bad request', { status: 400 });
+  }
 
   if (!key || key.includes('..')) {
     return new Response('Bad request', { status: 400 });

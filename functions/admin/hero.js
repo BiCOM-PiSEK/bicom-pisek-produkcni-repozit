@@ -13,6 +13,17 @@
 import { json, auditStmt, invalidateCache, cacheKey } from '../lib/cms.js';
 import { stripTags } from '../lib/sanitize.js';
 
+/**
+ * Bezpečná URL pro veřejný web: prázdná, relativní cesta („/…"),
+ * absolutní https, nebo mailto/tel. Blokuje javascript:/data: apod.
+ * @param {string} value
+ * @returns {boolean}
+ */
+function isSafeUrl(value) {
+  if (!value) return true; // prázdné je OK
+  return /^(\/[^/]|\/$|https:\/\/|mailto:|tel:)/i.test(value);
+}
+
 export async function onRequestGet({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -50,6 +61,13 @@ export async function onRequestPut({ env, data, request }) {
     const cta_link = stripTags(body.cta_link, 300);
     const background_image_url = stripTags(body.background_image_url, 500);
     const overlay_color = stripTags(body.overlay_color, 50) || 'rgba(0,0,0,0.3)';
+
+    if (!isSafeUrl(cta_link)) {
+      return json({ ok: false, error: 'Odkaz tlačítka musí být relativní cesta (např. /book) nebo https adresa.' }, 400);
+    }
+    if (!isSafeUrl(background_image_url)) {
+      return json({ ok: false, error: 'Obrázek pozadí musí být relativní cesta (např. /api/media/…) nebo https adresa.' }, 400);
+    }
 
     const existing = await env.DB.prepare('SELECT id FROM hero_config WHERE page_key = ?').bind(page_key).first();
 

@@ -229,15 +229,16 @@ async function renderGalleryDetail(detail, galleryKey) {
   detail.querySelector('#cms-upload').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files || []);
     const prog = detail.querySelector('#cms-upload-progress');
-    let done = 0;
-    for (const f of files) {
-      prog.textContent = `Nahrávám ${done + 1}/${files.length}: ${f.name}…`;
+    let ok = 0, failed = 0;
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      prog.textContent = `Nahrávám ${i + 1}/${files.length}: ${f.name}…`;
       const r = await api.uploadGalleryImage(galleryKey, f);
-      if (!r.ok) { showToast(`Chyba u ${f.name}: ${r.error}`, 'error'); }
-      done++;
+      if (r.ok) ok++; else { failed++; showToast(`Chyba u ${f.name}: ${r.error}`, 'error'); }
     }
     prog.textContent = '';
-    showToast(`Nahráno: ${done} obrázek/ů ✓`, 'success');
+    if (failed === 0) showToast(`Nahráno: ${ok} obrázek/ů ✓`, 'success');
+    else showToast(`Nahráno ${ok}, selhalo ${failed}`, ok ? 'warning' : 'error');
     renderGalleryDetail(detail, galleryKey);
   });
 

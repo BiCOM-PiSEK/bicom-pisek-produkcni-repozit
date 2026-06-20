@@ -42,8 +42,10 @@ export function sanitizeHTML(input, maxLength = 10000) {
   // 2) Odstranit on*="..." / on*='...' / on*=... event handlery
   html = html.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
 
-  // 3) Zneškodnit nebezpečné URL schémata v href/src
-  html = html.replace(/\b(href|src)\s*=\s*(["'])\s*(javascript:|data:|vbscript:)[^"']*\2/gi, '$1="#"');
+  // 3) Zneškodnit nebezpečné URL schémata v href/src — uvozovkové i BEZ uvozovek
+  //    (např. <a href=javascript:alert(1)> by jinak prošlo)
+  html = html.replace(/\b(href|src)\s*=\s*(["'])\s*(?:javascript:|data:|vbscript:)[^"']*\2/gi, '$1="#"');
+  html = html.replace(/\b(href|src)\s*=\s*(?:javascript:|data:|vbscript:)[^\s>]*/gi, '$1="#"');
 
   // 4) Odstranit neznámé tagy (ponechat jejich textový obsah)
   html = html.replace(/<\/?([a-z0-9]+)\b[^>]*>/gi, (match, tag) => {

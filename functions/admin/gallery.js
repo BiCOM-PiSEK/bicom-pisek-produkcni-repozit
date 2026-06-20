@@ -125,15 +125,17 @@ export async function onRequestPut({ env, data, request }) {
     // Reorder (drag/up-down): { action: 'reorder', gallery_key, items: [{id, sort_order}] }
     if (body.action === 'reorder' && Array.isArray(body.items)) {
       const galleryKey = stripTags(body.gallery_key, 120);
+      if (!galleryKey) return json({ ok: false, error: 'Chybí klíč galerie.' }, 400);
+
+      // Update scopován na gallery_key → nelze omylem přehodit položky jiné galerie
       const stmts = body.items.map((it) =>
-        env.DB.prepare('UPDATE gallery_items SET sort_order = ?, updated_at = datetime(\'now\') WHERE id = ?')
-          .bind(Number(it.sort_order) || 0, String(it.id))
+        env.DB.prepare(
+          "UPDATE gallery_items SET sort_order = ?, updated_by = ?, updated_at = datetime('now') WHERE id = ? AND gallery_key = ?"
+        ).bind(Number(it.sort_order) || 0, data.operator.id, String(it.id), galleryKey)
       );
-      if (galleryKey) {
-        stmts.push(auditStmt(env.DB, 'gallery_items', galleryKey, 'update', data.operator, `Změněno pořadí v galerii „${galleryKey}"`));
-      }
+      stmts.push(auditStmt(env.DB, 'gallery_items', galleryKey, 'update', data.operator, `Změněno pořadí v galerii „${galleryKey}"`));
       await env.DB.batch(stmts);
-      if (galleryKey) await invalidateCache(env, cacheKey.gallery(galleryKey));
+      await invalidateCache(env, cacheKey.gallery(galleryKey));
       return json({ ok: true, data: { reordered: body.items.length } });
     }
 

@@ -32,7 +32,8 @@ export async function onRequestGet({ env, request }) {
       'SELECT section_key, title, content_markdown AS content, content_type FROM content_blocks WHERE section_key = ?'
     ).bind(key).first();
 
-    if (!row) return json({ ok: false, error: 'Sekce nenalezena.' }, 404);
+    // Neexistující sekce: 200 + data:null → klient tiše ponechá hardcoded fallback
+    if (!row) return json({ ok: true, data: null }, 200, { 'X-Cache': 'MISS' });
 
     if (env.CACHE) {
       await env.CACHE.put(cacheK, JSON.stringify(row), { expirationTtl: 60 });
