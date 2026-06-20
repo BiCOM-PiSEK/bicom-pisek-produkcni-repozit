@@ -103,7 +103,7 @@
 | Admin konzole — booking akce + handover režim | průběžně | WORK-DIARY |
 | Produkční integrace a launch readiness | Stripe/Resend/GoSMS/iDoklad/Turnstile | HANDOVER + launch blokery |
 | **🆕 CMS — Editace obsahu bez deploymentu (F11)** | ✅ Hotovo a nasazeno (PR #72, migrace 0016 na produkci) | [CMS_GUIDE.md](CMS_GUIDE.md) · [CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md) |
-| **🆕 CMS rozšíření — draft/publish + náhled (F12)** | F1 (jádro: koncept→publikovat, náhled, homepage texty, footer/NAP) — migrace 0017 na produkci; F2/F3 následují | [CMS_GUIDE.md](CMS_GUIDE.md) |
+| **🆕 CMS rozšíření — draft/publish + náhled (F12)** | F1+F2+F3 kódově hotovo (PR #73): koncept→náhled→publikovat; homepage texty, footer/NAP, karty, služby, FAQ, SEO meta, landing stránky. Migrace 0017–0019 na produkci. | [CMS_GUIDE.md](CMS_GUIDE.md) |
 
 ---
 

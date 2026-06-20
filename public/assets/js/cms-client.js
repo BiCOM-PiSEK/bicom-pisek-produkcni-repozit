@@ -205,6 +205,113 @@
     }
   }
 
+  /** Načte seznam služeb (preview vs. veřejné). @returns {Promise<Array>} */
+  async function fetchServices() {
+    var url = PREVIEW ? '/admin/services?preview=1' : '/api/services';
+    var res = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var body = await res.json();
+    return Array.isArray(body) ? body : ((body.data && body.data.services) || []);
+  }
+
+  /** Nastaví obsah meta tagu, pokud existuje. @param {string} attr @param {string} val @param {string} content */
+  function setMeta(attr, val, content) {
+    if (content == null || content === '') return;
+    var m = document.querySelector('meta[' + attr + '="' + val + '"]');
+    if (m) m.setAttribute('content', content);
+  }
+
+  /**
+   * Aplikuje SEO meta (title, description, og:*, canonical) z config bloku.
+   * Pozn.: fallback meta zůstávají v HTML pro crawlery; tohle je klientský překryv.
+   * @param {string} key
+   */
+  async function applySeo(key) {
+    try {
+      var data = await getJSON(endpoint('content', key));
+      if (!data || !data.content) return;
+      var seo = JSON.parse(data.content);
+      if (seo.title) document.title = seo.title;
+      setMeta('name', 'description', seo.description);
+      setMeta('property', 'og:title', seo.ogTitle);
+      setMeta('property', 'og:description', seo.ogDescription);
+      setMeta('property', 'og:image', seo.ogImage);
+      if (seo.canonical) {
+        var l = document.querySelector('link[rel="canonical"]');
+        if (l) l.setAttribute('href', seo.canonical);
+      }
+    } catch (err) {
+      console.warn('[cms] SEO "' + key + '" — ponechán fallback:', err.message);
+    }
+  }
+
+  /**
+   * Vyrenderuje FAQ karty z konfigu [{q,a}]. Odpověď (a) může obsahovat
+   * bezpečné odkazy (sanitizováno serverem), proto innerHTML; otázka textContent.
+   * @param {string} key
+   * @param {HTMLElement} el
+   */
+  async function applyFaq(key, el) {
+    try {
+      var data = await getJSON(endpoint('content', key));
+      if (!data || !data.content) return;
+      var items = JSON.parse(data.content);
+      if (!Array.isArray(items) || !items.length) return;
+      el.innerHTML = '';
+      items.forEach(function (it) {
+        var card = document.createElement('div'); card.className = 'info-card';
+        var inner = document.createElement('div');
+        var h = document.createElement('h3'); h.textContent = it.q || '';
+        var p = document.createElement('p'); p.style.margin = '0'; p.style.fontSize = '0.95rem';
+        p.innerHTML = it.a || '';
+        inner.appendChild(h); inner.appendChild(p); card.appendChild(inner); el.appendChild(card);
+      });
+    } catch (err) {
+      console.warn('[cms] FAQ "' + key + '" — ponechán fallback:', err.message);
+    }
+  }
+
+  /**
+   * Vyrenderuje karty programů ze služeb (anchor id = slug pro kotvy z FAQ).
+   * @param {HTMLElement} el
+   */
+  async function applyPrograms(el) {
+    try {
+      var list = await fetchServices();
+      if (!list.length) return;
+      el.innerHTML = '';
+      list.forEach(function (s) {
+        var a = document.createElement('a');
+        a.className = 'info-card'; a.id = s.slug; a.href = '/#rezervace'; a.style.textDecoration = 'none';
+        var div = document.createElement('div');
+        var h = document.createElement('h3'); h.textContent = s.name;
+        var p = document.createElement('p'); p.style.margin = '0'; p.style.fontSize = '0.9rem';
+        p.textContent = s.short_desc || 'Komplementární biorezonanční program. Cena se zjistí v objednávce.';
+        div.appendChild(h); div.appendChild(p); a.appendChild(div); el.appendChild(a);
+      });
+    } catch (err) {
+      console.warn('[cms] programy — ponechán fallback:', err.message);
+    }
+  }
+
+  /**
+   * Vyplní per-město texty landing stránky z configu landing-<city>.
+   * @param {string} city
+   */
+  async function applyLanding(city) {
+    try {
+      var data = await getJSON(endpoint('content', 'landing-' + city));
+      if (!data || !data.content) return;
+      var cfg = JSON.parse(data.content);
+      document.querySelectorAll('[data-cms-landing-field]').forEach(function (node) {
+        var f = node.getAttribute('data-cms-landing-field');
+        if (cfg[f] != null && cfg[f] !== '') node.textContent = cfg[f];
+      });
+    } catch (err) {
+      console.warn('[cms] landing "' + city + '" — ponechán fallback:', err.message);
+    }
+  }
+
   /** Projde DOM a aplikuje CMS na všechny opt-in elementy. */
   function init() {
     document.querySelectorAll('[data-cms-section]').forEach(function (el) {
@@ -219,11 +326,21 @@
     document.querySelectorAll('[data-cms-list]').forEach(function (el) {
       applyList(el.getAttribute('data-cms-list'), el);
     });
+    document.querySelectorAll('[data-cms-faq]').forEach(function (el) {
+      applyFaq(el.getAttribute('data-cms-faq'), el);
+    });
+    document.querySelectorAll('[data-cms-programs]').forEach(function (el) {
+      applyPrograms(el);
+    });
+    var seoEl = document.querySelector('[data-cms-seo]');
+    if (seoEl) applySeo(seoEl.getAttribute('data-cms-seo'));
+    var landingEl = document.querySelector('[data-cms-landing]');
+    if (landingEl) applyLanding(landingEl.getAttribute('data-cms-landing'));
     applyNap();
     populateBookingSelect();
   }
 
-  window.CMS = { renderSection, loadGallery, applyHero, applyList, applyNap, populateBookingSelect, init, preview: PREVIEW };
+  window.CMS = { renderSection, loadGallery, applyHero, applyList, applyFaq, applyPrograms, applySeo, applyLanding, applyNap, populateBookingSelect, init, preview: PREVIEW };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

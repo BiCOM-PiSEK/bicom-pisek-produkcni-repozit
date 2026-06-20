@@ -35,19 +35,25 @@ function draftBadge(hasDraft) {
     : '<span class="badge badge-confirmed" title="Beze změn">Zveřejněno</span>';
 }
 
-/** HTML pravého náhledového panelu (iframe veřejné stránky s koncepty). @returns {string} */
-function previewPaneHtml() {
+/**
+ * HTML pravého náhledového panelu (iframe veřejné stránky s koncepty).
+ * @param {string} [page=''] — soubor pod /admin/preview/ (prázdné = homepage)
+ * @returns {string}
+ */
+function previewPaneHtml(page) {
+  const src = '/admin/preview/' + (page || '');
+  const live = page ? '/' + page : '/';
   return `
     <div class="cms-preview" style="position:sticky; top:1rem;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem;">
         <h3 class="card-title" style="margin:0;">👁️ Náhled (s koncepty)</h3>
         <div style="display:flex; gap:.25rem;">
           <button class="btn btn-secondary btn-sm" id="cms-preview-refresh" title="Obnovit náhled">↻</button>
-          <a class="btn btn-ghost btn-sm" href="/" target="_blank" rel="noopener" title="Zobrazit živý web">web ↗</a>
+          <a class="btn btn-ghost btn-sm" href="${live}" target="_blank" rel="noopener" title="Zobrazit živý web">web ↗</a>
         </div>
       </div>
       <div style="border:1px solid rgba(115,138,117,0.2); border-radius:12px; overflow:hidden; background:#fff;">
-        <iframe id="cms-preview-frame" src="/admin/preview/" title="Náhled webu"
+        <iframe id="cms-preview-frame" src="${src}" title="Náhled webu"
           style="width:100%; height:70vh; border:0; display:block;"></iframe>
       </div>
       <p class="form-hint" style="margin-top:.5rem;">Náhled ukazuje i neuložené koncepty. Po „Uložit koncept" klikněte na ↻.</p>
@@ -75,7 +81,10 @@ export async function render(container, ctx) {
     <div class="cms-tabs" style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; border-bottom:1px solid rgba(115,138,117,0.15); padding-bottom:.75rem;">
       <button class="btn btn-primary cms-tab" data-tab="stranky">📄 Stránky</button>
       <button class="btn btn-secondary cms-tab" data-tab="sluzby">⚙️ Služby</button>
+      <button class="btn btn-secondary cms-tab" data-tab="faq">❓ FAQ</button>
       <button class="btn btn-secondary cms-tab" data-tab="footer">📇 Footer &amp; Kontakt</button>
+      <button class="btn btn-secondary cms-tab" data-tab="seo">🔍 SEO</button>
+      <button class="btn btn-secondary cms-tab" data-tab="landing">📍 Landing</button>
       <button class="btn btn-secondary cms-tab" data-tab="galerie">🖼️ Galerie</button>
       <button class="btn btn-secondary cms-tab" data-tab="hero">🎯 Hero bannery</button>
       <button class="btn btn-secondary cms-tab" data-tab="historie">🕓 Historie</button>
@@ -105,7 +114,10 @@ async function switchTab(container, tab) {
   try {
     if (tab === 'stranky') return renderStranky(body);
     if (tab === 'sluzby') return renderSluzby(body);
+    if (tab === 'faq') return renderFaq(body);
     if (tab === 'footer') return renderFooter(body);
+    if (tab === 'seo') return renderSeo(body);
+    if (tab === 'landing') return renderLanding(body);
     if (tab === 'galerie') return renderGalerie(body);
     if (tab === 'hero') return renderHero(body);
     if (tab === 'historie') return renderHistorie(body);
@@ -360,6 +372,211 @@ async function renderFooter(body) {
     const r = await api.discardContentSection('site-nap');
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) renderFooter(body);
+  });
+}
+
+// ─── FAQ (sdílené, config [{q,a}]) ────────────────────────────
+
+/** Vykreslí záložku FAQ (opakovatelné Q/A + náhled landing). @param {HTMLElement} body */
+async function renderFaq(body) {
+  const { api, showToast } = _ctx;
+  if (!api) { body.innerHTML = demoNote(); return; }
+  const res = await api.getContentSection('faq-main');
+  if (!res.ok) { body.innerHTML = emptyCard('Blok „faq-main" neexistuje (spusťte migraci 0019).'); return; }
+  const row = res.data;
+  let items = [];
+  try { items = JSON.parse(row.has_draft ? (row.draft_content_markdown ?? row.content_markdown) : row.content_markdown) || []; } catch { items = []; }
+
+  body.innerHTML = `
+    <div style="display:grid; grid-template-columns: minmax(0,1fr) minmax(0,460px); gap:1.5rem; align-items:start;">
+      <div class="card">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="card-title" style="margin:0;">❓ Časté otázky (sdílené na landing stránkách)</h3>
+          <span class="cms-state">${draftBadge(!!row.has_draft)}</span>
+        </div>
+        <div class="card-body">
+          <div class="faq-rows">${items.map(faqRow).join('')}</div>
+          <button class="btn btn-ghost btn-sm" data-action="add-row" style="margin:.25rem 0 1rem;">➕ Přidat otázku</button>
+          <p class="form-hint">V odpovědi lze použít odkaz na program: &lt;a href="#energie-a-vitalita"&gt;…&lt;/a&gt;.</p>
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
+            <button class="btn btn-primary btn-sm" data-action="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
+            <button class="btn btn-ghost btn-sm" data-action="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          </div>
+        </div>
+      </div>
+      ${previewPaneHtml('biorezonance-pisek.html')}
+    </div>`;
+
+  const rowsWrap = body.querySelector('.faq-rows');
+  body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
+  const collect = () => Array.from(rowsWrap.querySelectorAll('.faq-row')).map((r) => ({
+    q: r.querySelector('[data-faq="q"]').value, a: r.querySelector('[data-faq="a"]').value,
+  }));
+  rowsWrap.addEventListener('click', (e) => {
+    const del = e.target.closest('[data-action="del-row"]');
+    if (del) del.closest('.faq-row').remove();
+  });
+  body.querySelector('[data-action="add-row"]').addEventListener('click', () => {
+    rowsWrap.insertAdjacentHTML('beforeend', faqRow({ q: '', a: '' }));
+  });
+  body.querySelector('[data-action="save"]').addEventListener('click', async () => {
+    const r = await api.updateContentSection({ section_key: 'faq-main', title: 'FAQ (sdílené)', content_markdown: JSON.stringify(collect()), content_type: 'config' });
+    showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    if (r.ok) refreshPreview(body);
+  });
+  body.querySelector('[data-action="publish"]').addEventListener('click', async () => {
+    const r = await api.publishContentSection('faq-main');
+    showToast(r.ok ? 'Zveřejněno ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    if (r.ok) renderFaq(body);
+  });
+  body.querySelector('[data-action="discard"]').addEventListener('click', async () => {
+    if (!confirm('Zahodit koncept FAQ?')) return;
+    const r = await api.discardContentSection('faq-main');
+    showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    if (r.ok) renderFaq(body);
+  });
+}
+
+/** Řádek FAQ (otázka + odpověď). @param {Object} it @returns {string} */
+function faqRow(it) {
+  return `
+    <div class="faq-row" style="border:1px solid rgba(115,138,117,0.15); border-radius:8px; padding:.6rem; margin-bottom:.5rem;">
+      <div style="display:flex; gap:.5rem; margin-bottom:.4rem;">
+        <input type="text" class="form-input" data-faq="q" value="${esc(it.q || '')}" placeholder="Otázka">
+        <button class="btn btn-danger btn-sm" data-action="del-row" style="padding:.1rem .5rem;">✕</button>
+      </div>
+      <textarea class="form-input" data-faq="a" rows="3" placeholder="Odpověď (lze odkaz na program)">${esc(it.a || '')}</textarea>
+    </div>`;
+}
+
+// ─── SEO + LANDING (sdílený config editor) ────────────────────
+
+const SEO_PAGES = [
+  ['seo-homepage', 'Homepage', ''],
+  ['seo-pisek', 'Písek', 'biorezonance-pisek.html'],
+  ['seo-strakonice', 'Strakonice', 'biorezonance-strakonice.html'],
+  ['seo-vodnany', 'Vodňany', 'biorezonance-vodnany.html'],
+  ['seo-milevsko', 'Milevsko', 'biorezonance-milevsko.html'],
+  ['seo-protivin', 'Protivín', 'biorezonance-protivin.html'],
+];
+const SEO_FIELDS = [
+  ['title', 'Titulek (title)', 'text'], ['description', 'Popis (meta description)', 'textarea'],
+  ['ogTitle', 'OG titulek', 'text'], ['ogDescription', 'OG popis', 'textarea'],
+  ['ogImage', 'OG obrázek (URL)', 'text'], ['canonical', 'Canonical URL', 'text'],
+];
+const LANDING_PAGES = [
+  ['pisek', 'Písek'], ['strakonice', 'Strakonice'], ['vodnany', 'Vodňany'], ['milevsko', 'Milevsko'], ['protivin', 'Protivín'],
+];
+const LANDING_FIELDS = [
+  ['tagline', 'Štítek (tagline)', 'text'], ['h1City', 'Město v nadpisu (H1)', 'text'],
+  ['heroDesc', 'Hero popis', 'textarea'], ['availTitle', 'Nadpis „dostupná z…"', 'text'],
+  ['availIntro', 'Text „dostupná z…"', 'textarea'], ['faqTitle', 'Nadpis FAQ', 'text'],
+  ['ctaIntro', 'Text výzvy (CTA)', 'textarea'], ['footerBrandDesc', 'Popis v patičce', 'textarea'],
+];
+
+/** Vykreslí záložku SEO (výběr stránky + meta formulář). @param {HTMLElement} body */
+async function renderSeo(body) {
+  if (!_ctx.api) { body.innerHTML = demoNote(); return; }
+  body.innerHTML = `
+    <div class="card mb-6"><div class="card-body">
+      <label class="form-label">Stránka</label>
+      <select class="form-select" id="seo-page" style="min-width:240px;">
+        ${SEO_PAGES.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}
+      </select>
+    </div></div>
+    <div id="seo-detail"></div>`;
+  const sel = body.querySelector('#seo-page');
+  const detail = body.querySelector('#seo-detail');
+  const open = () => {
+    const page = SEO_PAGES.find((p) => p[0] === sel.value);
+    configEditor(detail, page[0], 'SEO – ' + page[1], SEO_FIELDS, page[2]);
+  };
+  sel.addEventListener('change', open);
+  open();
+}
+
+/** Vykreslí záložku Landing (výběr města + per-město texty). @param {HTMLElement} body */
+async function renderLanding(body) {
+  if (!_ctx.api) { body.innerHTML = demoNote(); return; }
+  body.innerHTML = `
+    <div class="card mb-6"><div class="card-body">
+      <label class="form-label">Lokalita</label>
+      <select class="form-select" id="landing-city" style="min-width:240px;">
+        ${LANDING_PAGES.map(([c, l]) => `<option value="${c}">${esc(l)}</option>`).join('')}
+      </select>
+    </div></div>
+    <div id="landing-detail"></div>`;
+  const sel = body.querySelector('#landing-city');
+  const detail = body.querySelector('#landing-detail');
+  const open = () => {
+    const city = sel.value;
+    const label = LANDING_PAGES.find((p) => p[0] === city)[1];
+    configEditor(detail, 'landing-' + city, 'Landing – ' + label, LANDING_FIELDS, 'biorezonance-' + city + '.html');
+  };
+  sel.addEventListener('change', open);
+  open();
+}
+
+/**
+ * Obecný editor config bloku (JSON pole) s draft/publish + náhledem.
+ * @param {HTMLElement} host @param {string} sectionKey @param {string} titleLabel
+ * @param {Array<[string,string,string]>} fields @param {string} previewPage
+ */
+async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
+  const { api, showToast } = _ctx;
+  host.innerHTML = `<div class="card"><div class="card-body">Načítám…</div></div>`;
+  const res = await api.getContentSection(sectionKey);
+  if (!res.ok) { host.innerHTML = emptyCard(`Blok „${esc(sectionKey)}" neexistuje (spusťte migraci 0019).`); return; }
+  const row = res.data;
+  let cfg = {};
+  try { cfg = JSON.parse(row.has_draft ? (row.draft_content_markdown ?? row.content_markdown) : row.content_markdown) || {}; } catch { cfg = {}; }
+
+  host.innerHTML = `
+    <div style="display:grid; grid-template-columns: minmax(0,1fr) minmax(0,460px); gap:1.5rem; align-items:start;">
+      <div class="card">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="card-title" style="margin:0;">${esc(titleLabel)}</h3>
+          <span class="cms-state">${draftBadge(!!row.has_draft)}</span>
+        </div>
+        <div class="card-body">
+          ${fields.map(([k, label, type]) => `
+            <div class="form-group">
+              <label class="form-label">${esc(label)}</label>
+              ${type === 'textarea'
+                ? `<textarea class="form-input" data-cfg="${k}" rows="2">${esc(cfg[k] || '')}</textarea>`
+                : `<input type="text" class="form-input" data-cfg="${k}" value="${esc(cfg[k] || '')}">`}
+            </div>`).join('')}
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
+            <button class="btn btn-primary btn-sm" data-action="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
+            <button class="btn btn-ghost btn-sm" data-action="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          </div>
+        </div>
+      </div>
+      ${previewPaneHtml(previewPage)}
+    </div>`;
+  host.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(host));
+  const collect = () => {
+    const out = {};
+    host.querySelectorAll('[data-cfg]').forEach((el) => { out[el.getAttribute('data-cfg')] = el.value; });
+    return out;
+  };
+  host.querySelector('[data-action="save"]').addEventListener('click', async () => {
+    const r = await api.updateContentSection({ section_key: sectionKey, title: titleLabel, content_markdown: JSON.stringify(collect()), content_type: 'config' });
+    showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    if (r.ok) refreshPreview(host);
+  });
+  host.querySelector('[data-action="publish"]').addEventListener('click', async () => {
+    const r = await api.publishContentSection(sectionKey);
+    showToast(r.ok ? 'Zveřejněno ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    if (r.ok) configEditor(host, sectionKey, titleLabel, fields, previewPage);
+  });
+  host.querySelector('[data-action="discard"]').addEventListener('click', async () => {
+    if (!confirm('Zahodit koncept?')) return;
+    const r = await api.discardContentSection(sectionKey);
+    showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    if (r.ok) configEditor(host, sectionKey, titleLabel, fields, previewPage);
   });
 }
 

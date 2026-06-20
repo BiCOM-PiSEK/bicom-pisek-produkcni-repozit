@@ -22,8 +22,18 @@ Galerie se publikují okamžitě (bez konceptu).
 
 1. Přihlaste se do admin konzole (`/admin`) přes Cloudflare Access.
 2. V levém menu klikněte na **„Obsah webu“**.
-3. Nahoře jsou záložky: **Stránky** (texty homepage), **Footer & Kontakt** (NAP),
+3. Nahoře jsou záložky: **Stránky** (texty + karty homepage), **Služby** (programy),
+   **FAQ** (sdílené otázky na landing stránkách), **Footer & Kontakt** (NAP),
+   **SEO** (titulky a popisy stránek pro Google/sdílení), **Landing** (texty stránek lokalit),
    **Galerie**, **Hero bannery**, **Historie změn**.
+
+> **Služby:** záložka Služby = tabulka programů; „Upravit" otevře editor (název, popisy,
+> cena, ikona, viditelnost) s konceptem. Změny se promítnou do průvodce, rezervačního
+> formuláře i do programů na landing stránkách.
+>
+> **FAQ / Landing / SEO** jsou sdílené přes všechny lokality: jedna úprava FAQ nebo
+> služby se projeví na všech 5 landing stránkách. SEO (titulek, popis, náhledový obrázek)
+> se nastavuje zvlášť pro každou stránku.
 
 ---
 
