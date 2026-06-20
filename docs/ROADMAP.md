@@ -130,7 +130,7 @@
 
 - ✅ D1 tabulky: `gallery_items`, `hero_config` (migrace 0016) + reuse `content_blocks`/`audit_log`
 - ✅ API: admin CRUD (`/admin/content`, `/admin/gallery`, `/admin/hero`) + veřejné cache (`/api/content|gallery|hero`) + servírování médií (`/api/media/*` z R2)
-- ✅ Admin UI „Obsah webu" (vanilla modul, 4 záložky: texty, galerie+upload+reorder, hero, historie)
+- ✅ Admin UI „Obsah webu“ (vanilla modul, 4 záložky: texty, galerie+upload+reorder, hero, historie)
 - ✅ Web dynamicky renderuje obsah z API (progressive enhancement, fallback na hardcoded; napojena homepage galerie)
 - ✅ Audit trail — operátorka vidí kdo a kdy co změnil
 - 🟢 **Zbývá:** spustit migraci 0016 na produkci + provozní ověření uploadu na produkci

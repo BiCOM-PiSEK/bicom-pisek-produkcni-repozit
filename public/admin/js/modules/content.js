@@ -13,12 +13,22 @@
 
 let _ctx = null;
 
+/**
+ * Escapuje text pro bezpečné vložení do HTML (textContent → innerHTML).
+ * @param {*} str
+ * @returns {string}
+ */
 function esc(str) {
   const el = document.createElement('span');
   el.textContent = str == null ? '' : String(str);
   return el.innerHTML;
 }
 
+/**
+ * Naformátuje timestamp do české lokalizace (dd.mm.yyyy hh:mm).
+ * @param {string} ts
+ * @returns {string}
+ */
 function fmtDate(ts) {
   if (!ts) return '—';
   const d = new Date(ts.includes('T') ? ts : ts.replace(' ', 'T') + 'Z');
@@ -26,6 +36,11 @@ function fmtDate(ts) {
   return d.toLocaleString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+/**
+ * Vstupní bod modulu — vykreslí záložky a načte výchozí (Texty).
+ * @param {HTMLElement} container
+ * @param {{api:Object, showToast:Function}} ctx
+ */
 export async function render(container, ctx) {
   _ctx = ctx;
 
@@ -60,6 +75,11 @@ export async function render(container, ctx) {
   await switchTab(container, 'texty');
 }
 
+/**
+ * Přepne aktivní záložku a vykreslí její obsah.
+ * @param {HTMLElement} container
+ * @param {string} tab — texty|galerie|hero|historie
+ */
 async function switchTab(container, tab) {
   const body = container.querySelector('#cms-tab-body');
   body.innerHTML = `<div class="card"><div class="card-body">Načítám…</div></div>`;
@@ -76,6 +96,10 @@ async function switchTab(container, tab) {
 
 // ─── TEXTY (content_blocks) ───────────────────────────────────
 
+/**
+ * Vykreslí záložku Texty (seznam sekcí + tvorba nové).
+ * @param {HTMLElement} body
+ */
 async function renderTexty(body) {
   const { api, showToast } = _ctx;
   if (!api) { body.innerHTML = demoNote(); return; }
@@ -106,6 +130,11 @@ async function renderTexty(body) {
   body.querySelectorAll('.cms-section-card').forEach((card) => wireSectionCard(body, card));
 }
 
+/**
+ * Vrátí HTML karty jedné textové sekce.
+ * @param {Object} s — sekce (section_key, title, content_markdown, content_type)
+ * @returns {string}
+ */
 function sectionCard(s) {
   return `
     <div class="card mb-6 cms-section-card" data-key="${esc(s.section_key)}" data-new="${s._new ? '1' : '0'}">
@@ -126,7 +155,7 @@ function sectionCard(s) {
         <div class="form-group">
           <label class="form-label">Typ</label>
           <select class="form-select" data-field="content_type" style="width:200px;">
-            ${['text', 'faq', 'config'].map((t) => `<option value="${t}" ${s.content_type === t ? 'selected' : ''}>${t}</option>`).join('')}
+            ${['text', 'faq', 'config', 'prompt'].map((t) => `<option value="${t}" ${s.content_type === t ? 'selected' : ''}>${t}</option>`).join('')}
           </select>
         </div>
         <div style="display:flex; gap:.5rem;">
@@ -137,6 +166,11 @@ function sectionCard(s) {
     </div>`;
 }
 
+/**
+ * Naváže akce (uložit/smazat) na kartu textové sekce.
+ * @param {HTMLElement} body
+ * @param {HTMLElement} card
+ */
 function wireSectionCard(body, card) {
   const { api, showToast } = _ctx;
   const key = card.dataset.key;
@@ -162,6 +196,10 @@ function wireSectionCard(body, card) {
 
 // ─── GALERIE (gallery_items) ──────────────────────────────────
 
+/**
+ * Vykreslí záložku Galerie (výběr galerie + detail).
+ * @param {HTMLElement} body
+ */
 async function renderGalerie(body) {
   const { api } = _ctx;
   if (!api) { body.innerHTML = demoNote(); return; }
@@ -202,6 +240,11 @@ async function renderGalerie(body) {
   else detail.innerHTML = emptyCard('Žádné galerie. Vytvořte novou zadáním klíče a nahráním fotky.');
 }
 
+/**
+ * Vykreslí detail galerie: upload + mřížku obrázků.
+ * @param {HTMLElement} detail
+ * @param {string} galleryKey
+ */
 async function renderGalleryDetail(detail, galleryKey) {
   const { api, showToast } = _ctx;
   detail.innerHTML = `<div class="card"><div class="card-body">Načítám galerii „${esc(galleryKey)}"…</div></div>`;
@@ -245,6 +288,13 @@ async function renderGalleryDetail(detail, galleryKey) {
   detail.querySelectorAll('.cms-gallery-item').forEach((card) => wireGalleryItem(detail, galleryKey, card, items));
 }
 
+/**
+ * Vrátí HTML karty jednoho obrázku galerie.
+ * @param {Object} it — položka galerie
+ * @param {number} index
+ * @param {number} total
+ * @returns {string}
+ */
 function galleryItemCard(it, index, total) {
   return `
     <div class="card cms-gallery-item" data-id="${esc(it.id)}" data-index="${index}">
@@ -267,6 +317,13 @@ function galleryItemCard(it, index, total) {
     </div>`;
 }
 
+/**
+ * Naváže akce (uložit popis/smazat/řadit) na kartu obrázku.
+ * @param {HTMLElement} detail
+ * @param {string} galleryKey
+ * @param {HTMLElement} card
+ * @param {Array} items
+ */
 function wireGalleryItem(detail, galleryKey, card, items) {
   const { api, showToast } = _ctx;
   const id = card.dataset.id;
@@ -302,6 +359,10 @@ function wireGalleryItem(detail, galleryKey, card, items) {
 
 // ─── HERO (hero_config) ───────────────────────────────────────
 
+/**
+ * Vykreslí záložku Hero (výběr stránky + formulář).
+ * @param {HTMLElement} body
+ */
 async function renderHero(body) {
   const { api } = _ctx;
   if (!api) { body.innerHTML = demoNote(); return; }
@@ -340,6 +401,11 @@ async function renderHero(body) {
   else renderHeroForm(detail, { page_key: 'homepage' });
 }
 
+/**
+ * Vykreslí a naváže formulář hero banneru.
+ * @param {HTMLElement} detail
+ * @param {Object} h — hero konfigurace
+ */
 function renderHeroForm(detail, h) {
   const { api, showToast } = _ctx;
   h = h || {};
@@ -391,6 +457,10 @@ function renderHeroForm(detail, h) {
 
 // ─── HISTORIE (audit_log) ─────────────────────────────────────
 
+/**
+ * Vykreslí záložku Historie změn (audit_log CMS entit).
+ * @param {HTMLElement} body
+ */
 async function renderHistorie(body) {
   const { api } = _ctx;
   if (!api) { body.innerHTML = demoNote(); return; }
@@ -426,13 +496,25 @@ async function renderHistorie(body) {
 
 // ─── HELPERS ──────────────────────────────────────────────────
 
+/**
+ * Vrátí HTML prázdného stavu.
+ * @param {string} text
+ * @returns {string}
+ */
 function emptyCard(text) {
   return `<div class="empty-state" style="padding:2rem; text-align:center; color:var(--c-sage,#738A75);">${esc(text)}</div>`;
 }
+/**
+ * Vrátí HTML hlášky pro demo režim (bez API).
+ * @returns {string}
+ */
 function demoNote() {
   return `<div class="card"><div class="card-body">Demo režim — API není dostupné. Po přihlášení uvidíte reálný obsah.</div></div>`;
 }
 
+/**
+ * Lifecycle cleanup — uvolní kontext modulu.
+ */
 export function destroy() {
   _ctx = null;
 }

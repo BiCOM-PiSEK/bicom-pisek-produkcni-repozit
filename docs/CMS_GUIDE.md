@@ -9,7 +9,7 @@
 ## 1. Kde to najdu
 
 1. Přihlaste se do admin konzole (`/admin`) přes Cloudflare Access.
-2. V levém menu klikněte na **„Obsah webu"**.
+2. V levém menu klikněte na **„Obsah webu“**.
 3. Nahoře jsou čtyři záložky: **Texty**, **Galerie**, **Hero bannery**, **Historie změn**.
 
 ---

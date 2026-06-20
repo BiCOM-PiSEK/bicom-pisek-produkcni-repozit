@@ -7,11 +7,17 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-/** JSON Response helper (sjednocený formát {ok, data, error}). */
-export const json = (data, status = 200) =>
+/**
+ * JSON Response helper (sjednocený formát {ok, data, error}).
+ * @param {*} data
+ * @param {number} [status=200]
+ * @param {Object} [headers={}] — volitelné extra hlavičky (nepřepíšou Content-Type)
+ * @returns {Response}
+ */
+export const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...headers },
   });
 
 /**

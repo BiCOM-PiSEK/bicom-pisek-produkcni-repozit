@@ -24,6 +24,11 @@ function isSafeUrl(value) {
   return /^(\/[^/]|\/$|https:\/\/|mailto:|tel:)/i.test(value);
 }
 
+/**
+ * GET — seznam hero konfigurací, nebo jedna dle ?key=.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestGet({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -44,6 +49,11 @@ export async function onRequestGet({ env, data, request }) {
   }
 }
 
+/**
+ * PUT — upsert hero konfigurace stránky (validace URL) + audit + cache invalidace.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestPut({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 

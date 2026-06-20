@@ -40,6 +40,11 @@ async function checkUploadLimit(env, operatorId) {
   }
 }
 
+/**
+ * GET — seznam galerií s počty, nebo položky jedné galerie (?key=).
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestGet({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -66,6 +71,11 @@ export async function onRequestGet({ env, data, request }) {
   }
 }
 
+/**
+ * POST — upload obrázku (multipart) do R2 + zápis do DB + audit + cache invalidace.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestPost({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -100,13 +110,19 @@ export async function onRequestPost({ env, data, request }) {
     const id = crypto.randomUUID();
     const filename = stripTags(file.name, 255) || `${ext}`;
 
-    await env.DB.batch([
-      env.DB.prepare(
-        `INSERT INTO gallery_items (id, gallery_key, image_url, image_filename, sort_order, updated_by, created_at, updated_at)
-         VALUES (?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM gallery_items WHERE gallery_key = ?), ?, datetime('now'), datetime('now'))`
-      ).bind(id, galleryKey, imageUrl, filename, galleryKey, data.operator.id),
-      auditStmt(env.DB, 'gallery_items', id, 'create', data.operator, `Nahrán obrázek do galerie „${galleryKey}" (${filename})`),
-    ]);
+    // R2 zápis proběhl před DB; pokud DB selže, uklidíme objekt, ať nezůstane „osiřelý".
+    try {
+      await env.DB.batch([
+        env.DB.prepare(
+          `INSERT INTO gallery_items (id, gallery_key, image_url, image_filename, sort_order, updated_by, created_at, updated_at)
+           VALUES (?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM gallery_items WHERE gallery_key = ?), ?, datetime('now'), datetime('now'))`
+        ).bind(id, galleryKey, imageUrl, filename, galleryKey, data.operator.id),
+        auditStmt(env.DB, 'gallery_items', id, 'create', data.operator, `Nahrán obrázek do galerie „${galleryKey}" (${filename})`),
+      ]);
+    } catch (dbErr) {
+      try { await env.MEDIA.delete(r2Key); } catch { /* best-effort úklid */ }
+      throw dbErr;
+    }
 
     await invalidateCache(env, cacheKey.gallery(galleryKey));
     return json({ ok: true, data: { id, image_url: imageUrl } }, 201);
@@ -116,6 +132,11 @@ export async function onRequestPost({ env, data, request }) {
   }
 }
 
+/**
+ * PUT — reorder položek galerie (action:'reorder') NEBO úprava metadat položky.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestPut({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -165,6 +186,11 @@ export async function onRequestPut({ env, data, request }) {
   }
 }
 
+/**
+ * DELETE — smaže položku (?id=) z DB i z R2 + audit + cache invalidace.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestDelete({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 

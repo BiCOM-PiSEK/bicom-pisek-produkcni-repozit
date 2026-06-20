@@ -500,15 +500,19 @@ function deleteException(id) {
 function getContentSections() {
   return request('/content');
 }
+/** GET /admin/content?history=1 — audit historie CMS změn. @returns {Promise<ApiResponse>} */
 function getContentHistory() {
   return request('/content?history=1');
 }
+/** POST /admin/content — vytvoří textovou sekci. @param {Object} body @returns {Promise<ApiResponse>} */
 function createContentSection(body) {
   return request('/content', { method: 'POST', body });
 }
+/** PUT /admin/content — upraví textovou sekci. @param {Object} body @returns {Promise<ApiResponse>} */
 function updateContentSection(body) {
   return request('/content', { method: 'PUT', body });
 }
+/** DELETE /admin/content — smaže sekci dle klíče. @param {string} section_key @returns {Promise<ApiResponse>} */
 function deleteContentSection(section_key) {
   return request(`/content?key=${encodeURIComponent(section_key)}`, { method: 'DELETE' });
 }
@@ -517,15 +521,19 @@ function deleteContentSection(section_key) {
 function getGalleries() {
   return request('/gallery');
 }
+/** GET /admin/gallery?key= — položky galerie. @param {string} key @returns {Promise<ApiResponse>} */
 function getGalleryItems(key) {
   return request(`/gallery?key=${encodeURIComponent(key)}`);
 }
+/** PUT /admin/gallery — úprava metadat položky. @param {Object} body @returns {Promise<ApiResponse>} */
 function updateGalleryItem(body) {
   return request('/gallery', { method: 'PUT', body });
 }
+/** PUT /admin/gallery — změna pořadí položek. @param {string} gallery_key @param {Array} items @returns {Promise<ApiResponse>} */
 function reorderGallery(gallery_key, items) {
   return request('/gallery', { method: 'PUT', body: { action: 'reorder', gallery_key, items } });
 }
+/** DELETE /admin/gallery?id= — smaže obrázek. @param {string} id @returns {Promise<ApiResponse>} */
 function deleteGalleryItem(id) {
   return request(`/gallery?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
@@ -568,9 +576,11 @@ async function uploadGalleryImage(galleryKey, file) {
 function getHeroes() {
   return request('/hero');
 }
+/** GET /admin/hero?key= — hero konfigurace stránky. @param {string} key @returns {Promise<ApiResponse>} */
 function getHero(key) {
   return request(`/hero?key=${encodeURIComponent(key)}`);
 }
+/** PUT /admin/hero — upsert hero konfigurace. @param {Object} body @returns {Promise<ApiResponse>} */
 function saveHero(body) {
   return request('/hero', { method: 'PUT', body });
 }

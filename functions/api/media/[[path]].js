@@ -9,6 +9,11 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
+/**
+ * Handler GET /api/media/* — streamuje objekt z R2 bindingu MEDIA.
+ * @param {{ env: Object, params: { path: string|string[] }, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestGet({ env, params, request }) {
   if (!env.MEDIA) {
     return new Response('Media storage unavailable', { status: 503 });
@@ -33,12 +38,18 @@ export async function onRequestGet({ env, params, request }) {
     return new Response('Bad request', { status: 400 });
   }
 
-  // Podmíněný požadavek (ETag) — ušetří přenos
-  const object = await env.MEDIA.get(key, {
-    onlyIf: request.headers.get('If-None-Match')
-      ? { etagDoesNotMatch: request.headers.get('If-None-Match') }
-      : undefined,
-  });
+  // Podmíněný požadavek (ETag) — ušetří přenos. Chyba R2 → 503 (ne uncaught 500).
+  let object;
+  try {
+    object = await env.MEDIA.get(key, {
+      onlyIf: request.headers.get('If-None-Match')
+        ? { etagDoesNotMatch: request.headers.get('If-None-Match') }
+        : undefined,
+    });
+  } catch (err) {
+    console.error('[api/media] R2 get failed:', err?.message);
+    return new Response('Media storage unavailable', { status: 503 });
+  }
 
   if (object === null) {
     return new Response('Not found', { status: 404 });

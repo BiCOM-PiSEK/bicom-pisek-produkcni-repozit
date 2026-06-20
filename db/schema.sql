@@ -235,6 +235,7 @@ CREATE TABLE IF NOT EXISTS gallery_items (
 );
 CREATE INDEX IF NOT EXISTS idx_gallery_key ON gallery_items(gallery_key);
 CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items(gallery_key, sort_order);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gallery_unique ON gallery_items(gallery_key, image_url);
 
 -- CMS — hero bannery jednotlivých stránek (F11, migrace 0016).
 CREATE TABLE IF NOT EXISTS hero_config (

@@ -1,6 +1,8 @@
 -- ============================================================
 -- Migration 0016: CMS — galerie obrázků + hero bannery (F11)
 -- ============================================================
+-- Zdroj pravdy pro strukturu DB je `db/schema.sql`; tato migrace je
+-- inkrementální krok 0016 (změny oproti předchozímu stavu schématu).
 -- Doplňuje editovatelnost obsahu webu bez deploymentu.
 --
 -- POZNÁMKA K ROZSAHU (oproti původní spec v docs/agent-tasks/):
@@ -33,6 +35,9 @@ CREATE TABLE IF NOT EXISTS gallery_items (
 );
 CREATE INDEX IF NOT EXISTS idx_gallery_key ON gallery_items(gallery_key);
 CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items(gallery_key, sort_order);
+-- Zamezí duplicitám stejného obrázku v jedné galerii a zajistí, že seed
+-- níže je idempotentní i při opakovaném spuštění migrace (INSERT OR IGNORE).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gallery_unique ON gallery_items(gallery_key, image_url);
 
 -- ============================================================
 -- HERO CONFIG — hero banner pro jednotlivé stránky

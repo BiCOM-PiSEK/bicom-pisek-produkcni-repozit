@@ -18,6 +18,11 @@ import { json, auditStmt, invalidateCache, cacheKey } from '../lib/cms.js';
 
 const ALLOWED_TYPES = ['text', 'faq', 'config', 'prompt'];
 
+/**
+ * GET — seznam sekcí, jedna sekce (?key=) nebo audit historie (?history=1).
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestGet({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -55,6 +60,11 @@ export async function onRequestGet({ env, data, request }) {
   }
 }
 
+/**
+ * POST — vytvoří novou textovou sekci (content_blocks) + audit + cache invalidace.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestPost({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -92,6 +102,11 @@ export async function onRequestPost({ env, data, request }) {
   }
 }
 
+/**
+ * PUT — upraví existující sekci dle section_key + audit + cache invalidace.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestPut({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -128,6 +143,11 @@ export async function onRequestPut({ env, data, request }) {
   }
 }
 
+/**
+ * DELETE — smaže sekci dle ?key= + audit + cache invalidace.
+ * @param {{ env: Object, data: Object, request: Request }} ctx
+ * @returns {Promise<Response>}
+ */
 export async function onRequestDelete({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
