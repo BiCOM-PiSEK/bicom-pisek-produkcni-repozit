@@ -11,6 +11,8 @@ Hlavní produkční repozitář organizace **BiCOM-PiSEK** (`bicom-pisek-produkc
 
 **Kanonická doména:** [bicom-pisek.cz](https://bicom-pisek.cz)
 
+> 📊 **Aktuální stav projektu (hloubkový audit 21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](docs/DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce (D1/KV/R2/Workers) + analýza repa. Kompas: [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ---
 
 ## 🏗️ Celková architektura ekosystému
@@ -42,7 +44,7 @@ flowchart TD
     end
 
     subgraph Data ["Data & Storage Layer"]
-        D1["Cloudflare D1 (SQLite Database)\n- 14 schválených tabulek (GDPR AES-GCM)"]
+        D1["Cloudflare D1 (SQLite Database)\n- 21 tabulek, migrace 0001–0020 (GDPR AES-GCM)"]
         R2["Cloudflare R2\n(bicom-multimedia bucket)"]
         KV["Cloudflare KV\n(Cache, Rate Limiting, Config)"]
     end
