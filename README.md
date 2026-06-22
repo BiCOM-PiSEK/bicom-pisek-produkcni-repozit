@@ -152,6 +152,7 @@ Architektura je postavena na principu **Edge-First, Cloudflare-native**. Produk�
 - `GET /admin/activity` — Logování uživatelských a systémových akcí (Audit Log).
 - `GET /admin/geo` — Geografická distribuce leadů a analýza lokalit.
 - `GET /admin/invoices` — Synchronizace a přehled faktur z iDokladu.
+- `GET/POST /admin/users` — Správa operátorů (seznam operátorů, přidání nového s welcome emailem).
 
 ---
 
