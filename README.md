@@ -219,6 +219,284 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
 
 ---
 
+## 📊 Kompletní Procesní Diagram (Sequence)
+
+Diagram níže znázorňuje **všechny hlavní procesy** v systému Bicom Písek — od uživatele skrze web/admin, přes backend logiku, až po externí integrace a databázi.
+
+```mermaid
+sequenceDiagram
+    participant U as Uživatel/Web
+    participant PC as Page/Function
+    participant API as API Router
+    participant D1 as D1 Database
+    participant R2 as R2 Media
+    participant KV as KV Cache
+    participant Worker as Worker Queue
+    participant GCal as Google Calendar
+    participant Email as Email/SMS/Telegram
+    participant Stripe as Stripe
+    participant AI as Workers AI
+
+    %% === SEKCE 1: VEŘEJNÝ WEB ===
+    rect rgb(100, 150, 255)
+        Note over U,PC: 📄 VEŘEJNÝ WEB — Static HTML5 + Vanilla ES6 SPA
+        U->>PC: GET / (homepage, SEO)
+        PC->>D1: Fetch content_blocks, hero_config, gallery_items
+        D1-->>PC: Content data (s fallback)
+        PC->>KV: Check cache key
+        alt Cache HIT
+            KV-->>PC: Cached content
+        else Cache MISS
+            PC->>D1: Fetch content
+            D1-->>PC: Fresh content
+            PC->>KV: Set cache (TTL 3600s)
+        end
+        PC-->>U: Render HTML5 + CSS (Tailwind) + View Transitions
+        U->>U: Client-side router (Vanilla SPA)
+    end
+
+    %% === SEKCE 2: REZERVAČNÍ FORMULÁŘ ===
+    rect rgb(255, 200, 100)
+        Note over U,Email: 📅 REZERVAČNÍ FORMULÁŘ — Availability → Booking
+        U->>API: GET /api/availability?date=2026-06-25
+        API->>D1: Query availability_rules + exceptions + bookings
+        D1-->>API: Volné sloty (HH:MM formát)
+        API-->>U: JSON response [09:00, 10:00, 14:00, ...]
+        U->>U: Render time picker + form
+        U->>API: POST /api/availability/check (validace zájmu času)
+        API->>D1: BEGIN TRANSACTION
+        API->>D1: UNIQUE lock na slot_start
+        alt Slot VOLNÝ
+            D1-->>API: ✓ Lock acquired
+            U->>API: POST /api/book (jméno, e-mail, poznámka)
+            API->>D1: INSERT booking (pending/pending_payment)
+            API->>D1: INSERT audit_log (user, action=book)
+            D1-->>API: booking_id, status
+            API->>KV: Invalidate availability cache
+            API-->Worker: Queue booking-jobs (delay 100ms)
+        else Slot OBSAZEN
+            D1-->>API: ✗ Conflict (UNIQUE violation)
+            API-->>U: 409 Conflict (slotu není)
+        end
+        API->>D1: COMMIT TRANSACTION
+    end
+
+    %% === SEKCE 3: BOOKING CONSUMER (ASYNC) ===
+    rect rgb(100, 255, 100)
+        Note over Worker,Telegram: ⚙️ BOOKING CONSUMER — Async Queue Processing
+        Worker->>D1: Fetch pending booking (from queue)
+        D1-->>Worker: booking data (encrypted client info)
+        Worker->>GCal: POST event (admin@bicom-pisek.cz)
+        GCal-->>Worker: event_id
+        Worker->>D1: UPDATE booking SET google_event_id
+        alt Stripe required
+            Worker->>Stripe: GET checkout session
+            Stripe-->>Worker: Session URL
+        end
+        Worker->>Email: Send reservation confirmation (Resend)
+        Email-->>Worker: Email sent (audit log)
+        Worker->>Email: Send SMS reminder (GoSMS, 24h delay)
+        Worker->>Telegram: Send admin notification
+        Telegram-->>Worker: Message sent
+        Worker->>D1: INSERT audit_log (action=send_confirmation)
+    end
+
+    %% === SEKCE 4: ADMIN CONSOLE (VIRTUAL OFFICE) ===
+    rect rgb(200, 100, 255)
+        Note over U,API: 🖥️ ADMIN CONSOLE — Booking Management
+        U->>PC: Login (CF Access JWT)
+        PC->>API: GET /admin/me (verify token)
+        API-->>PC: Admin metadata
+        U->>API: GET /admin/bookings (list pending)
+        API->>D1: SELECT bookings WHERE status != archived
+        D1-->>API: Bookings + client names (decrypted)
+        API-->>U: Render booking table (status badges, no_show_flag)
+        U->>API: PATCH /admin/bookings/{id}/confirm
+        API->>GCal: UPDATE event (barva=green, notifikace)
+        GCal-->>API: Event updated
+        API->>D1: UPDATE booking SET status=pending, audit_log
+        API-->>U: Toast: Potvrzeno, SMS odesláno
+    end
+
+    %% === SEKCE 5: CMS — OBSAH BEZ VÝVOJE ===
+    rect rgb(255, 100, 150)
+        Note over U,R2: ✏️ CMS — Editace obsahu bez deploymentu
+        U->>API: GET /admin/content (draft mode)
+        API->>D1: SELECT content_blocks WHERE status=draft
+        D1-->>API: Draft content (HTML + metadata)
+        API-->>U: Render WYSIWYG editor
+        U->>API: POST /admin/content/update (new HTML text)
+        API->>D1: UPDATE content_blocks SET content_html, status=draft
+        API->>D1: INSERT audit_log (user, action=edit_draft)
+        API-->>U: Toast: Koncept uložen
+        U->>API: POST /admin/content/preview
+        API-->>U: Protected /admin/preview link
+        U->>U: Review draft (live náhled)
+        alt Publish to Live
+            U->>API: POST /admin/content/publish
+            API->>D1: UPDATE content_blocks SET status=published
+            API->>KV: DELETE cache:content_blocks
+            API-->>U: Toast: Publikováno! Web se aktualizuje...
+        end
+    end
+
+    %% === SEKCE 6: CMS — GALERIE + UPLOAD ===
+    rect rgb(100, 200, 255)
+        Note over U,R2: 🖼️ CMS — Galerie a Upload médií
+        U->>PC: Click "Přidat fotky" (forma)
+        U->>PC: Select files (multi-upload)
+        PC->>API: POST /admin/media/upload (multipart/form-data)
+        API->>R2: PUT /bicom-multimedia/gallery/{filename}.jpg
+        R2-->>API: Public URL (r2.bicom-pisek.cz/...)
+        API->>D1: INSERT gallery_items (r2_url, alt_text, order)
+        API->>D1: INSERT audit_log (action=upload_media)
+        API->>KV: DELETE cache:gallery_items
+        API-->>PC: JSON: { url, id } ← JavaScript updates preview
+        PC->>U: Show thumbnail + preview
+        U->>U: Reorder items (drag-drop → API call)
+        U->>API: POST /admin/gallery/reorder (order_array)
+        API->>D1: UPDATE gallery_items SET display_order
+    end
+
+    %% === SEKCE 7: PLATBY (STRIPE) ===
+    rect rgb(255, 150, 100)
+        Note over U,Stripe: 💳 PLATBY — Stripe Checkout Flow
+        U->>API: POST /api/stripe-checkout (booking_id, amount=500)
+        API->>D1: Verify booking_id (not paid)
+        D1-->>API: Booking data
+        API->>Stripe: POST /checkout/sessions (amount, currency)
+        Stripe-->>API: session_id, redirect_url
+        API->>D1: INSERT stripe_session_id → payment_transactions
+        API-->>U: Redirect → Stripe Checkout
+        U->>Stripe: Enter card details
+        Stripe->>Stripe: Process payment
+        Stripe->>API: POST /api/stripe-webhook (event=charge.succeeded)
+        API->>D1: Verify webhook signature
+        API->>D1: UPDATE booking SET stripe_payment_status=paid, status=pending
+        API->>D1: INSERT audit_log (action=payment_confirmed)
+        API->>D1: SELECT client email
+        D1-->>API: Email
+        API->>Email: Send receipt (Resend)
+        API->>Stripe: Query invoice details
+        Stripe-->>API: Invoice PDF URL
+    end
+
+    %% === SEKCE 8: FAKTURACE (IDOKLAD) ===
+    rect rgb(100, 255, 200)
+        Note over API,D1: 📄 FAKTURACE — iDoklad Integration
+        API->>D1: Get payment_transactions.paid_amount + client data
+        D1-->>API: Client info (decrypted)
+        API->>API: Validate client IČO/DIČ
+        alt iDoklad API
+            API->>Stripe: Get invoice from session
+            Stripe-->>API: Invoice details
+            API->>API: Create iDoklad issue payload
+            API->>Stripe: Call iDoklad API (OAuth2 token cache in KV)
+            Stripe-->>API: Issue ID + PDF URL
+            API->>D1: INSERT invoices (idoklad_id, url, amount, paid_at)
+            API->>D1: INSERT audit_log (action=invoice_issued)
+        else Fallback
+            API-->>API: Log warning (graceful — no invoice yet)
+        end
+        API->>Email: Send invoice link to client (optional)
+    end
+
+    %% === SEKCE 9: AI COPYWRITER ===
+    rect rgb(200, 200, 100)
+        Note over U,AI: 🤖 AI COPYWRITER — Hlas → Článek
+        U->>PC: Click „Namluvit poznámku" (Voice recording)
+        U->>PC: Speak topic ("bolest hlavy, jak ji řeší biorezonance")
+        PC->>API: POST /api/ai/copywrite (transcription_text, tone=luxury)
+        API->>AI: Call Workers AI (Llama 3 prompt)
+        AI-->>API: Generated article (guardrail check)
+        API->>API: Sanitize HTML (allowlist XSS protection)
+        API-->>PC: JSON: { article_html, preview }
+        PC-->>U: Render live preview + edit form
+        U->>API: POST /admin/blog/publish (article_html)
+        API->>D1: INSERT blog_posts (content, status=published, author, ai_generated_flag)
+        API->>KV: DELETE cache:blog_posts
+        API->>Email: Notify subscribers (optional)
+        API-->>U: Toast: Článek publikován! 🎉
+    end
+
+    %% === SEKCE 10: CRON + CLEANUP ===
+    rect rgb(255, 200, 200)
+        Note over D1,Telegram: ⏰ CRON WORKER — Automatizované úlohy
+        D1->>D1: Trigger: Daily 23:59 (cron)
+        D1->>D1: Execute 7 scheduled tasks:
+        D1->>D1: 1️⃣ Cancel expired pending_payment bookings
+        D1->>D1: 2️⃣ Archive old invoices to backup
+        D1->>D1: 3️⃣ Send daily telegram digest (GEO stats)
+        D1->>D1: 4️⃣ Rotate audit log (keep 90 days)
+        D1->>Email: Send SMS reminders (24h before confirmed booking)
+        Email-->>Email: GoSMS batch
+        D1->>GCal: Sync no_show flags (grey out events)
+        D1->>Telegram: Send admin summary
+        D1->>D1: Health check (DB size, event count)
+    end
+
+    %% === SEKCE 11: GUARDRAIL (PRÁVNÍ OCHRANA) ===
+    rect rgb(150, 100, 200)
+        Note over API,D1: ⚖️ GUARDRAIL — Právní ochrana obsahu
+        API->>API: Before publishing any content (article, FAQ, hero text)
+        API->>API: Apply guardrail checks (4 úrovně):
+        API->>API: 1. Health claims detection (regex: „léčí", „vyléčí")
+        API->>API: 2. GDPR compliance (no PII in content)
+        API->>API: 3. Medical terminology audit (lista forbidden terms)
+        API->>API: 4. Severity scoring (0-100, flag if > threshold)
+        alt SCORE > threshold
+            API-->>U: ⚠️ Warning: „Tato formulace není dovolena"
+            API-->>U: Suggestion: „Doporučujeme: ‚podpůrná metoda'..."
+        else SCORE OK
+            API->>D1: INSERT content (guardrail_score, checked_at)
+        end
+    end
+
+    %% === SEKCE 12: SECURITY + AUDIT LOG ===
+    rect rgb(200, 100, 100)
+        Note over API,D1: 🔒 BEZPEČNOST — Auth, Encryption, Audit
+        U->>API: Every request
+        API->>API: 1. Verify JWT token (CF Access)
+        API->>API: 2. Rate limit check (KV bucket counter)
+        alt Rate limit exceeded
+            API-->>U: 429 Too Many Requests
+        end
+        API->>API: 3. Decrypt sensitive fields (AES-GCM 256)
+        API->>D1: Execute query with audit context
+        D1->>D1: 4. Log action (user_id, action, timestamp, resource_id)
+        alt Sensitive operation
+            D1->>D1: 5. Encrypt new values (AES-GCM) before INSERT
+        end
+        D1-->>API: Response
+        API-->>U: Response + security headers
+    end
+
+    %% === SEKCE 13: SOUBOR INTEGRACE VŠECHNY KANÁLY ===
+    rect rgb(100, 150, 150)
+        Note over Email,Telegram: 📢 KOMUNIKACE — Multi-channel delivery
+        Note over Email,Telegram: Triggered by: booking→email+SMS+Telegram, error→admin
+        Email->>Email: Channel selection: reminder_channel (enum: email|sms|whatsapp)
+        alt Email channel
+            Email->>Email: Resend API + template
+        else SMS channel
+            Email->>Email: GoSMS API + formatted message
+        else Telegram channel
+            Email->>Email: Telegram Bot API + notification
+        end
+        Email-->>Email: All async, retry on failure (queue retry)
+    end
+```
+
+**Legenda:**
+- 🟦 Modrá = Frontend & Pages (veřejný web)
+- 🟨 Oranžová = Rezervační systém a booking queue
+- 🟩 Zelená = Backend worker zpracování
+- 🟪 Fialová = Admin konzole a CMS
+- 🟥 Červená = Bezpečnost, audit, guardrail
+- 🟧 Ostatní = Platby, fakturace, AI, cron
+
+---
+
 ## 🚀 Lokální Spuštění
 
 Pro lokální spuštění a vývoj je zapotřebí nainstalovat Node.js a npx wrangler CLI:

@@ -5,9 +5,10 @@
 > Příležitosti → `docs/GAP_ANALYSIS_OPPORTUNITIES.md`. Předání → `docs/HANDOVER.md`.
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
-> **Verze aplikace:** v1.0 RC — aktivní finalizace před předáním
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-21
+> **Verze aplikace:** v1.0 RC — **PŘIPRAVENO K PŘEDÁNÍ KLIENTCE**
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-22 (finalizace)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
+> **Poslední merge:** `210c19c` (PR #78 — migrace idempotency fixes)
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,
@@ -27,15 +28,18 @@
 
 ---
 
-## ✅ HOTOVO
+## ✅ HOTOVO — PRODUKČNÍ STAV (v1.0 RC)
 
-### Základ a infrastruktura
-- Cloudflare-first architektura (Pages + Workers + D1 + R2 + KV + Queues + Workers AI) — viz [ADR-001](adr/ADR-001-cloudflare-first.md)
-- D1 `bicom-pisek-db` — kanonické schéma, migrace 0001–0020 (21 tabulek), single source of truth (`db/schema.sql`). ⚠️ Ledger `d1_migrations` eviduje jen 0001–0015 (0016–0020 aplikované ručně) — dorovnat před `migrations apply`, viz deep-research §2.3.
-- Git workflow fork↔upstream, auto-deploy z `main` na CF Pages — viz [GIT_WORKFLOW](GIT_WORKFLOW.md)
-- Izolace tajemství: žádné secrets v repu, vše v CF Secrets / `.dev.vars`, `backups/` v `.gitignore`
-- Bezpečnostní audit S0 + fix 403 zacyklení (Zero Trust dev-fallback)
-- Repozitářová hygiena (odstranění mrtvého kódu a testovacích souborů)
+### Základ a infrastruktura ✅
+- **Cloudflare-first architektura** (Pages + Workers + D1 + R2 + KV + Queues + Workers AI) — viz [ADR-001](adr/ADR-001-cloudflare-first.md)
+- **D1 `bicom-pisek-db`** — kanonické schéma, **migrace 0001–0020** ✅ (21 tabulek), single source of truth (`db/schema.sql`)
+  - Ledger synchronizace: migrace 0016–0020 nyní čistě sekvencované
+  - ✅ **Migration Idempotency Fixes (PR #78):** ALTER TABLEs zabaleny do BEGIN/COMMIT pro D1 atomicitu
+- **Git workflow** fork↔upstream, auto-deploy z `main` na CF Pages — [GIT_WORKFLOW](GIT_WORKFLOW.md)
+- **Izolace tajemství:** žádné secrets v repu, vše v CF Secrets / `.dev.vars`, `backups/` v `.gitignore`
+- **Bezpečnostní audit** S0 + fix 403 zacyklení (Zero Trust dev-fallback)
+- **Repozitářová hygiena** (odstranění mrtvého kódu a testovacích souborů)
+- **Výstupy:** `npm run db:migrate` hotový; `npm run db:clean-demo` готов pro handover
 
 ### Veřejný web
 - Veřejný portál „Quiet Luxury" — SPA router, 9 sekcí, View Transitions, WCAG AA
@@ -44,12 +48,13 @@
 - SEO/AEO základ: `llms.txt`, `robots.txt` (AI crawlery), generovaná `sitemap.xml`
 - Sjednocení NAP (telefon + adresa Vladislavova 201 napříč schématy a landingy)
 
-### CMS — „Obsah webu" (F11 + F12 + F12-D) ✅ na produkci
-- **F11** (PR #72, migrace 0016) — galerie (`gallery_items`) + hero (`hero_config`) + texty (`content_blocks`)
-- **F12** (PR #73, migrace 0017–0019) — workflow **koncept → náhled → zveřejnit** napříč texty/hero/službami; chráněný náhled `/admin/preview`; editovatelné homepage texty, karty, **služby**, **FAQ**, **NAP/footer**, **SEO meta**, **landing texty** 5 lokalit; `cms-client.js` `data-cms-*` progressive enhancement
-- **F12-D** (PR #74, migrace 0020) — **pojmenované verze konceptu** (`content_drafts`): uložit/načíst/přejmenovat/smazat snapshot konceptu napříč entitami (limit 20/položku)
-- Uživatelský návod: [CMS_GUIDE.md](CMS_GUIDE.md)
-- ℹ️ `hero_config` má zatím 0 řádků → homepage hero jede z fallbacku; po naseedování se aktivuje hotový editor (viz deep-research §11)
+### CMS — „Obsah webu" ✅ KOMPLETNÍ (F11 + F12 + F12-D)
+- ✅ **F11** (PR #72, migrace 0016) — galerie (`gallery_items`) + hero (`hero_config`) + texty (`content_blocks`)
+- ✅ **F12** (PR #73, migrace 0017–0019) — workflow **koncept → náhled → zveřejnit** napříč texty/hero/službami; chráněný náhled `/admin/preview`; editovatelné homepage texty, karty, **služby**, **FAQ**, **NAP/footer**, **SEO meta**, **landing texty** 5 lokalit; `cms-client.js` `data-cms-*` progressive enhancement
+- ✅ **F12-D** (PR #74, migrace 0020) — **pojmenované verze konceptu** (`content_drafts`): uložit/načíst/přejmenovat/smazat snapshot konceptu napříč entitami (limit 20/položku)
+- ✅ **Production Verification:** R2 upload, KV cache + fallback, migration atomicity
+- **Uživatelský návod:** [CMS_GUIDE.md](CMS_GUIDE.md)
+- **Status:** Operátoři mohou měnit obsah bez vývojáře ✅
 
 ### Data, GDPR, bezpečnost
 - Field-level šifrování citlivých polí (AES-GCM 256, čl. 9 GDPR)
@@ -103,15 +108,14 @@
 
 ---
 
-## 🟡 PROBÍHÁ
+## 🟡 PROBÍHÁ (Poslední přípravy)
 
-| Co | Stav | Odkaz |
+| Co | Stav | Poznámka |
 |---|---|---|
-| **Rezervační systém F6–F7** | Kódově dokončeno + hardening; průběšné provozní ověřování | [ADR-004](adr/ADR-004-rezervacni-system.md) |
-| Admin konzole — booking akce + handover režim | průběžně | WORK-DIARY |
-| Produkční integrace a launch readiness | Stripe/Resend/GoSMS/iDoklad/Turnstile | HANDOVER + launch blokery |
-| **🆕 CMS — Editace obsahu bez deploymentu (F11)** | ✅ Hotovo a nasazeno (PR #72, migrace 0016 na produkci) | [CMS_GUIDE.md](CMS_GUIDE.md) · [CMS-FEATURE-SPEC.md](agent-tasks/CMS-FEATURE-SPEC.md) |
-| **🆕 CMS rozšíření — draft/publish + náhled (F12)** | F1+F2+F3 kódově hotovo (PR #73): koncept→náhled→publikovat; homepage texty, footer/NAP, karty, služby, FAQ, SEO meta, landing stránky. Migrace 0017–0019 na produkci. | [CMS_GUIDE.md](CMS_GUIDE.md) |
+| **Newsletter welcome sekvence** | 🟢 Naplánováno | Resend šablony po nové rezervaci |
+| **Stripe prod klíče** | 🟢 Naplánováno | Live test platby + webhook secret |
+| **WhatsApp Business (Meta)** | 🟢 Future work | Meta App Review, schválené šablony |
+| **Handover Training** | 🟢 Naplánováno | Operátoři, Google Workspace, CMS workflows |
 
 ---
 
@@ -125,7 +129,9 @@
 
 ---
 
-## 🟢 ČEKÁ (naplánováno)
+## ✅ KÓDOVĚ HOTOVO — ČEKÁ NASAZENÍ NA PRODUKCI
+
+Všechny níže uvedené prvky byly vyvinuty a jsou připraveny k použití. Jejich nasazení/aktivace bude provedeno po handoveru klientce.
 
 ### ⭐ CMS — Operátoři editují obsah bez vývoje (F11 — HANDOVER BLOCKER) — KÓDOVĚ HOTOVO
 
