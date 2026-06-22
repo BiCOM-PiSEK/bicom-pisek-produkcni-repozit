@@ -7,10 +7,12 @@
 -- Run (remote): wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0018_services_cms.sql
 
 -- ── 1) SLUŽBY: ikona ────────────────────────────────────────
-ALTER TABLE services ADD COLUMN icon_url TEXT;
--- Naseedovat cesty k ikonám z konvence /assets/img/icons/icon-<slug>.webp
-UPDATE services SET icon_url = '/assets/img/icons/icon-' || slug || '.webp'
-WHERE icon_url IS NULL OR icon_url = '';
+BEGIN;
+  ALTER TABLE services ADD COLUMN icon_url TEXT;
+  -- Naseedovat cesty k ikonám z konvence /assets/img/icons/icon-<slug>.webp
+  UPDATE services SET icon_url = '/assets/img/icons/icon-' || slug || '.webp'
+  WHERE icon_url IS NULL OR icon_url = '';
+COMMIT;
 
 -- ── 2) TEXTY HOMEPAGE KARET (config JSON, type 'config') ────
 -- Info-karty „Jak funguje" (3) a cert-karty „Důvěra a Bezpečí" (3).
