@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-06-21 CMS F12-D (pojmenované verze) + hloubkový audit projektu
+**Model:** claude-opus-4-8
+**Branch:** claude/cms-f12d-named-drafts (merged), claude/deep-research-projektu-Repo+CF+OSTATNI-21.06.2026
+**Status:** ✅ Hotovo
+
+### CMS F12-D — pojmenované koncepty (PR #74, merged)
+- Migrace **0020**: nová tabulka `content_drafts` (snapshoty konceptů; `UNIQUE(entity,entity_id,name)`), aplikováno na produkční D1.
+- `functions/admin/drafts.js` — generický endpoint list/save/load/rename/delete + sdílený `applyWorkingDraftStmt` v `lib/cms.js`; export `prepareContent/prepareHero/prepareService` pro reuse sanitizace.
+- Admin UI: „🏷️ Uložit jako verzi…" + „🗂️ Verze konceptu" napříč editory (sekce, karty, NAP, FAQ, SEO/landing, hero, služby). Limit 20 verzí/položku, atomické vynucení v jednom `INSERT…SELECT…ON CONFLICT`.
+- Zapracovány nálezy Copilot (race u id, hero nová stránka) + CodeRabbit (atomicita limitu, error-handling, uvozovky). Pre-merge 5/5.
+- Úklid: zavřeny duplicitní PR #75/#76 (obsah už v `main`).
+
+### Hloubkový audit (deep research)
+- Živá introspekce produkce (D1/KV/R2/Workers přes MCP) + statická analýza repa (3 paralelní agenti).
+- Výstup: **[docs/DEEP_RESEARCH_2026-06-21.md](../DEEP_RESEARCH_2026-06-21.md)** — bottom-up technická analýza, vytíženost 21 tabulek, stav integrací, nálezy a příležitosti.
+- Klíčové nálezy: 🔴 nulové testy/CI; 🟠 ledger `d1_migrations` eviduje jen 0001–0015 (0016–0020 ručně); 🟡 `hero_config`/`payment_transactions`/`marketing_campaigns` 0 řádků.
+- Aktualizována head dokumentace (README, ROADMAP, CLAUDE, tento deník).
+
+---
+
 ## 2026-06-19 Handover pack — Google Workspace hardening + release strategy
 **Model:** GPT-5.3-Codex  
 **Branch:** booking-f6-f7-pass1-l1l9-rebased  

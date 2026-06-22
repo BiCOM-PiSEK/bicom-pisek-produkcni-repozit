@@ -1,10 +1,14 @@
 # CLAUDE.md — Bicom Písek (vývojový kontext)
 
 ## Co to je
-Produkční web ordinace biorezonance. Cloudflare-first: Pages (HTML5+Tailwind+Vanilla ES6 SPA), Workers (V8), Workers AI (llama-3-8b), D1 `bicom-pisek-db` (14 tabulek), R2 `bicom-multimedia`, KV, Queues (booking-jobs, social-jobs). Workeři: bicom-booking-consumer, bicom-social-consumer, bicom-cron-worker. Doména kanonická: bicom-pisek.cz (s pomlčkou).
+Produkční web ordinace biorezonance. Cloudflare-first: Pages (HTML5+Tailwind+Vanilla ES6 SPA), Workers (V8), Workers AI (llama-3-8b), D1 `bicom-pisek-db` (21 tabulek), R2 `bicom-multimedia`, KV, Queues (booking-jobs, social-jobs). Workeři: bicom-booking-consumer, bicom-social-consumer, bicom-cron-worker. Doména kanonická: bicom-pisek.cz (s pomlčkou). Plnohodnotné CMS (texty/SEO/FAQ/NAP/služby/hero/galerie) s workflow koncept→náhled→zveřejnit a pojmenovanými verzemi — viz [docs/CMS_GUIDE.md](docs/CMS_GUIDE.md).
 
 ## Zdroj pravdy
-db/schema.sql (kanonické schéma) + db/seed/ + db/migrations/NNNN_*.sql. D1 má = repo.
+db/schema.sql (kanonické schéma) + db/seed/ + db/migrations/NNNN_*.sql (0001–0020). D1 má = repo.
+⚠️ Migrace 0016–0020 byly aplikované ručně (MCP/dashboard) → tabulka `d1_migrations` eviduje jen 0001–0015. Před `wrangler d1 migrations apply` nejdřív dorovnat ledger (viz deep-research report níže).
+
+## Aktuální stav (hloubkový audit)
+Nejnovější faktický průřez stavem (infrastruktura, vytíženost D1, integrace, nálezy, příležitosti): [docs/DEEP_RESEARCH_2026-06-21.md](docs/DEEP_RESEARCH_2026-06-21.md). Kompas stavu: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## REŽIM PRÁCE: aktivní vývoj (post-audit)
 - Tato pravidla platí pro VŠECHNY kódovací agenty (Claude, Gemini/Antigravity, Copilot, …), ne jen pro Claude.
