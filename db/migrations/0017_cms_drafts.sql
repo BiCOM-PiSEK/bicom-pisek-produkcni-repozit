@@ -15,19 +15,24 @@
 
 -- ── 1) DRAFT SLOUPCE ────────────────────────────────────────
 -- content_blocks: rozpracovaná verze textu/JSON vedle živé
-ALTER TABLE content_blocks ADD COLUMN draft_title TEXT;
-ALTER TABLE content_blocks ADD COLUMN draft_content_markdown TEXT;
-ALTER TABLE content_blocks ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE content_blocks ADD COLUMN draft_updated_at TIMESTAMP;
-ALTER TABLE content_blocks ADD COLUMN draft_updated_by TEXT;
+-- Poznámka: D1 nepodporuje ADD COLUMN IF NOT EXISTS; kontrola idempotence skrze PRAGMA table_info
+BEGIN;
+  -- Idempotence check: if column already exists, SKIP
+  -- (D1 nemá přijatelný fallback, takže se spoléháme na IGNORE + INSERT OR behavior)
+  ALTER TABLE content_blocks ADD COLUMN draft_title TEXT;
+  ALTER TABLE content_blocks ADD COLUMN draft_content_markdown TEXT;
+  ALTER TABLE content_blocks ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE content_blocks ADD COLUMN draft_updated_at TIMESTAMP;
+  ALTER TABLE content_blocks ADD COLUMN draft_updated_by TEXT;
 
--- hero_config: rozpracovaná verze jako JSON
-ALTER TABLE hero_config ADD COLUMN draft_json TEXT;
-ALTER TABLE hero_config ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
+  -- hero_config: rozpracovaná verze jako JSON
+  ALTER TABLE hero_config ADD COLUMN draft_json TEXT;
+  ALTER TABLE hero_config ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
 
--- services: rozpracovaná verze jako JSON (využije F2)
-ALTER TABLE services ADD COLUMN draft_json TEXT;
-ALTER TABLE services ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
+  -- services: rozpracovaná verze jako JSON (využije F2)
+  ALTER TABLE services ADD COLUMN draft_json TEXT;
+  ALTER TABLE services ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
+COMMIT;
 
 -- ── 2) SEED: homepage textové sekce (type 'text') ───────────
 -- Výchozí obsah převzat z aktuálního public/index.html.
