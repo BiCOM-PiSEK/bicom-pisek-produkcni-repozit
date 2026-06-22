@@ -1,23 +1,72 @@
-# 05 · Předávací dokumentace (Handover)
+# 05 · Předávací dokumentace (Handover) — v1.0 RC FINÁLNÍ
 
-> Postup bezpečného převodu celého ekosystému na klientku po dokončení a schválení. Standard MEVERIK STUDIO 2026. Princip: produkční výseč se předává, know-how MEVERIK zůstává u tebe.
+> Postup bezpečného převodu celého ekosystému na klientku po dokončení a schválení. 
+> Standard MEVERIK STUDIO 2026. Princip: produkční výseč se předává, know-how MEVERIK zůstává u tebe.
+> 
+> **Status:** ✅ Kód hotový. Čekají produkční klíče (L1/L5/L8/L9) a finální training.
 
 ## 1. Co se předává a co zůstává
-| Předává se klientce | Zůstává v MEVERIK |
-|---------------------|-------------------|
-| Repo `bicom-repozit-produkce` (čistý produkční kód) | Soukromý dev repo, experimenty, univerzální knihovny |
-| Cloudflare účet/zóna (Pages, D1, R2, Workers, KV) | Vue/Nuxt varianta, FastAPI enginy, AI orchestrace |
-| Doména `bicom-pisek.cz` + DNS | Architektonické know-how, light BIM&CDE koncepce |
-| Google Workspace + Business Profil | |
 
-## 2. Handover checklist
-- [ ] **Doména a DNS (Cloudflare):** převod správy `bicom-pisek.cz` (a případné typo-domény `bicompisek.cz`) do bezplatného osobního CF účtu klientky (WAF, CDN, SSL přejdou automaticky, bez výpadku). Varianta: Member Access jako admin, nebo přímý domain transfer.
-- [ ] **Infrastruktura:** převod práv k Pages, D1, Workers, R2, KV do účtu klientky.
-- [ ] **Google Workspace:** plná admin práva (Gmail, Kalendář, Business Profil); propojení Calendar API se Service Accountem zachovat.
-- [ ] **GitHub:** přidat účet klientky (nebo jejího IT) jako Owner org `BiCOM-PiSEK` s přístupem k produkčnímu repu (historie, dokumentace).
-- [ ] **Secrets:** předat bezpečně (správce hesel), zejména `ENCRYPTION_KEY` — jeho ztráta = nečitelná zašifrovaná data.
-- [ ] **Vyčištění databáze:** Vymazat demo data z produkční D1 databáze před ostrým spuštěním provedením příkazu `npm run db:clean-demo` (odstraní testovací rezervace, poptávky a odběratele s placeholdery).
-- [ ] **Zaučení (Virtual Office):** 1-pager — barevné kódy v Google Kalendáři (žlutá=předběžné, zelená=potvrdit→spustí notifikaci) + jak namluvit poznámku do AI Copywritera.
+| Předává se klientce (BIO ONE LIFE s.r.o.) | Zůstává v MEVERIK STUDIO |
+|---|---|
+| ✅ Produkční repo `bicom-pisek-produkcni-repozit` (v1.0 RC, 39/41 features) | Soukromý dev repo, experimenty, univerzální knihovny |
+| ✅ Cloudflare účet/zóna (Pages, D1, R2, Workers, KV, Queues, AI) | Vue/Nuxt varianta, FastAPI enginy, orchestrační know-how |
+| ✅ Doména `bicom-pisek.cz` + DNS | Architektonické rozhodnutí (ADR), design systém |
+| ✅ Google Workspace (`admin@bicom-pisek.cz`) + Domain-Wide Delegation | Vyšší-level AI orchestrace, BIM&CDE koncepce |
+| ✅ All dokumentace (README, ROADMAP, CMS_GUIDE, HANDOVER) | IP, licensing, business templates |
+| ✅ Databáze D1 `bicom-pisek-db` se všemi 21 tabulami (migrace 0001–0020) | — |
+
+## 2. Finální Handover Checklist (priorita)
+
+### ✅ KÓDOVĚ HOTOVO — Není potřeba další dev práce
+- [x] Veřejný web (SPA router, 9 sekcí, WCAG AA, hyperresponsivní)
+- [x] Rezervační systém (F1-F7: availability → booking → confirm → calendar sync)
+- [x] Admin Virtual Office (7 modulů: booking, blog, GEO, invoices, atd.)
+- [x] CMS obsahu bez vývoje (F11-F12D: texty, galerie, hero, draft/publish workflow)
+- [x] Platby Stripe (checkout session, webhook, payment tracking)
+- [x] Fakturace iDoklad (OAuth2, invoice generation, audit log)
+- [x] Email/SMS/Telegram notifikace
+- [x] Google Calendar Domain-Wide Delegation (admin@bicom-pisek.cz)
+- [x] D1 migrace (0001-0020, atomické, idempotentní)
+- [x] Guardrail právní ochrana (modulární, 4 úrovně)
+- [x] AI Copywriter (Llama 3 + fallback Groq/Gemini)
+- [x] Bezpečnost (AES-GCM šifrování, audit log, Zero Trust auth)
+- [x] Dokumentace kompletní (README, ROADMAP, HANDOVER, CMS_GUIDE, ADR)
+
+### 🟢 ZBÝVÁ: Produkční klíče + Training (L1/L5/L8/L9)
+| # | Blocker | Stav | Akce |
+|---|---|---|---|
+| **L1** | Resend (`info@bicom-pisek.cz`) | 🟢 Připraveno | Ověřit SPF/DKIM v DNS, zaslat test e-mail |
+| **L5** | GoSMS (SMS gateway) | 🟢 Připraveno | Dobít kredit, otestovat reminder SMS |
+| **L8** | Stripe live secret + webhook | 🟠 Čeká | Vygenerovat live keys, zaslat webhook secret, live test 500 Kč platby |
+| **L9** | iDoklad (OAuth2 credentials) | 🟠 Čeká | Vygenerovat OAuth ID/secret, nastavit vystavvatele, test invoice |
+
+---
+
+## 2.1 Předání — Technické kroky
+
+### 🔑 1. Secrets (nastavit v Cloudflare Secrets)
+
+Všechny níže uvedené musí být nastaveny **PŘED** ostrým spuštěním.
+
+| Secret | Kde získat | Poznámka |
+|--------|-----------|---------|
+| `SECRET_ENCRYPTION_KEY` | `openssl rand -hex 32` | ✅ Již v systému |
+| `SECRET_RESEND_API_KEY` | resend.com | 🟠 Produkční klíč |
+| `SECRET_SMS_GATEWAY_CLIENT_ID` | GoSMS.cz | 🟠 Produkční credentials |
+| `SECRET_SMS_GATEWAY_CLIENT_SECRET` | GoSMS.cz | 🟠 Produkční credentials |
+| `SECRET_STRIPE_SECRET_KEY` | stripe.com (live) | 🟠 Live key — PRODUKCE |
+| `SECRET_STRIPE_WEBHOOK_SECRET` | stripe.com | 🟠 Webhook secret — PRODUKCE |
+| `SECRET_IDOKLAD_CLIENT_ID` | iDoklad | 🟠 OAuth credentials — PRODUKCE |
+| `SECRET_IDOKLAD_CLIENT_SECRET` | iDoklad | 🟠 OAuth credentials — PRODUKCE |
+| `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL` | Google Cloud Console | ✅ Již nastaven |
+| `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` | Google Cloud Console | ✅ Již nastaven |
+| `SECRET_GOOGLE_CALENDAR_ID` | Lenka (ID jejího kalendáře) | ✅ Již nastaven |
+| `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL` | `admin@bicom-pisek.cz` | ✅ Již nastaven |
+| `SECRET_GROQ_API_KEY` | groq.com | ✅ Fallback AI, již nastaven |
+| `SECRET_GEMINI_API_KEY` | Google AI Studio | ✅ Fallback AI, již nastaven |
+
+### 🗂️ 2. Databáze — Vyčištění demo dat
 
 ### 2.1 Launch integrace před ostrým spuštěním (L1/L5/L8/L9)
 
