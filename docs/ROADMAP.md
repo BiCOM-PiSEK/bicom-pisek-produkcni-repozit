@@ -217,6 +217,7 @@ Všechny níže uvedené prvky byly vyvinuty a jsou připraveny k použití. Jej
 - [HANDOVER.md](HANDOVER.md) — Bezpečný převod ekosystému
 - [LAUNCH-TESTING-GUIDE.md](LAUNCH-TESTING-GUIDE.md) — Kompletní test suite pro L1/L5/L8/L9
 - [PRODUCTION-SECRETS-CHECKLIST.md](PRODUCTION-SECRETS-CHECKLIST.md) — Nastavení produkčních tajemství
+- [GROWTH-ROADMAP-CESTA-B.md](GROWTH-ROADMAP-CESTA-B.md) — Budoucí features (AI, SEO, social)
 
 Detailní checklist → [HANDOVER.md](HANDOVER.md). Klíčové zbývající:
 - Předávací dokumentace (PDF) — doplnit zbývající metadata (datum, adresa sídla, Google Workspace, Calendar ID, Service Account, Lighthouse/QA skóre, SLA ceny, kontakty)
