@@ -289,6 +289,80 @@ export class ResendConnector {
 
     return this.sendEmail(booking.email, subject, html);
   }
+
+  /**
+   * Send admin welcome email with Virtual Office access instructions.
+   *
+   * @param {object} admin - Admin user data.
+   * @param {string} admin.email - Admin email.
+   * @param {string} admin.name - Admin name.
+   * @returns {Promise<object|null>}
+   */
+  async sendAdminWelcome(admin) {
+    const subject = 'Vítejte v Bicom Písek Virtual Office';
+
+    const html = `
+<!DOCTYPE html>
+<html lang="cs">
+<head><meta charset="utf-8"></head>
+<body style="font-family: 'Montserrat', Arial, sans-serif; color: #2B2B2B; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #3A4A3C 0%, #627562 100%); padding: 32px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+    <h1 style="color: #FFFFFF; margin: 0 0 8px; font-size: 28px; font-family: 'Cormorant Garamond', Georgia, serif;">Bicom Písek</h1>
+    <p style="color: #E8D5B8; margin: 0; font-size: 14px;">Virtual Office — Administrační konzole</p>
+  </div>
+
+  <div style="background: #FAF8F5; padding: 24px; border-radius: 10px; margin-bottom: 24px;">
+    <h2 style="color: #3A4A3C; margin: 0 0 16px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px;">Vítejte, ${escapeHtml(admin.name)}!</h2>
+    <p style="margin: 0 0 12px;">Byl/a jste přidán/a do administrační konzole <strong>Bicom Písek</strong> s rolí <strong>správce (admin)</strong>.</p>
+    <p style="margin: 0;">Můžete nyní spravovat rezervace, obsah, galerie, faktury a další aspekty virtuální ordinace.</p>
+  </div>
+
+  <div style="background: #EFF6EF; padding: 20px; border-radius: 8px; border-left: 4px solid #5A8A5C; margin-bottom: 24px;">
+    <h3 style="color: #3A4A3C; margin: 0 0 12px; font-size: 16px;">🚀 Jak začít:</h3>
+    <ol style="margin: 0; padding-left: 20px; color: #2B2B2B;">
+      <li style="margin-bottom: 8px;">
+        <strong>Otevřete konzoli:</strong> <a href="https://bicom-pisek.cz/admin" style="color: #5A8A5C; text-decoration: underline;">https://bicom-pisek.cz/admin</a>
+      </li>
+      <li style="margin-bottom: 8px;">
+        <strong>Přihlaste se:</strong> Použijte tento e-mail a klikněte "Poslat přihlašovací kód"
+      </li>
+      <li style="margin-bottom: 8px;">
+        <strong>Ověřte se:</strong> Zadejte jednorázový kód z e-mailu
+      </li>
+      <li>
+        <strong>Začněte:</strong> Přistupte k modulům (Kalendář, Obsah, Galerie, Faktury, atd.)
+      </li>
+    </ol>
+  </div>
+
+  <div style="background: #FDF8ED; padding: 20px; border-radius: 8px; border-left: 4px solid #D4A843; margin-bottom: 24px;">
+    <h3 style="color: #3A4A3C; margin: 0 0 12px; font-size: 16px;">⚙️ Co můžete dělat:</h3>
+    <ul style="margin: 0; padding-left: 20px; color: #2B2B2B;">
+      <li style="margin-bottom: 6px;">📅 <strong>Správa rezervací</strong> — Přijímání, přesunování a potvrzování termínů</li>
+      <li style="margin-bottom: 6px;">📝 <strong>Správa obsahu</strong> — Úpravy textu, obrázků a obsahu webu</li>
+      <li style="margin-bottom: 6px;">🖼️ <strong>Galerie</strong> — Nahrávání a organizace fotografií</li>
+      <li style="margin-bottom: 6px;">📰 <strong>Blog &amp; AI</strong> — Vytváření a publikování příspěvků</li>
+      <li style="margin-bottom: 6px;">💳 <strong>Faktury a platby</strong> — Sledování transakcí a vydávání faktur</li>
+      <li>📍 <strong>GEO-Marketing</strong> — Lokální cílení a geografické kampanie</li>
+    </ul>
+  </div>
+
+  <div style="background: #EDF3F8; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+    <h3 style="color: #3A4A3C; margin: 0 0 12px; font-size: 16px;">❓ Potřebujete pomoc?</h3>
+    <p style="margin: 0 0 8px;">Pro technickou podporu nebo otázky kontaktujte prosím:</p>
+    <p style="margin: 0; font-weight: bold;">📧 <a href="mailto:support@meverik.studio" style="color: #5B7FA6; text-decoration: none;">support@meverik.studio</a></p>
+  </div>
+
+  <p style="color: #738A75; font-size: 12px; text-align: center; margin-top: 32px; border-top: 1px solid #EAEFE9; padding-top: 16px;">
+    Bicom Písek • Virtual Office v1.0<br>
+    ${BUSINESS_ADDRESS}<br>
+    <span style="color: #999;">Tento e-mail byl odeslán automaticky.</span>
+  </p>
+</body>
+</html>`.trim();
+
+    return this.sendEmail(admin.email, subject, html);
+  }
 }
 
 /**
