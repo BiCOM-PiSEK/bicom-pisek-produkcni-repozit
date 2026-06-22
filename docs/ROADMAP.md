@@ -5,10 +5,11 @@
 > Příležitosti → `docs/GAP_ANALYSIS_OPPORTUNITIES.md`. Předání → `docs/HANDOVER.md`.
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
-> **Verze aplikace:** v1.0 RC — **PŘIPRAVENO K PŘEDÁNÍ KLIENTCE**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-22 (finalizace)
+> **Verze aplikace:** v1.0 — **PREVIEW LAUNCH (22.6.2026, LIVE na bicom-pisek.cz)**
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-22 22:00 CET (v1.0 preview launch)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
-> **Poslední merge:** `210c19c` (PR #78 — migrace idempotency fixes)
+> **Poslední merge:** `3d5391f` (PR #85 — Admin user management + responsive verification + v1.0 launch prep)
+> **Status:** Veřejný web LIVE (preview mode), admin konzole LIVE, všechny funkce dostupné od 1.7.2026
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,
@@ -75,12 +76,13 @@
 
 ### Admin „Virtual Office"
 - Admin SPA (design systém, router, 7 modulů, CF Access JWT auth)
-- Admin API (dashboard, bookings, geo, copywriter, invoices, settings)
+- Admin API (dashboard, bookings, geo, copywriter, invoices, settings, **users** NEW)
 - Oprava `api.js` wrapperu, Přehledu, health, /admin/me, logout
 - Blog management: generovat → upravit → publikovat → plánovat → archivovat (migrace 0011)
 - Správa rezervací (ADR-005): Potvrdit/Přesunout/Zrušit/Smazat/Detail/no_show jsou funkční; BUG-001 (`audit_log.action`) opraven v PR #63
 - **no_show „klient nedorazil"** — tlačítko/badge/filtr v konzoli, `no_show_flag` (migrace 0015, ADR-005 varianta b)
 - **GEO-Marketing modul** — odstraněna demo/mock data i falešná „AI doporučení"; jen reálná data z `geo_leads` + poctivé prázdné stavy + pravidlové postřehy (skutečná AI doporučení → AI Studio ADR-003)
+- ✅ **Admin User Management (PR #85)** — GET/POST `/admin/users` endpoints pro správu operátorů, welcome emaily (Resend), responsive design ověřen (iPhone 390×844, iPad 768×1024)
 
 ### Platby — Stripe (mechanika hotová) — viz [STRIPE_INTEGRATION](STRIPE_INTEGRATION.md)
 - Endpointy `/api/stripe-checkout` (Checkout Session, záloha 500 Kč) + `/api/stripe-webhook` (potvrzení platby, ověření podpisu)
