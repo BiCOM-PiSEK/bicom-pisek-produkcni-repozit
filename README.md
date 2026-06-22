@@ -219,6 +219,13 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
 
 ---
 
+## 🧪 Testing & Launch Verification
+
+> **Produkční verification checklist:** [docs/LAUNCH-TESTING-GUIDE.md](docs/LAUNCH-TESTING-GUIDE.md)
+> Kompletní test suite pro L1/L5/L8/L9 blockery + end-to-end testing workflow.
+
+---
+
 ## 📊 Kompletní Procesní Diagram (Sequence)
 
 Diagram níže znázorňuje **všechny hlavní procesy** v systému Bicom Písek — od uživatele skrze web/admin, přes backend logiku, až po externí integrace a databázi.
