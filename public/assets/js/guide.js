@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const ctaEl = document.getElementById("guide-cta");
   const formEl = document.getElementById("booking-form");
   const bookingDateEl = document.getElementById("booking-date");
+  const bookingAddressEl = document.getElementById("booking-address");
+  const bookingAddressSuggestionsEl = document.getElementById("booking-address-suggestions");
+  const bookingPscEl = document.getElementById("booking-psc");
   const bookingTimeWrapEl = document.getElementById("booking-time-wrap");
   const bookingSlotsEl = document.getElementById("booking-slots");
   const bookingSlotStartEl = document.getElementById("booking-slot-start");
@@ -19,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let servicesCache = null;
   let selectedSlot = null;
   let availabilityRequestSeq = 0;
+  let placeSuggestDebounce = null;
 
   /**
    * Fetches services from API.
@@ -124,6 +128,99 @@ document.addEventListener("DOMContentLoaded", () => {
     if (s.startsWith('420')) return '+' + s;
     if (s.startsWith('0')) return '+420' + s.slice(1);
     return '+420' + s;
+  }
+
+  async function fetchPlaceSuggestions(query) {
+    const res = await fetch(`/api/places/suggest?query=${encodeURIComponent(query)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.ok ? (data.suggestions || []) : [];
+  }
+
+  function hidePlaceSuggestions() {
+    if (!bookingAddressSuggestionsEl) return;
+    bookingAddressSuggestionsEl.style.display = 'none';
+    bookingAddressSuggestionsEl.innerHTML = '';
+  }
+
+  function selectPlaceSuggestion(item) {
+    if (!bookingAddressEl) return;
+    bookingAddressEl.value = item.title || '';
+    if (bookingPscEl && item.postalCode) bookingPscEl.value = String(item.postalCode).replace(/\D+/g, '').slice(0, 5);
+    hidePlaceSuggestions();
+  }
+
+  function renderPlaceSuggestions(items) {
+    if (!bookingAddressSuggestionsEl) return;
+    if (!items.length) {
+      hidePlaceSuggestions();
+      return;
+    }
+
+    const listHtml = items.map((item, index) => `
+      <button type="button" data-suggest-index="${index}" style="display:block; width:100%; text-align:left; border:0; background:#fff; padding:10px 12px; cursor:pointer; border-bottom:1px solid #eef2f5;">
+        <strong style="display:block; font-size:0.9rem; color:var(--c-forest);">${item.title || ''}</strong>
+        <span style="display:block; font-size:0.8rem; color:#687076;">${item.subtitle || item.city || ''}</span>
+      </button>
+    `).join('');
+
+    bookingAddressSuggestionsEl.innerHTML = `
+      <div style="position:absolute; top:0; left:0; right:0; z-index:20; border:1px solid #d4dce2; border-radius:8px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,0.08); max-height:240px; overflow-y:auto; background:#fff;">
+        ${listHtml}
+      </div>
+    `;
+    bookingAddressSuggestionsEl.style.display = 'block';
+
+    bookingAddressSuggestionsEl.querySelectorAll('[data-suggest-index]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = Number.parseInt(btn.getAttribute('data-suggest-index'), 10);
+        if (Number.isInteger(idx) && items[idx]) selectPlaceSuggestion(items[idx]);
+      });
+    });
+  }
+
+  function bindAddressAutocomplete() {
+    if (!bookingAddressEl || !bookingAddressSuggestionsEl) return;
+
+    bookingAddressEl.addEventListener('input', () => {
+      const query = bookingAddressEl.value.trim();
+      if (placeSuggestDebounce) clearTimeout(placeSuggestDebounce);
+
+      if (query.length < 3) {
+        hidePlaceSuggestions();
+        return;
+      }
+
+      placeSuggestDebounce = setTimeout(async () => {
+        try {
+          const suggestions = await fetchPlaceSuggestions(query);
+          renderPlaceSuggestions(suggestions);
+        } catch (err) {
+          console.error('[booking] Places suggest error:', err);
+          hidePlaceSuggestions();
+        }
+      }, 280);
+    });
+
+    bookingAddressEl.addEventListener('blur', () => {
+      // Delay to allow suggestion click before closing dropdown.
+      setTimeout(() => {
+        hidePlaceSuggestions();
+      }, 120);
+    });
+
+    bookingAddressEl.addEventListener('focus', () => {
+      if (bookingAddressSuggestionsEl.innerHTML) bookingAddressSuggestionsEl.style.display = 'block';
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!bookingAddressSuggestionsEl || !bookingAddressEl) return;
+      const clickedInsideInput = bookingAddressEl.contains(event.target);
+      const clickedInsideMenu = bookingAddressSuggestionsEl.contains(event.target);
+      if (!clickedInsideInput && !clickedInsideMenu) {
+        hidePlaceSuggestions();
+      }
+    });
   }
 
   function updatePhoneRequirement() {
@@ -300,6 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (formEl) {
     initBookingConfig();
+    bindAddressAutocomplete();
   }
 
   // Load availability for a date
@@ -420,6 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
         preferred_date: preferred_date,
         slot_start: bookingSlotStartEl.value || null,
         psc: document.getElementById("booking-psc").value || null,
+        address: bookingAddressEl ? bookingAddressEl.value.trim() || null : null,
         note: document.getElementById("booking-note").value || null,
         consent_processing: document.getElementById("booking-consent-processing").checked,
         consent_marketing: document.getElementById("booking-marketing").checked,

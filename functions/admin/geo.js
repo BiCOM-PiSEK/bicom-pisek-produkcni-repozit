@@ -70,6 +70,20 @@ export async function onRequestGet({ env, data }) {
       count: r.count,
     }));
 
+    const h3Result = await env.DB.prepare(
+      `SELECT h3_hexagon_id, COUNT(*) as count
+       FROM geo_leads
+       WHERE h3_hexagon_id IS NOT NULL AND h3_hexagon_id != ''
+       GROUP BY h3_hexagon_id
+       ORDER BY count DESC
+       LIMIT 10`
+    ).all();
+
+    const topH3 = (h3Result?.results || []).map((r) => ({
+      h3: r.h3_hexagon_id,
+      count: r.count,
+    }));
+
     // Postřehy odvozené z REÁLNÝCH dat (žádná AI/mock — pravidlové shrnutí).
     // Zrcadlí logiku týdenního cronu _cron-geo.js (práh 5 pro tip na kampaň).
     const insights = [];
@@ -93,12 +107,19 @@ export async function onRequestGet({ env, data }) {
         description: `${s.count}× napříč regiony.`,
       });
     }
+    if (topH3.length > 0) {
+      insights.push({
+        title: 'H3 prostorová data aktivní',
+        description: `${topH3.length} geobuněk připraveno pro heatmap analýzu.`,
+      });
+    }
 
     return json({
       ok: true,
       data: {
         cities,
         topServices,
+        topH3,
         insights,
         totalLeads: cities.reduce((s, c) => s + c.count, 0),
       },

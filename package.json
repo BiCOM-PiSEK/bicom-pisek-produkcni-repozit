@@ -22,8 +22,11 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0",
     "eslint": "^9.0.0",
-    "vitest": "^1.0.0"
+    "vitest": "^1.0.0",
+    "wrangler": "^3.114.17"
+  },
+  "dependencies": {
+    "h3-js": "^4.4.0"
   }
 }

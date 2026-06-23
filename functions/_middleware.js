@@ -394,6 +394,7 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   const hostname = url.hostname;
+  const cf = context.request.cf || {};
 
   const pin = context.env.SECRET_MAINTENANCE_PIN || '1994';
   const sitekey = context.env.TURNSTILE_SITEKEY || '1x00000000000000000000AA';
@@ -437,6 +438,14 @@ export async function onRequest(context) {
     }
   }
 
-  // Pass-through to normal Pages routes/static content
-  return context.next();
+  // Pass-through to normal Pages routes/static content with edge geo hints.
+  // Request headers are used only server-side (booking analytics, geo insights).
+  const forwardedRequest = new Request(context.request);
+  forwardedRequest.headers.set('X-Client-City', encodeURIComponent(cf.city || ''));
+  forwardedRequest.headers.set('X-Client-Postal', cf.postalCode || '');
+  forwardedRequest.headers.set('X-Client-Latitude', cf.latitude || '');
+  forwardedRequest.headers.set('X-Client-Longitude', cf.longitude || '');
+  forwardedRequest.headers.set('X-Client-Country', cf.country || '');
+
+  return context.next(forwardedRequest);
 }

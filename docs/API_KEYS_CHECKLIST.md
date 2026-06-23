@@ -33,6 +33,7 @@ Všechny níže uvedené parametry musí být správně nakonfigurovány v pří
 | **`SECRET_META_IG_USER_ID`** | Secret | cron | Numerické ID Instagram Business účtu. |
 | **`SECRET_GROQ_API_KEY`** | Secret | Pages (`bicom-pisek`) | API klíč pro Groq Cloud (rychlé Llama 3/3.1 inference) jako primární chatovací LLM backend. |
 | **`SECRET_GEMINI_API_KEY`** | Secret | Pages (`bicom-pisek`) | API klíč pro Google AI Studio (Gemini 1.5 Pro) jako backup chatovacího backendu. |
+| **`SECRET_MAPYCZ_API_KEY`** | Secret | Pages (`bicom-pisek`) | Server-side API klíč pro Mapy.cz REST (autocomplete/geocode proxy endpointy `/api/places/*`). |
 | **`SECRET_ADMIN_TOKEN`** | Secret | Pages (`bicom-pisek`) | *Záložní token pro administraci (pozn. v S0 nahrazeno Cloudflare Access JWT).* |
 | **`SECRET_STRIPE_SECRET_KEY`** | Secret | Pages (`bicom-pisek`) | Live secret key pro Stripe Checkout session (`/api/stripe-checkout`). |
 | **`SECRET_STRIPE_WEBHOOK_SECRET`** | Secret | Pages (`bicom-pisek`) | Webhook signing secret pro ověření Stripe eventů (`/api/stripe-webhook`). |
@@ -47,8 +48,8 @@ Všechny níže uvedené parametry musí být správně nakonfigurovány v pří
 Níže uvedené parametry byly původně zvažovány pro frontend, nicméně reálná implementace po S0 je následující:
 
 -   **`NEXT_PUBLIC_MAPY_CZ_API_KEY` / `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`**
-    *   *Stav:* **Nepoužívá se.** Webová prezentace používá bezplatný Mapy.cz `<iframe>` widget vložený přímo do HTML bez potřeby registrace API klíče:
-        `https://api.mapy.cz/v1/iframe/index.html?center=14.1375869,49.3134106&zoom=14&mark=14.1375869,49.3134106`
+    *   *Stav:* **Nepoužívá se na klientu.** Mapové klíče se nevystavují do browseru; autocomplete/geocoding běží přes serverové proxy `/api/places/*` s `SECRET_MAPYCZ_API_KEY`. Veřejná mapa kontaktu zůstává přes embed:
+        `https://mapy.com/s/jonumebovo`
 -   **`NEXT_PUBLIC_GA_MEASUREMENT_ID`**
     *   *Stav:* Bude konfigurováno v příslušných HTML šablonách / skriptech pro cookies pouze v případě schválení měřících kódů na produkci.
 

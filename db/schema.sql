@@ -102,9 +102,14 @@ CREATE TABLE IF NOT EXISTS geo_leads (
     city TEXT,
     service TEXT,
     source TEXT,
+    latitude REAL,
+    longitude REAL,
+    h3_hexagon_id TEXT,
+    country_code TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_geo_city ON geo_leads(city);
+CREATE INDEX IF NOT EXISTS idx_geo_leads_h3 ON geo_leads(h3_hexagon_id);
 
 CREATE TABLE IF NOT EXISTS reminders (
     id TEXT PRIMARY KEY,
