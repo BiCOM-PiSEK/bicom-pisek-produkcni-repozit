@@ -360,6 +360,12 @@
             <input type="date" id="booking-date" class="form-control" required>
           </div>
 
+          <div class="form-group">
+            <label for="booking-address">Adresa (volitelné, Mapy.cz našeptávač)</label>
+            <input type="text" id="booking-address" class="form-control" placeholder="Např. Vladislavova 201, Písek" autocomplete="off">
+            <div id="booking-address-suggestions" class="booking-address-suggestions" style="display:none; position:relative; margin-top:6px;"></div>
+          </div>
+
           <div id="booking-time-wrap" class="form-group" hidden>
             <label for="booking-slots">Volný čas *</label>
             <div id="booking-slots"></div>

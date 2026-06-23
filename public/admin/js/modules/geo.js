@@ -30,6 +30,7 @@ export async function render(container, ctx) {
   const cities = geoData?.cities || [];
   const topServices = geoData?.topServices || [];
   const insights = geoData?.insights || [];
+  const topH3 = geoData?.topH3 || [];
   const totalLeads = geoData?.totalLeads || 0;
 
   const badge = totalLeads > 0
@@ -69,6 +70,16 @@ export async function render(container, ctx) {
         </div>`).join('')
     : renderEmpty('💡', 'Žádné postřehy', 'Souhrn se vytvoří, jakmile budou k dispozici poptávky.');
 
+  const h3Html = topH3.length > 0
+    ? `<div style="margin-top:var(--sp-4);">
+        <p style="font-size:var(--text-xs);text-transform:uppercase;color:var(--c-sage);font-weight:600;margin-bottom:var(--sp-2);">Top H3 buňky</p>
+        ${topH3.slice(0, 5).map((h) => `<div class="flex justify-between items-center" style="padding:var(--sp-1) 0;">
+          <code style="font-size:0.78rem;color:var(--c-charcoal);">${esc(h.h3)}</code>
+          <span style="font-size:var(--text-xs);color:var(--c-sage);">${h.count}×</span>
+        </div>`).join('')}
+      </div>`
+    : '';
+
   container.innerHTML = renderShell(`
     <div class="grid-2 gap-6">
       <div class="card">
@@ -79,6 +90,7 @@ export async function render(container, ctx) {
         <div class="card-body">
           ${citiesHtml}
           ${servicesHtml}
+          ${h3Html}
         </div>
       </div>
       <div class="card">

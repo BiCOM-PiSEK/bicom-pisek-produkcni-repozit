@@ -4,6 +4,7 @@
 
 import { DataCrypt } from '../lib/datacrypt.js';
 import { addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
+import { buildGeoLeadMeta } from '../lib/geo.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 import { verifyTurnstile } from '../lib/turnstile.js';
 import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from './availability.js';
@@ -354,9 +355,12 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // 5. GEO lead tracking (non-blocking)
-    if (psc) {
+    const sanitizedPsc = psc ? sanitize(psc) : null;
+    const geoMeta = buildGeoLeadMeta(request, sanitizedPsc, Number.parseInt(env.H3_RESOLUTION || '8', 10));
+
+    if (geoMeta.psc || geoMeta.city || (geoMeta.latitude != null && geoMeta.longitude != null)) {
       waitUntil(
-        addGeoLead(env.DB, sanitize(psc), service, 'web').catch((err) =>
+        addGeoLead(env.DB, geoMeta.psc, service, 'web', geoMeta).catch((err) =>
           console.error('[book] GEO lead error:', err)
         )
       );

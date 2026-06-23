@@ -101,7 +101,7 @@ export async function getDecryptedBooking(db, crypt, bookingId) {
  * @param {string} source - Lead source (e.g. 'web', 'social', 'ai_referral')
  * @returns {Promise<string>} - The generated geo lead ID
  */
-export async function addGeoLead(db, psc, service, source) {
+export async function addGeoLead(db, psc, service, source, geo = {}) {
   const id = crypto.randomUUID();
   // Simple PSČ → město lookup (top Písecko towns)
   const PSC_MAP = {
@@ -111,9 +111,32 @@ export async function addGeoLead(db, psc, service, source) {
   const prefix = psc ? psc.substring(0, 3) : null;
   const city = prefix ? (PSC_MAP[prefix] || 'Jiné') : null;
 
-  await db.prepare(
-    `INSERT INTO geo_leads (id, psc, city, service, source) VALUES (?, ?, ?, ?, ?)`
-  ).bind(id, psc, city, service, source).run();
+  const cityFromEdge = typeof geo.city === 'string' && geo.city.trim() ? geo.city.trim() : null;
+  const cityResolved = city || cityFromEdge;
+  const latitude = Number.isFinite(geo.latitude) ? geo.latitude : null;
+  const longitude = Number.isFinite(geo.longitude) ? geo.longitude : null;
+  const h3HexagonId = typeof geo.h3HexagonId === 'string' && geo.h3HexagonId ? geo.h3HexagonId : null;
+  const countryCode = typeof geo.countryCode === 'string' && geo.countryCode ? geo.countryCode : null;
+
+  try {
+    await db.prepare(
+      `INSERT INTO geo_leads (id, psc, city, service, source, latitude, longitude, h3_hexagon_id, country_code)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, psc, cityResolved, service, source, latitude, longitude, h3HexagonId, countryCode).run();
+  } catch (err) {
+    const msg = String(err && err.message ? err.message : '');
+    const isMissingNewGeoColumn = msg.includes('no column named latitude') ||
+      msg.includes('no column named longitude') ||
+      msg.includes('no column named h3_hexagon_id') ||
+      msg.includes('no column named country_code');
+    if (!isMissingNewGeoColumn) {
+      throw err;
+    }
+
+    await db.prepare(
+      `INSERT INTO geo_leads (id, psc, city, service, source) VALUES (?, ?, ?, ?, ?)`
+    ).bind(id, psc, cityResolved, service, source).run();
+  }
 
   return id;
 }
