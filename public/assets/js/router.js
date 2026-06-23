@@ -599,12 +599,48 @@ function handleLinkClick(e) {
   }
 }
 
+/**
+ * Initializes mobile menu toggle.
+ */
+function initMenuToggle() {
+  const menuToggle = document.getElementById("menu-toggle");
+  const header = document.getElementById("header");
+  const navLinks = document.querySelectorAll("header nav a");
+
+  if (!menuToggle || !header) return;
+
+  // Toggle menu on button click
+  menuToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    header.classList.toggle("nav-open");
+    const isOpen = header.classList.contains("nav-open");
+    menuToggle.setAttribute("aria-expanded", isOpen);
+  });
+
+  // Close menu when clicking on a nav link
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      header.classList.remove("nav-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("header")) {
+      header.classList.remove("nav-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
 // Listen to popstate and clicks
 window.addEventListener("popstate", resolveRoute);
 document.body.addEventListener("click", handleLinkClick);
 
 // Initial routing
 document.addEventListener("DOMContentLoaded", () => {
+  initMenuToggle();
   resolveRoute();
 });
 
