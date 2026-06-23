@@ -3,7 +3,7 @@
 > Postup bezpečného převodu celého ekosystému na klientku po dokončení a schválení. 
 > Standard MEVERIK STUDIO 2026. Princip: produkční výseč se předává, know-how MEVERIK zůstává u tebe.
 > 
-> **Status:** 🟡 v1.0 preview live. Čekají produkční klíče (L1/L5/L8/L9), finální training a dokončení povinného v1.x scope „Bicom Visual Studio“ (AI Studio).
+> **Status:** 🟡 v1.0 preview live. AI Studio wave 1+2 je nasazené (visual pipeline + Studio UI + jobs/retry); čekají produkční klíče (L1/L5/L8/L9), finální training a publish orchestrace.
 
 ## 1. Co se předává a co zůstává
 
@@ -14,7 +14,7 @@
 | ✅ Doména `bicom-pisek.cz` + DNS | Architektonické rozhodnutí (ADR), design systém |
 | ✅ Google Workspace (`admin@bicom-pisek.cz`) + Domain-Wide Delegation | Vyšší-level AI orchestrace, BIM&CDE koncepce |
 | ✅ All dokumentace (README, ROADMAP, CMS_GUIDE, HANDOVER) | IP, licensing, business templates |
-| ✅ Databáze D1 `bicom-pisek-db` se všemi 21 tabulami (migrace 0001–0020) | — |
+| ✅ Databáze D1 `bicom-pisek-db` se všemi 23 tabulami (migrace 0001–0023) | — |
 
 ## 2. Finální Handover Checklist (priorita)
 
@@ -43,7 +43,9 @@
 
 ### 🟡 ZBÝVÁ: Bicom Visual Studio (AI Studio) — povinné v1.x dorovnání
 - [x] Wave 1 start: sjednocený AI provider chain pro `/api/chat` + `/admin/copywriter` (`functions/lib/ai/providers.js`)
-- [ ] Wave 1 completion: admin Studio flow bez placeholderů pro minimální robustní provozní využití
+- [x] Wave 1 completion: admin Studio flow bez placeholderů pro minimální robustní provozní využití
+- [x] Wave 2 completion: jobs console + retry flow (`ai_jobs`, `/admin/imagine?view=jobs`, retry endpoint)
+- [ ] Wave 3: publish orchestrace pro schválené assety (social/web pipeline handoff)
 
 ---
 

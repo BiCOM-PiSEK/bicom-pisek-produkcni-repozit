@@ -1,6 +1,6 @@
 # 🌿 Bicom Písek — Virtual Office & produkční web
 
-Verze: **v1.0 RC — aktivní finalizace před předáním**
+Verze: **v1.0 Preview LIVE — AI Studio rollout probíhá**
 
 Hlavní produkční repozitář organizace **BiCOM-PiSEK** (`bicom-pisek-produkcni-repozit`). Tento repozitář představuje autoritativní zdroj pravdy (Single Source of Truth) pro celé technologické a programové řešení lokálního centra. Projekt je navržen a realizován podle standardu **MEVERIK STUDIO** s využitím moderní architektury **Edge-First** – veškerá aplikační logika, databáze i umělá inteligence běží na okraji sítě (Edge), což zajišťuje bleskovou odezvu (typicky < 200 ms), vysokou spolehlivost a nulové fixní provozní náklady za pronájem klasických serverů.
 
@@ -44,7 +44,7 @@ flowchart TD
     end
 
     subgraph Data ["Data & Storage Layer"]
-        D1["Cloudflare D1 (SQLite Database)\n- 21 tabulek, migrace 0001–0020 (GDPR AES-GCM)"]
+        D1["Cloudflare D1 (SQLite Database)\n- 23 tabulek, migrace 0001–0023 (GDPR AES-GCM)"]
         R2["Cloudflare R2\n(bicom-multimedia bucket)"]
         KV["Cloudflare KV\n(Cache, Rate Limiting, Config)"]
     end
@@ -209,7 +209,7 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
  ├─ Rezervační systém F6-F7 (`POST /api/book` v2, kolizní zámek, DST/KV cache, QA)
  ├─ Admin použitelnost a handover dokumentace pro klienta
  ├─ Produkční integrace Stripe / iDoklad / Resend / GoSMS
- ├─ Bicom Visual Studio (AI Studio) v1.x recovery: sjednocení AI providerů a postupné dorovnání scope
+ ├─ Bicom Visual Studio (AI Studio) v1.x: visual pipeline + Studio UI + job console + retry flow
  └─ Stabilizace booking/admin toku po fixu BUG-001 (PR #63)
 
  NA HORIZONTU (Budoucí rozvoj)
@@ -532,7 +532,7 @@ Pravidla pro vývoj, větvení a synchronizaci se řídí dokumentem [docs/GIT_W
 
 ---
 
-Vydání: **v1.0 RC — aktivní finalizace před předáním**  
+Vydání: **v1.0 Preview LIVE — průběžný rollout AI Studio**  
 © 2026 **MEVERIK STUDIO / WHC s.r.o.**  
 Všechna práva vyhrazena.  
 Kanonický web: [bicom-pisek.cz](https://bicom-pisek.cz)
