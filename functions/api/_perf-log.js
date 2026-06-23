@@ -15,15 +15,25 @@
  */
 
 import { nanoid } from 'nanoid';
-import { createHash } from 'crypto';
+
+/**
+ * Simple hash function for deduplication (Web Crypto compatible)
+ */
+async function simpleHash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 20);
+}
 
 /**
  * Generate unique key for deduplication
  * Hash of: category + message (to group similar errors)
  */
-function generateDedupKey(category, message = '') {
+async function generateDedupKey(category, message = '') {
   const combined = `${category}:${message}`;
-  return createHash('md5').update(combined).digest('hex').slice(0, 20);
+  return await simpleHash(combined);
 }
 
 /**
@@ -223,7 +233,7 @@ export async function onRequest(request, env) {
     for (const event of events) {
       const { category, metadata } = event;
       const message = extractMessage(event);
-      const dedupKey = generateDedupKey(category, message);
+      const dedupKey = await generateDedupKey(category, message);
       const severity = determineSeverity(event);
 
       // Store bug report (or update if duplicate)

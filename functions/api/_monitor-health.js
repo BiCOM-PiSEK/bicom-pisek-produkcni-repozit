@@ -14,13 +14,22 @@
  * Deployment:
  *   wrangler deploy --name _monitor-health functions/api/_monitor-health.js
  * 
- * Cron trigger in wrangler.toml:
- *   [env.production.triggers.crons]
- *   crons = ["*/5 * * * *"]
+ * Cron trigger configured in wrangler.toml.
+ * Runs every 5 minutes via synthetic monitoring schedule.
  */
 
 import { nanoid } from 'nanoid';
-import { createHash } from 'crypto';
+
+/**
+ * Simple hash function for deduplication (Web Crypto compatible)
+ */
+async function simpleHash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
 
 const BASE_URL = 'https://bicom-pisek.cz';
 
@@ -36,16 +45,16 @@ const SLO_TARGETS = {
  * Generate unique key for deduplication
  * Hash of: endpoint + error_message (if failed)
  */
-function generateDedupKey(endpoint, errorMessage = null) {
+async function generateDedupKey(endpoint, errorMessage = null) {
   const combined = errorMessage ? `${endpoint}:${errorMessage}` : endpoint;
-  return createHash('md5').update(combined).digest('hex').slice(0, 16);
+  return await simpleHash(combined);
 }
 
 /**
  * Check if alert was already sent in the last N hours
  */
 async function isDuplicate(db, endpoint, errorMessage, hours = 1) {
-  const key = generateDedupKey(endpoint, errorMessage);
+  const key = await generateDedupKey(endpoint, errorMessage);
   
   // Check monitoring_alerts table for recent duplicates
   const existing = await db
