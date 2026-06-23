@@ -1,4 +1,4 @@
--- Migration 0021: GEO leads enrichment (edge coordinates + H3 index)
+-- Migration 0022: GEO leads enrichment (edge coordinates + H3 index)
 
 ALTER TABLE geo_leads ADD COLUMN latitude REAL;
 ALTER TABLE geo_leads ADD COLUMN longitude REAL;

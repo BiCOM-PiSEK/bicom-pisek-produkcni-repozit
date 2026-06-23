@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedSlot = null;
   let availabilityRequestSeq = 0;
   let placeSuggestDebounce = null;
+  let placeSuggestRequestSeq = 0;
 
   /**
    * Fetches services from API.
@@ -130,6 +131,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return '+420' + s;
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   async function fetchPlaceSuggestions(query) {
     const res = await fetch(`/api/places/suggest?query=${encodeURIComponent(query)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -159,8 +169,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const listHtml = items.map((item, index) => `
       <button type="button" data-suggest-index="${index}" style="display:block; width:100%; text-align:left; border:0; background:#fff; padding:10px 12px; cursor:pointer; border-bottom:1px solid #eef2f5;">
-        <strong style="display:block; font-size:0.9rem; color:var(--c-forest);">${item.title || ''}</strong>
-        <span style="display:block; font-size:0.8rem; color:#687076;">${item.subtitle || item.city || ''}</span>
+        <strong style="display:block; font-size:0.9rem; color:var(--c-forest);">${escapeHtml(item.title || '')}</strong>
+        <span style="display:block; font-size:0.8rem; color:#687076;">${escapeHtml(item.subtitle || item.city || '')}</span>
       </button>
     `).join('');
 
@@ -192,8 +202,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       placeSuggestDebounce = setTimeout(async () => {
+        const requestSeq = ++placeSuggestRequestSeq;
+        const queryAtRequest = query;
         try {
           const suggestions = await fetchPlaceSuggestions(query);
+          if (requestSeq !== placeSuggestRequestSeq) return;
+          if (!bookingAddressEl || bookingAddressEl.value.trim() !== queryAtRequest) return;
           renderPlaceSuggestions(suggestions);
         } catch (err) {
           console.error('[booking] Places suggest error:', err);

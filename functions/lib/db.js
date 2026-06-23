@@ -112,7 +112,7 @@ export async function addGeoLead(db, psc, service, source, geo = {}) {
   const city = prefix ? (PSC_MAP[prefix] || 'Jiné') : null;
 
   const cityFromEdge = typeof geo.city === 'string' && geo.city.trim() ? geo.city.trim() : null;
-  const cityResolved = cityFromEdge || city;
+  const cityResolved = city || cityFromEdge;
   const latitude = Number.isFinite(geo.latitude) ? geo.latitude : null;
   const longitude = Number.isFinite(geo.longitude) ? geo.longitude : null;
   const h3HexagonId = typeof geo.h3HexagonId === 'string' && geo.h3HexagonId ? geo.h3HexagonId : null;
@@ -126,6 +126,7 @@ export async function addGeoLead(db, psc, service, source, geo = {}) {
   } catch (err) {
     const msg = String(err && err.message ? err.message : '');
     const isMissingNewGeoColumn = msg.includes('no column named latitude') ||
+      msg.includes('no column named longitude') ||
       msg.includes('no column named h3_hexagon_id') ||
       msg.includes('no column named country_code');
     if (!isMissingNewGeoColumn) {

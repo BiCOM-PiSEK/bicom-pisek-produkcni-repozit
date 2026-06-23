@@ -358,9 +358,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const sanitizedPsc = psc ? sanitize(psc) : null;
     const geoMeta = buildGeoLeadMeta(request, sanitizedPsc, Number.parseInt(env.H3_RESOLUTION || '8', 10));
 
-    if (sanitizedPsc || geoMeta.city || (geoMeta.latitude != null && geoMeta.longitude != null)) {
+    if (geoMeta.psc || geoMeta.city || (geoMeta.latitude != null && geoMeta.longitude != null)) {
       waitUntil(
-        addGeoLead(env.DB, sanitizedPsc, service, 'web', geoMeta).catch((err) =>
+        addGeoLead(env.DB, geoMeta.psc, service, 'web', geoMeta).catch((err) =>
           console.error('[book] GEO lead error:', err)
         )
       );

@@ -51,13 +51,17 @@ export async function onRequestGet({ request, env }) {
   upstreamUrl.searchParams.set('limit', '8');
 
   try {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 8000);
     const res = await fetch(upstreamUrl.toString(), {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'X-Mapy-Api-Key': apiKey,
       },
+      signal: abortController.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       const text = await res.text();
@@ -67,6 +71,9 @@ export async function onRequestGet({ request, env }) {
     const body = await res.json();
     return json({ ok: true, suggestions: normalizeSuggestions(body) });
   } catch (err) {
+    if (err && err.name === 'AbortError') {
+      return json({ ok: false, error: 'Mapy.cz suggest timeout.' }, 504);
+    }
     console.error('[places/suggest] Upstream error:', err);
     return json({ ok: false, error: 'Nepodařilo se načíst našeptávač adres.' }, 502);
   }
