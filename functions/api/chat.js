@@ -1,4 +1,7 @@
 import { checkRateLimit } from '../lib/rate-limit.js';
+import { runText } from '../lib/ai/providers.js';
+import { getSkill } from '../lib/ai/skills/index.js';
+import { loadAiRuntimeConfig } from '../lib/ai/skills/runtime-config.js';
 
 // Global daily cap for AI chat requests to prevent abuse (tunable)
 const AI_CHAT_DAILY_CAP = 500;
@@ -15,19 +18,6 @@ const FORBIDDEN_WORDS = [
   'léčí', 'vyléčí', 'zaručeně', 'garantujeme', '100%',
   'leci', 'vyleci', 'zarucene', 'garantujeme',
 ];
-
-// System prompt — Quiet Luxury tone, empathetic, legally compliant
-const SYSTEM_PROMPT = `Jsi AI rádce kliniky Bicom Písek. Tvoje role je pomáhat návštěvníkům webu s otázkami o biorezonanční terapii.
-
-PRAVIDLA:
-1. Odpovídej VŽDY česky, empaticky a srozumitelně.
-2. NIKDY nepoužívej slova: léčí, vyléčí, zaručeně, garantujeme, 100%.
-3. VŽDY používej: podporuje, pomáhá, komplementární, doplněk klasické medicíny, mnozí klienti uvádějí.
-4. Doporučuj konkrétní služby z katalogu Bicom Písek s orientačními cenami.
-5. Pokud si nejsi jistý/á odpovědí, řekni "Na tuto otázku Vám rádi odpovíme e-mailem nebo telefonicky" a eskaluj.
-6. Biorezonanční terapie je DOPLŇKOVÁ metoda, nikdy nenahrazuje lékařskou péči.
-7. U dětí vždy zmiň nutnost souhlasu rodiče.
-8. Buď stručný/á — max 3-4 věty na odpověď, pokud se uživatel neptá na detail.`;
 
 /**
  * Handles OPTIONS preflight.
@@ -124,102 +114,6 @@ async function loadFaqContext(env) {
 }
 
 /**
- * Calls Workers AI inference.
- * @param {Object} env
- * @param {Array} messages
- * @returns {Promise<string|null>}
- */
-async function callWorkersAI(env, messages) {
-  try {
-    const result = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', { messages });
-    return result?.response || null;
-  } catch (err) {
-    console.error('[chat] Workers AI error:', err);
-    return null;
-  }
-}
-
-/**
- * Fallback: Groq API inference.
- * @param {Object} env
- * @param {Array} messages
- * @returns {Promise<string|null>}
- */
-async function callGroqAPI(env, messages) {
-  if (!env.SECRET_GROQ_API_KEY) return null;
-
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.SECRET_GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama3-8b-8192',
-        messages,
-        max_tokens: 512,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data?.choices?.[0]?.message?.content || null;
-  } catch (err) {
-    console.error('[chat] Groq API error:', err);
-    return null;
-  }
-}
-
-/**
- * Fallback: Gemini API inference.
- * @param {Object} env
- * @param {Array} messages
- * @returns {Promise<string|null>}
- */
-async function callGeminiAPI(env, messages) {
-  if (!env.SECRET_GEMINI_API_KEY) return null;
-
-  try {
-    // Convert OpenAI-style messages to Gemini format
-    const contents = messages
-      .filter((m) => m.role !== 'system')
-      .map((m) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }],
-      }));
-
-    const systemInstruction = messages.find((m) => m.role === 'system');
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.SECRET_GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents,
-          systemInstruction: systemInstruction
-            ? { parts: [{ text: systemInstruction.content }] }
-            : undefined,
-          generationConfig: {
-            maxOutputTokens: 512,
-            temperature: 0.7,
-          },
-        }),
-      }
-    );
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch (err) {
-    console.error('[chat] Gemini API error:', err);
-    return null;
-  }
-}
-
-/**
  * POST /api/chat — AI chat assistant.
  */
 export async function onRequestPost({ request, env, waitUntil }) {
@@ -301,35 +195,27 @@ export async function onRequestPost({ request, env, waitUntil }) {
       loadFaqContext(env),
     ]);
 
-    // 3. Build messages array with system prompt + context
-    let systemContent = SYSTEM_PROMPT;
+    // 3. Build skill-based messages from runtime config + contexts
+    const runtimeConfig = await loadAiRuntimeConfig(env);
+    const buildChatSkill = getSkill('chatbot');
+    const { messages } = buildChatSkill({
+      message,
+      servicesContext: servicesCtx,
+      faqContext: faqCtx,
+      runtimeConfig,
+    });
 
-    if (servicesCtx) {
-      systemContent += `\n\nKATALOG SLUŽEB:\n${servicesCtx}`;
-    }
-
-    if (faqCtx) {
-      systemContent += `\n\nČASTO KLADENÉ OTÁZKY:\n${faqCtx}`;
-    }
-
-    const messages = [
-      { role: 'system', content: systemContent },
-      { role: 'user', content: message.trim() },
-    ];
-
-    // 4. Call AI with cascade fallback: Workers AI → Groq → Gemini
-    let reply = await callWorkersAI(env, messages);
-
-    if (!reply) {
-      reply = await callGroqAPI(env, messages);
-    }
-
-    if (!reply) {
-      reply = await callGeminiAPI(env, messages);
-    }
-
-    // If all providers failed
-    if (!reply) {
+    // 4. Call shared AI providers chain
+    let aiResult;
+    try {
+      aiResult = await runText({
+        env,
+        messages,
+        maxTokens: 512,
+        temperature: 0.7,
+      });
+    } catch (err) {
+      console.error('[chat] AI providers failed:', err?.details || err?.message || err);
       return new Response(
         JSON.stringify({
           success: false,
@@ -338,6 +224,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
         { status: 503, headers: CORS_HEADERS }
       );
     }
+
+    let reply = aiResult.text;
 
     // 5. Check for forbidden words and censor if needed
     let escalate = false;
@@ -358,7 +246,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
             convId,
             JSON.stringify({
               message_length: message.length,
-              provider: reply ? 'ai' : 'none',
+              provider: aiResult?.provider || 'none',
+              model: aiResult?.model || 'none',
               censored: escalate,
             })
           ).run();

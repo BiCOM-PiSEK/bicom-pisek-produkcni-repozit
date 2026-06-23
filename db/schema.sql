@@ -243,6 +243,51 @@ CREATE TABLE IF NOT EXISTS process_states (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- AI Studio visual/media lifecycle (F3)
+CREATE TABLE IF NOT EXISTS media_assets (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL CHECK(kind IN ('article_cover','social_post','social_story','social_carousel','web_banner')),
+    status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','approved','archived','failed')),
+    prompt TEXT NOT NULL,
+    negative_prompt TEXT,
+    overlay_text TEXT,
+    overlay_subline TEXT,
+    provider TEXT,
+    model TEXT,
+    r2_key TEXT NOT NULL UNIQUE,
+    image_url TEXT NOT NULL,
+    overlay_svg_url TEXT,
+    mime_type TEXT DEFAULT 'image/png',
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    created_by TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES operators(id)
+);
+CREATE INDEX IF NOT EXISTS idx_media_assets_kind_status ON media_assets(kind, status);
+CREATE INDEX IF NOT EXISTS idx_media_assets_created_at ON media_assets(created_at);
+
+-- AI Studio execution jobs (F3 hardening)
+CREATE TABLE IF NOT EXISTS ai_jobs (
+    id TEXT PRIMARY KEY,
+    job_type TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('running','succeeded','failed')),
+    payload_json TEXT,
+    result_json TEXT,
+    error_message TEXT,
+    provider TEXT,
+    model TEXT,
+    retry_count INTEGER NOT NULL DEFAULT 0,
+    created_by TEXT,
+    started_at TIMESTAMP,
+    finished_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES operators(id)
+);
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_status_created_at ON ai_jobs(status, created_at);
+
 -- CMS — galerie obrázků (F11, migrace 0016). Texty využívají content_blocks výše,
 -- audit změn obsahu se zapisuje do existující tabulky audit_log.
 CREATE TABLE IF NOT EXISTS gallery_items (
@@ -341,5 +386,9 @@ INSERT OR IGNORE INTO process_states (key, value, description) VALUES
     ('invoice_mode', 'manual', 'Režim fakturace: auto_on_confirm | auto_after_visit | manual'),
     ('telegram_notifications', 'active', 'Odesílání notifikací do Telegram skupiny'),
     ('ai_copywriter_model', 'workers-ai', 'Primární AI model: workers-ai | groq | gemini'),
+    ('ai_studio_prompts_enabled', '1', 'AI Studio prompt orchestrace: 1=enabled,0=disabled'),
+    ('ai_studio_prompt_profile', 'default', 'Aktivní profil systémových promptů pro AI skills'),
+    ('ai_studio_chat_max_sentences', '4', 'Max. počet vět v odpovědi AI chatu'),
+    ('ai_studio_daily_image_cap', '50', 'Denní limit generování AI obrázků'),
     ('cashflow_alerts', 'active', 'Týdenní cash flow upozornění přes Telegram'),
     ('booking_sms_reminder', 'active', 'SMS upomínka T-24h před termínem');

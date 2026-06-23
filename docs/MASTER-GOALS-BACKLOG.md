@@ -1,6 +1,9 @@
 # 🎯 MASTER GOALS & BACKLOG — Bicom Písek (kompletní vidění projektu)
 
-> **Zdroj pravdy:** Agreguje ROADMAP.md + GAP_ANALYSIS_OPPORTUNITIES.md + ADR-001..005 + interní poznámky  
+> ⚠️ **Poznámka:** Tento dokument je backlogový přehled a může mít historicky zastaralé statusy.
+> **Zdroj pravdy pro aktuální stav je vždy:** `docs/ROADMAP.md`.
+>
+> **Zdroj pravdy (agregace backlogu):** ROADMAP.md + GAP_ANALYSIS_OPPORTUNITIES.md + ADR-001..005 + interní poznámky  
 > **Verze:** 1.0 · 2026-06-20  
 > **Čteno jako:** „Všechno, co by měl web/admin umět, aby byl 100% kompletní"
 

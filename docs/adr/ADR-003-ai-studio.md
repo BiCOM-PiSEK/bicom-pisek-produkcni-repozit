@@ -110,6 +110,22 @@ Admin Studio → POST /admin/imagine (CF Access)
 Zahájení F1 až po dokončení stabilizačního základu (demo data cleanup,
 Google Calendar zápis, menu) — dle dohodnutého pořadí.
 
+## Nultá úroveň (Zero-Level completion gates)
+
+AI Studio je považováno za dokončené až po splnění všech bodů:
+
+1. **Architektura bez driftu**
+   - `functions/lib/ai/` je jediný zdroj pravdy pro providers + skills + composer.
+   - Endpointy neobsahují ad-hoc systémové prompty mimo skills.
+2. **Plná F1-F5 realizace**
+   - Text, vizuál, wizard, schvalování, publish orchestrace.
+3. **Prompt governance**
+   - Versioned systémové prompty per skill, runtime přepínače, audit změn.
+4. **Provozní spolehlivost**
+   - Retry/failed handling, telemetrie provider failoveru, reprodukovatelné akceptační scénáře.
+5. **Externí integrace dokončeny**
+   - Meta App Review + live publish validace jsou součást done, ne "future work".
+
 ## Důsledky
 
 **Pozitivní:** jeden zdroj pravdy pro modely i řídicí znalost; výměna

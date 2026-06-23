@@ -112,7 +112,7 @@ function renderDashboard(data) {
           <div class="card-body">
             <div class="quick-actions">
               ${renderQuickAction('calendar-plus', 'Nový termín', 'Přidat volný slot do kalendáře', 'btn-quick-slot')}
-              ${renderQuickAction('pen-tool', 'AI článek', 'Nechat AI navrhnout blog post', 'btn-quick-ai')}
+              ${renderQuickAction('pen-tool', 'AI Studio', 'Generovat vizuály a schvalovat assety', 'btn-quick-ai')}
               ${renderQuickAction('receipt', 'Faktura', 'Vystavit novou fakturu', 'btn-quick-invoice')}
               ${renderQuickAction('send', 'Newsletter', 'Odeslat kampaň odběratelům', 'btn-quick-newsletter')}
             </div>
@@ -315,7 +315,7 @@ function bindEvents(container, ctx, data) {
 
   const quickAI = container.querySelector('#btn-quick-ai');
   if (quickAI) {
-    quickAI.addEventListener('click', () => ctx.navigate('/blog'));
+    quickAI.addEventListener('click', () => ctx.navigate('/studio'));
   }
 
   const quickInvoice = container.querySelector('#btn-quick-invoice');

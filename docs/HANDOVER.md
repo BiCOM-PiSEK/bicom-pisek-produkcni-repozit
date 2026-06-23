@@ -3,7 +3,7 @@
 > Postup bezpečného převodu celého ekosystému na klientku po dokončení a schválení. 
 > Standard MEVERIK STUDIO 2026. Princip: produkční výseč se předává, know-how MEVERIK zůstává u tebe.
 > 
-> **Status:** ✅ Kód hotový. Čekají produkční klíče (L1/L5/L8/L9) a finální training.
+> **Status:** 🟡 v1.0 preview live. Čekají produkční klíče (L1/L5/L8/L9), finální training a dokončení povinného v1.x scope „Bicom Visual Studio“ (AI Studio).
 
 ## 1. Co se předává a co zůstává
 
@@ -40,6 +40,10 @@
 | **L5** | GoSMS (SMS gateway) | 🟢 Připraveno | Dobít kredit, otestovat reminder SMS |
 | **L8** | Stripe live secret + webhook | 🟠 Čeká | Vygenerovat live keys, zaslat webhook secret, live test 500 Kč platby |
 | **L9** | iDoklad (OAuth2 credentials) | 🟠 Čeká | Vygenerovat OAuth ID/secret, nastavit vystavvatele, test invoice |
+
+### 🟡 ZBÝVÁ: Bicom Visual Studio (AI Studio) — povinné v1.x dorovnání
+- [x] Wave 1 start: sjednocený AI provider chain pro `/api/chat` + `/admin/copywriter` (`functions/lib/ai/providers.js`)
+- [ ] Wave 1 completion: admin Studio flow bez placeholderů pro minimální robustní provozní využití
 
 ---
 

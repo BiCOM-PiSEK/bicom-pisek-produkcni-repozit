@@ -5,7 +5,7 @@
 import { renderMarkdown } from '/assets/js/markdown.js';
 
 export async function render(container, ctx) {
-  const { api, showToast } = ctx;
+  const { api, showToast, navigate } = ctx;
   container.innerHTML = renderSkeleton();
 
   let allPosts = [];
@@ -73,6 +73,7 @@ export async function render(container, ctx) {
               </select>
             </div>
             <button class="btn btn-champagne" id="btn-generate" style="width: 100%;">✨ Generovat článek</button>
+            <button class="btn btn-ghost mt-3" id="btn-open-studio" style="width: 100%;">🎨 Otevřít AI Studio (vizuály)</button>
             
             <div id="ai-result" class="mt-6" style="display:none;">
               <div class="card" style="border-left: 3px solid var(--c-champagne); background: var(--c-alabaster);">
@@ -163,6 +164,11 @@ export async function render(container, ctx) {
 
       genBtn.disabled = false;
       genBtn.textContent = '✨ Generovat článek';
+    });
+
+    const studioBtn = container.querySelector('#btn-open-studio');
+    studioBtn?.addEventListener('click', () => {
+      navigate('/studio');
     });
 
     // Tab buttons event listeners

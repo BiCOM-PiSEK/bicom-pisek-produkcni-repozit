@@ -3,25 +3,15 @@
  * POST /admin/copywriter — generování obsahu
  */
 
-import { buildSystemPrompt, normalizeStrictness } from '../lib/guardrail/index.js';
+import { runText } from '../lib/ai/providers.js';
+import { getSkill } from '../lib/ai/skills/index.js';
+import { loadAiRuntimeConfig } from '../lib/ai/skills/runtime-config.js';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
 const MAX_TOKENS_BLOG = 6144;
 const MAX_TOKENS_SOCIAL = 600;
-
-/** Base style prompt for AI — Quiet Luxury tone and formatting guidelines */
-const BASE_STYLE_PROMPT = `Jsi AI copywriter pro Bicom Písek — centrum biorezonanční metody BICOM.
-Píšeš v češtině, tónem "Quiet Luxury" — vřelý, profesionální, empatický, nikdy ne klinický.
-Jazyk je jako náruč, která obejme — ne medicínský text.
-
-STYL:
-- Krátké odstavce (max 3 věty)
-- Emoce + fakta v rovnováze
-- CTA na konci (objednávka, kontakt)
-- Pro blog: 800-1200 slov, pro social: max 80 slov
-- Pro newsletter: 200-400 slov`;
 
 export async function onRequestPost({ env, data, request }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
@@ -32,141 +22,34 @@ export async function onRequestPost({ env, data, request }) {
 
     if (!prompt?.trim()) return json({ ok: false, error: 'Zadejte téma.' }, 400);
 
-    // Read strictness from process_states
-    const rowGuardrail = await env.DB.prepare(
-      "SELECT value FROM process_states WHERE key = 'ai_legal_guardrail'"
-    ).first();
-    const strictness = normalizeStrictness(rowGuardrail?.value);
-
-    const systemPrompt = buildSystemPrompt({
-      tool: 'health',
-      strictness,
-      baseStyle: BASE_STYLE_PROMPT,
-    });
+    const runtimeConfig = await loadAiRuntimeConfig(env);
 
     const maxTokens = type === 'social' ? MAX_TOKENS_SOCIAL : MAX_TOKENS_BLOG;
 
-    // Build user prompt
-    let userPrompt = `Napiš ${type === 'blog' ? 'blog článek' : type === 'social' ? 'příspěvek na sociální sítě' : 'newsletter'} na téma: ${prompt}`;
-    if (service) userPrompt += `\nKontext služby: ${service}`;
-
-    userPrompt += '\n\nSTRUKTURA A FORMÁT:';
-    if (type === 'blog') {
-      userPrompt += `
-- Rozsah článku: 800–1200 slov v češtině.
-- Úvodní odstavec: BEZ nadpisu (2-3 věty pro vtažení čtenáře do tématu).
-- Hlavní část: 3-5 sekcí uvozených nadpisy '## '. V případě potřeby detailnějšího členění použij podnadpisy '### '.
-- Povinné prvky: alespoň jeden seznam s odrážkami (každý řádek začíná na '- ') a alespoň jeden zvýrazněný tip nebo citace (každý řádek začíná na '> ').
-- Závěr: jemná, nenásilná pozvánka k rezervaci konzultace (žádný agresivní ani tvrdý prodej).
-- Styl psaní: konkrétně, prakticky, žádná vata ani prázdné fráze. Odstavce odděluj výhradně prázdným řádkem.
-- Povolená markdown syntaxe: ##, ###, **, *, "- ", "> ". Žádná jiná (např. nepoužívej #, ####, atd.).`;
-    } else if (type === 'social') {
-      userPrompt += `
-- Rozsah příspěvku: velmi stručný, maximálně cca 80 slov.
-- Formátování: zcela bez nadpisů, bez markdown nadpisů.
-- Emoji: maximálně 1-2 emoji v celém textu.
-- Hashtagy: nepoužívej záplavu hashtagů, maximálně 3 hashtagy na konci.`;
-    } else {
-      userPrompt += `
-- Rozsah newsletteru: 200–400 slov.
-- Styl: informativní, osobní, s jasným CTA.`;
-    }
-
-    userPrompt += `
-- Excerpt (pouták): 150–200 znaků dlouhý prostý text bez jakéhokoliv markdown formátování.
-
-DŮLEŽITÉ POKYNY PRO FORMÁT ODPOVĚDI:
-Odpověz PŘESNĚ v tomto formátu, bez jakéhokoli textu navíc:
-===TITLE===
-(titulek na jeden řádek)
-===EXCERPT===
-(perex 150-200 znaků, prostý text, jeden odstavec)
-===CONTENT===
-(celý obsah v markdownu)
-===END===`;
+    const buildTextSkill = getSkill('text-content');
+    const { messages, strictness } = buildTextSkill({
+      type,
+      prompt,
+      service,
+      runtimeConfig,
+    });
 
     let generated = null;
-    let rawResponseText = null;
-
-    // Chain: Workers AI → fallback
-    if (env.AI) {
-      try {
-        const aiRes = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-          max_tokens: maxTokens,
-        });
-        const text = aiRes?.response || '';
-        if (text) {
-          rawResponseText = text;
-          generated = parseDelimited(text);
-        }
-      } catch (err) {
-        console.warn('[copywriter] Workers AI failed:', err.message);
-      }
-    }
-
-    // Groq fallback
-    if (!generated && env.SECRET_GROQ_API_KEY) {
-      try {
-        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${env.SECRET_GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
-            max_tokens: maxTokens,
-            temperature: 0.7,
-          }),
-        });
-        const groqData = await groqRes.json();
-        const text = groqData.choices?.[0]?.message?.content || '';
-        if (text) {
-          rawResponseText = text;
-          generated = parseDelimited(text);
-        }
-      } catch (err) {
-        console.warn('[copywriter] Groq fallback failed:', err.message);
-      }
-    }
-
-    // Gemini fallback
-    if (!generated && env.SECRET_GEMINI_API_KEY) {
-      try {
-        const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.SECRET_GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ parts: [{ text: userPrompt }] }],
-            generationConfig: {
-              maxOutputTokens: maxTokens
-            }
-          }),
-        });
-        const gemData = await gemRes.json();
-        const text = gemData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        if (text) {
-          rawResponseText = text;
-          generated = parseDelimited(text);
-        }
-      } catch (err) {
-        console.warn('[copywriter] Gemini fallback failed:', err.message);
-      }
+    let providerInfo = null;
+    try {
+      const result = await runText({
+        env,
+        messages,
+        maxTokens,
+        temperature: 0.7,
+      });
+      providerInfo = { provider: result.provider, model: result.model };
+      generated = parseDelimited(result.text);
+    } catch (err) {
+      console.warn('[copywriter] All providers failed:', err?.details || err?.message || err);
     }
 
     if (!generated) {
-      if (rawResponseText) {
-        return json({ ok: false, error: 'AI vrátila neplatný formát, zkuste generovat znovu.' }, 400);
-      }
       return json({ ok: false, error: 'Žádný AI provider nedostupný. Zkontrolujte API klíče.' }, 503);
     }
 
@@ -181,8 +64,19 @@ Odpověz PŘESNĚ v tomto formátu, bez jakéhokoli textu navíc:
       ).bind(postId, slug, generated.title, generated.excerpt || '', generated.content),
       env.DB.prepare(
         `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
-         VALUES (?, 'blog_posts', ?, 'create', ?, 'AI-generated draft')`
-      ).bind(crypto.randomUUID(), postId, `operator:${data.operator.id}`),
+         VALUES (?, 'blog_posts', ?, 'create', ?, ?)`
+      ).bind(
+        crypto.randomUUID(),
+        postId,
+        `operator:${data.operator.id}`,
+        `AI-generated draft ${JSON.stringify({
+         provider: providerInfo?.provider || 'unknown',
+         model: providerInfo?.model || 'unknown',
+         type,
+         strictness,
+         prompt_profile: runtimeConfig.ai_studio_prompt_profile || 'default',
+        })}`
+      ),
     ]);
 
     return json({
