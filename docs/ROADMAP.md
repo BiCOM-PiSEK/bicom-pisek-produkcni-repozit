@@ -115,6 +115,7 @@
 | Co | Stav | Poznámka |
 |---|---|---|
 | **Newsletter welcome sekvence** | 🟢 Naplánováno | Resend šablony po nové rezervaci |
+| **Bicom Visual Studio (AI Studio) — v1.x recovery** | 🟡 Probíhá | Návrat do povinného v1.x scope; Wave 1 = sjednocený provider chain pro chat + copywriter |
 | **Stripe prod klíče** | 🟢 Naplánováno | Live test platby + webhook secret |
 | **WhatsApp Business (Meta)** | 🟢 Future work | Meta App Review, schválené šablony |
 | **Handover Training** | 🟢 Naplánováno | Operátoři, Google Workspace, CMS workflows |
@@ -175,6 +176,8 @@ Všechny níže uvedené prvky byly vyvinuty a jsou připraveny k použití. Jej
 - 🟠 Doložit/ověřit tvrzení o třídě ZP IIa + ISO 13485 (doklad od distributora Bicom)
 
 ### AI Studio (ADR-003)
+- 🟡 **Bicom Visual Studio (= AI Studio) je vráceno do povinného v1.x scope**
+- ✅ **Wave 1 (start):** sdílený provider chain `functions/lib/ai/providers.js` nasazen pro `/api/chat` + `/admin/copywriter` (jediný zdroj pravdy pro fallback modely)
 - 🟢 Sjednocená AI vrstva se skills architekturou (F1–F5)
 - 🟢 Generování obrázků/bannerů/IG postů z copywritera
 - 🟢 Guardrail Krok 2 — detekční/cenzurní vrstva `detect.js` (vážené „9/1" skórování)

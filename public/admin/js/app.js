@@ -265,10 +265,10 @@ function initKeyboardShortcuts() {
       toggleMobileMenu();
     }
 
-    // Number keys 1-8 → navigate (with Alt)
-    if (e.altKey && e.key >= '1' && e.key <= '8') {
+    // Number keys 1-9 → navigate (with Alt)
+    if (e.altKey && e.key >= '1' && e.key <= '9') {
       e.preventDefault();
-      const routes = ['/', '/kalendar', '/blog', '/fakturace', '/platby', '/zpravy', '/geo-marketing', '/nastaveni'];
+      const routes = ['/', '/kalendar', '/blog', '/studio', '/fakturace', '/platby', '/zpravy', '/geo-marketing', '/nastaveni'];
       const idx = parseInt(e.key) - 1;
       if (routes[idx]) navigate(routes[idx]);
     }
@@ -403,4 +403,3 @@ if (document.readyState === 'loading') {
 }
 
 export { toggleSidebar, toggleActivity, toggleMobileMenu, stopPollers };
-

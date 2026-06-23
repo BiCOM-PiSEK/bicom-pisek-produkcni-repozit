@@ -27,6 +27,10 @@ const EDITABLE_KEYS = [
   'ai_copywriter_tone', // 'formal' | 'friendly' | 'quiet_luxury'
   'ai_auto_publish',    // '1' | '0' — auto-publish AI articles
   'ai_legal_guardrail', // 'off' | 'mild' | 'optimal' | 'strict'
+  'ai_studio_prompts_enabled', // '1' | '0' — enable system prompt orchestration
+  'ai_studio_prompt_profile', // prompt profile name for skills
+  'ai_studio_chat_max_sentences', // max sentence budget for chatbot replies
+  'ai_studio_daily_image_cap', // max generated images per day
   'gdpr_retention_days', // number of days before anonymization
   'booking_max_future_days', // max days in advance for bookings
   'stripe_deposit_required', // '1' | '0' — whether Stripe deposit is mandatory

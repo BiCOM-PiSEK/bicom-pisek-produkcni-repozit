@@ -209,6 +209,7 @@ Projekt je v aktivní fázi dolaďování před konečným předáním. Produkč
  ├─ Rezervační systém F6-F7 (`POST /api/book` v2, kolizní zámek, DST/KV cache, QA)
  ├─ Admin použitelnost a handover dokumentace pro klienta
  ├─ Produkční integrace Stripe / iDoklad / Resend / GoSMS
+ ├─ Bicom Visual Studio (AI Studio) v1.x recovery: sjednocení AI providerů a postupné dorovnání scope
  └─ Stabilizace booking/admin toku po fixu BUG-001 (PR #63)
 
  NA HORIZONTU (Budoucí rozvoj)

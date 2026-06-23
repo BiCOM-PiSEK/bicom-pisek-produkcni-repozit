@@ -55,6 +55,12 @@ const ROUTES = [
     moduleId: 'blog',
   },
   {
+    path: '/studio',
+    title: 'AI Studio',
+    icon: 'sparkles',
+    moduleId: 'studio',
+  },
+  {
     path: '/obsah',
     title: 'Obsah webu',
     icon: 'layout-template',

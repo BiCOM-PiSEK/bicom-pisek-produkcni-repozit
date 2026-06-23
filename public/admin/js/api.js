@@ -336,6 +336,53 @@ function generateContent(data) {
 }
 
 /**
+ * GET /admin/imagine — seznam AI vizuálních assetů.
+ * @param {Object} [params]
+ * @returns {Promise<ApiResponse>}
+ */
+function getAiAssets(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return request(`/imagine${qs ? '?' + qs : ''}`);
+}
+
+/**
+ * GET /admin/imagine?view=jobs — přehled AI generovacích jobů.
+ * @param {Object} [params]
+ * @returns {Promise<ApiResponse>}
+ */
+function getAiJobs(params = {}) {
+  const qp = new URLSearchParams({ view: 'jobs', ...params }).toString();
+  return request(`/imagine?${qp}`);
+}
+
+/**
+ * POST /admin/imagine — generování AI vizuálu.
+ * @param {Object} data
+ * @returns {Promise<ApiResponse>}
+ */
+function generateAiVisual(data) {
+  return request('/imagine', { method: 'POST', body: data, timeout: 45000 });
+}
+
+/**
+ * POST /admin/imagine {action:retry} — retry failed jobu.
+ * @param {string} jobId
+ * @returns {Promise<ApiResponse>}
+ */
+function retryAiJob(jobId) {
+  return request('/imagine', { method: 'POST', body: { action: 'retry', job_id: jobId }, timeout: 45000 });
+}
+
+/**
+ * PUT /admin/imagine — update metadata/status AI assetu.
+ * @param {Object} data
+ * @returns {Promise<ApiResponse>}
+ */
+function updateAiAsset(data) {
+  return request('/imagine', { method: 'PUT', body: data });
+}
+
+/**
  * POST /admin/publish — publikace schváleného obsahu.
  * @param {Object} data
  * @param {string} data.id       — ID blog_posts
@@ -667,6 +714,11 @@ const AdminAPI = {
   markNoShow,
   getBookingDetail,
   generateContent,
+  getAiAssets,
+  getAiJobs,
+  generateAiVisual,
+  retryAiJob,
+  updateAiAsset,
   publishContent,
   getInvoices,
   createInvoice,

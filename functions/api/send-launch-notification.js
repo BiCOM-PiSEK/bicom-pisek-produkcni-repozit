@@ -1,7 +1,10 @@
-﻿/**
+/**
+ * LAUNCH NOTIFICATION — Send API
  * POST /api/send-launch-notification
- * Sends v1.0 Preview Launch notification emails to stakeholders.
+ * One-time stakeholder notification sender.
  */
+
+import { ResendConnector } from '../lib/connectors/resend.js';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -10,101 +13,117 @@ const json = (data, status = 200) =>
   });
 
 const RECIPIENTS = [
-  { email: 'jiri.limpouch@alettgroup.cz', name: 'Jiri Limpouch' },
-  { email: 'matej.kocanda@icloud.com', name: 'Matej Kocanda' },
-  { email: 'admin@bicom-pisek.cz', name: 'BiCOM Admin' },
+  { email: 'jiri.limpouch@alettgroup.cz', name: 'Jiří Limpouch', role: 'admin' },
+  { email: 'matej.kocanda@icloud.com', name: 'Matěj Kočanda', role: 'owner' },
+  { email: 'admin@bicom-pisek.cz', name: 'BiCOM Admin', role: 'admin' },
 ];
 
-const SUBJECT = 'Bicom Pisek Virtual Office - v1.0 PREVIEW LAUNCH (od zitrka, 1.7.2026)';
+const SUBJECT = '🚀 Bicom Písek Virtual Office — v1.0 PREVIEW LAUNCH (od zítřka, 1.7.2026)';
 
-const HTML_BODY = `<!DOCTYPE html>
+const HTML_BODY = `
+<!DOCTYPE html>
 <html lang="cs">
-<head><meta charset="utf-8"><title>Bicom Pisek v1.0 Launch</title></head>
-<body style="font-family:Arial,sans-serif;color:#2B2B2B;line-height:1.6;max-width:700px;margin:0 auto;padding:20px;">
-  <div style="background:#3A4A3C;padding:24px;border-radius:8px;margin-bottom:24px;text-align:center;">
-    <h1 style="color:#FFF;margin:0;font-size:24px;">Bicom Pisek</h1>
-    <p style="color:#E8D5B8;margin:4px 0 0;font-size:13px;">Virtual Office v1.0 PREVIEW LAUNCH</p>
+<head><meta charset="utf-8"></head>
+<body style="color:#2B2B2B;line-height:1.6;max-width:700px;margin:0 auto;background:#F5F5F5;padding:20px;">
+  <div style="background:#FFFFFF;border-radius:12px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background:linear-gradient(135deg,#3A4A3C 0%,#627562 100%);padding:32px;border-radius:12px;margin-bottom:32px;text-align:center;">
+      <h1 style="color:#FFFFFF;margin:0 0 8px;font-size:28px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;letter-spacing:1px;">Bicom Písek</h1>
+      <p style="color:#E8D5B8;margin:0;font-size:13px;font-weight:300;">Virtual Office — Administrační konzole</p>
+    </div>
+    <h2 style="color:#3A4A3C;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:400;margin-top:28px;margin-bottom:16px;border-bottom:2px solid #738A75;padding-bottom:8px;">🚀 Vítejte v nové éře ordinace!</h2>
+    <p>S potěšením vás informujeme, že <strong>Bicom Písek — Virtual Office v1.0</strong> vstupuje do <strong>PREVIEW režimu od zítřka</strong> na produkční doméně <strong>bicom-pisek.cz</strong>.</p>
+    <div style="background:#EFF6EF;padding:16px;border-radius:8px;margin-bottom:16px;">
+      <strong>📋 Status:</strong> Web je v preview režimu — všechny funkce budou dostupné od <strong>1. července</strong>.
+    </div>
+    <h3 style="color:#3A4A3C;font-size:16px;margin-top:24px;margin-bottom:12px;">✅ CO JE HOTOVO (V1.0)</h3>
+    <ul style="margin:0;padding-left:20px;color:#2B2B2B;">
+      <li style="margin-bottom:8px;">Veřejný web — galerie, blog, AI Rádce, rezervace (bez platby)</li>
+      <li style="margin-bottom:8px;">Admin konzole — správa rezervací, obsahu, galerií, e-mailů</li>
+      <li style="margin-bottom:8px;">CMS — draft/publish workflow bez redeploymentu</li>
+      <li style="margin-bottom:8px;">Google Calendar & Workspace — synchronizace termínů</li>
+      <li style="margin-bottom:8px;">Email + SMS notifikace</li>
+      <li style="margin-bottom:8px;">AI Chatbot</li>
+      <li>Bezpečnost — Cloudflare Access, GDPR</li>
+    </ul>
+    <div style="margin-top:36px;padding-top:20px;border-top:1px solid #E8E8E8;text-align:center;font-size:12px;color:#999;">
+      <p style="margin:8px 0;">
+        <strong>Bicom Písek — Virtual Office v1.0</strong><br>
+        Vyvíjeno: Meverik Studio + Agentická divize MK94<br>
+        Odesláno: MEVERIK v1 — Personal AI Assistant
+      </p>
+    </div>
   </div>
-  <h2 style="color:#3A4A3C;">Vitejte v novem era ordinace!</h2>
-  <p>S potesenim vas informujeme, ze <strong>Bicom Pisek - Virtual Office v1.0</strong> vstupuje do <strong>PREVIEW rezimu od zitrka (23.6.2026)</strong> na produkcni domene <strong>bicom-pisek.cz</strong>.</p>
-  <div style="background:#EFF6EF;padding:16px;border-radius:8px;border-left:4px solid #5A8A5C;margin:16px 0;">
-    <strong>Status:</strong> Web je v preview rezimu - vsechny funkce budou dostupne od <strong>1. cervence 2026</strong>.
-  </div>
-  <h3 style="color:#3A4A3C;">CO JE HOTOVO (V1.0)</h3>
-  <ul>
-    <li>Verejny web - galerie, blog, AI Radce, rezervace</li>
-    <li>Admin konzole - sprava rezervaci, obsahu, galerii, emailu</li>
-    <li>CMS - draft/publish workflow bez redeploymentu</li>
-    <li>Google Calendar - synchronizace terminu</li>
-    <li>Email + SMS - notifikace (Resend + GoSMS)</li>
-    <li>AI Chatbot - Llama-3-8b kontextove vedomy asistent</li>
-    <li>Bezpecnost - Zero Trust (Cloudflare Access), GDPR</li>
-  </ul>
-  <h3 style="color:#3A4A3C;">CO CHYBI (Do 1.7)</h3>
-  <ul>
-    <li>Stripe payment - online platba kartou</li>
-    <li>iDoklad API - automaticke fakturovani</li>
-    <li>Meta Graph API - Instagram sync (app review pending)</li>
-  </ul>
-  <h3 style="color:#3A4A3C;">ADMIN KONZOLE</h3>
-  <p><strong>URL:</strong> <a href="https://bicom-pisek.cz/admin">https://bicom-pisek.cz/admin</a></p>
-  <p><strong>Pristup:</strong> Cloudflare Access - jednorazovy PIN na e-mail</p>
-  <h3 style="color:#3A4A3C;">TIMELINE</h3>
-  <p>22.-23.6.: Merge na produkci + Preview mode ON<br>25.-30.6.: Testing sprint<br>1.7.: FULL RELEASE v1.0</p>
-  <h3 style="color:#3A4A3C;">SUPPORT</h3>
-  <p>support@meverik.studio</p>
-  <hr style="margin:32px 0;border:none;border-top:1px solid #EEE;">
-  <p style="font-size:12px;color:#999;text-align:center;">
-    Bicom Pisek - Virtual Office v1.0<br>
-    Vyvijeno: Meverik Studio + Agenticka divize MK94<br>
-    Odesla: MEVERIK v1 - Personal AI Assistant na zaklade komunikace Mateje Kocandy
-  </p>
 </body>
-</html>`;
+</html>
+`.trim();
 
 export async function onRequestPost({ env }) {
-  const apiKey = env.SECRET_RESEND_API_KEY;
-  if (!apiKey) {
-    return json({ ok: false, error: 'SECRET_RESEND_API_KEY not configured' }, 500);
-  }
+  try {
+    const resend = new ResendConnector(env);
+    const results = [];
 
-  const results = [];
-
-  for (const recipient of RECIPIENTS) {
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Bicom Pisek <noreply@bicom-pisek.cz>',
-          to: [recipient.email],
-          subject: SUBJECT,
-          html: HTML_BODY,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        results.push({ email: recipient.email, status: 'sent', id: data.id });
-      } else {
-        results.push({ email: recipient.email, status: 'failed', error: data.message || JSON.stringify(data) });
+    for (const recipient of RECIPIENTS) {
+      try {
+        const emailResult = await resend.sendEmail(recipient.email, SUBJECT, HTML_BODY);
+        results.push({
+          email: recipient.email,
+          name: recipient.name,
+          status: emailResult ? 'sent' : 'failed',
+          message_id: emailResult?.id || null,
+        });
+      } catch (err) {
+        results.push({
+          email: recipient.email,
+          name: recipient.name,
+          status: 'error',
+          error: err.message,
+        });
       }
-    } catch (err) {
-      results.push({ email: recipient.email, status: 'error', error: err.message });
     }
+
+    const successful = results.filter((r) => r.status === 'sent').length;
+    const failed = results.filter((r) => r.status !== 'sent').length;
+
+    if (env.DB) {
+      try {
+        await env.DB.prepare(
+          `INSERT INTO audit_log (action, actor, target, details, timestamp)
+           VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`
+        ).bind(
+          'send_launch_notification',
+          'system',
+          'launch_notification_v1.0',
+          JSON.stringify({
+            campaign_id: 'LAUNCH-v1.0-22062026',
+            total_sent: RECIPIENTS.length,
+            successful,
+            failed,
+            results,
+          })
+        ).run();
+      } catch (logErr) {
+        console.warn('[launch-notification] Could not log to audit trail:', logErr);
+      }
+    }
+
+    return json({
+      ok: true,
+      campaign_id: 'LAUNCH-v1.0-22062026',
+      timestamp: new Date().toISOString(),
+      summary: {
+        total: RECIPIENTS.length,
+        sent: successful,
+        failed,
+      },
+      results,
+      message: `Notifikace odeslány: ${successful}/${RECIPIENTS.length} úspěšně`,
+    }, 201);
+  } catch (err) {
+    console.error('[launch-notification] POST error:', err);
+    return json({
+      ok: false,
+      error: 'Chyba při odesílání notifikací',
+      details: err.message,
+    }, 500);
   }
-
-  const sent = results.filter(r => r.status === 'sent').length;
-
-  return json({
-    ok: true,
-    campaign_id: 'LAUNCH-v1.0-22062026',
-    timestamp: new Date().toISOString(),
-    summary: { total: RECIPIENTS.length, sent, failed: RECIPIENTS.length - sent },
-    results,
-  }, 201);
 }
