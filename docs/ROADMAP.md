@@ -6,9 +6,9 @@
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
 > **Verze aplikace:** v1.0 — **PREVIEW LAUNCH (22.6.2026, LIVE na bicom-pisek.cz)**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-22 22:00 CET (v1.0 preview launch)
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-23 04:40 CET (AI Studio rollout + deploy)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
-> **Poslední merge:** `3d5391f` (PR #85 — Admin user management + responsive verification + v1.0 launch prep)
+> **Poslední merge:** PR #87 — AI Studio visual pipeline + Studio UI + jobs console (deployed)
 > **Status:** Veřejný web LIVE (preview mode), admin konzole LIVE, všechny funkce dostupné od 1.7.2026
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
@@ -33,7 +33,7 @@
 
 ### Základ a infrastruktura ✅
 - **Cloudflare-first architektura** (Pages + Workers + D1 + R2 + KV + Queues + Workers AI) — viz [ADR-001](adr/ADR-001-cloudflare-first.md)
-- **D1 `bicom-pisek-db`** — kanonické schéma, **migrace 0001–0020** ✅ (21 tabulek), single source of truth (`db/schema.sql`)
+- **D1 `bicom-pisek-db`** — kanonické schéma, **migrace 0001–0023** ✅ (23 tabulek), single source of truth (`db/schema.sql`)
   - Ledger synchronizace: migrace 0016–0020 nyní čistě sekvencované
   - ✅ **Migration Idempotency Fixes (PR #78):** ALTER TABLEs zabaleny do BEGIN/COMMIT pro D1 atomicitu
 - **Git workflow** fork↔upstream, auto-deploy z `main` na CF Pages — [GIT_WORKFLOW](GIT_WORKFLOW.md)
@@ -115,7 +115,7 @@
 | Co | Stav | Poznámka |
 |---|---|---|
 | **Newsletter welcome sekvence** | 🟢 Naplánováno | Resend šablony po nové rezervaci |
-| **Bicom Visual Studio (AI Studio) — v1.x recovery** | 🟡 Probíhá | Návrat do povinného v1.x scope; Wave 1 = sjednocený provider chain pro chat + copywriter |
+| **Bicom Visual Studio (AI Studio) — v1.x recovery** | 🟡 Probíhá | Wave 1+2 nasazeny (provider chain, `/admin/imagine`, Studio UI, jobs+retry); pokračuje publish orchestrace |
 | **Stripe prod klíče** | 🟢 Naplánováno | Live test platby + webhook secret |
 | **WhatsApp Business (Meta)** | 🟢 Future work | Meta App Review, schválené šablony |
 | **Handover Training** | 🟢 Naplánováno | Operátoři, Google Workspace, CMS workflows |
