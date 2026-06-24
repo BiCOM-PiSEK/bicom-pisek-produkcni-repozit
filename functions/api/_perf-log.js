@@ -14,8 +14,6 @@
  *   - Store in bug_registry with occurrence counting
  */
 
-import { nanoid } from 'nanoid';
-
 async function ensurePerfLogSchema(db) {
   await db.prepare(
     `CREATE TABLE IF NOT EXISTS bug_registry (
@@ -60,6 +58,10 @@ async function simpleHash(str) {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 20);
+}
+
+function createId() {
+  return crypto.randomUUID();
 }
 
 /**
@@ -203,7 +205,7 @@ async function triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNew, n
          VALUES (?, ?, ?, ?, ?, ?)`
       )
       .bind(
-        nanoid(),
+        createId(),
         `/api/_perf-log`,
         `${event.category}: ${message}`,
         new Date().toISOString(),

@@ -18,8 +18,6 @@
  * Runs every 5 minutes via synthetic monitoring schedule.
  */
 
-import { nanoid } from 'nanoid';
-
 async function ensureSyntheticSchema(db) {
   await db.prepare(
     `CREATE TABLE IF NOT EXISTS monitoring_alerts (
@@ -58,6 +56,10 @@ async function simpleHash(str) {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+function createId() {
+  return crypto.randomUUID();
 }
 
 const BASE_URL = 'https://bicom-pisek.cz';
@@ -108,7 +110,7 @@ async function storeTestResult(db, testName, endpoint, passed, responseTime, err
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
-      nanoid(),
+      createId(),
       testName,
       endpoint,
       passed ? 1 : 0,
@@ -133,7 +135,7 @@ async function storeAlert(db, endpoint, statusCode, responseTime, errorMessage, 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
-      nanoid(),
+      createId(),
       endpoint,
       statusCode,
       responseTime,
