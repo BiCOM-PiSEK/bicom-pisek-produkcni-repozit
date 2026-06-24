@@ -2,50 +2,61 @@ name = "bicom-pisek"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "public"
 
-# --- D1 databáze ---
-[[d1_databases]]
+# --- Environment: Production ---
+[env.production]
+vars = { ALERT_EMAIL_FROM = "alerts@bicom-pisek.cz", ALERT_EMAIL_TO = "admin@bicom-pisek.cz", MONITORING_ENABLED = "true", MONITORING_ALERT_THROTTLE_SECONDS = "300", MAINTENANCE_ENABLED = "false" }
+
+[[env.production.d1_databases]]
 binding = "DB"
 database_name = "bicom-pisek-db"
 database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
 
-# --- R2 úložiště médií ---
-[[r2_buckets]]
+[[env.production.r2_buckets]]
 binding = "MEDIA"
 bucket_name = "bicom-multimedia"
 
-# --- KV (cache, rate limit, session) ---
-[[kv_namespaces]]
+[[env.production.kv_namespaces]]
 binding = "CACHE"
 id = "57e7c49eaba94dd4ad9ede723ff69aab"
 
-# --- Workers AI ---
-[ai]
+[env.production.ai]
 binding = "AI"
 
-# --- Queues ---
-[[queues.producers]]
+[[env.production.queues.producers]]
 binding = "BOOKING_QUEUE"
 queue = "booking-jobs"
 
-[[queues.producers]]
+[[env.production.queues.producers]]
 binding = "SOCIAL_QUEUE"
 queue = "social-jobs"
 
-# --- Environment Variables (Production) ---
-[env.production.vars]
-ALERT_EMAIL_FROM = "alerts@bicom-pisek.cz"
-ALERT_EMAIL_TO = "admin@bicom-pisek.cz"
-MONITORING_ENABLED = "true"
-MONITORING_ALERT_THROTTLE_SECONDS = "300"
-MAINTENANCE_ENABLED = "false"
+# --- Environment: Preview ---
+[env.preview]
+vars = { ALERT_EMAIL_FROM = "alerts@localhost", ALERT_EMAIL_TO = "dev@localhost", MONITORING_ENABLED = "false", MONITORING_ALERT_THROTTLE_SECONDS = "60", MAINTENANCE_ENABLED = "false" }
 
-# --- Environment Variables (Preview) ---
-[env.preview.vars]
-ALERT_EMAIL_FROM = "alerts@localhost"
-ALERT_EMAIL_TO = "dev@localhost"
-MONITORING_ENABLED = "false"
-MONITORING_ALERT_THROTTLE_SECONDS = "60"
-MAINTENANCE_ENABLED = "false"
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "bicom-pisek-db"
+database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
+
+[[env.preview.r2_buckets]]
+binding = "MEDIA"
+bucket_name = "bicom-multimedia"
+
+[[env.preview.kv_namespaces]]
+binding = "CACHE"
+id = "57e7c49eaba94dd4ad9ede723ff69aab"
+
+[env.preview.ai]
+binding = "AI"
+
+[[env.preview.queues.producers]]
+binding = "BOOKING_QUEUE"
+queue = "booking-jobs"
+
+[[env.preview.queues.producers]]
+binding = "SOCIAL_QUEUE"
+queue = "social-jobs"
 
 # ⚠️  SECRETS (NIKDY do souboru!)
 # Nastav je příkazem pro Pages:
