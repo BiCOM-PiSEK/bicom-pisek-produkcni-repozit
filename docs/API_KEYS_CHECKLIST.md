@@ -63,6 +63,8 @@ Při zakládání projektů v Cloudflare se držte následujících reálných n
 -   **R2 Bucket:** `bicom-multimedia` (pro ukládání mediálních souborů a logů)
 -   **KV Namespace:** `bicom-pisek-cache` (rate-limity, maintenance cache, atd.)
 -   **Cloudflare Access:** Nastaveno nad složkou `/admin` pro obě domény `bicom-pisek.cz` i `bicom-pisek.pages.dev`.
+    - Branding přihlašovací stránky (logo/barvy/text) se nastavuje jen v Cloudflare Zero Trust dashboardu.
+    - Vzhled OTP e-mailu Cloudflare Access v repu neovlivníme; ten zůstává bez vlastního brandingu.
 
 ---
 

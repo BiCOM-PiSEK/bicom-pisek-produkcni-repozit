@@ -6,10 +6,11 @@
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
 > **Verze aplikace:** v1.0 — **LIVE PRODUCTION (24.6.2026, bicom-pisek.cz)**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-24 Phase 3.0 (Phase 2.5 merged, production monitoring active)
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-24 Phase 3.5 (admin-access hotfixes + Access branding/sync guardrails, production monitoring active)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
 > **Poslední merge:** Phase 2.5 (5a5ad66) — hamburger fix + MAINTENANCE_ENABLED + wrangler.toml refactor
 > **Status:** ✅ Veřejný web LIVE (full production, no maintenance gate), admin konzole LIVE, monitoring 24/7 active
+> **Aktuální aktivita:** 🟡 Phase 3.5 — Admin access hotfixes (PR #92 pending CodeRabbit review; diagnose Jiri OTP issue)
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,
@@ -33,11 +34,12 @@
 
 ### Základ a infrastruktura ✅
 - **Cloudflare-first architektura** (Pages + Workers + D1 + R2 + KV + Queues + Workers AI) — viz [ADR-001](adr/ADR-001-cloudflare-first.md)
-- **D1 `bicom-pisek-db`** — kanonické schéma, **migrace 0001–0023** ✅ (23 tabulek), single source of truth (`db/schema.sql`)
+- **D1 `bicom-pisek-db`** — kanonické schéma, **migrace 0001–0025** ✅ na produkci + **0026** připravená jako idempotentní admin fix, single source of truth (`db/schema.sql`)
   - Ledger synchronizace: migrace 0016–0020 nyní čistě sekvencované
   - ✅ **Migration Idempotency Fixes (PR #78):** ALTER TABLEs zabaleny do BEGIN/COMMIT pro D1 atomicitu
 - **Git workflow** fork↔upstream, auto-deploy z `main` na CF Pages — [GIT_WORKFLOW](GIT_WORKFLOW.md)
 - **Izolace tajemství:** žádné secrets v repu, vše v CF Secrets / `.dev.vars`, `backups/` v `.gitignore`
+- **Cloudflare Access branding:** logo/barvy/text login stránky se řeší v Zero Trust dashboardu; OTP e-mail zůstává Cloudflare default a není brandovatelný z repa
 - **Bezpečnostní audit** S0 + fix 403 zacyklení (Zero Trust dev-fallback)
 - **Repozitářová hygiena** (odstranění mrtvého kódu a testovacích souborů)
 - **Výstupy:** `npm run db:migrate` hotový; `npm run db:clean-demo` готов pro handover

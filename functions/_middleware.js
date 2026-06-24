@@ -385,7 +385,8 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
       
       // Verification successful! Set cookie and redirect to the presentation domain.
       document.cookie = "bypass_maintenance=__PIN_PLACEHOLDER__; path=/; max-age=2592000; secure; samesite=strict";
-      window.location.href = 'https://bicom-pisek.pages.dev';
+      // Redirect to the current origin (production domain), fallback to bicom-pisek.cz if origin is unavailable
+      window.location.href = window.location.origin || 'https://bicom-pisek.cz';
     }
   </script>
 </body>
@@ -401,7 +402,11 @@ export async function onRequest(context) {
   const sitekey = context.env.TURNSTILE_SITEKEY || '1x00000000000000000000AA';
 
   // Run maintenance logic only when explicitly enabled and only on production domains.
+  // Skip maintenance gate for admin paths (admin must always be accessible)
   if (maintenanceEnabled && (hostname === 'bicom-pisek.cz' || hostname === 'www.bicom-pisek.cz')) {
+    if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) {
+      return context.next();
+    }
     
     // Check if the user has the bypass cookie
     const cookieHeader = context.request.headers.get('Cookie') || '';

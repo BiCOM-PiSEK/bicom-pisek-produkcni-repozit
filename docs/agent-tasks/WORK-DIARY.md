@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-24 Phase 3.5 — Cloudflare Access branding & sync guardrails
+**Model:** gpt-5.4-mini
+**Branch:** fix/maintenance-admin-access
+**Status:** ✅ Hotovo — dokumentace a provozní guardrails aktualizovány
+
+### Co bylo upraveno
+- `CLAUDE.md`
+  - doplněno, že lokální fork může zaostávat za upstream/main i produkcí a že produkce je zdroj pravdy
+  - přidána poznámka, že branding Cloudflare Access login stránky je dashboard-only a OTP e-mail nejde stylovat z repa
+- `docs/PRODUCTION-DEPLOYMENT-RUNBOOK.md`
+  - doplněn sync postup pro fork/upstream
+  - přidána sekce pro branding Access login stránky (Zero Trust dashboard)
+- `docs/API_KEYS_CHECKLIST.md`
+  - doplněna infrastruktura Access brandingu jako dashboard-only konfigurace
+- `docs/ROADMAP.md`
+  - sladěn stav migrací a přidán provozní note k Access brandingu
+
+### Provozní závěr
+- Cloudflare Access OTP e-maily zůstávají defaultní; „střední cesta“ je brandovat přihlašovací stránku v Zero Trust dashboardu.
+- Budoucí agent má před jakýmkoli zásahem srovnat lokální stav s upstream/main a produkcí, aby se nevracel už vyřešený stav.
+
+---
+
 ## 2026-06-24 Phase 3.0 Production Launch — Live Stabilization
 **Model:** claude-haiku-4.5  
 **Branch:** Phase 2.5 merged to main (5a5ad66)  
