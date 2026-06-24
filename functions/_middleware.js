@@ -404,7 +404,7 @@ export async function onRequest(context) {
   // Run maintenance logic only when explicitly enabled and only on production domains.
   // Skip maintenance gate for admin paths (admin must always be accessible)
   if (maintenanceEnabled && (hostname === 'bicom-pisek.cz' || hostname === 'www.bicom-pisek.cz')) {
-    if (url.pathname.startsWith('/admin')) {
+    if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) {
       return context.next();
     }
     

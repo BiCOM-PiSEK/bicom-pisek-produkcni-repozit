@@ -6,10 +6,11 @@
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
 > **Verze aplikace:** v1.0 — **LIVE PRODUCTION (24.6.2026, bicom-pisek.cz)**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-24 Phase 3.5 (Access branding + sync guardrails, production monitoring active)
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-24 Phase 3.5 (admin-access hotfixes + Access branding/sync guardrails, production monitoring active)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
 > **Poslední merge:** Phase 2.5 (5a5ad66) — hamburger fix + MAINTENANCE_ENABLED + wrangler.toml refactor
 > **Status:** ✅ Veřejný web LIVE (full production, no maintenance gate), admin konzole LIVE, monitoring 24/7 active
+> **Aktuální aktivita:** 🟡 Phase 3.5 — Admin access hotfixes (PR #92 pending CodeRabbit review; diagnose Jiri OTP issue)
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,
