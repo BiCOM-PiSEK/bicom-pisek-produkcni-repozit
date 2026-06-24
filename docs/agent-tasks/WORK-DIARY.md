@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-24 Phase 3.5 closeout — PR #92 merged to main
+**Model:** gpt-5.3-codex
+**Branch:** main
+**Status:** ✅ Hotovo — hotfixy i migration guardrails v produkční větvi
+
+### Co bylo dokončeno
+- synchronizace lokální větve s cloud změnami (`fix/maintenance-admin-access`)
+- merge PR #92 (squash commit `58186f9`) do `main`
+- doplnění a dorovnání review fixů:
+  - boundary-safe `/admin` bypass v `functions/_middleware.js`
+  - preflight guard pro `db:migrate` (`scripts/check-d1-ledger-sync.js` + `db:migrate:unsafe`)
+
+### Provozní dopad
+- maintenance bypass už nepouští nechtěné prefixy (`/admin-news`, `/administration` apod.)
+- `db:migrate` se nyní nespustí bez explicitního potvrzení ledger syncu 0016–0020
+- Jiří Limpouch zůstává zajištěn idempotentní migrací `0026`
+
+### Poznámka k CI
+- Cloudflare Pages preview check na PR zůstává fail (dashboard-only log detail),
+  ale merge do `main` proběhl; další krok je cílená diagnostika přímo v Cloudflare dashboardu.
+
+---
+
 ## 2026-06-24 Phase 3.5 — Cloudflare Access branding & sync guardrails
 **Model:** gpt-5.4-mini
 **Branch:** fix/maintenance-admin-access
