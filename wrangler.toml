@@ -53,6 +53,7 @@ MAINTENANCE_ENABLED = "false"
 # 
 # Vyžadované secrets pro production:
 #   - RESEND_API_KEY (doporučeno) nebo SECRET_RESEND_API_KEY: API klíč z https://resend.com
+#   - INTERNAL_API_SECRET: interní sdílený secret pro volání privátních endpointů (/api/_notify)
 #   - STRIPE_WEBHOOK_SECRET: Pro zpracování Stripe webhooků
 #   - AI_SYSTEM_PROMPTS_MASTER: Master promptu pro AI orchestraci
 #

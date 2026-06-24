@@ -192,6 +192,17 @@ async function handleRequest(request, env) {
     });
   }
 
+  const requiredInternalSecret = env.INTERNAL_API_SECRET || '';
+  if (requiredInternalSecret) {
+    const providedSecret = request.headers.get('X-Internal-Secret') || '';
+    if (providedSecret !== requiredInternalSecret) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
+
   try {
     const alert = await request.json();
     const { title, severity, category, description, metadata } = alert;

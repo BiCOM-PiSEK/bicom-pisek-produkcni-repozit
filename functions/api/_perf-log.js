@@ -90,13 +90,13 @@ function extractMessage(event) {
 /**
  * Check if event was already logged in the last N hours
  */
-async function isDuplicate(db, dedupKey, hours = 1) {
+async function isDuplicate(db, dedupKey) {
   const existing = await db
     .prepare(
       `SELECT id, occurrences FROM bug_registry 
-       WHERE id = ? AND created_at > datetime('now', ? || ' hours')`
+       WHERE id = ?`
     )
-    .bind(dedupKey, -Math.abs(hours))
+    .bind(dedupKey)
     .first();
 
   return existing;

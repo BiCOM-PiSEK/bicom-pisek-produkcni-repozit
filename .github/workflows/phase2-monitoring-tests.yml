@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
     steps:
       - uses: actions/checkout@v4
       
@@ -90,11 +90,11 @@ jobs:
       - name: Check migration files
         run: |
           echo "Checking Phase 2 migration file..."
-          if [ -f "db/migrations/0021_phase2_monitoring_tables.sql" ]; then
-            echo "✓ Migration 0021 exists"
-            head -20 db/migrations/0021_phase2_monitoring_tables.sql
+          if [ -f "db/migrations/0025_phase2_monitoring_tables.sql" ]; then
+            echo "✓ Migration 0025 exists"
+            head -20 db/migrations/0025_phase2_monitoring_tables.sql
           else
-            echo "✗ Migration 0021 missing"
+            echo "✗ Migration 0025 missing"
             exit 1
           fi
       

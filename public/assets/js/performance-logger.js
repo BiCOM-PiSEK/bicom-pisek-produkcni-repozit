@@ -17,7 +17,6 @@
 class PerformanceLogger {
   constructor() {
     this.batchQueue = [];
-    this.batchSize = 0;
     this.maxBatchSize = 10; // Max items before auto-send
     this.batchInterval = 30000; // Send every 30 seconds (ms)
     this.sessionId = this.generateSessionId();
@@ -32,7 +31,7 @@ class PerformanceLogger {
   }
 
   init() {
-    console.log(`[PerformanceLogger] Initialized (sessionId: ${this.sessionId})`);
+    if (this.isDev) console.log(`[PerformanceLogger] Initialized (sessionId: ${this.sessionId})`);
 
     // Setup Web Vitals observer
     this.setupWebVitalsObserver();
@@ -136,7 +135,6 @@ class PerformanceLogger {
     // Menu toggle
     const menuToggle = document.getElementById('menu-toggle');
     if (menuToggle) {
-      const originalClickHandler = menuToggle.onclick;
       menuToggle.addEventListener('click', (e) => {
         const startTime = performance.now();
         // Let the click propagate and handler execute

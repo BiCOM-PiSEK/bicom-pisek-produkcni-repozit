@@ -47,19 +47,25 @@ async function ensureSyntheticSchema(db) {
   ).run();
 }
 
-/**
- * Simple hash function for deduplication (Web Crypto compatible)
- */
-async function simpleHash(str) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
-}
-
 function createId() {
   return crypto.randomUUID();
+}
+
+function sqliteNow() {
+  return new Date().toISOString().replace('T', ' ').replace('Z', '');
+}
+
+async function fetchWithTimeout(url, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 const BASE_URL = 'https://bicom-pisek.cz';
@@ -73,27 +79,16 @@ const SLO_TARGETS = {
 };
 
 /**
- * Generate unique key for deduplication
- * Hash of: endpoint + error_message (if failed)
- */
-async function generateDedupKey(endpoint, errorMessage = null) {
-  const combined = errorMessage ? `${endpoint}:${errorMessage}` : endpoint;
-  return await simpleHash(combined);
-}
-
-/**
  * Check if alert was already sent in the last N hours
  */
 async function isDuplicate(db, endpoint, errorMessage, hours = 1) {
-  const key = await generateDedupKey(endpoint, errorMessage);
-  
-  // Check monitoring_alerts table for recent duplicates
   const existing = await db
     .prepare(
       `SELECT id FROM monitoring_alerts 
-       WHERE endpoint = ? AND created_at > datetime('now', ? || ' hours')`
+       WHERE endpoint = ? AND COALESCE(error_message, '') = COALESCE(?, '') 
+       AND created_at > datetime('now', ? || ' hours')`
     )
-    .bind(endpoint, -Math.abs(hours))
+    .bind(endpoint, errorMessage, -Math.abs(hours))
     .first();
 
   return !!existing;
@@ -116,8 +111,8 @@ async function storeTestResult(db, testName, endpoint, passed, responseTime, err
       passed ? 1 : 0,
       responseTime,
       errorMessage,
-      new Date().toISOString(),
-      new Date().toISOString()
+      sqliteNow(),
+      sqliteNow()
     )
     .run();
 
@@ -140,9 +135,9 @@ async function storeAlert(db, endpoint, statusCode, responseTime, errorMessage, 
       statusCode,
       responseTime,
       errorMessage,
-      new Date().toISOString(),
+      sqliteNow(),
       severity,
-      new Date().toISOString()
+      sqliteNow()
     )
     .run();
 
@@ -198,10 +193,7 @@ async function runTest(db, env, testName, endpoint, sloTarget, notifyBaseUrl) {
   let responseTime = 0;
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      timeout: 10000,
-    });
+    const response = await fetchWithTimeout(url, 10000);
 
     responseTime = Date.now() - startTime;
     statusCode = response.status;
