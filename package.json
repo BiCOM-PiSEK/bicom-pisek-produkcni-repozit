@@ -8,7 +8,7 @@
     "dev": "wrangler pages dev public --local --d1=DB --kv=CACHE --r2=MEDIA",
     "db:init:local": "wrangler d1 execute DB --local --file=db/schema.sql",
     "db:init:prod": "wrangler d1 execute bicom-pisek-db --remote --file=db/schema.sql",
-    "db:migrate": "wrangler d1 migrations apply bicom-pisek-db --remote",
+    "db:migrate": "wrangler d1 migrations apply bicom-pisek-db --remote --migrations-dir db/migrations",
     "db:clean-demo": "wrangler d1 execute bicom-pisek-db --remote --command=\"DELETE FROM bookings WHERE name_enc LIKE 'DEMO_ENC::%'; DELETE FROM newsletter_subscribers WHERE email_enc LIKE 'DEMO_ENC::%'; DELETE FROM geo_leads WHERE id LIKE 'gl_demo%';\"",
     "db:diagnostics": "node scripts/db-diagnostics.js",
     "db:generate-jsonld": "node scripts/generate-service-jsonld.js",
