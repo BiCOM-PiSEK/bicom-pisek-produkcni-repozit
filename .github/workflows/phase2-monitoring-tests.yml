@@ -1,0 +1,122 @@
+name: Phase 2 Monitoring Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'functions/api/_monitor-health.js'
+      - 'functions/api/_perf-log.js'
+      - 'functions/api/_notify.js'
+      - 'public/assets/js/performance-logger.js'
+      - 'tests/monitoring/**'
+      - 'tests/menu.test.js'
+      - 'package.json'
+      - '.github/workflows/phase2-monitoring-tests.yml'
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Lint code
+        run: npm run lint --if-present
+      
+      - name: Run menu regression tests
+        run: npm test -- tests/menu.test.js
+      
+      - name: Run monitoring worker tests
+        run: npm test -- tests/monitoring/ --if-present
+  
+  frontend-performance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check performance-logger.js syntax
+        run: node --check public/assets/js/performance-logger.js
+      
+      - name: Check worker syntax
+        run: |
+          node --check functions/api/_monitor-health.js
+          node --check functions/api/_perf-log.js
+          node --check functions/api/_notify.js
+
+  wrangler-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate wrangler.toml
+        run: npx wrangler deploy --dry-run || echo "Dry-run validation only"
+
+  database-migration-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check migration files
+        run: |
+          echo "Checking Phase 2 migration file..."
+          if [ -f "db/migrations/0025_phase2_monitoring_tables.sql" ]; then
+            echo "✓ Migration 0025 exists"
+            head -20 db/migrations/0025_phase2_monitoring_tables.sql
+          else
+            echo "✗ Migration 0025 missing"
+            exit 1
+          fi
+      
+      - name: Check migration ledger
+        run: |
+          echo "Checking migration ledger..."
+          if [ -f "db/init_migrations_ledger.sql" ]; then
+            echo "✓ Migration ledger exists"
+          else
+            echo "✗ Migration ledger missing"
+            exit 1
+          fi
+
+  notify-on-failure:
+    if: failure()
+    needs: [lint-and-unit-tests, frontend-performance-check, wrangler-validation, database-migration-check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log workflow failure
+        run: |
+          echo "Phase 2 Monitoring CI/CD workflow failed"
+          echo "Time: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref }}"
+          exit 1

@@ -5,7 +5,7 @@
  * Uses only the Web Fetch API — no Node.js dependencies.
  *
  * Required secrets:
- *   - SECRET_RESEND_API_KEY
+ *   - RESEND_API_KEY or SECRET_RESEND_API_KEY
  *
  * @module resend
  */
@@ -20,7 +20,7 @@ export class ResendConnector {
    * @param {object} env - Cloudflare Worker environment bindings.
    */
   constructor(env) {
-    this.apiKey = env.SECRET_RESEND_API_KEY || '';
+    this.apiKey = env.RESEND_API_KEY || env.SECRET_RESEND_API_KEY || '';
     this.configured = Boolean(this.apiKey);
     this.fromEmail = 'Bicom Písek <info@bicom-pisek.cz>';
   }

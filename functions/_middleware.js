@@ -395,12 +395,13 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const hostname = url.hostname;
   const cf = context.request.cf || {};
+  const maintenanceEnabled = String(context.env.MAINTENANCE_ENABLED || 'false').toLowerCase() === 'true';
 
   const pin = context.env.SECRET_MAINTENANCE_PIN || '1994';
   const sitekey = context.env.TURNSTILE_SITEKEY || '1x00000000000000000000AA';
 
-  // We only run this maintenance logic on the main production domain(s)
-  if (hostname === 'bicom-pisek.cz' || hostname === 'www.bicom-pisek.cz') {
+  // Run maintenance logic only when explicitly enabled and only on production domains.
+  if (maintenanceEnabled && (hostname === 'bicom-pisek.cz' || hostname === 'www.bicom-pisek.cz')) {
     
     // Check if the user has the bypass cookie
     const cookieHeader = context.request.headers.get('Cookie') || '';
