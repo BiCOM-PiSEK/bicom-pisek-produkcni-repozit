@@ -44,6 +44,7 @@ git push origin main              # Push to personal fork
 - Wait for CodeRabbit review
 - Address review comments
 - Squash & merge to main (upstream)
+- If your local fork lags behind upstream/main or production, rebase/sync first so you do not reintroduce already-solved production state.
 
 ### 4. Cloudflare Pages Auto-Deploy
 - Once merged to `upstream/main`, Pages automatically triggers a build
@@ -190,6 +191,7 @@ npx wrangler d1 execute bicom-pisek-db --remote --command \
 | API returns 500 | Secret missing or D1 connection issue | Verify secrets via `wrangler pages secret list`; check D1 remote via MCP |
 | Email alerts not arriving | Resend key invalid or domain not verified | Verify DKIM/SPF in Resend dashboard; test with `curl` to `/api/_perf-log` |
 | Hamburger menu broken on mobile | CSS/z-index regression | Inspect viewport width at 375px; check `src/pages/index.js` media queries |
+| Cloudflare Access branding looks generic | Access branding is configured only in Zero Trust dashboard | Set logo/colors/text in Cloudflare Zero Trust → Access branding; OTP e-mail itself cannot be themed from the repo |
 
 ---
 
@@ -240,3 +242,15 @@ npx wrangler d1 execute bicom-pisek-db --remote --command \
 - [PRODUCTION-SECRETS-CHECKLIST.md](PRODUCTION-SECRETS-CHECKLIST.md) — Secret management details
 - [docs/CMS_GUIDE.md](CMS_GUIDE.md) — Content management for operators
 - [wrangler.toml](../wrangler.toml) — Full configuration reference
+
+---
+
+## 🎨 Cloudflare Access branding (dashboard-only)
+
+Access OTP e-mail templates are controlled by Cloudflare and cannot be restyled in the repo. The practical middle path is to brand the **Access login page** in the Cloudflare Zero Trust dashboard:
+
+1. Open **Zero Trust → Access → Branding**.
+2. Upload the BiCOM Písek logo and set the brand colors.
+3. Save the changes and verify the `/admin` login flow.
+
+This keeps the auth flow intact while making the entry experience look like BiCOM Písek instead of a stock Cloudflare screen.
