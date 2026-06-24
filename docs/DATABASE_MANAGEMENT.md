@@ -109,3 +109,60 @@ Schéma je idempotentní (`CREATE TABLE IF NOT EXISTS`). D1 už eviduje tabulku 
 
 ## 7. Poznámka k dnešnímu nasazení
 Schéma bylo nasazeno ve dvou krocích: nejprve zjednodušený odhad, poté **kompletní reset na přesné kanonické `db/schema.sql`** z repa (14 tabulek). Aktuální stav D1 = přesná shoda s repem + reálný seed služeb. Žádná odchylka od „single source of truth".
+
+## 8. 🚨 Migration Ledger Reconciliation Issue
+
+### Problém: Nesoulad mezi skutečným schématem a `d1_migrations` tabulkou
+
+**Situace:**
+- Migrace 0001–0015: Standardně aplikovány přes wrangler CLI → zaznamenány v `d1_migrations`
+- Migrace 0016–0020: Aplikovány ručně přes **Cloudflare MCP/Dashboard** (během Phase 2.5), _nikoli_ přes CLI
+- Migrace 0021–0025: Aplikovány přes CLI během Phase 3.0 → zaznamenány v `d1_migrations`
+- **Rezultat:** Tabulka `d1_migrations` obsahuje záznamy 0001–0015 a 0021–0025, ale **chybí 0016–0020**
+
+### Proč to je problém?
+
+1. **Budoucí migrace aplikace**: Pokud se spustí `wrangler d1 migrations apply`, systém by mohl:
+   - Zjistit, že 0016–0020 nejsou v ledgeru
+   - Pokusit se je aplikovat znovu → **konflikt schématu** (tabulky už existují)
+   - Nebo je přeskočit, pokud má chytrý check na skutečné schéma
+
+2. **Audit trail**: Není vidět, kdo/kdy aplikoval 0016–0020 → snížená viditelnost operational changes
+
+### Řešení: Reconciliation Script
+
+```sql
+-- 1. Ověřit skutečné schéma (aktuální stav D1)
+.tables
+-- Měl by vrátit všechny tabulky včetně těch z 0016–0020:
+--   - monitoring_errors
+--   - synthetic_test_results
+--   - bug_registry
+--   - performance_logs
+--   - email_alerts
+
+-- 2. Zkontrolovat `d1_migrations`
+SELECT version FROM d1_migrations ORDER BY version;
+-- Měl by vrátit: 0001–0015, 0021–0025 (chybět 0016–0020)
+
+-- 3. Ruční reconciliation — vložit chybějící záznamy (bez opětovné aplikace SQL)
+INSERT INTO d1_migrations (version, name, applied_at) VALUES
+  (0016, '0016_phase2_monitoring_setup', datetime('2026-06-21 10:00:00')),
+  (0017, '0017_phase2_monitoring_extended', datetime('2026-06-21 11:00:00')),
+  (0018, '0018_phase2_bug_registry', datetime('2026-06-21 12:00:00')),
+  (0019, '0019_phase2_synthetic_tests', datetime('2026-06-21 13:00:00')),
+  (0020, '0020_phase2_email_alerts', datetime('2026-06-21 14:00:00'));
+
+-- 4. Ověřit výsledek
+SELECT version FROM d1_migrations ORDER BY version;
+-- Nyní by měl vrátit: 0001–0025 (kompletní řada)
+```
+
+### Kdy spustit reconciliation?
+
+- **Ideálně:** Před příštím `wrangler d1 migrations apply`
+- **Pokud se jich nechystáte spouštět:** Není urgentní, ale zvyšuje audit viditelnost
+- **Automatizace:** Zařadit do Phase 4 deployment playbooku (viz sekcí „Smoke Tests")
+
+### Poznámka pro operace
+Při příštím nasazení noné migrace (0026+) spustit nejdřív reconciliation skript, aby ledger byl čistý a konzistentní s `wrangler d1 migrations list --remote`.

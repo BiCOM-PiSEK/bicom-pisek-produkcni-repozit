@@ -8,34 +8,49 @@
 
 ## 📋 Secrets Status — v1.0 RC
 
-| Rank | Secret | Status | Source | Test | Naset | Owner |
-|---|---|---|---|---|---|---|
-| **🔴 CRÍTICA** | `SECRET_ENCRYPTION_KEY` | ✅ V prod | `openssl rand -hex 32` | — | ✅ | DevOps |
-| **🔴 CRÍTICA** | `SECRET_ADMIN_TOKEN` | ✅ V prod | Generated | — | ✅ | DevOps |
-| **🟠 IMPORTANT** | `RESEND_API_KEY` (Pages) / `SECRET_RESEND_API_KEY` (compat) | 🟢 Ready | resend.com | [L1 guide](LAUNCH-TESTING-GUIDE.md#-l1--resend-email-verification) | 🔲 | DevOps |
-| **🟠 IMPORTANT** | `SECRET_SMS_GATEWAY_CLIENT_ID` | 🟢 Ready | GoSMS.cz | [L5 guide](LAUNCH-TESTING-GUIDE.md#-l5--gosms-sms-verification) | 🔲 | DevOps |
-| **🟠 IMPORTANT** | `SECRET_SMS_GATEWAY_CLIENT_SECRET` | 🟢 Ready | GoSMS.cz | [L5 guide](LAUNCH-TESTING-GUIDE.md#-l5--gosms-sms-verification) | 🔲 | DevOps |
-| **🟠 IMPORTANT** | `SECRET_STRIPE_SECRET_KEY` | 🟠 Čeká | stripe.com (live) | [L8 guide](LAUNCH-TESTING-GUIDE.md#-l8--stripe-live-payment-verification) | 🔲 | DevOps |
-| **🟠 IMPORTANT** | `SECRET_STRIPE_WEBHOOK_SECRET` | 🟠 Čeká | stripe.com | [L8 guide](LAUNCH-TESTING-GUIDE.md#-l8--stripe-live-payment-verification) | 🔲 | DevOps |
-| **🟠 IMPORTANT** | `SECRET_IDOKLAD_CLIENT_ID` | 🟠 Čeká | iDoklad.cz | [L9 guide](LAUNCH-TESTING-GUIDE.md#-l9--idoklad-invoice-verification) | 🔲 | DevOps |
-| **🟠 IMPORTANT** | `SECRET_IDOKLAD_CLIENT_SECRET` | 🟠 Čeká | iDoklad.cz | [L9 guide](LAUNCH-TESTING-GUIDE.md#-l9--idoklad-invoice-verification) | 🔲 | DevOps |
-| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL` | ✅ V prod | Google Cloud Console | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` | ✅ V prod | Google Cloud Console | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_ID` | ✅ V prod | Lenka (admin@bicom-pisek.cz) | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL` | ✅ V prod | Known value | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_GROQ_API_KEY` | ✅ V prod | groq.com | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_GEMINI_API_KEY` | ✅ V prod | Google AI Studio | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_META_GRAPH_ACCESS_TOKEN` | ✅ V prod | developers.facebook.com | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_META_IG_USER_ID` | ✅ V prod | Meta Business Suite | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `SECRET_CALENDAR_WEBHOOK_SECRET` | ✅ V prod | Generated | — | ✅ | DevOps |
-| **🟢 OPTIONAL** | `TURNSTILE_SITEKEY` | 🟢 Ready | Cloudflare | — | 🔲 | DevOps |
-| **🟢 OPTIONAL** | `TURNSTILE_SECRET_KEY` | 🟢 Ready | Cloudflare | — | 🔲 | DevOps |
+| Rank | Secret | Platform | Status | Source | Test | Set | Owner |
+|---|---|---|---|---|---|---|---|
+| **🔴 CRÍTICA** | `SECRET_ENCRYPTION_KEY` | Pages + Workers | ✅ V prod | `openssl rand -hex 32` | — | ✅ | DevOps |
+| **🔴 CRÍTICA** | `SECRET_ADMIN_TOKEN` | Pages + Workers | ✅ V prod | Generated | — | ✅ | DevOps |
+| **🟠 IMPORTANT** | `RESEND_API_KEY` | Pages | 🟢 Ready | resend.com | [L1 guide](LAUNCH-TESTING-GUIDE.md#-l1--resend-email-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_RESEND_API_KEY` | Workers (legacy) | ✅ V prod | resend.com | — | ✅ | DevOps |
+| **🟠 IMPORTANT** | `SECRET_RESEND_MONITORING_API_KEY` | Pages | 🟢 Ready | resend.com (separate key) | — | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `INTERNAL_API_SECRET` | Pages | 🟢 Ready | Generated (`openssl rand -hex 32`) | — | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_SMS_GATEWAY_CLIENT_ID` | Pages + Workers | 🟢 Ready | GoSMS.cz | [L5 guide](LAUNCH-TESTING-GUIDE.md#-l5--gosms-sms-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_SMS_GATEWAY_CLIENT_SECRET` | Pages + Workers | 🟢 Ready | GoSMS.cz | [L5 guide](LAUNCH-TESTING-GUIDE.md#-l5--gosms-sms-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_STRIPE_SECRET_KEY` | Pages + Workers | 🟠 Čeká | stripe.com (live) | [L8 guide](LAUNCH-TESTING-GUIDE.md#-l8--stripe-live-payment-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_STRIPE_WEBHOOK_SECRET` | Pages + Workers | 🟠 Čeká | stripe.com | [L8 guide](LAUNCH-TESTING-GUIDE.md#-l8--stripe-live-payment-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_IDOKLAD_CLIENT_ID` | Pages + Workers | 🟠 Čeká | iDoklad.cz | [L9 guide](LAUNCH-TESTING-GUIDE.md#-l9--idoklad-invoice-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `SECRET_IDOKLAD_CLIENT_SECRET` | Pages + Workers | 🟠 Čeká | iDoklad.cz | [L9 guide](LAUNCH-TESTING-GUIDE.md#-l9--idoklad-invoice-verification) | 🔲 | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL` | Pages + Workers | ✅ V prod | Google Cloud Console | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` | Pages + Workers | ✅ V prod | Google Cloud Console | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_ID` | Pages + Workers | ✅ V prod | Lenka (admin@bicom-pisek.cz) | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GOOGLE_WORKSPACE_ADMIN_EMAIL` | Pages + Workers | ✅ V prod | Known value | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GOOGLE_CALENDAR_IMPERSONATE` | Pages + Workers | ✅ V prod | Domain-Wide Delegation | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_CALENDAR_WEBHOOK_SECRET` | Pages + Workers | ✅ V prod | Generated | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GROQ_API_KEY` | Pages + Workers | ✅ V prod | groq.com | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_GEMINI_API_KEY` | Pages + Workers | ✅ V prod | Google AI Studio | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_META_GRAPH_ACCESS_TOKEN` | Pages + Workers | ✅ V prod | developers.facebook.com | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `SECRET_META_IG_USER_ID` | Pages + Workers | ✅ V prod | Meta Business Suite | — | ✅ | DevOps |
+| **🟢 OPTIONAL** | `MAINTENANCE_ENABLED` | Pages | 🟢 Ready | Manual toggle | — | 🔲 | DevOps |
+| **🟢 OPTIONAL** | `TURNSTILE_SITEKEY` | Pages (public) | 🟢 Ready | Cloudflare | — | 🔲 | DevOps |
+| **🟢 OPTIONAL** | `TURNSTILE_SECRET_KEY` | Pages + Workers | 🟢 Ready | Cloudflare | — | 🔲 | DevOps |
 
 ---
 
 ## 🚀 Deployment Procedure — Jak nastavit Secrets
 
-### Prereq: Přístup k Cloudflare CLI
+### ⚠️ Důležitá Distinkcí: Pages vs. Workers
+
+- **Cloudflare Pages Secrets** — nastavit pomocí `wrangler pages secret put`
+  - Dostupné funkcím v `functions/` (HTTP handlers)
+  - Přístup v kódu: `env.SECRET_NAME`
+  - Aktuální produkční platform pro Bicom web
+
+- **Cloudflare Workers Secrets** — nastavit pomocí `wrangler secret put` (LEGACY)
+  - Dostupné dříve nasazeným Worker skriptům
+  - Legacy, ale některé integrační (Resend, Google Calendar) mohou být stále tam
+  - Nové workery: migrovat na Pages Functions
 
 ```bash
 # 1. Nainstalovat Wrangler (pokud není)
@@ -54,45 +69,63 @@ cat wrangler.toml | grep name
 ### Step 1️⃣ — Kritické Secrets (JIŽ V PRODUKCI)
 
 ```bash
-# Tyto klíče jsou už nastavené v produkční D1
+# Tyto klíče jsou už nastavené v produkční Pages sekci
 # Jen ověřit že fungují:
 
 # 1. Encryption Key
-wrangler secret get SECRET_ENCRYPTION_KEY
-# → musí vrátit 64-char hex string
+npx wrangler pages secret list --project-name bicom-pisek | grep ENCRYPTION
 
 # 2. Admin Token
-wrangler secret get SECRET_ADMIN_TOKEN
-# → musí vrátit nějaký řetězec (long random)
+npx wrangler pages secret list --project-name bicom-pisek | grep ADMIN_TOKEN
 
-# Pokud se vrátí prázdno: CHYBA! Zkontrolovat console.cloudflare.com
+# Pokud se neobjeví: CHYBA! Zkontrolovat console.cloudflare.com → Pages → bicom-pisek → Settings → Environment Variables
 ```
 
-### Step 2️⃣ — Email (L1 — Resend)
+### Step 2️⃣ — Email (L1 — Resend) **[PAGES]**
 
 ```bash
 # 1. Vytvořit API klíč v Resend
 #    https://resend.com → Settings → API Keys → Create API Key
 
-# 2. Nastavit Secret v Cloudflare Pages projektu
-wrangler pages secret put RESEND_API_KEY --project-name bicom-pisek
-# → Vložit API key a Enter
+# 2. Nastavit Secret v Cloudflare Pages
+npx wrangler pages secret put RESEND_API_KEY --project-name bicom-pisek
+# → Vložit API key z Resend a Enter
+# → Potvrzení: y
 
 # 3. Ověřit DNS (viz LAUNCH-TESTING-GUIDE.md § L1)
-#    Cloudflare DNS → SPF/DKIM/DMARC records
+#    https://dash.cloudflare.com → DNS → SPF/DKIM/DMARC records pro bicom-pisek.cz
+
+# 4. Test: Send email via Resend API
+#    curl -X POST https://api.resend.com/emails \
+#      -H "Authorization: Bearer {RESEND_API_KEY}" \
+#      -d '{"from":"alerts@bicom-pisek.cz","to":"your@email.com","subject":"Test","html":"<p>Test</p>"}'
 ```
 
-### Step 3️⃣ — SMS (L5 — GoSMS)
+### Step 3️⃣ — Interní API Secret (NEW) **[PAGES]**
+
+```bash
+# 1. Generovat nový secret
+openssl rand -hex 32
+
+# 2. Nastavit v Pages
+npx wrangler pages secret put INTERNAL_API_SECRET --project-name bicom-pisek
+# → Vložit vygenerovaný hex string a Enter
+
+# 3. Použití: `/api/_monitor-health`, `/api/synthetic-test` require header
+#    -H "Authorization: Bearer {INTERNAL_API_SECRET}"
+```
+
+### Step 4️⃣ — SMS (L5 — GoSMS) **[PAGES]**
 
 ```bash
 # 1. Vytvořit OAuth2 aplikaci v GoSMS
 #    https://gosms.cz → Integrace → OAuth2 Setup
 
-# 2. Nastavit Secret
-wrangler secret put SECRET_SMS_GATEWAY_CLIENT_ID
+# 2. Nastavit Secrets
+npx wrangler pages secret put SECRET_SMS_GATEWAY_CLIENT_ID --project-name bicom-pisek
 # → Vložit Client ID a Enter
 
-wrangler secret put SECRET_SMS_GATEWAY_CLIENT_SECRET
+npx wrangler pages secret put SECRET_SMS_GATEWAY_CLIENT_SECRET --project-name bicom-pisek
 # → Vložit Client Secret a Enter
 
 # 3. Dobít SMS kredit

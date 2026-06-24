@@ -5,11 +5,11 @@
 > Příležitosti → `docs/GAP_ANALYSIS_OPPORTUNITIES.md`. Předání → `docs/HANDOVER.md`.
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
-> **Verze aplikace:** v1.0 — **PREVIEW LAUNCH (22.6.2026, LIVE na bicom-pisek.cz)**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-23 04:40 CET (AI Studio rollout + deploy)
+> **Verze aplikace:** v1.0 — **LIVE PRODUCTION (24.6.2026, bicom-pisek.cz)**
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-24 Phase 3.0 (Phase 2.5 merged, production monitoring active)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
-> **Poslední merge:** PR #87 — AI Studio visual pipeline + Studio UI + jobs console (deployed)
-> **Status:** Veřejný web LIVE (preview mode), admin konzole LIVE, všechny funkce dostupné od 1.7.2026
+> **Poslední merge:** Phase 2.5 (5a5ad66) — hamburger fix + MAINTENANCE_ENABLED + wrangler.toml refactor
+> **Status:** ✅ Veřejný web LIVE (full production, no maintenance gate), admin konzole LIVE, monitoring 24/7 active
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,

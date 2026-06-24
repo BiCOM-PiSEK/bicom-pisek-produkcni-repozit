@@ -286,7 +286,26 @@ Aktualizováno podle aktuálního obsahu repozitáře. Dokument slouží jako je
 | Architektura/rozhodnutí | `docs/ARCHITEKTURA.md`, `docs/adr/*` | technická rozhodnutí |
 | Asset zdroje | `docs/assets/originals/` | originály pro export do `public/assets/` |
 
-## 4) Pravidla údržby mapy
+## 4) Cloudflare Resources Status — Produkční Binding
+
+| Resource | Type | ID / Binding | Stav | Účel | Poznámka |
+|---|---|---|---|---|---|
+| `bicom-pisek-db` | D1 Database | `c04cb289-2ff4-45d7-9fa0-3243c34c3abe` | ✅ LIVE | Relační data (bookings, blog, audit, schema) | Migrace 0001–0025 aplikovány; 14 tabulek |
+| `bicom-multimedia` | R2 Bucket | — | ✅ LIVE | Objektové úložiště (media, exports, backups) | Bound: `env.MULTIMEDIA_BUCKET` |
+| `bicom-pisek-cache` | KV Namespace | — | ✅ LIVE | Edge cache, rate-limit, sessions, runtime state | Bound: `env.KV_CACHE` |
+| `booking-jobs` | Queue | — | ✅ LIVE | Asynchronní zpracování booking workflow | Consumer: `bicom-booking-consumer` Worker |
+| `social-jobs` | Queue | — | ✅ LIVE | Asynchronní social media scheduling | Consumer: `bicom-social-consumer` Worker |
+| `@cf/meta/llama-3-8b` | AI Model (Workers AI) | — | ✅ LIVE | LLM pro copywriting, chat, geo leads analysis | Bound: `env.AI` |
+| Production Secrets | Pages Secrets | (private) | ✅ CONFIGURED | RESEND_API_KEY, INTERNAL_API_SECRET, MAINTENANCE_ENABLED, atd. | Viz PRODUCTION-SECRETS-CHECKLIST.md |
+
+### D1 Migrace Status
+
+- **Ledger:** `d1_migrations` table
+- **Tracking:** Migrace 0001–0015 (CLI) + 0016–0020 (manual MCP) + 0021–0025 (CLI Phase 3.0)
+- **Poznámka:** 0016–0020 nejsou v `d1_migrations` ledgeru (ruční aplikace); viz DATABASE_MANAGEMENT.md § 8 pro reconciliation script
+- **Ověření:** `wrangler d1 execute bicom-pisek-db --remote "SELECT version FROM d1_migrations ORDER BY version;"`
+
+## 5) Pravidla údržby mapy
 
 1. Při přidání nové top-level složky nebo nového runtime modulu (`functions/*`, `public/admin/js/modules/*`) mapu aktualizovat ve stejném PR.
 2. Pokud se mění zdroj pravdy pro data nebo secrets, aktualizovat zároveň `HANDOVER.md` a `API_KEYS_CHECKLIST.md`.
