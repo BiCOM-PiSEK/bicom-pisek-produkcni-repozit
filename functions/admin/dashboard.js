@@ -208,7 +208,7 @@ export async function onRequestGet({ env, data }) {
     const launchBlockers = {
       L1: {
         label: 'Resend (produkční odesílání e-mailů)',
-        ready: Boolean(env.SECRET_RESEND_API_KEY),
+        ready: Boolean(env.RESEND_API_KEY || env.SECRET_RESEND_API_KEY),
       },
       L5: {
         label: 'GoSMS (SMS upomínky + kredit)',
@@ -236,7 +236,7 @@ export async function onRequestGet({ env, data }) {
       kv: env.CACHE ? 'ok' : 'standby',
       telegram: env.SECRET_TELEGRAM_BOT_TOKEN ? 'ok' : 'standby',
       calendar: env.SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL ? 'ok' : 'standby',
-      resend: env.SECRET_RESEND_API_KEY ? 'ok' : 'standby',
+      resend: (env.RESEND_API_KEY || env.SECRET_RESEND_API_KEY) ? 'ok' : 'standby',
       gosms: (env.SECRET_SMS_GATEWAY_CLIENT_ID && env.SECRET_SMS_GATEWAY_CLIENT_SECRET) ? 'ok' : 'standby',
       idoklad: (env.SECRET_IDOKLAD_CLIENT_ID && env.SECRET_IDOKLAD_CLIENT_SECRET) ? 'ok' : 'standby',
       stripe: env.SECRET_STRIPE_SECRET_KEY ? 'ok' : 'standby',

@@ -21,4 +21,4 @@ INSERT OR IGNORE INTO d1_migrations (name, applied_at) VALUES
   ('0014_analytics_schema', datetime('2025-04-05 10:30:00')),
   ('0015_add_sessions', datetime('2025-04-10 14:00:00')),
   ('0021_add_admin_jiri', datetime('2026-06-22 12:00:00')),
-  ('0022_phase2_monitoring_tables', datetime(CURRENT_TIMESTAMP));
+  ('0025_phase2_monitoring_tables', datetime(CURRENT_TIMESTAMP));

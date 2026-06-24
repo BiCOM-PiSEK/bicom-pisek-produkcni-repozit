@@ -31,27 +31,28 @@ queue = "booking-jobs"
 binding = "SOCIAL_QUEUE"
 queue = "social-jobs"
 
-# --- Scheduled Workers (Cron) ---
-[triggers]
-crons = ["*/5 * * * *"]  # Run _monitor-health every 5 minutes
-
 # --- Environment Variables (Production) ---
 [env.production.vars]
 ALERT_EMAIL_FROM = "alerts@bicom-pisek.cz"
 ALERT_EMAIL_TO = "admin@bicom-pisek.cz"
 MONITORING_ENABLED = "true"
+MONITORING_ALERT_THROTTLE_SECONDS = "300"
+MAINTENANCE_ENABLED = "false"
 
-# --- Environment Variables (Development/Local) ---
-[env.development.vars]
+# --- Environment Variables (Preview) ---
+[env.preview.vars]
 ALERT_EMAIL_FROM = "alerts@localhost"
 ALERT_EMAIL_TO = "dev@localhost"
 MONITORING_ENABLED = "false"
+MONITORING_ALERT_THROTTLE_SECONDS = "60"
+MAINTENANCE_ENABLED = "false"
 
 # ⚠️  SECRETS (NIKDY do souboru!)
-# Nastav je příkazem: wrangler secret put NAZEV --env production
+# Nastav je příkazem pro Pages:
+#   wrangler pages secret put NAZEV --project-name bicom-pisek
 # 
 # Vyžadované secrets pro production:
-#   - RESEND_API_KEY: API klíč z https://resend.com
+#   - RESEND_API_KEY (doporučeno) nebo SECRET_RESEND_API_KEY: API klíč z https://resend.com
 #   - STRIPE_WEBHOOK_SECRET: Pro zpracování Stripe webhooků
 #   - AI_SYSTEM_PROMPTS_MASTER: Master promptu pro AI orchestraci
 #

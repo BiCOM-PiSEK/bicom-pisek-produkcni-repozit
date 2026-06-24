@@ -8,13 +8,48 @@
  * Payload: { sessionId, events: [{category, metadata, ...}], timestamp }
  * 
  * Features:
- *   - Event deduplication via MD5 hash
+ *   - Event deduplication via SHA-256 hash
  *   - Auto-group similar errors
  *   - Trigger alerts for CRITICAL/HIGH severity
  *   - Store in bug_registry with occurrence counting
  */
 
 import { nanoid } from 'nanoid';
+
+async function ensurePerfLogSchema(db) {
+  await db.prepare(
+    `CREATE TABLE IF NOT EXISTS bug_registry (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      category TEXT,
+      severity TEXT CHECK(severity IN ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW')),
+      status TEXT DEFAULT 'open' CHECK(status IN ('open', 'in_progress', 'resolved', 'wontfix')),
+      description TEXT,
+      first_reported_at TIMESTAMP,
+      last_seen_at TIMESTAMP,
+      occurrences INTEGER DEFAULT 1,
+      metadata JSON,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP
+    )`
+  ).run();
+
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_bug_registry_created ON bug_registry(created_at)').run();
+
+  await db.prepare(
+    `CREATE TABLE IF NOT EXISTS monitoring_alerts (
+      id TEXT PRIMARY KEY,
+      endpoint TEXT NOT NULL,
+      status_code INTEGER,
+      response_time_ms INTEGER,
+      error_message TEXT,
+      alert_triggered_at TIMESTAMP,
+      notified_at TIMESTAMP,
+      severity TEXT CHECK(severity IN ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW')),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`
+  ).run();
+}
 
 /**
  * Simple hash function for deduplication (Web Crypto compatible)
@@ -156,7 +191,7 @@ async function storeBugReport(db, dedupKey, title, category, severity, descripti
 /**
  * Trigger alert for high-severity issues
  */
-async function triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNew) {
+async function triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNew, notifyBaseUrl) {
   // Only alert for CRITICAL and HIGH severity, and only for NEW issues
   if ((severity === 'CRITICAL' || severity === 'HIGH') && isNew) {
     const message = extractMessage(event);
@@ -180,22 +215,32 @@ async function triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNew) {
     console.log(`🚨 Alert triggered: ${event.category} - ${severity}`);
 
     // Send email notification via _notify endpoint
-    if (env.MONITORING_ENABLED && env.MONITORING_ENABLED !== 'false') {
+    if (env.MONITORING_ENABLED !== 'false') {
       try {
-        await fetch('https://bicom-pisek.cz/api/_notify', {
+        const notifyResponse = await fetch(`${notifyBaseUrl}/api/_notify`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-Internal-Secret': env.INTERNAL_API_SECRET || '',
           },
           body: JSON.stringify({
+            title: 'Frontend performance incident',
             severity,
-            endpoint: `/api/_perf-log`,
-            message: `${event.category}: ${message}`,
-            timestamp: new Date().toISOString(),
-            source: 'frontend-performance',
+            category: event.category,
+            description: `${event.category}: ${message}`,
+            metadata: {
+              endpoint: '/api/_perf-log',
+              source: 'frontend-performance',
+              dedupKey,
+              eventCategory: event.category,
+              eventMetadata: event.metadata || null,
+            },
           }),
         });
+        if (!notifyResponse.ok) {
+          const details = await notifyResponse.text();
+          console.error(`Failed to send email alert: ${notifyResponse.status} ${details}`);
+        }
       } catch (error) {
         console.error('Failed to send email alert:', error.message);
       }
@@ -204,9 +249,9 @@ async function triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNew) {
 }
 
 /**
- * Main handler
+ * Core handler
  */
-export async function onRequest(request, env) {
+async function handleRequest(request, env) {
   // Only accept POST
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -226,12 +271,21 @@ export async function onRequest(request, env) {
     }
 
     const db = env.DB;
+    const notifyBaseUrl = new URL(request.url).origin;
+    await ensurePerfLogSchema(db);
+
     const processed = [];
     let alertsTriggered = 0;
 
     // Process each event
     for (const event of events) {
       const { category, metadata } = event;
+      if (!category || typeof category !== 'string') {
+        return new Response(JSON.stringify({ error: 'Invalid payload: each event must include string category' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
       const message = extractMessage(event);
       const dedupKey = await generateDedupKey(category, message);
       const severity = determineSeverity(event);
@@ -244,13 +298,13 @@ export async function onRequest(request, env) {
         category,
         severity,
         message,
-        { ...metadata, sessionId }
+        { ...(metadata || {}), sessionId }
       );
 
       const isNewReport = !existingReport;
 
       // Trigger alert if needed
-      await triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNewReport);
+      await triggerAlertIfNeeded(db, env, event, severity, dedupKey, isNewReport, notifyBaseUrl);
 
       if (isNewReport && (severity === 'CRITICAL' || severity === 'HIGH')) {
         alertsTriggered++;
@@ -296,6 +350,13 @@ export async function onRequest(request, env) {
   }
 }
 
+/**
+ * Cloudflare Pages Functions entrypoints
+ */
+export async function onRequest(context) {
+  return handleRequest(context.request, context.env);
+}
+
 export async function onRequestPost(context) {
-  return onRequest(context.request, context.env);
+  return handleRequest(context.request, context.env);
 }

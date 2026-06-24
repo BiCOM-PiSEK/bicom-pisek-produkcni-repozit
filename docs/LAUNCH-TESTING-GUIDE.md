@@ -128,8 +128,8 @@ wrangler secret put TURNSTILE_SECRET_KEY # Z Cloudflare dashboard
 # 1. Vytvořit Resend API klíč
 #    Resend.com → Settings → API Keys → Create API Key
 
-# 2. Nastavit v Cloudflare Secrets
-wrangler secret put SECRET_RESEND_API_KEY
+# 2. Nastavit v Cloudflare Pages Secrets
+wrangler pages secret put RESEND_API_KEY --project-name bicom-pisek
 
 # 3. Ověřit DNS records jsou aktivní
 #    Resend dashboard → Domain Status = ✅ Verified

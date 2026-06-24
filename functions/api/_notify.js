@@ -8,12 +8,50 @@
  * Payload: { title, severity, category, description, metadata }
  * 
  * Environment variables required:
- *   - RESEND_API_KEY: Resend API key
+ *   - RESEND_API_KEY or SECRET_RESEND_API_KEY: Resend API key
  *   - ALERT_EMAIL_TO: Recipient email (admin@bicom-pisek.cz)
  *   - ALERT_EMAIL_FROM: Sender email (alerts@bicom-pisek.cz)
  */
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
+
+function getResendApiKey(env) {
+  return env.RESEND_API_KEY || env.SECRET_RESEND_API_KEY || '';
+}
+
+function getThrottleSeconds(env) {
+  const value = Number.parseInt(env.MONITORING_ALERT_THROTTLE_SECONDS || '300', 10);
+  if (!Number.isFinite(value) || value <= 0) {
+    return 300;
+  }
+  return value;
+}
+
+function buildThrottleKey({ severity, category, title }) {
+  return `monitoring:notify:${severity}:${category}:${title}`.toLowerCase();
+}
+
+async function shouldThrottle(env, alert) {
+  if (!env.CACHE) {
+    return false;
+  }
+
+  const key = buildThrottleKey(alert);
+  const ttl = getThrottleSeconds(env);
+
+  try {
+    const existing = await env.CACHE.get(key);
+    if (existing) {
+      return true;
+    }
+
+    await env.CACHE.put(key, '1', { expirationTtl: ttl });
+    return false;
+  } catch (error) {
+    console.warn('[_notify] KV throttle check failed:', error.message);
+    return false;
+  }
+}
 
 /**
  * Render HTML email template for alert
@@ -143,9 +181,9 @@ async function sendViaResend(apiKey, from, to, subject, html) {
 }
 
 /**
- * Main handler
+ * Core handler
  */
-export async function onRequest(request, env) {
+async function handleRequest(request, env) {
   // Only accept POST
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -166,15 +204,28 @@ export async function onRequest(request, env) {
       );
     }
 
+    const throttled = await shouldThrottle(env, { severity, category, title });
+    if (throttled) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          skipped: true,
+          reason: 'Alert throttled',
+          timestamp: new Date().toISOString(),
+        }),
+        { status: 202, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get configuration from environment
-    const apiKey = env.RESEND_API_KEY;
+    const apiKey = getResendApiKey(env);
     const emailFrom = env.ALERT_EMAIL_FROM || 'alerts@bicom-pisek.cz';
     const emailTo = env.ALERT_EMAIL_TO || 'admin@bicom-pisek.cz';
 
     if (!apiKey) {
-      console.warn('[_notify] Resend API key not configured. Alert not sent.');
+      console.warn('[_notify] Resend API key not configured (RESEND_API_KEY/SECRET_RESEND_API_KEY). Alert not sent.');
       return new Response(
-        JSON.stringify({ error: 'Notification service not configured' }),
+        JSON.stringify({ error: 'Notification service not configured: missing RESEND_API_KEY/SECRET_RESEND_API_KEY' }),
         { status: 503, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -226,6 +277,10 @@ export async function onRequest(request, env) {
   }
 }
 
+export async function onRequest(context) {
+  return handleRequest(context.request, context.env);
+}
+
 export async function onRequestPost(context) {
-  return onRequest(context.request, context.env);
+  return handleRequest(context.request, context.env);
 }

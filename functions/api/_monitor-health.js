@@ -14,11 +14,40 @@
  * Deployment:
  *   wrangler deploy --name _monitor-health functions/api/_monitor-health.js
  * 
- * Cron trigger configured in wrangler.toml.
+ * Cron trigger is configured in Cloudflare (scheduled invocation).
  * Runs every 5 minutes via synthetic monitoring schedule.
  */
 
 import { nanoid } from 'nanoid';
+
+async function ensureSyntheticSchema(db) {
+  await db.prepare(
+    `CREATE TABLE IF NOT EXISTS monitoring_alerts (
+      id TEXT PRIMARY KEY,
+      endpoint TEXT NOT NULL,
+      status_code INTEGER,
+      response_time_ms INTEGER,
+      error_message TEXT,
+      alert_triggered_at TIMESTAMP,
+      notified_at TIMESTAMP,
+      severity TEXT CHECK(severity IN ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW')),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`
+  ).run();
+
+  await db.prepare(
+    `CREATE TABLE IF NOT EXISTS synthetic_test_results (
+      id TEXT PRIMARY KEY,
+      test_name TEXT NOT NULL,
+      endpoint TEXT,
+      passed BOOLEAN,
+      response_time_ms INTEGER,
+      error_message TEXT,
+      test_run_at TIMESTAMP,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`
+  ).run();
+}
 
 /**
  * Simple hash function for deduplication (Web Crypto compatible)
@@ -121,21 +150,24 @@ async function storeAlert(db, endpoint, statusCode, responseTime, errorMessage, 
 /**
  * Send email alert via /api/_notify
  */
-async function sendEmailAlert(env, endpoint, errorMessage, severity) {
+async function sendEmailAlert(env, notifyBaseUrl, endpoint, errorMessage, severity) {
   if (!env.MONITORING_ENABLED || env.MONITORING_ENABLED === 'false') {
     return;
   }
 
   try {
     const alertPayload = {
+      title: 'Synthetic monitoring incident',
       severity,
-      endpoint,
-      message: errorMessage,
-      timestamp: new Date().toISOString(),
-      source: 'synthetic-monitoring',
+      category: 'synthetic_monitoring',
+      description: errorMessage,
+      metadata: {
+        endpoint,
+        source: 'synthetic-monitoring',
+      },
     };
 
-    const response = await fetch(`${BASE_URL}/api/_notify`, {
+    const response = await fetch(`${notifyBaseUrl}/api/_notify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -155,7 +187,7 @@ async function sendEmailAlert(env, endpoint, errorMessage, severity) {
 /**
  * Run a synthetic test for an endpoint
  */
-async function runTest(db, env, testName, endpoint, sloTarget) {
+async function runTest(db, env, testName, endpoint, sloTarget, notifyBaseUrl) {
   const url = `${BASE_URL}${endpoint}`;
   const startTime = Date.now();
   let passed = false;
@@ -186,7 +218,7 @@ async function runTest(db, env, testName, endpoint, sloTarget) {
         await storeAlert(db, endpoint, statusCode, responseTime, errorMessage, severity);
         
         // Send email alert
-        await sendEmailAlert(env, endpoint, errorMessage, severity);
+        await sendEmailAlert(env, notifyBaseUrl, endpoint, errorMessage, severity);
         
         console.log(`⚠️  Alert: ${testName} - ${reason}`);
       }
@@ -204,7 +236,7 @@ async function runTest(db, env, testName, endpoint, sloTarget) {
       await storeAlert(db, endpoint, null, responseTime, errorMessage, 'CRITICAL');
       
       // Send critical email alert
-      await sendEmailAlert(env, endpoint, errorMessage, 'CRITICAL');
+      await sendEmailAlert(env, notifyBaseUrl, endpoint, errorMessage, 'CRITICAL');
       
       console.log(`❌ Critical: ${testName} - ${errorMessage}`);
     }
@@ -222,6 +254,9 @@ async function runTest(db, env, testName, endpoint, sloTarget) {
 export async function onRequest(context) {
   const { env, request } = context;
   const db = env.DB;
+  const notifyBaseUrl = new URL(request.url).origin;
+
+  await ensureSyntheticSchema(db);
 
   console.log(`🔍 Starting synthetic monitoring at ${new Date().toISOString()}`);
 
@@ -238,7 +273,7 @@ export async function onRequest(context) {
 
   for (const test of tests) {
     try {
-      const result = await runTest(db, env, test.name, test.endpoint, test.slo);
+      const result = await runTest(db, env, test.name, test.endpoint, test.slo, notifyBaseUrl);
       results.push(result);
     } catch (error) {
       console.error(`Error running test ${test.name}:`, error);

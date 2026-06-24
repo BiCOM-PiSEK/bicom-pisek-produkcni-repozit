@@ -12,7 +12,7 @@
 |---|---|---|---|---|---|---|
 | **🔴 CRÍTICA** | `SECRET_ENCRYPTION_KEY` | ✅ V prod | `openssl rand -hex 32` | — | ✅ | DevOps |
 | **🔴 CRÍTICA** | `SECRET_ADMIN_TOKEN` | ✅ V prod | Generated | — | ✅ | DevOps |
-| **🟠 IMPORTANT** | `SECRET_RESEND_API_KEY` | 🟢 Ready | resend.com | [L1 guide](LAUNCH-TESTING-GUIDE.md#-l1--resend-email-verification) | 🔲 | DevOps |
+| **🟠 IMPORTANT** | `RESEND_API_KEY` (Pages) / `SECRET_RESEND_API_KEY` (compat) | 🟢 Ready | resend.com | [L1 guide](LAUNCH-TESTING-GUIDE.md#-l1--resend-email-verification) | 🔲 | DevOps |
 | **🟠 IMPORTANT** | `SECRET_SMS_GATEWAY_CLIENT_ID` | 🟢 Ready | GoSMS.cz | [L5 guide](LAUNCH-TESTING-GUIDE.md#-l5--gosms-sms-verification) | 🔲 | DevOps |
 | **🟠 IMPORTANT** | `SECRET_SMS_GATEWAY_CLIENT_SECRET` | 🟢 Ready | GoSMS.cz | [L5 guide](LAUNCH-TESTING-GUIDE.md#-l5--gosms-sms-verification) | 🔲 | DevOps |
 | **🟠 IMPORTANT** | `SECRET_STRIPE_SECRET_KEY` | 🟠 Čeká | stripe.com (live) | [L8 guide](LAUNCH-TESTING-GUIDE.md#-l8--stripe-live-payment-verification) | 🔲 | DevOps |
@@ -74,8 +74,8 @@ wrangler secret get SECRET_ADMIN_TOKEN
 # 1. Vytvořit API klíč v Resend
 #    https://resend.com → Settings → API Keys → Create API Key
 
-# 2. Nastavit Secret
-wrangler secret put SECRET_RESEND_API_KEY
+# 2. Nastavit Secret v Cloudflare Pages projektu
+wrangler pages secret put RESEND_API_KEY --project-name bicom-pisek
 # → Vložit API key a Enter
 
 # 3. Ověřit DNS (viz LAUNCH-TESTING-GUIDE.md § L1)
