@@ -6,11 +6,11 @@
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
 > **Verze aplikace:** v1.0 — **LIVE PRODUCTION (24.6.2026, bicom-pisek.cz)**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-24 Phase 3.5 (admin-access hotfixes merged + Access branding/sync guardrails, production monitoring active)
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-25 Blok A (hyper-responzivita PR #93 live)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
-> **Poslední merge:** Phase 3.5 (PR #92, squash 58186f9) — admin maintenance bypass hardening + D1 migration guardrails
+> **Poslední merge:** Blok A CSS hyper-responzivita (PR #93, squash 0acee35); předtím Phase 3.5 (PR #92, squash 58186f9)
 > **Status:** ✅ Veřejný web LIVE (full production, no maintenance gate), admin konzole LIVE, monitoring 24/7 active
-> **Aktuální aktivita:** 🟡 Post-Phase 3.5 stabilization — dokončit Cloudflare Pages preview deploy diagnostiku (PR checks), provoz je jinak stabilní
+> **Aktuální aktivita:** 🟡 Post-Phase 3.5 — CF Pages auto-deploy diagnostika; Blok A hotov
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,
@@ -195,7 +195,7 @@ Všechny níže uvedené prvky byly vyvinuty a jsou připraveny k použití. Jej
 ### Web — kosmetika a obsah (parkováno na otestování admin konzole)
 - 🟢 Menu/navigace public webu
 - 🟢 Velká revize obsahu: kratší články, nesymetrické ikony, výměna fotek (přes admin konzoli jako provozní test)
-- 🟢 „Hyper-responzivita" celého webu
+- ✅ **Hyper-responzivita** celého webu — PR #93 squash-merged, live v produkci (2026-06-25)
 
 ### CRM
 - 🟢 Rozšíření CRM nástrojů v admin konzoli (správa klientů)

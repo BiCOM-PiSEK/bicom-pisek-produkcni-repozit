@@ -4,7 +4,28 @@
 
 ---
 
-## 2026-06-24 Phase 3.5 closeout — PR #92 merged to main
+## 2026-06-25 Blok A — Hyper-responzivita — PR #93 squash-merged
+**Model:** Claude Sonnet 4.6
+**Branch:** css/blok-a-hyper-responzivita → squash do main (commit `0acee35`)
+**Status:** ✅ Hotovo — nový CSS live na bicom-pisek.cz
+
+### Co bylo implementováno
+6 responzivních oprav v `public/assets/css/style.css` (+141 řádků):
+
+1. **`@media (pointer: coarse)`** — doplněny 44px tap targety pro `.btn`, `[data-slot-start]`, `header nav a`
+2. **Chat-window dvh guard** — `max-height: calc(100dvh - 120px)` na ≤767px, `calc(100dvh - 100px)` na ≤575px
+3. **Landscape mobil** — nová `@media (max-height: 500px) and (max-width: 1023px)`: hero `min-height: auto`, chat kratší, cookie kompakt
+4. **Ultra-small ≤320px** — nová `@media (max-width: 320px)`: font floor 14px, padding redukce
+5. **Ultrawide 1600px+** — rozšíření existujícího bloku: galerie 8-col, info-grid gap 6rem, footer 2fr/1fr/2fr
+6. **Tablet 768–991px** — nová `@media (min-width: 768px) and (max-width: 991px)`: booking padding, info-grid gap, cert-grid 2-col
+
+### Deployment
+- PR #93 squash-merged, produkce ověřena `curl https://bicom-pisek.cz/assets/css/style.css | findstr 500px`
+- Poznámka: CF Pages auto-deploy z GitHubu stále nefunguje → ruční `npm run deploy -- --branch main`
+
+---
+
+
 **Model:** gpt-5.3-codex
 **Branch:** main
 **Status:** ✅ Hotovo — hotfixy i migration guardrails v produkční větvi
