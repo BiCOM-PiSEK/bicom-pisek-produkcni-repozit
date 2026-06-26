@@ -417,8 +417,9 @@ async function handleSpaFallback(request, env, url, corsHeaders) {
   );
   const isPreview = url.pathname.startsWith('/admin/preview');
   const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/);
+  const isIndexHtml = url.pathname === '/admin/index.html';
 
-  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset) {
+  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset && !isIndexHtml) {
     console.info(`[admin-auth] SPA fallback rewrite to /admin/index.html for: ${url.pathname}`);
     const fallbackUrl = new URL('/admin/index.html', request.url);
     const fallbackRequest = new Request(fallbackUrl.toString(), request);

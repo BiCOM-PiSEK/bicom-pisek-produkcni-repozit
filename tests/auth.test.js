@@ -165,4 +165,100 @@ describe('Admin Authentication Middleware', () => {
     const text = await response.text();
     expect(text).toBe('authorized');
   });
+
+  it('should rewrite /admin/ to /admin/index.html via env.ASSETS.fetch', async () => {
+    const secret = 'test-salt';
+    const expires = Date.now() + 100000;
+    const payload = `${expires}`;
+    
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const signatureBuffer = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      encoder.encode(payload)
+    );
+    const signatureHex = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    const validToken = `${payload}.${signatureHex}`;
+
+    const request = new Request('https://bicom-pisek.cz/admin/', {
+      headers: { 
+        'Accept': 'text/html',
+        'Cookie': `admin_session=${validToken}`
+      }
+    });
+
+    const mockFetch = vi.fn().mockResolvedValue(new Response('index-html-content'));
+    const env = {
+      SECRET_SESSION_KEY: secret,
+      ASSETS: {
+        fetch: mockFetch
+      }
+    };
+    const next = vi.fn();
+    const data = {};
+
+    const response = await onRequest({ request, env, next, data });
+    expect(mockFetch).toHaveBeenCalled();
+    const text = await response.text();
+    expect(text).toBe('index-html-content');
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should not rewrite /admin/index.html to prevent infinite loop', async () => {
+    const secret = 'test-salt';
+    const expires = Date.now() + 100000;
+    const payload = `${expires}`;
+    
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const signatureBuffer = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      encoder.encode(payload)
+    );
+    const signatureHex = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    const validToken = `${payload}.${signatureHex}`;
+
+    const request = new Request('https://bicom-pisek.cz/admin/index.html', {
+      headers: { 
+        'Accept': 'text/html',
+        'Cookie': `admin_session=${validToken}`
+      }
+    });
+
+    const mockFetch = vi.fn();
+    const env = {
+      SECRET_SESSION_KEY: secret,
+      ASSETS: {
+        fetch: mockFetch
+      }
+    };
+    const next = vi.fn().mockResolvedValue(new Response('next-index-html'));
+    const data = {};
+
+    const response = await onRequest({ request, env, next, data });
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+    const text = await response.text();
+    expect(text).toBe('next-index-html');
+  });
 });
