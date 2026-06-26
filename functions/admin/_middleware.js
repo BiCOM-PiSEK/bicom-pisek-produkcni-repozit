@@ -1,116 +1,204 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * BICOM PÍSEK — Admin Middleware (Cloudflare Access JWT)
+ * BICOM PÍSEK — Admin Middleware (Password & Session Cookie)
  * ═══════════════════════════════════════════════════════════════
- * Ověřuje JWT token z Cloudflare Access na cestách /admin/*.
- * Identifikuje operátorku z JWT e-mailu → operators tabulka.
+ * Ověřuje relaci administrátora pomocí podepsané cookie.
  * Poskytuje `ctx.data.operator` pro všechny admin handlery.
- *
- * V dev režimu (SECRET_CF_ACCESS_TEAM = undefined) povolí
- * přístup bez ověření s demo operátorkou.
  * ═══════════════════════════════════════════════════════════════
  */
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+function getCorsHeaders(origin) {
+  let allowedOrigin = 'https://bicom-pisek.cz';
+  if (origin) {
+    const isAllowed = origin === 'https://bicom-pisek.cz' ||
+                      origin === 'https://www.bicom-pisek.cz' ||
+                      origin.endsWith('.pages.dev') ||
+                      /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+                      /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
+    if (isAllowed) {
+      allowedOrigin = origin;
+    }
+  }
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cf-Access-Jwt-Assertion',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
-const JWKS_CACHE_TTL_MS = 10 * 60 * 1000;
-const jwksCache = new Map();
+// ─── SESSION SIGNING ────────────────────────────────────────────
 
-/**
- * Middleware pro admin endpointy.
- * Cloudflare Pages Functions middleware — export onRequest.
- */
+async function createSessionToken(secret) {
+  const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  const payload = `${expires}`;
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signatureBuffer = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(payload)
+  );
+  const signatureHex = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  return `${payload}.${signatureHex}`;
+}
+
+async function verifySessionToken(token, secret) {
+  if (!token) return false;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+  const [payload, signatureHex] = parts;
+  
+  const expires = parseInt(payload, 10);
+  if (isNaN(expires) || expires < Date.now()) return false;
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify']
+  );
+  
+  if (!/^[0-9a-fA-F]+$/.test(signatureHex)) return false;
+  const signatureBytes = new Uint8Array(
+    signatureHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))
+  );
+  
+  return crypto.subtle.verify(
+    'HMAC',
+    key,
+    signatureBytes,
+    encoder.encode(payload)
+  );
+}
+
+// ─── MIDDLEWARE EXPORT ──────────────────────────────────────────
+
 export async function onRequest(context) {
   const { request, env, next, data } = context;
 
+  const origin = request.headers.get('Origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   // CORS preflight
   if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  // Skip auth for static assets (CSS, JS, images)
   const url = new URL(request.url);
+
+  // 1. POST /admin/login endpoint
+  if (url.pathname === '/admin/login' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      const expectedPassword = env.SECRET_ADMIN_PASSWORD || 'Bicom-@26';
+      
+      if (body.password === expectedPassword) {
+        const sessionToken = await createSessionToken(env.SECRET_SESSION_KEY || 'default-session-salt');
+        const headers = new Headers({
+          'Content-Type': 'application/json',
+          'Set-Cookie': `admin_session=${sessionToken}; Path=/admin; HttpOnly; SameSite=Strict; Secure`,
+          ...corsHeaders
+        });
+        return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+      } else {
+        return new Response(JSON.stringify({ ok: false, error: 'Nesprávné heslo.' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+    } catch (err) {
+      return new Response(JSON.stringify({ ok: false, error: 'Neplatný požadavek.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+  }
+
+  // 2. GET /admin/logout endpoint
+  if (url.pathname === '/admin/logout') {
+    const headers = new Headers({
+      'Set-Cookie': 'admin_session=; Path=/admin; HttpOnly; SameSite=Strict; Secure; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'Location': '/admin/login.html',
+      ...corsHeaders
+    });
+    return new Response(null, { status: 302, headers });
+  }
+
+  // 3. Skip auth for static assets and login page
   if (
     url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/) ||
-    url.pathname === '/admin' ||
-    url.pathname === '/admin/' ||
-    url.pathname === '/admin/index.html'
+    url.pathname === '/admin/login.html'
   ) {
     return next();
   }
 
-  // Dev mode — pokud CF Access team není nastaven, povolí přístup pouze v lokálním vývoji.
-  // Mimo dev (produkce / *.pages.dev) tvrdě zamítneme fallback a vrátíme 403.
-  const cfTeam = env.SECRET_CF_ACCESS_TEAM;
-  if (!cfTeam) {
-    const isProd = env.ENV === 'production' || (!url.hostname.includes('localhost') && !url.hostname.includes('127.0.0.1'));
-    if (isProd) {
-      console.error('[admin-auth] Access blocked: production/deployed environment detected but SECRET_CF_ACCESS_TEAM is not configured.');
-      return jsonError('Přístup zamítnut — chybí konfigurace autorizační služby.', 403);
+  // 4. Verify cookie-based session
+  const cookieHeader = request.headers.get('Cookie');
+  const sessionToken = getCookieValue(cookieHeader, 'admin_session');
+  const isSessionValid = await verifySessionToken(sessionToken, env.SECRET_SESSION_KEY || 'default-session-salt');
+
+  if (!isSessionValid) {
+    const acceptHeader = request.headers.get('Accept') || '';
+    const wantsHtml = acceptHeader.includes('text/html');
+    const isMainRoute = url.pathname === '/admin' || url.pathname === '/admin/';
+    
+    // Redirect browser page requests to login page
+    if (request.method === 'GET' && (wantsHtml || isMainRoute)) {
+      const returnUrl = `${url.pathname}${url.search}${url.hash}`;
+      const loginUrl = new URL('/admin/login.html', request.url);
+      loginUrl.searchParams.set('redirect_url', returnUrl);
+      
+      const newHeaders = new Headers(corsHeaders);
+      newHeaders.set('Location', loginUrl.toString());
+      return new Response(null, { status: 302, headers: newHeaders });
     }
 
-    data.operator = {
-      id: 'dev-operator',
-      email: 'dev@bicompisek.cz',
-      name: 'Dev Režim',
+    return jsonError('Neoprávněný přístup — relace vypršela nebo je neplatná.', 401, corsHeaders);
+  }
+
+  // 5. Populate operator context
+  let operator = null;
+  if (env.DB) {
+    try {
+      operator = await findOperator(env.DB, 'admin@bicom-pisek.cz');
+    } catch (err) {
+      console.error('[admin-auth] Operator DB lookup failed:', err);
+    }
+  }
+
+  if (!operator) {
+    operator = {
+      id: 'op_admin_box',
+      email: 'admin@bicom-pisek.cz',
+      name: 'Admin',
       role: 'admin',
-      isDev: true,
     };
-    console.info('[admin-auth] Dev mode — no CF Access team configured');
-    const fallbackRes = await handleSpaFallback(request, env, url);
-    if (fallbackRes) return fallbackRes;
-    return next();
   }
 
-  // Production mode — ověření JWT z Cloudflare Access
-  const jwtToken =
-    request.headers.get('Cf-Access-Jwt-Assertion') ||
-    getCookieValue(request.headers.get('Cookie'), 'CF_Authorization');
+  data.operator = operator;
 
-  if (!jwtToken) {
-    return jsonError('Neoprávněný přístup — chybí autorizační token.', 401);
-  }
-
-  try {
-    // Ověření JWT
-    const payload = await verifyJWT(jwtToken, cfTeam, env.SECRET_CF_ACCESS_AUD);
-
-    if (!payload || !payload.email) {
-      return jsonError('Neplatný token — nelze identifikovat uživatele.', 403);
-    }
-
-    // Vyhledat operátorku v DB
-    const normalizedEmail = String(payload.email).trim().toLowerCase();
-    const operator = await findOperator(env.DB, normalizedEmail);
-
-    if (!operator) {
-      console.warn(`[admin-auth] Unknown operator: ${normalizedEmail}`);
-      return jsonError('Přístup zamítnut — váš e-mail není registrován.', 403);
-    }
-
-    // Nastavit kontext pro handlery
-    data.operator = operator;
-    data.jwtPayload = payload;
-
-  } catch (err) {
-    console.error('[admin-auth] JWT verification failed:', err);
-    return jsonError('Chyba ověření — zkuste se přihlásit znovu.', 401);
-  }
-
-  // SPA fallback rewrite po úspěšném ověření tokenu
-  const fallbackRes = await handleSpaFallback(request, env, url);
+  // SPA fallback rewrite
+  const fallbackRes = await handleSpaFallback(request, env, url, corsHeaders);
   if (fallbackRes) return fallbackRes;
 
-  // Pokračuj ke handleru
   const response = await next();
 
-  // Přidej CORS headers
+  // Add CORS headers to final response
   const newHeaders = new Headers(response.headers);
-  Object.entries(CORS_HEADERS).forEach(([k, v]) => newHeaders.set(k, v));
+  Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
 
   return new Response(response.body, {
     status: response.status,
@@ -118,153 +206,8 @@ export async function onRequest(context) {
   });
 }
 
-// ─── JWT VERIFICATION ────────────────────────────────────────────
-
-/**
- * Ověří Cloudflare Access JWT.
- * @param {string} token   — JWT token
- * @param {string} team    — CF Access team domain (e.g., 'bicompisek')
- * @param {string} aud     — CF Access Application Audience (AUD) tag
- * @returns {Promise<Object|null>} — JWT payload nebo null
- */
-async function verifyJWT(token, team, aud) {
-  // Rozděl JWT
-  const parts = token.split('.');
-  if (parts.length !== 3) return null;
-  const [encodedHeader, encodedPayload, encodedSignature] = parts;
-  const header = parseJwtPart(encodedHeader);
-  const payload = parseJwtPart(encodedPayload);
-  if (!header || !payload) return null;
-
-  if (header.alg !== 'RS256' || !header.kid) {
-    console.warn(`[admin-auth] Unsupported JWT header: alg=${header.alg}, kid=${header.kid || 'missing'}`);
-    return null;
-  }
-
-  const jwk = await getCfAccessJwk(team, header.kid);
-  if (!jwk) {
-    console.warn('[admin-auth] Matching JWKS key not found.');
-    return null;
-  }
-
-  const signatureValid = await verifyRs256Signature(encodedHeader, encodedPayload, encodedSignature, jwk);
-  if (!signatureValid) {
-    console.warn('[admin-auth] Invalid JWT signature');
-    return null;
-  }
-
-  // Kontrola issuer
-  const expectedIss = `https://${team}.cloudflareaccess.com`;
-  if (payload.iss !== expectedIss) {
-    console.warn(`[admin-auth] Invalid issuer: ${payload.iss} vs ${expectedIss}`);
-    return null;
-  }
-
-  // Kontrola audience (podpora pro více AUD hodnot oddělených čárkou)
-  if (aud && payload.aud) {
-    const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-    const allowedAuds = aud.split(',').map(a => a.trim());
-    const hasValidAud = audArray.some(tokenAud => allowedAuds.includes(tokenAud));
-    if (!hasValidAud) {
-      console.warn('[admin-auth] Invalid audience');
-      return null;
-    }
-  }
-
-  // Kontrola expirace
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    console.warn('[admin-auth] Token expired');
-    return null;
-  }
-
-  // Kontrola "not before"
-  if (payload.nbf && payload.nbf > now + 60) {
-    console.warn('[admin-auth] Token not yet valid');
-    return null;
-  }
-
-  return payload;
-}
-
-async function getCfAccessJwk(team, kid) {
-  const cached = jwksCache.get(team);
-  const now = Date.now();
-  if (cached && cached.expiresAt > now) {
-    return cached.keysByKid.get(kid) || null;
-  }
-
-  const certsUrl = `https://${team}.cloudflareaccess.com/cdn-cgi/access/certs`;
-  const response = await fetch(certsUrl, { method: 'GET' });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch CF Access certs: ${response.status}`);
-  }
-
-  const body = await response.json();
-  const keys = Array.isArray(body?.keys) ? body.keys : [];
-  const keysByKid = new Map();
-  keys.forEach((key) => {
-    if (key?.kid) {
-      keysByKid.set(key.kid, key);
-    }
-  });
-
-  jwksCache.set(team, {
-    expiresAt: now + JWKS_CACHE_TTL_MS,
-    keysByKid,
-  });
-
-  return keysByKid.get(kid) || null;
-}
-
-async function verifyRs256Signature(encodedHeader, encodedPayload, encodedSignature, jwk) {
-  const publicKey = await crypto.subtle.importKey(
-    'jwk',
-    jwk,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['verify']
-  );
-
-  const signingInput = `${encodedHeader}.${encodedPayload}`;
-  const encoder = new TextEncoder();
-  const signature = decodeBase64Url(encodedSignature);
-  return crypto.subtle.verify(
-    'RSASSA-PKCS1-v1_5',
-    publicKey,
-    signature,
-    encoder.encode(signingInput)
-  );
-}
-
-function parseJwtPart(encodedPart) {
-  try {
-    const json = new TextDecoder().decode(decodeBase64Url(encodedPart));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
-function decodeBase64Url(value) {
-  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
 // ─── DB LOOKUP ─────────────────────────────────────────────────
 
-/**
- * Vyhledá operátorku v tabulce operators dle e-mailu.
- * @param {D1Database} db
- * @param {string} email
- * @returns {Promise<Object|null>}
- */
 async function findOperator(db, email) {
   if (!db) return null;
 
@@ -283,32 +226,20 @@ async function findOperator(db, email) {
 
 // ─── HELPERS ────────────────────────────────────────────────────
 
-/**
- * Extrahuje hodnotu cookie.
- * @param {string|null} cookieHeader
- * @param {string} name
- * @returns {string|null}
- */
 function getCookieValue(cookieHeader, name) {
   if (!cookieHeader) return null;
   const match = cookieHeader.match(new RegExp(`(?:^|;)\\s*${name}=([^;]*)`));
   return match ? match[1] : null;
 }
 
-/**
- * JSON error response.
- * @param {string} message
- * @param {number} status
- * @returns {Response}
- */
-function jsonError(message, status) {
+function jsonError(message, status, corsHeaders = {}) {
   return new Response(
     JSON.stringify({ ok: false, error: message }),
     {
       status,
       headers: {
         'Content-Type': 'application/json',
-        ...CORS_HEADERS,
+        ...corsHeaders,
       },
     }
   );
@@ -316,14 +247,7 @@ function jsonError(message, status) {
 
 // ─── SPA FALLBACK ───────────────────────────────────────────────
 
-/**
- * Provede SPA fallback na /admin/index.html pro klientské routy.
- * @param {Request} request
- * @param {Object} env
- * @param {URL} url
- * @returns {Promise<Response|null>}
- */
-async function handleSpaFallback(request, env, url) {
+async function handleSpaFallback(request, env, url, corsHeaders) {
   const acceptHeader = request.headers.get('Accept') || '';
   const apiHandlers = [
     '/admin/activity',
@@ -346,7 +270,6 @@ async function handleSpaFallback(request, env, url) {
   const isApiHandler = apiHandlers.some(path =>
     url.pathname === path || url.pathname === `${path}/`
   );
-  // Náhled veřejné stránky (F12) má vlastní handler — nepřepisovat na SPA.
   const isPreview = url.pathname.startsWith('/admin/preview');
   const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/);
 
@@ -357,7 +280,7 @@ async function handleSpaFallback(request, env, url) {
     const response = await env.ASSETS.fetch(fallbackRequest);
     
     const newHeaders = new Headers(response.headers);
-    Object.entries(CORS_HEADERS).forEach(([k, v]) => newHeaders.set(k, v));
+    Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
     
     return new Response(response.body, {
       status: 200,

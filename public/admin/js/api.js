@@ -105,9 +105,9 @@ function handleAuthError(status) {
 
     // Uložíme čas redirectu do sessionStorage a přesměrujeme
     sessionStorage.setItem('admin_auth_redirect_at', now.toString());
-    console.warn('[api] 401 Unauthenticated - Redirecting to Cloudflare Access login.');
+    console.warn('[api] 401 Unauthenticated - Redirecting to admin login page.');
     const returnUrl = `${location.pathname}${location.search}${location.hash}`;
-    window.location.href = '/cdn-cgi/access/login?redirect_url=' + encodeURIComponent(returnUrl);
+    window.location.href = '/admin/login.html?redirect_url=' + encodeURIComponent(returnUrl);
   }
 }
 
@@ -656,6 +656,46 @@ function deleteDraftVersion(id) {
   return request(`/drafts?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
+// ─── CHAT MESSAGES & NEWSLETTER EXPORT ──────────────────────────
+/** GET /admin/messages — přehled chatových konverzací. @returns {Promise<ApiResponse>} */
+function getChatConversations() {
+  return request('/messages');
+}
+/** GET /admin/messages?conversation_id= — zprávy konkrétní konverzace. @param {string} conversationId @returns {Promise<ApiResponse>} */
+function getChatMessages(conversationId) {
+  return request(`/messages?conversation_id=${encodeURIComponent(conversationId)}`);
+}
+/** DELETE /admin/messages?conversation_id= — smazání celé konverzace. @param {string} conversationId @returns {Promise<ApiResponse>} */
+function deleteChatConversation(conversationId) {
+  return request(`/messages?conversation_id=${encodeURIComponent(conversationId)}`, { method: 'DELETE' });
+}
+/** GET /admin/newsletter — export e-mailů jako CSV. @returns {Promise<ApiResponse>} */
+async function exportNewsletterCsv() {
+  try {
+    const response = await fetch(`${API_BASE}/newsletter`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'text/csv, application/json' }
+    });
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        handleAuthError(response.status);
+        return { ok: false, data: null, error: 'Neoprávněný přístup', status: response.status };
+      }
+      let error = 'Chyba při exportu kontaktů.';
+      try {
+        const body = await response.json();
+        error = body?.error || error;
+      } catch {}
+      return { ok: false, data: null, error, status: response.status };
+    }
+    const text = await response.text();
+    return { ok: true, data: text, error: null, status: response.status };
+  } catch (err) {
+    return { ok: false, data: null, error: err.message || 'Síťová chyba', status: 0 };
+  }
+}
+
 // ─── EXPORT (pro browser ES module) ────────────────────────────
 
 const AdminAPI = {
@@ -717,6 +757,11 @@ const AdminAPI = {
   loadDraftVersion,
   renameDraftVersion,
   deleteDraftVersion,
+  // Chat & Newsletter
+  getChatConversations,
+  getChatMessages,
+  deleteChatConversation,
+  exportNewsletterCsv,
 };
 
 // Také na window pro přístup z modulů
