@@ -59,7 +59,7 @@ describe('Admin Authentication Middleware', () => {
 
     const response = await onRequest({ request, env, next, data });
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/admin/login.html');
+    expect(response.headers.get('Location')).toBe('/admin/login');
     
     const setCookie = response.headers.get('Set-Cookie');
     expect(setCookie).toBeDefined();
@@ -89,7 +89,7 @@ describe('Admin Authentication Middleware', () => {
 
     const response = await onRequest({ request, env, next, data });
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toContain('/admin/login.html?redirect_url=');
+    expect(response.headers.get('Location')).toContain('/admin/login?redirect_url=');
   });
 
   it('should return 401 JSON error for API requests if session is missing', async () => {

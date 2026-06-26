@@ -107,7 +107,7 @@ function handleAuthError(status) {
     sessionStorage.setItem('admin_auth_redirect_at', now.toString());
     console.warn('[api] 401 Unauthenticated - Redirecting to admin login page.');
     const returnUrl = `${location.pathname}${location.search}${location.hash}`;
-    window.location.href = '/admin/login.html?redirect_url=' + encodeURIComponent(returnUrl);
+    window.location.href = '/admin/login?redirect_url=' + encodeURIComponent(returnUrl);
   }
 }
 
