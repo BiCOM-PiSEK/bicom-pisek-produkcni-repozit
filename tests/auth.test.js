@@ -166,7 +166,7 @@ describe('Admin Authentication Middleware', () => {
     expect(text).toBe('authorized');
   });
 
-  it('should rewrite /admin/ to /admin/index.html via env.ASSETS.fetch', async () => {
+  it('should rewrite /admin/kalendar to /admin/ via env.ASSETS.fetch with X-SPA-Fallback header', async () => {
     const secret = 'test-salt';
     const expires = Date.now() + 100000;
     const payload = `${expires}`;
@@ -190,14 +190,18 @@ describe('Admin Authentication Middleware', () => {
       .join('');
     const validToken = `${payload}.${signatureHex}`;
 
-    const request = new Request('https://bicom-pisek.cz/admin/', {
+    const request = new Request('https://bicom-pisek.cz/admin/kalendar', {
       headers: { 
         'Accept': 'text/html',
         'Cookie': `admin_session=${validToken}`
       }
     });
 
-    const mockFetch = vi.fn().mockResolvedValue(new Response('index-html-content'));
+    const mockFetch = vi.fn().mockImplementation((req) => {
+      expect(req.url).toBe('https://bicom-pisek.cz/admin/');
+      expect(req.headers.get('X-SPA-Fallback')).toBe('true');
+      return new Response('index-html-content');
+    });
     const env = {
       SECRET_SESSION_KEY: secret,
       ASSETS: {
@@ -214,7 +218,7 @@ describe('Admin Authentication Middleware', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should not rewrite /admin/index.html to prevent infinite loop', async () => {
+  it('should not rewrite /admin/index.html or when X-SPA-Fallback is present', async () => {
     const secret = 'test-salt';
     const expires = Date.now() + 100000;
     const payload = `${expires}`;
@@ -238,7 +242,8 @@ describe('Admin Authentication Middleware', () => {
       .join('');
     const validToken = `${payload}.${signatureHex}`;
 
-    const request = new Request('https://bicom-pisek.cz/admin/index.html', {
+    // Test 1: /admin/index.html
+    const request1 = new Request('https://bicom-pisek.cz/admin/index.html', {
       headers: { 
         'Accept': 'text/html',
         'Cookie': `admin_session=${validToken}`
@@ -252,13 +257,30 @@ describe('Admin Authentication Middleware', () => {
         fetch: mockFetch
       }
     };
-    const next = vi.fn().mockResolvedValue(new Response('next-index-html'));
-    const data = {};
+    const next1 = vi.fn().mockResolvedValue(new Response('next-index-html'));
+    const data1 = {};
 
-    const response = await onRequest({ request, env, next, data });
+    const response1 = await onRequest({ request: request1, env, next: next1, data: data1 });
     expect(mockFetch).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalled();
-    const text = await response.text();
-    expect(text).toBe('next-index-html');
+    expect(next1).toHaveBeenCalled();
+    const text1 = await response1.text();
+    expect(text1).toBe('next-index-html');
+
+    // Test 2: X-SPA-Fallback is present on `/admin/kalendar`
+    const request2 = new Request('https://bicom-pisek.cz/admin/kalendar', {
+      headers: { 
+        'Accept': 'text/html',
+        'Cookie': `admin_session=${validToken}`,
+        'X-SPA-Fallback': 'true'
+      }
+    });
+    const next2 = vi.fn().mockResolvedValue(new Response('next-fallback-bypass'));
+    const data2 = {};
+
+    const response2 = await onRequest({ request: request2, env, next: next2, data: data2 });
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(next2).toHaveBeenCalled();
+    const text2 = await response2.text();
+    expect(text2).toBe('next-fallback-bypass');
   });
 });

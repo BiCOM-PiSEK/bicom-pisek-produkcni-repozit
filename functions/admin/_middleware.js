@@ -395,6 +395,11 @@ function corsResponse(response, corsHeaders) {
 // ─── SPA FALLBACK ───────────────────────────────────────────────
 
 async function handleSpaFallback(request, env, url, corsHeaders) {
+  // Check if it's already an internal fallback request to prevent recursion
+  if (request.headers.has('X-SPA-Fallback')) {
+    return null;
+  }
+
   const acceptHeader = request.headers.get('Accept') || '';
   const apiHandlers = [
     '/admin/activity',
@@ -420,11 +425,13 @@ async function handleSpaFallback(request, env, url, corsHeaders) {
   const isPreview = url.pathname.startsWith('/admin/preview');
   const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/);
   const isIndexHtml = url.pathname === '/admin/index.html';
+  const isMainRoute = url.pathname === '/admin' || url.pathname === '/admin/';
 
-  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset && !isIndexHtml) {
-    console.info(`[admin-auth] SPA fallback rewrite to /admin/index.html for: ${url.pathname}`);
-    const fallbackUrl = new URL('/admin/index.html', request.url);
+  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset && !isIndexHtml && !isMainRoute) {
+    console.info(`[admin-auth] SPA fallback rewrite to /admin/ for: ${url.pathname}`);
+    const fallbackUrl = new URL('/admin/', request.url);
     const fallbackRequest = new Request(fallbackUrl.toString(), request);
+    fallbackRequest.headers.set('X-SPA-Fallback', 'true');
     const response = await env.ASSETS.fetch(fallbackRequest);
     
     return corsResponse(response, corsHeaders);
