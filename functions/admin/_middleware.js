@@ -341,14 +341,7 @@ export async function onRequest(context) {
 
   const response = await next();
 
-  // Add CORS headers to final response
-  const newHeaders = new Headers(response.headers);
-  Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
-
-  return new Response(response.body, {
-    status: response.status,
-    headers: newHeaders,
-  });
+  return corsResponse(response, corsHeaders);
 }
 
 // ─── DB LOOKUP ─────────────────────────────────────────────────
@@ -390,6 +383,15 @@ function jsonError(message, status, corsHeaders = {}) {
   );
 }
 
+function corsResponse(response, corsHeaders) {
+  if (!response) return response;
+  const newResponse = new Response(response.body, response);
+  newResponse.headers.delete('Content-Encoding');
+  newResponse.headers.delete('Content-Length');
+  Object.entries(corsHeaders).forEach(([k, v]) => newResponse.headers.set(k, v));
+  return newResponse;
+}
+
 // ─── SPA FALLBACK ───────────────────────────────────────────────
 
 async function handleSpaFallback(request, env, url, corsHeaders) {
@@ -425,13 +427,7 @@ async function handleSpaFallback(request, env, url, corsHeaders) {
     const fallbackRequest = new Request(fallbackUrl.toString(), request);
     const response = await env.ASSETS.fetch(fallbackRequest);
     
-    const newHeaders = new Headers(response.headers);
-    Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
-    
-    return new Response(response.body, {
-      status: 200,
-      headers: newHeaders
-    });
+    return corsResponse(response, corsHeaders);
   }
   
   return null;
