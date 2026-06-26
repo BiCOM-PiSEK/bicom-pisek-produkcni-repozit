@@ -109,7 +109,7 @@ export async function onRequest(context) {
         const sessionToken = await createSessionToken(env.SECRET_SESSION_KEY || 'default-session-salt');
         const headers = new Headers({
           'Content-Type': 'application/json',
-          'Set-Cookie': `admin_session=${sessionToken}; Path=/admin; HttpOnly; SameSite=Strict; Secure`,
+          'Set-Cookie': `admin_session=${sessionToken}; Path=/admin; HttpOnly; SameSite=Lax; Secure`,
           ...corsHeaders
         });
         return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
@@ -130,18 +130,27 @@ export async function onRequest(context) {
   // 2. GET /admin/logout endpoint
   if (url.pathname === '/admin/logout') {
     const headers = new Headers({
-      'Set-Cookie': 'admin_session=; Path=/admin; HttpOnly; SameSite=Strict; Secure; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'Set-Cookie': 'admin_session=; Path=/admin; HttpOnly; SameSite=Lax; Secure; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
       'Location': '/admin/login.html',
       ...corsHeaders
     });
     return new Response(null, { status: 302, headers });
   }
 
-  // 3. Skip auth for static assets and login page
-  if (
-    url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/) ||
-    url.pathname === '/admin/login.html'
-  ) {
+  // 3. Skip auth for static assets
+  if (url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/)) {
+    return next();
+  }
+
+  // 3b. Serve login page directly via ASSETS (bypasses _redirects SPA fallback)
+  if (url.pathname === '/admin/login.html') {
+    if (env.ASSETS) {
+      const loginRequest = new Request(new URL('/admin/login.html', request.url).toString(), request);
+      const loginResponse = await env.ASSETS.fetch(loginRequest);
+      const newHeaders = new Headers(loginResponse.headers);
+      Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
+      return new Response(loginResponse.body, { status: 200, headers: newHeaders });
+    }
     return next();
   }
 
