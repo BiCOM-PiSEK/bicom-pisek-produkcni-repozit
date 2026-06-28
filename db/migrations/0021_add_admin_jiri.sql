@@ -4,9 +4,9 @@
 -- Role: admin, Active: 1
 -- Calendar: None (bude nastaveno později, pokud třeba)
 
-BEGIN;
+-- BEGIN;
 
 INSERT OR IGNORE INTO operators (id, name, email, role, active, calendar_color) VALUES
 ('op_jiri_limpouch', 'Jiří Limpouch', 'jiri.limpouch@alettgroup.cz', 'admin', 1, NULL);
 
-COMMIT;
+-- COMMIT;

@@ -55,11 +55,17 @@ export async function render(container, ctx) {
    */
   async function loadSettings() {
     if (!api?.getSettings) return;
-    const res = await api.getSettings();
-    if (res.ok && res.data?.settings) {
-      for (const [k, v] of Object.entries(res.data.settings)) {
-        settings[k] = v.value;
+    try {
+      const res = await api.getSettings();
+      if (res.ok && res.data?.settings) {
+        for (const [k, v] of Object.entries(res.data.settings)) {
+          settings[k] = v.value;
+        }
+      } else if (res && !res.ok) {
+        showToast('Nepodařilo se načíst nastavení AI Studia: ' + (res.error || 'Neznámá chyba'), 'error');
       }
+    } catch (err) {
+      showToast('Nepodařilo se načíst nastavení AI Studia: ' + (err.message || 'Neznámá chyba'), 'error');
     }
   }
 
@@ -71,11 +77,15 @@ export async function render(container, ctx) {
     if (!api?.getAiJobs) return;
     const params = { limit: 15 };
     if (jobStatusFilter) params.status = jobStatusFilter;
-    const res = await api.getAiJobs(params);
-    if (res.ok && res.data?.jobs) {
-      jobs = res.data.jobs;
-    } else {
-      showToast('Nepodařilo se načíst AI joby: ' + (res.error || 'Neznámá chyba'), 'error');
+    try {
+      const res = await api.getAiJobs(params);
+      if (res.ok && res.data?.jobs) {
+        jobs = res.data.jobs;
+      } else {
+        showToast('Nepodařilo se načíst AI joby: ' + (res.error || 'Neznámá chyba'), 'error');
+      }
+    } catch (err) {
+      showToast('Nepodařilo se načíst AI joby: ' + (err.message || 'Neznámá chyba'), 'error');
     }
   }
 
@@ -389,13 +399,18 @@ export async function render(container, ctx) {
         const jobId = btn.dataset.retryJobId;
         if (!jobId) return;
         btn.disabled = true;
-        const res = await api.retryAiJob(jobId);
-        if (res.ok) {
-          showToast('Retry spuštěn ✓', 'success');
-          await Promise.all([loadAssets(), loadJobs()]);
-          renderMain();
-        } else {
-          showToast('Retry selhal: ' + (res.error || 'Neznámá chyba'), 'error');
+        try {
+          const res = await api.retryAiJob(jobId);
+          if (res.ok) {
+            showToast('Retry spuštěn ✓', 'success');
+            await Promise.all([loadAssets(), loadJobs()]);
+            renderMain();
+          } else {
+            showToast('Retry selhal: ' + (res.error || 'Neznámá chyba'), 'error');
+          }
+        } catch (err) {
+          showToast('Retry selhal: ' + (err.message || 'Neznámá chyba'), 'error');
+        } finally {
           btn.disabled = false;
         }
       });
