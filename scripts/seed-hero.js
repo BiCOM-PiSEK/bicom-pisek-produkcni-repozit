@@ -5,17 +5,16 @@
 // Usage:
 //   node scripts/seed-hero.js
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import path from 'path';
 
 const DB_NAME = 'bicom-pisek-db';
+const WRANGLER_JS = path.resolve('node_modules/wrangler/bin/wrangler.js');
 
 function runQuery(sql) {
   try {
-    const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-    const output = execSync(
-      `${cmd} wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
-      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
-    );
+    const args = [WRANGLER_JS, 'd1', 'execute', DB_NAME, '--remote', '--json', `--command=${sql}`];
+    const output = execFileSync('node', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
     const jsonStart = output.indexOf('[');
     if (jsonStart === -1) {
       const match = output.match(/\{.*\}/s);

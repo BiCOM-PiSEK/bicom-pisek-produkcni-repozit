@@ -212,72 +212,77 @@ async function loadConversations(container, api, showToast, selectedId = null) {
     return;
   }
 
-  const res = await api.getChatConversations();
-  if (!res.ok || !res.data) {
-    listEl.innerHTML = renderError(res.error || 'Chyba při komunikaci se serverem.');
-    if (showToast) showToast('Nepodařilo se načíst konverzace: ' + (res.error || 'neznámá chyba'), 'error');
-    return;
-  }
+  try {
+    const res = await api.getChatConversations();
+    if (!res.ok || !res.data) {
+      listEl.innerHTML = renderError(res.error || 'Chyba při komunikaci se serverem.');
+      if (showToast) showToast('Nepodařilo se načíst konverzace: ' + (res.error || 'neznámá chyba'), 'error');
+      return;
+    }
 
-  const conversations = res.data.conversations || [];
+    const conversations = res.data.conversations || [];
 
-  if (conversations.length === 0) {
-    listEl.innerHTML = `
-      <div style="text-align: center; padding: var(--sp-6) var(--sp-2); color: var(--c-sage); font-size: var(--text-sm);">
-        Zatím žádné konverzace
-      </div>
-    `;
-    // Vyčistit pravý panel
-    const detailPanel = container.querySelector('#chat-detail-panel');
-    if (detailPanel) {
-      detailPanel.innerHTML = `
-        <div class="empty-state" style="margin: auto; text-align: center;">
-          <div style="font-size: 3rem; margin-bottom: var(--sp-4);">💬</div>
-          <h4 class="empty-state-title" style="font-family: var(--font-head); font-size: 1.3rem; color: var(--c-forest);">Bez konverzací</h4>
-          <p class="empty-state-text" style="color: var(--c-sage);">V databázi nejsou žádné zaznamenané chaty.</p>
+    if (conversations.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align: center; padding: var(--sp-6) var(--sp-2); color: var(--c-sage); font-size: var(--text-sm);">
+          Zatím žádné konverzace
         </div>
       `;
+      // Vyčistit pravý panel
+      const detailPanel = container.querySelector('#chat-detail-panel');
+      if (detailPanel) {
+        detailPanel.innerHTML = `
+          <div class="empty-state" style="margin: auto; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: var(--sp-4);">💬</div>
+            <h4 class="empty-state-title" style="font-family: var(--font-head); font-size: 1.3rem; color: var(--c-forest);">Bez konverzací</h4>
+            <p class="empty-state-text" style="color: var(--c-sage);">V databázi nejsou žádné zaznamenané chaty.</p>
+          </div>
+        `;
+      }
+      return;
     }
-    return;
-  }
 
-  listEl.innerHTML = conversations.map(c => {
-    const activeClass = selectedId === c.conversation_id ? 'active' : '';
-    const dateStr = formatDate(c.last_message_at);
-    const idSnippet = c.conversation_id.substring(0, 8);
-    const msgPreview = c.last_message ? c.last_message : '(prázdná zpráva)';
+    listEl.innerHTML = conversations.map(c => {
+      const activeClass = selectedId === c.conversation_id ? 'active' : '';
+      const dateStr = formatDate(c.last_message_at);
+      const idSnippet = c.conversation_id.substring(0, 8);
+      const msgPreview = c.last_message ? c.last_message : '(prázdná zpráva)';
 
-    return `
-      <button class="chat-item ${activeClass}" data-id="${esc(c.conversation_id)}">
-        <div class="chat-item-header">
-          <span class="chat-item-title">Chat #${esc(idSnippet)}</span>
-          <span class="chat-item-time">${esc(dateStr)}</span>
-        </div>
-        <div class="chat-item-preview">${esc(msgPreview)}</div>
-        <div style="font-size: 0.65rem; color: var(--c-champagne); margin-top: var(--sp-1); text-align: right;">
-          ${c.message_count} zpráv
-        </div>
-      </button>
-    `;
-  }).join('');
+      return `
+        <button class="chat-item ${activeClass}" data-id="${esc(c.conversation_id)}">
+          <div class="chat-item-header">
+            <span class="chat-item-title">Chat #${esc(idSnippet)}</span>
+            <span class="chat-item-time">${esc(dateStr)}</span>
+          </div>
+          <div class="chat-item-preview">${esc(msgPreview)}</div>
+          <div style="font-size: 0.65rem; color: var(--c-champagne); margin-top: var(--sp-1); text-align: right;">
+            ${c.message_count} zpráv
+          </div>
+        </button>
+      `;
+    }).join('');
 
-  // Navázat kliknutí na položky seznamu
-  const items = listEl.querySelectorAll('.chat-item');
-  items.forEach(item => {
-    item.addEventListener('click', async () => {
-      // Zrušit předchozí aktivní
-      items.forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
+    // Navázat kliknutí na položky seznamu
+    const items = listEl.querySelectorAll('.chat-item');
+    items.forEach(item => {
+      item.addEventListener('click', async () => {
+        // Zrušit předchozí aktivní
+        items.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
 
-      const conversationId = item.getAttribute('data-id');
-      await loadConversationDetail(conversationId, container, api, showToast);
+        const conversationId = item.getAttribute('data-id');
+        await loadConversationDetail(conversationId, container, api, showToast);
+      });
     });
-  });
 
-  // Pokud byl vybrán konkrétní chat, zajistit aktivní třídu
-  if (selectedId) {
-    const activeBtn = listEl.querySelector(`[data-id="${selectedId}"]`);
-    if (activeBtn) activeBtn.classList.add('active');
+    // Pokud byl vybrán konkrétní chat, zajistit aktivní třídu
+    if (selectedId) {
+      const activeBtn = listEl.querySelector(`[data-id="${selectedId}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+  } catch (err) {
+    listEl.innerHTML = renderError('Chyba sítě při načítání konverzací.');
+    if (showToast) showToast('Chyba sítě: ' + err.message, 'error');
   }
 }
 
@@ -294,76 +299,111 @@ async function loadConversationDetail(conversationId, container, api, showToast)
     </div>
   `;
 
-  const res = await api.getChatMessages(conversationId);
-  if (!res.ok || !res.data) {
-    detailPanel.innerHTML = renderError(res.error || 'Nepodařilo se načíst zprávy.');
-    return;
-  }
+  // Request guard to prevent race conditions
+  detailPanel.dataset.activeId = conversationId;
 
-  const messages = res.data.messages || [];
-  const idSnippet = conversationId.substring(0, 8);
-
-  detailPanel.innerHTML = `
-    <div class="chat-detail-header">
-      <div>
-        <h3 style="font-family: var(--font-head); font-size: var(--text-lg); color: var(--c-forest); font-weight: 600;">
-          Detail konverzace
-        </h3>
-        <p style="font-size: var(--text-xs); color: var(--c-sage);">ID: <code style="background: var(--c-sage-light); padding: 2px 4px; border-radius: var(--radius-sm);">${esc(conversationId)}</code></p>
-      </div>
-      <button class="btn btn-secondary btn-sm" id="btn-delete-chat" style="background: var(--c-error-bg); color: var(--c-error); border: 1px solid var(--c-error-bg);" title="Smazat celou konverzaci">
-        🗑️ Smazat chat
-      </button>
-    </div>
+  try {
+    const res = await api.getChatMessages(conversationId);
     
-    <div class="chat-messages-stream" id="messages-stream">
-      ${messages.map(m => {
-        const roleClass = m.role === 'user' ? 'user' : 'assistant';
-        const formattedRole = m.role === 'user' ? 'Klient' : 'AI Rádce';
-        const msgTime = formatDate(m.created_at);
-        return `
-          <div class="msg-bubble-wrapper ${roleClass}">
-            <div class="msg-bubble">
-              <span style="font-size: 0.65rem; font-weight: 600; display: block; margin-bottom: 2px; opacity: 0.7;">
-                ${formattedRole}
-              </span>
-              <div>${esc(m.message).replace(/\n/g, '<br>')}</div>
-              <span class="msg-time">${esc(msgTime)}</span>
+    // Guard check
+    if (detailPanel.dataset.activeId !== conversationId) return;
+
+    if (!res.ok || !res.data) {
+      detailPanel.innerHTML = renderError(res.error || 'Nepodařilo se načíst zprávy.');
+      return;
+    }
+
+    const messages = res.data.messages || [];
+    const idSnippet = conversationId.substring(0, 8);
+
+    detailPanel.innerHTML = `
+      <div class="chat-detail-header">
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: var(--text-lg); color: var(--c-forest); font-weight: 600;">
+            Detail konverzace
+          </h3>
+          <p style="font-size: var(--text-xs); color: var(--c-sage);">ID: <code style="background: var(--c-sage-light); padding: 2px 4px; border-radius: var(--radius-sm);">${esc(conversationId)}</code></p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-delete-chat" style="background: var(--c-error-bg); color: var(--c-error); border: 1px solid var(--c-error-bg);" title="Smazat celou konverzaci">
+          🗑️ Smazat chat
+        </button>
+      </div>
+      
+      <div class="chat-messages-stream" id="messages-stream">
+        ${messages.map(m => {
+          const roleClass = m.role === 'user' ? 'user' : 'assistant';
+          const formattedRole = m.role === 'user' ? 'Klient' : 'AI Rádce';
+          const msgTime = formatDate(m.created_at);
+          return `
+            <div class="msg-bubble-wrapper ${roleClass}">
+              <div class="msg-bubble">
+                <span style="font-size: 0.65rem; font-weight: 600; display: block; margin-bottom: 2px; opacity: 0.7;">
+                  ${formattedRole}
+                </span>
+                <div>${esc(m.message).replace(/\n/g, '<br>')}</div>
+                <span class="msg-time">${esc(msgTime)}</span>
+              </div>
             </div>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
+          `;
+        }).join('')}
+      </div>
+    `;
 
-  // Autoscroll na konec
-  const streamEl = detailPanel.querySelector('#messages-stream');
-  if (streamEl) {
-    streamEl.scrollTop = streamEl.scrollHeight;
-  }
+    // Autoscroll na konec
+    const streamEl = detailPanel.querySelector('#messages-stream');
+    if (streamEl) {
+      streamEl.scrollTop = streamEl.scrollHeight;
+    }
 
-  // Tlačítko smazání
-  const btnDelete = detailPanel.querySelector('#btn-delete-chat');
-  if (btnDelete) {
-    btnDelete.addEventListener('click', async () => {
-      if (!confirm(`Opravdu chcete smazat celou konverzaci #${idSnippet} (celkem ${messages.length} zpráv)? Tato akce je nevratná.`)) {
-        return;
-      }
+    // Tlačítko smazání
+    const btnDelete = detailPanel.querySelector('#btn-delete-chat');
+    if (btnDelete) {
+      btnDelete.addEventListener('click', async () => {
+        // Guard check on button click
+        if (detailPanel.dataset.activeId !== conversationId) return;
 
-      btnDelete.disabled = true;
-      btnDelete.textContent = 'Mažu...';
+        if (!confirm(`Opravdu chcete smazat celou konverzaci #${idSnippet} (celkem ${messages.length} zpráv)? Tato akce je nevratná.`)) {
+          return;
+        }
 
-      const delRes = await api.deleteChatConversation(conversationId);
-      if (delRes.ok) {
-        if (showToast) showToast('Konverzace byla úspěšně smazána', 'success');
-        // Znovu načíst seznam
-        await loadConversations(container, api, showToast);
-      } else {
-        btnDelete.disabled = false;
-        btnDelete.textContent = '🗑️ Smazat chat';
-        if (showToast) showToast('Nepodařilo se smazat konverzaci: ' + delRes.error, 'error');
-      }
-    });
+        btnDelete.disabled = true;
+        btnDelete.textContent = 'Mažu...';
+
+        try {
+          const delRes = await api.deleteChatConversation(conversationId);
+          
+          // Guard check
+          if (detailPanel.dataset.activeId !== conversationId) return;
+
+          if (delRes.ok) {
+            if (showToast) showToast('Konverzace byla úspěšně smazána', 'success');
+            // Reset pravého panelu
+            detailPanel.innerHTML = `
+              <div class="empty-state" style="margin: auto; text-align: center; padding: var(--sp-6) var(--sp-4);">
+                <div style="font-size: 3rem; margin-bottom: var(--sp-4);">💬</div>
+                <h4 class="empty-state-title" style="font-family: var(--font-head); font-size: 1.3rem; color: var(--c-forest); margin-bottom: var(--sp-2);">Vyberte konverzaci</h4>
+                <p class="empty-state-text" style="max-width: 320px; margin: 0 auto; color: var(--c-sage);">Zvolte konverzaci z levého panelu pro zobrazení historie zpráv s AI Rádcem.</p>
+              </div>
+            `;
+            // Znovu načíst seznam
+            await loadConversations(container, api, showToast);
+          } else {
+            btnDelete.disabled = false;
+            btnDelete.textContent = '🗑️ Smazat chat';
+            if (showToast) showToast('Nepodařilo se smazat konverzaci: ' + delRes.error, 'error');
+          }
+        } catch (err) {
+          btnDelete.disabled = false;
+          btnDelete.textContent = '🗑️ Smazat chat';
+          if (showToast) showToast('Chyba sítě při mazání: ' + err.message, 'error');
+        }
+      });
+    }
+  } catch (err) {
+    if (detailPanel.dataset.activeId === conversationId) {
+      detailPanel.innerHTML = renderError('Chyba sítě při načítání zpráv.');
+      if (showToast) showToast('Chyba sítě: ' + err.message, 'error');
+    }
   }
 }
 

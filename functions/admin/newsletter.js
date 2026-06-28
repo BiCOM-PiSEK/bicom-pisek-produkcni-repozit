@@ -11,6 +11,12 @@ import { DataCrypt } from '../lib/datacrypt.js';
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
+const sanitizeCsvCell = (value = '') => {
+  const text = String(value).replace(/"/g, '""');
+  // Prevent CSV / spreadsheet formula injection by prepending a single quote if cell starts with special chars
+  return /^[\t\r\n ]*[=+\-@]/.test(text) ? `'${text}` : text;
+};
+
 export async function onRequestGet({ env, data }) {
   if (!data.operator) return json({ ok: false, error: 'Neoprávněný přístup' }, 401);
 
@@ -24,7 +30,16 @@ export async function onRequestGet({ env, data }) {
     ).all();
 
     if (!results || results.length === 0) {
-      // Pokud nejsou odběratelé, vrátíme prázdné CSV s hlavičkou
+      // Zápis do audit logu (export kontaktů - 0 řádků)
+      await env.DB.prepare(
+        `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
+         VALUES (?, 'newsletter_subscribers', NULL, 'export', ?, ?)`
+      ).bind(
+        crypto.randomUUID(),
+        `operator:${data.operator.id}`,
+        `Exportováno 0 odběratelů newsletteru do CSV (seznam je prázdný)`
+      ).run();
+
       const csvContent = 'Email,Zdroj,Datum prihlaseni\n';
       return new Response(csvContent, {
         status: 200,
@@ -46,9 +61,8 @@ export async function onRequestGet({ env, data }) {
         console.warn('[admin/newsletter] Failed to decrypt email:', e.message);
       }
       
-      // Escape CSV values to prevent injection
-      const escapedEmail = email.replace(/"/g, '""');
-      const escapedSource = (row.source || '').replace(/"/g, '""');
+      const escapedEmail = sanitizeCsvCell(email ?? '');
+      const escapedSource = sanitizeCsvCell(row.source ?? '');
       
       csvRows.push(`"${escapedEmail}","${escapedSource}","${row.created_at}"`);
     }

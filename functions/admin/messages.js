@@ -24,7 +24,7 @@ export async function onRequestGet({ env, data, request }) {
         `SELECT id, role, message, created_at
          FROM chat_messages
          WHERE conversation_id = ?
-         ORDER BY created_at ASC`
+         ORDER BY created_at ASC, rowid ASC`
       ).bind(conversationId).all();
 
       return json({
@@ -42,7 +42,7 @@ export async function onRequestGet({ env, data, request }) {
       `SELECT 
          m.conversation_id,
          COUNT(m.id) as message_count,
-         (SELECT message FROM chat_messages WHERE conversation_id = m.conversation_id ORDER BY created_at DESC LIMIT 1) as last_message,
+         (SELECT message FROM chat_messages WHERE conversation_id = m.conversation_id ORDER BY created_at DESC, rowid DESC LIMIT 1) as last_message,
          MAX(m.created_at) as last_message_at
        FROM chat_messages m
        GROUP BY m.conversation_id
@@ -73,29 +73,34 @@ export async function onRequestDelete({ env, data, request }) {
   }
 
   try {
-    // Smazání konverzace z DB
-    const res = await env.DB.prepare(
+    // 1. Zjistíme počet zpráv v konverzaci pro audit log
+    const countRes = await env.DB.prepare(
+      `SELECT COUNT(id) as count FROM chat_messages WHERE conversation_id = ?`
+    ).bind(conversationId).first('count');
+    const msgCount = countRes || 0;
+
+    // 2. Provedeme smazání i zápis do auditu atomicky v dávce (batch)
+    const deleteStmt = env.DB.prepare(
       `DELETE FROM chat_messages WHERE conversation_id = ?`
-    ).bind(conversationId).run();
+    ).bind(conversationId);
 
-    const changes = res?.meta?.changes || 0;
-
-    // Zápis do audit logu
-    await env.DB.prepare(
+    const auditStmt = env.DB.prepare(
       `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
        VALUES (?, 'chat', ?, 'delete', ?, ?)`
     ).bind(
       crypto.randomUUID(),
       conversationId,
       `operator:${data.operator.id}`,
-      `Smazána chatová konverzace (odstraněno ${changes} zpráv)`
-    ).run();
+      `Smazána chatová konverzace (odstraněno ${msgCount} zpráv)`
+    );
+
+    await env.DB.batch([deleteStmt, auditStmt]);
 
     return json({
       ok: true,
       data: {
         conversation_id: conversationId,
-        deleted_count: changes,
+        deleted_count: msgCount,
       },
     });
 

@@ -8,19 +8,17 @@
 
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 const DB_NAME = 'bicom-pisek-db';
 const MIGRATIONS_DIR = './db/migrations';
 const isApply = process.argv.includes('--apply');
+const WRANGLER_JS = path.resolve('node_modules/wrangler/bin/wrangler.js');
 
 function runQuery(sql) {
   try {
-    const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-    const output = execSync(
-      `${cmd} wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
-      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
-    );
+    const args = [WRANGLER_JS, 'd1', 'execute', DB_NAME, '--remote', '--json', `--command=${sql}`];
+    const output = execFileSync('node', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
     const jsonStart = output.indexOf('[');
     if (jsonStart === -1) {
       const match = output.match(/\{.*\}/s);
@@ -101,7 +99,12 @@ async function resolveDrift() {
   for (const m of missingMigrations) {
     console.log(`Marking as applied: ${m.name} (ID: ${m.id})...`);
     // Insert into d1_migrations. Let SQLite auto-increment the ID to avoid primary key conflicts.
-    const sql = `INSERT INTO d1_migrations (name) VALUES ('${m.name}');`;
+    if (!/^\d+_[A-Za-z0-9_]+\.sql$/.test(m.name)) {
+      console.error(`  ❌ Unexpected migration filename: ${m.name}`);
+      process.exit(1);
+    }
+    const escapedName = m.name.replace(/'/g, "''");
+    const sql = `INSERT INTO d1_migrations (name) VALUES ('${escapedName}');`;
     const res = runQuery(sql);
     if (res) {
       console.log(`  ✓ Marked ${m.name} successfully.`);
