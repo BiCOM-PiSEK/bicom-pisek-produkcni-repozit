@@ -46,18 +46,18 @@ export async function render(container, ctx) {
       for (const [k, v] of Object.entries(res.data.settings)) {
         settings[k] = v.value;
       }
+    }
+  }
 
-      async function loadJobs() {
-        if (!api?.getAiJobs) return;
-        const params = { limit: 15 };
-        if (jobStatusFilter) params.status = jobStatusFilter;
-        const res = await api.getAiJobs(params);
-        if (res.ok && res.data?.jobs) {
-          jobs = res.data.jobs;
-        } else {
-          showToast('Nepodařilo se načíst AI joby: ' + (res.error || 'Neznámá chyba'), 'error');
-        }
-      }
+  async function loadJobs() {
+    if (!api?.getAiJobs) return;
+    const params = { limit: 15 };
+    if (jobStatusFilter) params.status = jobStatusFilter;
+    const res = await api.getAiJobs(params);
+    if (res.ok && res.data?.jobs) {
+      jobs = res.data.jobs;
+    } else {
+      showToast('Nepodařilo se načíst AI joby: ' + (res.error || 'Neznámá chyba'), 'error');
     }
   }
 
@@ -287,78 +287,78 @@ export async function render(container, ctx) {
         } else {
           showToast('Aktualizace selhala: ' + (res.error || 'Neznámá chyba'), 'error');
         }
+      });
+    });
+  }
 
-        function renderJobs() {
-          const wrap = container.querySelector('#studio-jobs-container');
-          if (!wrap) return;
-          if (!jobs.length) {
-            wrap.innerHTML = `
-              <div class="empty-state" style="padding: var(--sp-6) 0;">
-                <h4 class="empty-state-title">Zatím žádné joby</h4>
-                <p class="empty-state-text">Po prvním generování zde uvidíte historii běhů a případné chyby.</p>
-              </div>`;
-            return;
-          }
+  function renderJobs() {
+    const wrap = container.querySelector('#studio-jobs-container');
+    if (!wrap) return;
+    if (!jobs.length) {
+      wrap.innerHTML = `
+        <div class="empty-state" style="padding: var(--sp-6) 0;">
+          <h4 class="empty-state-title">Zatím žádné joby</h4>
+          <p class="empty-state-text">Po prvním generování zde uvidíte historii běhů a případné chyby.</p>
+        </div>`;
+      return;
+    }
 
-          const rows = jobs.map((job) => {
-            const payload = safeParse(job.payload_json);
-            const result = safeParse(job.result_json);
-            const kind = payload?.kind || result?.kind || '-';
-            const brief = payload?.brief || '';
-            const canRetry = job.status === 'failed';
-            return `
-              <tr>
-                <td><span class="badge badge-ai">${esc(job.status || '-')}</span></td>
-                <td>${esc(KIND_LABELS[kind] || kind)}</td>
-                <td style="max-width: 360px;">
-                  <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escAttr(brief)}">${esc(brief)}</div>
-                </td>
-                <td>${esc(job.provider || '-')} · ${esc(job.model || '-')}</td>
-                <td>${formatTime(job.created_at)}</td>
-                <td>
-                  ${canRetry ? `<button class="btn btn-ghost btn-sm" data-retry-job-id="${escAttr(job.id)}">Retry</button>` : ''}
-                </td>
-              </tr>`;
-          }).join('');
+    const rows = jobs.map((job) => {
+      const payload = safeParse(job.payload_json);
+      const result = safeParse(job.result_json);
+      const kind = payload?.kind || result?.kind || '-';
+      const brief = payload?.brief || '';
+      const canRetry = job.status === 'failed';
+      return `
+        <tr>
+          <td><span class="badge badge-ai">${esc(job.status || '-')}</span></td>
+          <td>${esc(KIND_LABELS[kind] || kind)}</td>
+          <td style="max-width: 360px;">
+            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escAttr(brief)}">${esc(brief)}</div>
+          </td>
+          <td>${esc(job.provider || '-')} · ${esc(job.model || '-')}</td>
+          <td>${formatTime(job.created_at)}</td>
+          <td>
+            ${canRetry ? `<button class="btn btn-ghost btn-sm" data-retry-job-id="${escAttr(job.id)}">Retry</button>` : ''}
+          </td>
+        </tr>`;
+    }).join('');
 
-          wrap.innerHTML = `
-            <div class="table-wrap">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Typ</th>
-                    <th>Brief</th>
-                    <th>Provider</th>
-                    <th>Čas</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-              </table>
-            </div>
-          `;
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Typ</th>
+              <th>Brief</th>
+              <th>Provider</th>
+              <th>Čas</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
 
-          wrap.querySelectorAll('[data-retry-job-id]').forEach((btn) => {
-            btn.addEventListener('click', async () => {
-              if (!api?.retryAiJob) {
-                showToast('Retry API není dostupné.', 'error');
-                return;
-              }
-              const jobId = btn.dataset.retryJobId;
-              if (!jobId) return;
-              btn.disabled = true;
-              const res = await api.retryAiJob(jobId);
-              if (res.ok) {
-                showToast('Retry spuštěn ✓', 'success');
-                await Promise.all([loadAssets(), loadJobs()]);
-                renderMain();
-              } else {
-                showToast('Retry selhal: ' + (res.error || 'Neznámá chyba'), 'error');
-                btn.disabled = false;
-              }
-            });
-          });
+    wrap.querySelectorAll('[data-retry-job-id]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!api?.retryAiJob) {
+          showToast('Retry API není dostupné.', 'error');
+          return;
+        }
+        const jobId = btn.dataset.retryJobId;
+        if (!jobId) return;
+        btn.disabled = true;
+        const res = await api.retryAiJob(jobId);
+        if (res.ok) {
+          showToast('Retry spuštěn ✓', 'success');
+          await Promise.all([loadAssets(), loadJobs()]);
+          renderMain();
+        } else {
+          showToast('Retry selhal: ' + (res.error || 'Neznámá chyba'), 'error');
+          btn.disabled = false;
         }
       });
     });
