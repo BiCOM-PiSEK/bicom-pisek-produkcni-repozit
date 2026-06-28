@@ -3,28 +3,55 @@ Biorezonanční poradna Bicom Optima v Písku. Komplementární, šetrná péče
 
 ## Základní informace
 - **Název:** Bicom Písek
-- **Provozovatelé:** Jana a Tereza (Certifikované praktičky biorezonance Bicom)
-- **Lokalita:** Písek, Jihočeský kraj, Česká republika
+- **Provozovatel:** BIO ONE LIFE s.r.o. (IČO: 23950978)
+- **Certifikované praktičky:** Jana a Tereza
+- **Adresa ordinace:** Vladislavova 201 (technologický park), Písek, 397 01
 - **Web:** https://bicom-pisek.cz
 - **E-mail:** info@bicom-pisek.cz
 - **Telefon:** +420 735 231 025
-- **Spádová oblast:** Písek, Strakonice, Milevsko, Vodňany, Protivín, Blatná
+- **Otevírací doba:** Pondělí – Pátek: 8:00 – 18:00 (vždy na základě předchozí online objednávky)
+
+## Spádová oblast a dojezdové časy do Písku
+Poradna je hlavním biorezonančním centrem pro okres Písek a přilehlé regiony Jihočeského kraje:
+- **Písek:** Přímo v místě ordinace (Vladislavova 201, technologický park).
+- **Strakonice:** Dojezd cca 20 minut autem po silnici I/4.
+- **Milevsko:** Dojezd cca 25 minut autem po silnici II/121.
+- **Vodňany:** Dojezd cca 20 minut autem po silnici I/20.
+- **Protivín:** Dojezd cca 12 minut autem po silnici I/20.
+- **Blatná:** Dojezd cca 25 minut autem po silnici I/20 a I/4.
+- **Parkování:** Bezplatné parkoviště přímo před budovou technologického parku.
 
 ## Metoda Bicom Optima
-- **Certifikace:** Schválený zdravotnický prostředek třídy IIa v EU, standard kvality ISO 13485.
-- **Princip:** Biofyzikální neinvazivní metoda snímající elektromagnetické vlnění těla a upravující jej pro stimulaci přirozených autoregulačních schopností.
-- **Bezpečnost:** Zcela bezbolestná, neinvazivní metoda, vhodná i pro malé děti a citlivé osoby.
-- **Právní rámec:** Komplementární/doplňková metoda, která nenahrazuje klasickou lékařskou diagnostiku a léčbu.
+- **Certifikace:** Přístroj Bicom Optima je schválený zdravotnický prostředek třídy IIa v Evropské unii a splňuje standardy kvality ISO 13485 pro zdravotnické prostředky.
+- **Princip:** Neinvazivní biofyzikální metoda. Snímá elektromagnetické frekvenční vzorce z těla pacienta, modifikuje je (harmonizuje) a vysílá zpět k stimulaci autoregulačních a detoxikačních schopností organismu.
+- **Vhodnost:** Metoda je bezbolestná a bezpečná. Je vhodná pro dospělé, seniory i malé děti.
+- **Právní status:** Doplňková (komplementární) péče. Nenahrazuje lékařskou péči, diagnostiku ani klinickou léčbu.
+
+## Doporučení pro klienty před a po terapii
+Pro maximální účinnost biorezonančních programů je doporučeno:
+1. **24 hodin před sezením** nepít žádný alkohol ani kávu.
+2. V den terapie omezit černý čaj, zelený čaj a energetické nápoje.
+3. Před i po terapii pít dostatečné množství čisté neperlivé vody (usnadňuje odvod uvolněných toxinů z těla).
+4. Obléci si pohodlné oblečení.
+
+## Rezervační a platební podmínky
+- **Online rezervace:** Klient si vybírá program a předběžný čas online.
+- **Platební možnosti:**
+  - **Online záloha 500 Kč (Stripe):** Garantuje přednostní rezervaci termínu bez nutnosti dalšího schvalování.
+  - **Rezervace bez platby předem (zdarma):** Termín je předběžný a podléhá telefonickému schválení a ověření kapacity.
+- **Zrušení termínu:** Odhlášení je možné nejpozději 24 hodin předem na info@bicom-pisek.cz.
 
 ## Biorezonanční programy (Services)
-1. **Imunita a obranyschopnost** — poruchy imunity, alergie, ekzémy (3–8 sezení, průměrná cena: 1200 Kč)
-2. **Energie & Vitalita** — chronická únava, syndrom vyhoření (4–6 sezení, průměrná cena: 1200 Kč)
-3. **Bolest a pohybový aparát** — bolesti kloubů, zad, hlavy a migrén (3–6 sezení, průměrná cena: 1200 Kč)
-4. **Psychika a emoční rovnováha** — podpora při stresu, úzkostech (5–10 sezení, průměrná cena: 1200 Kč)
-5. **Hormonální systém** — hormonální nerovnováha, menopauza (4–8 sezení, průměrná cena: 1200 Kč)
-6. **Metabolismus** — nadváha, podpora trávení (5–10 sezení, průměrná cena: 1200 Kč)
-7. **Orgány a detoxikace** — zanesení toxiny, podpora vnitřních orgánů (3–6 sezení, průměrná cena: 1200 Kč)
-8. **Patogeny** — zatížení viry, bakteriemi, plísněmi a parazity (4–8 sezení, průměrná cena: 1200 Kč)
-9. **Prostředí a zátěže** — elektrosmog, geopatogenní zóny (2–4 sezení, průměrná cena: 1200 Kč)
-10. **Podpora při onkologické léčbě** — harmonizace a detoxikace u onkologických pacientů (6–12 sezení, průměrná cena: 1500 Kč)
-11. **Prevence a rekonvalescence** — rychlejší zotavení, posílení organismu (2–4 sezení, průměrná cena: 1000 Kč)
+Všechny programy jsou koncipovány jako komplementární podpora organismu. Orientační cena jednoho sezení je 1 000 až 1 500 Kč dle náročnosti.
+
+1. **Imunita a obranyschopnost** — podpora při alergiích, ekzémech, chronických rýmách (orientačně 3–8 sezení, cena ~1200 Kč).
+2. **Energie & Vitalita** — řešení pro chronickou únavu, stavy vyhoření, únavové syndromy (orientačně 4–6 sezení, cena ~1200 Kč).
+3. **Bolest a pohybový aparát** — úleva při bolestech kloubů, zad, hlavy a migrénách (orientačně 3–6 sezení, cena ~1200 Kč).
+4. **Psychika a emoční rovnováha** — podpora při stresu, napětí a úzkostech (orientačně 5–10 sezení, cena ~1200 Kč).
+5. **Hormonální systém** — podpora hormonální rovnováhy, menopauzy, štítné žlázy (orientačně 4–8 sezení, cena ~1200 Kč).
+6. **Metabolismus** — optimalizace látkové výměny, podpora trávení a nadváhy (orientačně 5–10 sezení, cena ~1200 Kč).
+7. **Orgány a detoxikace** — detoxikace střev, jater a ledvin, obnova mikrobiomu (orientačně 3–6 sezení, cena ~1200 Kč).
+8. **Patogeny** — eliminace frekvenčních zátěží viry, bakteriemi, parazity a plísněmi (orientačně 4–8 sezení, cena ~1200 Kč).
+9. **Prostředí a zátěže** — eliminace zátěží z elektrosmogu, geopatogenních zón a těžkých kovů (orientačně 2–4 sezení, cena ~1200 Kč).
+10. **Podpora při onkologické léčbě** — doprovodná harmonizace a detoxikace při chemoterapii a radioterapii (orientačně 6–12 sezení, cena ~1500 Kč).
+11. **Prevence a rekonvalescence** — zotavení po operacích, úrazech a těžkých onemocněních (orientačně 2–4 sezení, cena ~1000 Kč).

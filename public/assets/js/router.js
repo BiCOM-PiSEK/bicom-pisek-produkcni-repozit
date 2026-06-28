@@ -584,6 +584,10 @@ function handleLinkClick(e) {
 
   // Check if it is a relative internal link
   if (href.startsWith("/")) {
+    // Bypass local landing pages so browser loads their static HTML files normally
+    if (href.startsWith("/biorezonance-")) {
+      return;
+    }
     e.preventDefault();
     window.history.pushState(null, "", href);
     resolveRoute();
