@@ -14,8 +14,9 @@ const TABLES = [
 
 function runQuery(sql) {
   try {
+    const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
     const output = execSync(
-      `npx wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
+      `${cmd} wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
     );
     // Wrangler output contains some text before the JSON array, parse the array part

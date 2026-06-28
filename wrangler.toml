@@ -10,6 +10,7 @@ vars = { ALERT_EMAIL_FROM = "alerts@bicom-pisek.cz", ALERT_EMAIL_TO = "admin@bic
 binding = "DB"
 database_name = "bicom-pisek-db"
 database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
+migrations_dir = "db/migrations"
 
 [[env.production.r2_buckets]]
 binding = "MEDIA"
@@ -38,6 +39,7 @@ vars = { ALERT_EMAIL_FROM = "alerts@localhost", ALERT_EMAIL_TO = "dev@localhost"
 binding = "DB"
 database_name = "bicom-pisek-db"
 database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
+migrations_dir = "db/migrations"
 
 [[env.preview.r2_buckets]]
 binding = "MEDIA"

@@ -9,8 +9,9 @@ const BASE_URL = 'https://bicom-pisek.cz';
 
 function runQuery(sql) {
   try {
+    const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
     const output = execSync(
-      `npx wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
+      `${cmd} wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
     );
     const jsonStart = output.indexOf('[');
