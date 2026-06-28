@@ -2,17 +2,17 @@
 // Dynamically generates structured Schema.org (Service + Offer) JSON-LD for each program
 // in the services database table and uploads it to D1.
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import path from 'path';
 
 const DB_NAME = 'bicom-pisek-db';
 const BASE_URL = 'https://bicom-pisek.cz';
+const WRANGLER_JS = path.resolve('node_modules/wrangler/bin/wrangler.js');
 
 function runQuery(sql) {
   try {
-    const output = execSync(
-      `npx wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
-      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
-    );
+    const args = [WRANGLER_JS, 'd1', 'execute', DB_NAME, '--remote', '--json', `--command=${sql}`];
+    const output = execFileSync('node', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
     const jsonStart = output.indexOf('[');
     if (jsonStart === -1) {
       return JSON.parse(output.substring(output.indexOf('{')));
