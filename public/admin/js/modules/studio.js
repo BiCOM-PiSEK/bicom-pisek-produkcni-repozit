@@ -11,6 +11,12 @@ const KIND_LABELS = {
   web_banner: 'Web banner',
 };
 
+/**
+ * Inicializuje a vykreslí stránku AI Studia do kontejneru.
+ * @param {HTMLElement} container - Cílový element pro vykreslení
+ * @param {Object} ctx - Kontext aplikace (API, router, toasty)
+ * @returns {Promise<void>}
+ */
 export async function render(container, ctx) {
   const { api, showToast, navigate } = ctx;
   container.innerHTML = renderSkeleton();
@@ -29,6 +35,10 @@ export async function render(container, ctx) {
 
   renderMain();
 
+  /**
+   * Načte seznam vygenerovaných vizuálních assetů z API.
+   * @returns {Promise<void>}
+   */
   async function loadAssets() {
     if (!api?.getAiAssets) return;
     const res = await api.getAiAssets({ status: filter.status, kind: filter.kind, limit: 24 });
@@ -39,6 +49,10 @@ export async function render(container, ctx) {
     }
   }
 
+  /**
+   * Načte konfigurační nastavení pro AI Studio z API.
+   * @returns {Promise<void>}
+   */
   async function loadSettings() {
     if (!api?.getSettings) return;
     const res = await api.getSettings();
@@ -49,6 +63,10 @@ export async function render(container, ctx) {
     }
   }
 
+  /**
+   * Načte seznam AI generovacích jobů z API.
+   * @returns {Promise<void>}
+   */
   async function loadJobs() {
     if (!api?.getAiJobs) return;
     const params = { limit: 15 };
@@ -61,6 +79,10 @@ export async function render(container, ctx) {
     }
   }
 
+  /**
+   * Vykreslí hlavní rozhraní AI Studia včetně formuláře a konfiguračního přehledu.
+   * @returns {void}
+   */
   function renderMain() {
     container.innerHTML = `
       <div class="canvas-header">
@@ -180,6 +202,10 @@ export async function render(container, ctx) {
     renderJobs();
   }
 
+  /**
+   * Naváže event listenery na ovládací a filtrační prvky v AI Studiu.
+   * @returns {void}
+   */
   function bindEvents() {
     container.querySelector('#btn-generate-visual')?.addEventListener('click', onGenerate);
     container.querySelector('#btn-open-settings')?.addEventListener('click', () => navigate('/nastaveni'));
@@ -210,6 +236,10 @@ export async function render(container, ctx) {
     });
   }
 
+  /**
+   * Spustí asynchronní generování nového vizuálu přes API.
+   * @returns {Promise<void>}
+   */
   async function onGenerate() {
     if (!api?.generateAiVisual) {
       showToast('AI Studio API není dostupné.', 'error');
@@ -256,6 +286,10 @@ export async function render(container, ctx) {
     }
   }
 
+  /**
+   * Vykreslí seznam vygenerovaných visual assetů do kontejneru.
+   * @returns {void}
+   */
   function renderAssets() {
     const wrap = container.querySelector('#studio-assets-container');
     if (!wrap) return;
@@ -291,6 +325,10 @@ export async function render(container, ctx) {
     });
   }
 
+  /**
+   * Vykreslí tabulku s historií AI generovacích jobů.
+   * @returns {void}
+   */
   function renderJobs() {
     const wrap = container.querySelector('#studio-jobs-container');
     if (!wrap) return;
