@@ -84,6 +84,16 @@ export async function onRequestGet({ env, data }) {
       count: r.count,
     }));
 
+    // Query raw coordinate points for map rendering
+    const pointsResult = await env.DB.prepare(
+      `SELECT latitude, longitude, city, service, created_at
+       FROM geo_leads
+       WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+       ORDER BY created_at DESC
+       LIMIT 500`
+    ).all();
+    const points = pointsResult?.results || [];
+
     // Postřehy odvozené z REÁLNÝCH dat (žádná AI/mock — pravidlové shrnutí).
     // Zrcadlí logiku týdenního cronu _cron-geo.js (práh 5 pro tip na kampaň).
     const insights = [];
@@ -120,8 +130,10 @@ export async function onRequestGet({ env, data }) {
         cities,
         topServices,
         topH3,
+        points,
         insights,
         totalLeads: cities.reduce((s, c) => s + c.count, 0),
+        googleMapsApiKey: env.SECRET_GOOGLE_MAPS_PLATFORM_API || null,
       },
     });
   } catch (err) {

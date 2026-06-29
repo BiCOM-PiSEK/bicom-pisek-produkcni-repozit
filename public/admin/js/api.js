@@ -430,6 +430,16 @@ function getGeoAnalytics() {
 }
 
 /**
+ * GET /admin/seo-analytics — SEO analytická data z Search Console.
+ * @param {Object} [params] — { startDate, endDate }
+ * @returns {Promise<ApiResponse>}
+ */
+function getSeoAnalytics(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return request(`/seo-analytics${qs ? '?' + qs : ''}`);
+}
+
+/**
  * GET /admin/settings — aktuální nastavení.
  * @returns {Promise<ApiResponse>}
  */
@@ -764,6 +774,7 @@ const AdminAPI = {
   createInvoice,
   getPayments,
   getGeoAnalytics,
+  getSeoAnalytics,
   getSettings,
   saveSettings,
   getActivityFeed,
