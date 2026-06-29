@@ -1,16 +1,16 @@
 # Graph Report - bicom-pisek-produkcni-repozit  (2026-06-29)
 
 ## Corpus Check
-- 205 files · ~1,687,034 words
+- 205 files · ~1,687,272 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1943 nodes · 2659 edges · 193 communities (175 shown, 18 thin omitted)
+- 1945 nodes · 2661 edges · 192 communities (174 shown, 18 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f618deec`
+- Built from commit: `84bc0388`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -101,7 +101,6 @@
 - [[_COMMUNITY_Community 91|Community 91]]
 - [[_COMMUNITY_Community 92|Community 92]]
 - [[_COMMUNITY_Community 93|Community 93]]
-- [[_COMMUNITY_Community 94|Community 94]]
 - [[_COMMUNITY_Community 95|Community 95]]
 - [[_COMMUNITY_Community 96|Community 96]]
 - [[_COMMUNITY_Community 97|Community 97]]
@@ -194,7 +193,6 @@
 - [[_COMMUNITY_Community 185|Community 185]]
 - [[_COMMUNITY_Community 186|Community 186]]
 - [[_COMMUNITY_Community 187|Community 187]]
-- [[_COMMUNITY_Community 188|Community 188]]
 - [[_COMMUNITY_Community 189|Community 189]]
 - [[_COMMUNITY_Community 190|Community 190]]
 - [[_COMMUNITY_Community 191|Community 191]]
@@ -207,14 +205,12 @@
 4. `auditStmt()` - 26 edges
 5. `fetchWithRetry()` - 25 edges
 6. `stripTags()` - 25 edges
-7. `DataCrypt` - 22 edges
+7. `DataCrypt` - 24 edges
 8. `scripts` - 17 edges
 9. `✅ CMS Feature — Task Checklist pro agenty` - 17 edges
 10. `🔬 Hloubkový průzkum projektu — Repo + Cloudflare + ostatní` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `onRequestPut()` --calls--> `getNowInPrague()`  [EXTRACTED]
-  functions/admin/bookings.js → functions/lib/time.js
 - `onRequestGet()` --calls--> `json()`  [EXTRACTED]
   functions/admin/content.js → functions/lib/http.js
 - `onRequestGet()` --calls--> `json()`  [EXTRACTED]
@@ -223,11 +219,13 @@
   functions/admin/gallery.js → functions/lib/http.js
 - `generateAndStoreAsset()` --calls--> `runImage()`  [EXTRACTED]
   functions/admin/imagine.js → functions/lib/ai/providers.js
+- `generateAndStoreAsset()` --calls--> `getSkill()`  [EXTRACTED]
+  functions/admin/imagine.js → functions/lib/ai/skills/index.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (193 total, 18 thin omitted)
+## Communities (192 total, 18 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -246,11 +244,11 @@ Cohesion: 0.12
 Nodes (39): cardGroupCard(), cardRow(), configEditor(), demoNote(), draftBadge(), emptyCard(), esc(), faqRow() (+31 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.12
-Nodes (30): computeAvailability(), CORS_HEADERS, onRequestGet(), ALLOWED_SERVICES, CORS_HEADERS, onRequestPost(), sanitize(), CORS_HEADERS (+22 more)
+Cohesion: 0.06
+Nodes (51): json(), onRequestGet(), json(), onRequestDelete(), onRequestGet(), onRequestPut(), json(), onRequestGet() (+43 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.11
+Cohesion: 0.22
 Nodes (3): queue(), escapeHtml(), TelegramConnector
 
 ### Community 6 - "Community 6"
@@ -263,7 +261,7 @@ Nodes (26): $(), AdminAPI, escapeAttr(), escapeHtml(), formatRelativeTime(), ini
 
 ### Community 8 - "Community 8"
 Cohesion: 0.05
-Nodes (40): 2026-05-26 Fáze A — Jádro a databáze (Sprint A.1–A.3), 2026-06-03 S1 — /admin redirect (nález C-24) — Fáze A: Čistá diagnóza, 2026-06-08 FN-1 — CodeRabbit opravy pro PR #26, 2026-06-08 FN-1 — Produkční nasazení migrace 0010 (seed operators), 2026-06-08 S2, Krok 4 — READ-ONLY Diagnóza: Admin refresh loop bug (FN-1 Fáze A), 2026-06-09 SEC-6a — Oprava GDPR anonymizace (NULL → '') + DataCrypt guard, 2026-06-11 Copywriter hotfix — oddělovačový formát místo JSON, 2026-06-19 Globální hardening po auditu toků (security + data flow) (+32 more)
+Nodes (37): 2026-05-26 Fáze A — Jádro a databáze (Sprint A.1–A.3), 2026-06-03 S1 — /admin redirect (nález C-24) — Fáze A: Čistá diagnóza, 2026-06-03 S1, krok 3 — Plošná oprava adresy a merge deníku, 2026-06-08 FN-1 — Produkční nasazení migrace 0010 (seed operators), 2026-06-09 Blok B — Úklid a hygiena repozitáře (DEAD-1/2/5 + CodeRabbit fix), 2026-06-13 (pátek) — ROADMAP.md: Založení kompasu stavu projektu, 2026-06-19 Globální hardening po auditu toků (security + data flow), 2026-06-19 Handover pack — Google Workspace hardening + release strategy (+29 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.10
@@ -286,7 +284,7 @@ Cohesion: 0.24
 Nodes (14): renderMarkdown(), escapeHtml(), fetchBlog(), fetchServices(), handleLinkClick(), render404Page(), renderBlogDetail(), renderGdprPage() (+6 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.27
+Cohesion: 0.25
 Nodes (6): scheduled(), fetchWithRetry(), sleep(), base64url(), GoogleCalendarConnector, importPrivateKey()
 
 ### Community 15 - "Community 15"
@@ -310,7 +308,7 @@ Cohesion: 0.31
 Nodes (12): createId(), determineSeverity(), ensurePerfLogSchema(), extractMessage(), generateDedupKey(), handleRequest(), isDuplicate(), onRequest() (+4 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.26
+Cohesion: 0.27
 Nodes (4): CORS_HEADERS, onRequestPost(), verifyStripeSignature(), IDokladConnector
 
 ### Community 22 - "Community 22"
@@ -512,10 +510,6 @@ Nodes (11): 1.1 Cloudflare deploy: Production vs Preview, 1. Architektura repozi
 ### Community 93 - "Community 93"
 Cohesion: 0.18
 Nodes (11): 05 · Předání GitHub repozitáře a organizace, 1. Struktura (připomenutí), 2. Co se předává, 3. Postup předání, 4. Nastavení před předáním (hygiena repa), 5. Checklist předání GitHubu, 6. Po předání, 7. Release / Deploy / Rollback strategie (provozní minimum) (+3 more)
-
-### Community 94 - "Community 94"
-Cohesion: 0.70
-Nodes (4): json(), onRequestDelete(), onRequestGet(), onRequestPut()
 
 ### Community 95 - "Community 95"
 Cohesion: 0.20
@@ -778,8 +772,8 @@ Cohesion: 0.50
 Nodes (3): docs/assets/originals/, Pravidla, Struktura
 
 ### Community 161 - "Community 161"
-Cohesion: 0.13
-Nodes (13): json(), onRequestGet(), json(), onRequestGet(), json(), onRequestGet(), addMinutes(), queue() (+5 more)
+Cohesion: 0.67
+Nodes (3): 2026-06-08 FN-1 — CodeRabbit opravy pro PR #26, Co bylo implementováno, Soubory změněné
 
 ### Community 163 - "Community 163"
 Cohesion: 0.67
@@ -791,11 +785,11 @@ Nodes (3): Budoucí tasks (šablona), CMS Feature (aktuální), 📝 Příklady 
 
 ### Community 165 - "Community 165"
 Cohesion: 0.67
-Nodes (3): 2026-06-03 S1, krok 3 — Plošná oprava adresy a merge deníku, Akceptační kritéria — splněno?, Co bylo implementováno
+Nodes (3): 2026-06-08 S2, Krok 4 — READ-ONLY Diagnóza: Admin refresh loop bug (FN-1 Fáze A), Akceptační kritéria — splněno?, Co bylo diagnostikováno
 
 ### Community 166 - "Community 166"
-Cohesion: 0.83
-Nodes (3): json(), onRequestGet(), sanitizeCsvCell()
+Cohesion: 0.67
+Nodes (3): 2026-06-09 SEC-6a — Oprava GDPR anonymizace (NULL → '') + DataCrypt guard, Co bylo implementováno, Soubory změněné
 
 ### Community 167 - "Community 167"
 Cohesion: 0.67
@@ -803,7 +797,7 @@ Nodes (3): 2026-06-08 S2, krok 3 — Produkční nasazení migrace 0009 (reminde
 
 ### Community 168 - "Community 168"
 Cohesion: 0.67
-Nodes (3): 2026-06-09 Blok B — Úklid a hygiena repozitáře (DEAD-1/2/5 + CodeRabbit fix), Co bylo implementováno, Soubory změněné
+Nodes (3): 2026-06-21 CMS F12-D (pojmenované verze) + hloubkový audit projektu, CMS F12-D — pojmenované koncepty (PR #74, merged), Hloubkový audit (deep research)
 
 ### Community 169 - "Community 169"
 Cohesion: 0.67
@@ -863,7 +857,7 @@ Nodes (3): 2026-06-13 Fáze B — Oprava 405 (potvrzení rezervace) a odolný PE
 
 ### Community 183 - "Community 183"
 Cohesion: 0.67
-Nodes (3): 2026-06-13 (pátek) — ROADMAP.md: Založení kompasu stavu projektu, ✅ Hotovo:, 📚 Obsah ROADMAP.md — shrnutí:
+Nodes (3): 2026-06-11 Copywriter hotfix — oddělovačový formát místo JSON, Co bylo implementováno / otestováno, Soubory změněné
 
 ### Community 184 - "Community 184"
 Cohesion: 0.67
@@ -881,10 +875,6 @@ Nodes (3): 2026-06-19 L2 — Turnstile anti-spam na rezervačním formuláři, P
 Cohesion: 0.67
 Nodes (3): 2026-06-19 PR #63 — triage review připomínek (CodeRabbit/Copilot), Co bylo opraveno, Co bylo vyhodnoceno
 
-### Community 188 - "Community 188"
-Cohesion: 0.67
-Nodes (3): 2026-06-21 CMS F12-D (pojmenované verze) + hloubkový audit projektu, CMS F12-D — pojmenované koncepty (PR #74, merged), Hloubkový audit (deep research)
-
 ### Community 189 - "Community 189"
 Cohesion: 0.67
 Nodes (3): 2026-06-09 FN-1 / FN-1b — Governance úklid a uzavření admin bloku, Co bylo implementováno, Soubory změněné
@@ -901,10 +891,8 @@ Nodes (3): 2026-06-11 Cleanup B1 — oprava e-mail bugu a odstranění mocků, C
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pracovní deník agentů — Bicom Písek` connect `Community 8` to `Community 128`, `Community 129`, `Community 130`, `Community 131`, `Community 132`, `Community 133`, `Community 134`, `Community 135`, `Community 139`, `Community 140`, `Community 141`, `Community 142`, `Community 143`, `Community 144`, `Community 145`, `Community 146`, `Community 147`, `Community 148`, `Community 149`, `Community 150`, `Community 151`, `Community 152`, `Community 153`, `Community 154`, `Community 155`, `Community 156`, `Community 157`, `Community 158`, `Community 159`, `Community 165`, `Community 167`, `Community 168`, `Community 169`, `Community 170`, `Community 171`, `Community 172`, `Community 173`, `Community 174`, `Community 175`, `Community 176`, `Community 177`, `Community 178`, `Community 179`, `Community 180`, `Community 181`, `Community 182`, `Community 183`, `Community 184`, `Community 185`, `Community 186`, `Community 187`, `Community 188`, `Community 189`, `Community 192`, `Community 69`, `Community 87`, `Community 112`, `Community 113`, `Community 114`, `Community 115`, `Community 116`, `Community 117`, `Community 123`, `Community 124`, `Community 125`, `Community 126`, `Community 127`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
-- **Why does `📋 CMS FEATURE — Obsah webu editorován bez deploymentu` connect `Community 40` to `Community 137`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `Pracovní deník agentů — Bicom Písek` connect `Community 8` to `Community 128`, `Community 129`, `Community 130`, `Community 131`, `Community 132`, `Community 133`, `Community 134`, `Community 135`, `Community 139`, `Community 140`, `Community 141`, `Community 142`, `Community 143`, `Community 144`, `Community 145`, `Community 146`, `Community 147`, `Community 148`, `Community 149`, `Community 150`, `Community 151`, `Community 152`, `Community 153`, `Community 154`, `Community 155`, `Community 156`, `Community 157`, `Community 158`, `Community 159`, `Community 161`, `Community 165`, `Community 166`, `Community 167`, `Community 168`, `Community 169`, `Community 170`, `Community 171`, `Community 172`, `Community 173`, `Community 174`, `Community 175`, `Community 176`, `Community 177`, `Community 178`, `Community 179`, `Community 180`, `Community 181`, `Community 182`, `Community 183`, `Community 184`, `Community 185`, `Community 186`, `Community 187`, `Community 189`, `Community 192`, `Community 69`, `Community 87`, `Community 112`, `Community 113`, `Community 114`, `Community 115`, `Community 116`, `Community 117`, `Community 123`, `Community 124`, `Community 125`, `Community 126`, `Community 127`?**
+  _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `🚀 Launch Testing Guide — L1/L5/L8/L9 Verification (v1.0 RC)` connect `Community 15` to `Community 87`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **What connects `ALLOWED_TYPES`, `JSON_TYPES`, `MIME_EXT` to the rest of the system?**
@@ -915,3 +903,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.07436708860759493 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.09639953542392567 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.12070874861572536 - nodes in this community are weakly interconnected._

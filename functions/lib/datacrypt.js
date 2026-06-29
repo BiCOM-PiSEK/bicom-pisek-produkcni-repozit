@@ -102,6 +102,14 @@ class DataCrypt {
   }
 
   /**
+   * Returns the primary (first) hex key.
+   * @type {string}
+   */
+  get primaryKeyHex() {
+    return this._hexKeys[0];
+  }
+
+  /**
    * Lazily imports and caches the CryptoKeys.
    * @private
    * @returns {Promise<CryptoKey[]>}
@@ -211,6 +219,34 @@ class DataCrypt {
     const encoded = new TextEncoder().encode(value);
     const digest = await crypto.subtle.digest('SHA-256', encoded);
     return [...new Uint8Array(digest)]
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  /**
+   * Computes a keyed HMAC-SHA256 hash of the given value.
+   * Helps prevent dictionary attacks on stored hashes of low-entropy values.
+   * @param {string} value - The string to hash
+   * @param {string} secretKeyHex - 64-character hex key (or list of keys)
+   * @returns {Promise<string>} Lowercase hex-encoded HMAC-SHA-256 signature
+   */
+  static async keyedHash(value, secretKeyHex) {
+    if (!secretKeyHex) {
+      return DataCrypt.hash(value);
+    }
+    const encoder = new TextEncoder();
+    const primaryKeyHex = secretKeyHex.split(',')[0].trim();
+    const keyBytes = hexToBytes(primaryKeyHex);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyBytes,
+      { name: 'HMAC', hash: { name: 'SHA-256' } },
+      false,
+      ['sign']
+    );
+    const data = encoder.encode(value);
+    const signature = await crypto.subtle.sign('HMAC', key, data);
+    return [...new Uint8Array(signature)]
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
   }

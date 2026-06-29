@@ -260,7 +260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_booking_detail",
-      "community": 161,
+      "community": 4,
       "norm_label": "booking-detail.js"
     },
     {
@@ -270,7 +270,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_json",
-      "community": 161,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -280,7 +280,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_onrequestget",
-      "community": 161,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -290,7 +290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_bookings",
-      "community": 94,
+      "community": 4,
       "norm_label": "bookings.js"
     },
     {
@@ -300,7 +300,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_bookings_json",
-      "community": 94,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -310,7 +310,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestget",
-      "community": 94,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -320,7 +320,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestput",
-      "community": 94,
+      "community": 4,
       "norm_label": "onrequestput()"
     },
     {
@@ -330,7 +330,7 @@
       "source_location": "L521",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestdelete",
-      "community": 94,
+      "community": 4,
       "norm_label": "onrequestdelete()"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_dashboard",
-      "community": 161,
+      "community": 4,
       "norm_label": "dashboard.js"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_dashboard_json",
-      "community": 161,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "functions_admin_dashboard_onrequestget",
-      "community": 161,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -1180,7 +1180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_newsletter",
-      "community": 166,
+      "community": 4,
       "norm_label": "newsletter.js"
     },
     {
@@ -1190,7 +1190,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_newsletter_json",
-      "community": 166,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -1200,7 +1200,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_admin_newsletter_sanitizecsvcell",
-      "community": 166,
+      "community": 4,
       "norm_label": "sanitizecsvcell()"
     },
     {
@@ -1210,7 +1210,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_newsletter_onrequestget",
-      "community": 166,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -1220,7 +1220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_payments",
-      "community": 161,
+      "community": 4,
       "norm_label": "payments.js"
     },
     {
@@ -1230,7 +1230,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_admin_payments_json",
-      "community": 161,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -1240,7 +1240,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_admin_payments_onrequestget",
-      "community": 161,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -1530,7 +1530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_backup",
-      "community": 5,
+      "community": 94,
       "norm_label": "_cron-backup.js"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_api_cron_backup_scheduled",
-      "community": 5,
+      "community": 94,
       "norm_label": "scheduled()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_blog_publish",
-      "community": 5,
+      "community": 94,
       "norm_label": "_cron-blog-publish.js"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_cron_blog_publish_scheduled",
-      "community": 5,
+      "community": 94,
       "norm_label": "scheduled()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_gdpr",
-      "community": 5,
+      "community": 94,
       "norm_label": "_cron-gdpr.js"
     },
     {
@@ -1600,7 +1600,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_cron_gdpr_scheduled",
-      "community": 5,
+      "community": 94,
       "norm_label": "scheduled()"
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_social",
-      "community": 5,
+      "community": 94,
       "norm_label": "_cron-social.js"
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_cron_social_scheduled",
-      "community": 5,
+      "community": 94,
       "norm_label": "scheduled()"
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_worker",
-      "community": 5,
+      "community": 94,
       "norm_label": "_cron-worker.js"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_cron_worker_scheduled",
-      "community": 5,
+      "community": 94,
       "norm_label": "scheduled()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_queue_booking",
-      "community": 161,
+      "community": 4,
       "norm_label": "_queue-booking.js"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "functions_api_queue_booking_torfc3339",
-      "community": 161,
+      "community": 4,
       "norm_label": "torfc3339()"
     },
     {
@@ -2110,17 +2110,17 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "functions_api_queue_booking_queue",
-      "community": 161,
+      "community": 4,
       "norm_label": "queue()"
     },
     {
       "label": "addMinutes()",
       "file_type": "code",
       "source_file": "functions/api/_queue-booking.js",
-      "source_location": "L194",
+      "source_location": "L214",
       "_origin": "ast",
       "id": "functions_api_queue_booking_addminutes",
-      "community": 161,
+      "community": 4,
       "norm_label": "addminutes()"
     },
     {
@@ -3620,7 +3620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad",
-      "community": 21,
+      "community": 14,
       "norm_label": "idoklad.js"
     },
     {
@@ -3880,7 +3880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_datacrypt",
-      "community": 161,
+      "community": 4,
       "norm_label": "datacrypt.js"
     },
     {
@@ -3890,7 +3890,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_arraybuffertobase64",
-      "community": 161,
+      "community": 4,
       "norm_label": "arraybuffertobase64()"
     },
     {
@@ -3900,7 +3900,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_base64toarraybuffer",
-      "community": 161,
+      "community": 4,
       "norm_label": "base64toarraybuffer()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_hextobytes",
-      "community": 161,
+      "community": 4,
       "norm_label": "hextobytes()"
     },
     {
@@ -3920,7 +3920,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt",
-      "community": 161,
+      "community": 4,
       "norm_label": "datacrypt"
     },
     {
@@ -3930,58 +3930,78 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_constructor",
-      "community": 161,
+      "community": 4,
       "norm_label": ".constructor()"
+    },
+    {
+      "label": ".primaryKeyHex()",
+      "file_type": "code",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L108",
+      "_origin": "ast",
+      "id": "functions_lib_datacrypt_datacrypt_primarykeyhex",
+      "community": 4,
+      "norm_label": ".primarykeyhex()"
     },
     {
       "label": "._getKeys()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L109",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_getkeys",
-      "community": 161,
+      "community": 4,
       "norm_label": "._getkeys()"
     },
     {
       "label": ".encrypt()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L132",
+      "source_location": "L140",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_encrypt",
-      "community": 161,
+      "community": 4,
       "norm_label": ".encrypt()"
     },
     {
       "label": ".decrypt()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L158",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decrypt",
-      "community": 161,
+      "community": 4,
       "norm_label": ".decrypt()"
     },
     {
       "label": ".decryptFields()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L191",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decryptfields",
-      "community": 161,
+      "community": 4,
       "norm_label": ".decryptfields()"
     },
     {
       "label": ".hash()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L210",
+      "source_location": "L218",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_hash",
-      "community": 161,
+      "community": 4,
       "norm_label": ".hash()"
+    },
+    {
+      "label": ".keyedHash()",
+      "file_type": "code",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L233",
+      "_origin": "ast",
+      "id": "functions_lib_datacrypt_datacrypt_keyedhash",
+      "community": 4,
+      "norm_label": ".keyedhash()"
     },
     {
       "label": "db.js",
@@ -4030,7 +4050,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "functions_lib_db_getdecryptedbooking",
-      "community": 161,
+      "community": 4,
       "norm_label": "getdecryptedbooking()"
     },
     {
@@ -8020,7 +8040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_datacrypt_test",
-      "community": 161,
+      "community": 4,
       "norm_label": "datacrypt.test.js"
     },
     {
@@ -8030,7 +8050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_gdpr_test",
-      "community": 5,
+      "community": 94,
       "norm_label": "gdpr.test.js"
     },
     {
@@ -8060,7 +8080,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_queue_test",
-      "community": 161,
+      "community": 4,
       "norm_label": "queue.test.js"
     },
     {
@@ -16140,7 +16160,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_21_cms_f12_d_pojmenovan\u00e9_verze_hloubkov\u00fd_audit_projektu",
-      "community": 188,
+      "community": 168,
       "norm_label": "2026-06-21 cms f12-d (pojmenovane verze) + hloubkovy audit projektu"
     },
     {
@@ -16150,7 +16170,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_cms_f12_d_pojmenovan\u00e9_koncepty_pr_74_merged",
-      "community": 188,
+      "community": 168,
       "norm_label": "cms f12-d \u2014 pojmenovane koncepty (pr #74, merged)"
     },
     {
@@ -16160,7 +16180,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_hloubkov\u00fd_audit_deep_research",
-      "community": 188,
+      "community": 168,
       "norm_label": "hloubkovy audit (deep research)"
     },
     {
@@ -17110,7 +17130,7 @@
       "source_location": "L1009",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_03_s1_krok_3_plo\u0161n\u00e1_oprava_adresy_a_merge_den\u00edku",
-      "community": 165,
+      "community": 8,
       "norm_label": "2026-06-03 s1, krok 3 \u2014 plosna oprava adresy a merge deniku"
     },
     {
@@ -17120,7 +17140,7 @@
       "source_location": "L1014",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1014",
-      "community": 165,
+      "community": 8,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17130,7 +17150,7 @@
       "source_location": "L1027",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_akcepta\u010dn\u00ed_krit\u00e9ria_spln\u011bno_1027",
-      "community": 165,
+      "community": 8,
       "norm_label": "akceptacni kriteria \u2014 splneno?"
     },
     {
@@ -17680,7 +17700,7 @@
       "source_location": "L1536",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_08_s2_krok_4_read_only_diagn\u00f3za_admin_refresh_loop_bug_fn_1_f\u00e1ze_a",
-      "community": 8,
+      "community": 165,
       "norm_label": "2026-06-08 s2, krok 4 \u2014 read-only diagnoza: admin refresh loop bug (fn-1 faze a)"
     },
     {
@@ -17690,7 +17710,7 @@
       "source_location": "L1541",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_diagnostikov\u00e1no",
-      "community": 8,
+      "community": 165,
       "norm_label": "co bylo diagnostikovano"
     },
     {
@@ -17700,7 +17720,7 @@
       "source_location": "L1579",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_akcepta\u010dn\u00ed_krit\u00e9ria_spln\u011bno_1579",
-      "community": 8,
+      "community": 165,
       "norm_label": "akceptacni kriteria \u2014 splneno?"
     },
     {
@@ -17750,7 +17770,7 @@
       "source_location": "L1633",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_08_fn_1_coderabbit_opravy_pro_pr_26",
-      "community": 8,
+      "community": 161,
       "norm_label": "2026-06-08 fn-1 \u2014 coderabbit opravy pro pr #26"
     },
     {
@@ -17760,7 +17780,7 @@
       "source_location": "L1638",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1638",
-      "community": 8,
+      "community": 161,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17770,7 +17790,7 @@
       "source_location": "L1643",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_1643",
-      "community": 8,
+      "community": 161,
       "norm_label": "soubory zmenene"
     },
     {
@@ -17830,7 +17850,7 @@
       "source_location": "L1697",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_09_blok_b_\u00faklid_a_hygiena_repozit\u00e1\u0159e_dead_1_2_5_coderabbit_fix",
-      "community": 168,
+      "community": 8,
       "norm_label": "2026-06-09 blok b \u2014 uklid a hygiena repozitare (dead-1/2/5 + coderabbit fix)"
     },
     {
@@ -17840,7 +17860,7 @@
       "source_location": "L1702",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1702",
-      "community": 168,
+      "community": 8,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17850,7 +17870,7 @@
       "source_location": "L1712",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_1712",
-      "community": 168,
+      "community": 8,
       "norm_label": "soubory zmenene"
     },
     {
@@ -17860,7 +17880,7 @@
       "source_location": "L1718",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_09_sec_6a_oprava_gdpr_anonymizace_null_datacrypt_guard",
-      "community": 8,
+      "community": 166,
       "norm_label": "2026-06-09 sec-6a \u2014 oprava gdpr anonymizace (null \u2192 '') + datacrypt guard"
     },
     {
@@ -17870,7 +17890,7 @@
       "source_location": "L1723",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1723",
-      "community": 8,
+      "community": 166,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17880,7 +17900,7 @@
       "source_location": "L1735",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_1735",
-      "community": 8,
+      "community": 166,
       "norm_label": "soubory zmenene"
     },
     {
@@ -18230,7 +18250,7 @@
       "source_location": "L2025",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_11_copywriter_hotfix_odd\u011blova\u010dov\u00fd_form\u00e1t_m\u00edsto_json",
-      "community": 8,
+      "community": 183,
       "norm_label": "2026-06-11 copywriter hotfix \u2014 oddelovacovy format misto json"
     },
     {
@@ -18240,7 +18260,7 @@
       "source_location": "L2030",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_otestov\u00e1no_2030",
-      "community": 8,
+      "community": 183,
       "norm_label": "co bylo implementovano / otestovano"
     },
     {
@@ -18250,7 +18270,7 @@
       "source_location": "L2041",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_2041",
-      "community": 8,
+      "community": 183,
       "norm_label": "soubory zmenene"
     },
     {
@@ -18490,7 +18510,7 @@
       "source_location": "L2257",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_13_p\u00e1tek_roadmap_md_zalo\u017een\u00ed_kompasu_stavu_projektu",
-      "community": 183,
+      "community": 8,
       "norm_label": "2026-06-13 (patek) \u2014 roadmap.md: zalozeni kompasu stavu projektu"
     },
     {
@@ -18500,7 +18520,7 @@
       "source_location": "L2263",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_hotovo",
-      "community": 183,
+      "community": 8,
       "norm_label": "\u2705 hotovo:"
     },
     {
@@ -18510,7 +18530,7 @@
       "source_location": "L2281",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_obsah_roadmap_md_shrnut\u00ed",
-      "community": 183,
+      "community": 8,
       "norm_label": "\ud83d\udcda obsah roadmap.md \u2014 shrnuti:"
     },
     {
@@ -24550,7 +24570,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/_queue-booking.js",
-      "source_location": "L194",
+      "source_location": "L214",
       "weight": 1.0,
       "source": "functions_api_queue_booking",
       "target": "functions_api_queue_booking_addminutes",
@@ -24702,7 +24722,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/_queue-booking.js",
-      "source_location": "L84",
+      "source_location": "L104",
       "weight": 1.0,
       "source": "functions_api_queue_booking_queue",
       "target": "functions_api_queue_booking_torfc3339",
@@ -24713,22 +24733,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/_queue-booking.js",
-      "source_location": "L154",
+      "source_location": "L174",
       "weight": 1.0,
       "source": "functions_api_queue_booking_queue",
       "target": "functions_api_queue_booking_addminutes",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/_queue-booking.js",
-      "source_location": "L42",
-      "weight": 1.0,
-      "source": "functions_api_queue_booking_queue",
-      "target": "functions_lib_db_getdecryptedbooking"
     },
     {
       "relation": "contains",
@@ -26586,7 +26595,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L295",
+      "source_location": "L297",
       "weight": 1.0,
       "source": "functions_api_stripe_checkout_onrequestpost",
       "target": "functions_lib_db_subscribenewsletter"
@@ -28539,7 +28548,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L149",
+      "source_location": "L157",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_encrypt",
       "target": "functions_lib_datacrypt_arraybuffertobase64",
@@ -28550,10 +28559,21 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L162",
+      "source_location": "L170",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_decrypt",
       "target": "functions_lib_datacrypt_base64toarraybuffer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L239",
+      "weight": 1.0,
+      "source": "functions_lib_datacrypt_datacrypt_keyedhash",
+      "target": "functions_lib_datacrypt_hextobytes",
       "confidence_score": 1.0
     },
     {
@@ -28570,7 +28590,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L158",
+      "source_location": "L166",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_decrypt",
@@ -28580,7 +28600,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L191",
+      "source_location": "L199",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_decryptfields",
@@ -28590,7 +28610,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L132",
+      "source_location": "L140",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_encrypt",
@@ -28600,7 +28620,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L109",
+      "source_location": "L117",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
@@ -28610,10 +28630,30 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L210",
+      "source_location": "L218",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_hash",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L233",
+      "weight": 1.0,
+      "source": "functions_lib_datacrypt_datacrypt",
+      "target": "functions_lib_datacrypt_datacrypt_keyedhash",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "functions_lib_datacrypt_datacrypt",
+      "target": "functions_lib_datacrypt_datacrypt_primarykeyhex",
       "confidence_score": 1.0
     },
     {
@@ -28654,7 +28694,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L161",
+      "source_location": "L169",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_decrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
@@ -28665,7 +28705,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L134",
+      "source_location": "L142",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_encrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
@@ -28676,7 +28716,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L196",
+      "source_location": "L204",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_decryptfields",
       "target": "functions_lib_datacrypt_datacrypt_decrypt",
@@ -46869,5 +46909,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f618deec4b4f70219d8ff62c9cac484a1558581e"
+  "built_at_commit": "84bc03888ff0a3eb2ca66f04bbb2e11b7976675b"
 }

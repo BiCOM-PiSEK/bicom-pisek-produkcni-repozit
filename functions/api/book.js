@@ -304,7 +304,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
         crypt.encrypt(email),
         crypt.encrypt(phone),
         cleanNote ? crypt.encrypt(cleanNote) : Promise.resolve(null),
-        DataCrypt.hash(email.toLowerCase().trim()),
+        DataCrypt.keyedHash(email.toLowerCase().trim(), env.SECRET_ENCRYPTION_KEY),
       ]);
 
       // Determine status based on booking_settings (F6)
