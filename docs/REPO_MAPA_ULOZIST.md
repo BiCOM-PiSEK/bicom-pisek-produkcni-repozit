@@ -48,7 +48,6 @@ Aktualizováno podle aktuálního obsahu repozitáře. Dokument slouží jako je
 │   ├── DATABASE_MANAGEMENT.md
 │   ├── EDGE_OPS_LOG.md
 │   ├── GAP_ANALYSIS_OPPORTUNITIES.md
-│   ├── GEO_AEO.md
 │   ├── GEO_AEO_SEO_STRATEGY.md
 │   ├── GIT_WORKFLOW.md
 │   ├── HANDOVER.md
@@ -168,6 +167,11 @@ Aktualizováno podle aktuálního obsahu repozitáře. Dokument slouží jako je
 │       └── guardrail/
 │           ├── index.js
 │           └── rules-health.js
+├── graphify-out/
+│   ├── GRAPH_REPORT.md
+│   ├── graph.html
+│   ├── graph.json
+│   └── manifest.json
 ├── public/
 │   ├── _redirects
 │   ├── admin/
@@ -258,10 +262,19 @@ Aktualizováno podle aktuálního obsahu repozitáře. Dokument slouží jako je
 │   ├── build-sitemap.js
 │   ├── db-diagnostics.js
 │   └── generate-service-jsonld.js
+├── tests/
+│   ├── auth.test.js
+│   ├── availability.test.js
+│   ├── datacrypt.test.js
+│   ├── gdpr.test.js
+│   ├── menu.test.js
+│   ├── queue.test.js
+│   └── monitoring/
+│       └── monitoring.test.js
 ├── .dev.vars.example
 ├── .gitignore
 ├── agent_journal.md
-├── CLAUDE.md
+├── AGENTS.md
 ├── GITHUB_SETUP_AND_PLANNING.md
 ├── migrations  (soubor ukazující na `db/migrations`)
 ├── package-lock.json
@@ -283,7 +296,9 @@ Aktualizováno podle aktuálního obsahu repozitáře. Dokument slouží jako je
 | API + backend logika | `functions/api/`, `functions/admin/`, `functions/lib/` | Cloudflare Pages Functions |
 | DB source of truth | `db/schema.sql`, `db/migrations/`, `db/seed/` | D1 má odpovídat repu |
 | Provozní/handover docs | `docs/HANDOVER.md`, `docs/ROADMAP.md`, `docs/API_KEYS_CHECKLIST.md` | předání + launch stav |
+| Architektura / Kompas | `graphify-out/` | Sémantický graf závislostí a architektury (GraphiFy) |
 | Architektura/rozhodnutí | `docs/ARCHITEKTURA.md`, `docs/adr/*` | technická rozhodnutí |
+| Automatické testy | `tests/` | Unit, integrační a monitorovací testy (Vitest) |
 | Asset zdroje | `docs/assets/originals/` | originály pro export do `public/assets/` |
 
 ## 4) Cloudflare Resources Status — Produkční Binding

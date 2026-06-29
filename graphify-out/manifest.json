@@ -819,19 +819,14 @@
     "ast_hash": "694b8b7158d74556c30d1b9f9abf8e88",
     "semantic_hash": ""
   },
-  "CLAUDE.md": {
-    "mtime": 1782448193.6779656,
-    "ast_hash": "0471890aad4e6c0762521b7aad6d3f7d",
-    "semantic_hash": ""
-  },
   "GITHUB_SETUP_AND_PLANNING.md": {
     "mtime": 1781895559.6255488,
     "ast_hash": "b45efb57090d2b9bc8ac2946af95abb2",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1782448193.6779656,
-    "ast_hash": "6a481c3bea4427978437b8bd645cf444",
+    "mtime": 1782762864.7922773,
+    "ast_hash": "ce3000fc8f74cc437074b8cc2fb8c99c",
     "semantic_hash": ""
   },
   "WHITE_PAPER.md": {
@@ -874,16 +869,6 @@
     "ast_hash": "30456e0fd5dca062f5e12cb3b822b972",
     "semantic_hash": ""
   },
-  "docs/DOCUMENTATION-FRAMEWORK.md": {
-    "mtime": 1782011927.5335376,
-    "ast_hash": "0a77ecd3f3ae14a4503f9373cb7c2c5c",
-    "semantic_hash": ""
-  },
-  "docs/DOCUMENTATION-IMPLEMENTATION-PLAN.md": {
-    "mtime": 1782011927.5743062,
-    "ast_hash": "c9166318b6a2854a151518f326093afc",
-    "semantic_hash": ""
-  },
   "docs/EDGE_OPS_LOG.md": {
     "mtime": 1781895559.6479175,
     "ast_hash": "3a75e83a3fa395a71dae462716eb04fa",
@@ -894,14 +879,9 @@
     "ast_hash": "93c0bcd86190c1c71401049aea3465f5",
     "semantic_hash": ""
   },
-  "docs/GEO_AEO.md": {
-    "mtime": 1781895559.6560438,
-    "ast_hash": "2575d72f4e8f7cc84c0636523fdd2d8d",
-    "semantic_hash": ""
-  },
   "docs/GEO_AEO_SEO_STRATEGY.md": {
-    "mtime": 1781895559.6560438,
-    "ast_hash": "8db124673c0ea41f0921b41086584241",
+    "mtime": 1782762322.4969914,
+    "ast_hash": "79028fdc046c58633d81ea3d51c8f1a4",
     "semantic_hash": ""
   },
   "docs/GIT_WORKFLOW.md": {
@@ -945,13 +925,13 @@
     "semantic_hash": ""
   },
   "docs/REPO_MAPA_ULOZIST.md": {
-    "mtime": 1782448193.709208,
-    "ast_hash": "52b2aa4110c6e123920630c4a39c77e9",
+    "mtime": 1782762728.1991322,
+    "ast_hash": "dacbd4796043c82dc1c0a6b1475e617b",
     "semantic_hash": ""
   },
   "docs/ROADMAP.md": {
-    "mtime": 1782448193.709208,
-    "ast_hash": "35a45e0886638068257bd024c8638952",
+    "mtime": 1782762770.12704,
+    "ast_hash": "0c56224241e9c721cbf8f25a5dbe707c",
     "semantic_hash": ""
   },
   "docs/STRIPE_INTEGRATION.md": {
@@ -1447,6 +1427,11 @@
   "tests/queue.test.js": {
     "mtime": 1782741329.5331697,
     "ast_hash": "72aba7982f056dfd6603b034de91dc35",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1782762032.285902,
+    "ast_hash": "e04a47349cde17be0491f73f7e7b55d4",
     "semantic_hash": ""
   }
 }
