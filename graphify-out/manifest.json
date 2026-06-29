@@ -540,13 +540,13 @@
     "semantic_hash": "d6a28c2da87cb6990ec77fecce039cf6"
   },
   "functions/lib/datacrypt.js": {
-    "mtime": 1782742627.885718,
-    "ast_hash": "7df828ba6670adb7933954a00c06b799",
+    "mtime": 1782744316.7557254,
+    "ast_hash": "c8c0968fadcb06436ea745212864817a",
     "semantic_hash": ""
   },
   "functions/lib/db.js": {
-    "mtime": 1782742655.7092216,
-    "ast_hash": "952bd4a084ac99a82d21623ebc45ac3f",
+    "mtime": 1782744326.362303,
+    "ast_hash": "05bbfeef7e893c42c98358fa728252b1",
     "semantic_hash": ""
   },
   "functions/lib/geo.js": {
@@ -750,9 +750,9 @@
     "semantic_hash": "41f4e9c15afea114be3302b8521f87da"
   },
   "tests/datacrypt.test.js": {
-    "mtime": 1782722035.5600805,
-    "ast_hash": "1c99dee79884cc5a0f502e44ff9dc7bc",
-    "semantic_hash": "1c99dee79884cc5a0f502e44ff9dc7bc"
+    "mtime": 1782744337.2621813,
+    "ast_hash": "1db2f427bc8f43c6fd528fd20e246f7d",
+    "semantic_hash": ""
   },
   "tests/gdpr.test.js": {
     "mtime": 1782656190.5398667,

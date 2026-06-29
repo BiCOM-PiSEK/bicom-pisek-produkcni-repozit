@@ -37,7 +37,7 @@ export async function createBooking(db, crypt, data) {
     crypt.encrypt(data.email),
     crypt.encrypt(data.phone),
     data.note ? crypt.encrypt(data.note) : Promise.resolve(null),
-    DataCrypt.keyedHash(data.email.toLowerCase().trim(), crypt.primaryKeyHex),
+    DataCrypt.keyedHash(data.email.toLowerCase().trim(), crypt.oldestKeyHex),
   ]);
 
   await db.batch([

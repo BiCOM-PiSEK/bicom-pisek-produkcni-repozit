@@ -110,6 +110,14 @@ class DataCrypt {
   }
 
   /**
+   * Returns the oldest (last) hex key for lookup stability during rotation.
+   * @type {string}
+   */
+  get oldestKeyHex() {
+    return this._hexKeys[this._hexKeys.length - 1];
+  }
+
+  /**
    * Lazily imports and caches the CryptoKeys.
    * @private
    * @returns {Promise<CryptoKey[]>}
@@ -231,12 +239,14 @@ class DataCrypt {
    * @returns {Promise<string>} Lowercase hex-encoded HMAC-SHA-256 signature
    */
   static async keyedHash(value, secretKeyHex) {
-    if (!secretKeyHex) {
-      return DataCrypt.hash(value);
+    if (!secretKeyHex || typeof secretKeyHex !== 'string') {
+      throw new Error('DataCrypt.keyedHash: secretKeyHex must be a non-empty string');
     }
     const encoder = new TextEncoder();
-    const primaryKeyHex = secretKeyHex.split(',')[0].trim();
-    const keyBytes = hexToBytes(primaryKeyHex);
+    // Use the oldest (last) key in the list for lookup stability during key rotations
+    const keys = secretKeyHex.split(',').map(k => k.trim());
+    const oldestKeyHex = keys[keys.length - 1];
+    const keyBytes = hexToBytes(oldestKeyHex);
     const key = await crypto.subtle.importKey(
       'raw',
       keyBytes,

@@ -260,7 +260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_booking_detail",
-      "community": 4,
+      "community": 23,
       "norm_label": "booking-detail.js"
     },
     {
@@ -270,7 +270,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_json",
-      "community": 4,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -280,7 +280,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_onrequestget",
-      "community": 4,
+      "community": 23,
       "norm_label": "onrequestget()"
     },
     {
@@ -290,7 +290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_bookings",
-      "community": 4,
+      "community": 174,
       "norm_label": "bookings.js"
     },
     {
@@ -300,7 +300,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_bookings_json",
-      "community": 4,
+      "community": 174,
       "norm_label": "json()"
     },
     {
@@ -310,7 +310,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestget",
-      "community": 4,
+      "community": 174,
       "norm_label": "onrequestget()"
     },
     {
@@ -320,7 +320,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestput",
-      "community": 4,
+      "community": 174,
       "norm_label": "onrequestput()"
     },
     {
@@ -330,7 +330,7 @@
       "source_location": "L521",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestdelete",
-      "community": 4,
+      "community": 174,
       "norm_label": "onrequestdelete()"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_dashboard",
-      "community": 4,
+      "community": 23,
       "norm_label": "dashboard.js"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_dashboard_json",
-      "community": 4,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "functions_admin_dashboard_onrequestget",
-      "community": 4,
+      "community": 23,
       "norm_label": "onrequestget()"
     },
     {
@@ -870,7 +870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_imagine",
-      "community": 1,
+      "community": 2,
       "norm_label": "imagine.js"
     },
     {
@@ -880,7 +880,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "functions_admin_imagine_valid_kinds",
-      "community": 1,
+      "community": 2,
       "norm_label": "valid_kinds"
     },
     {
@@ -890,7 +890,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_admin_imagine_valid_statuses",
-      "community": 1,
+      "community": 2,
       "norm_label": "valid_statuses"
     },
     {
@@ -900,7 +900,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_admin_imagine_valid_job_statuses",
-      "community": 1,
+      "community": 2,
       "norm_label": "valid_job_statuses"
     },
     {
@@ -910,7 +910,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "functions_admin_imagine_httperror",
-      "community": 1,
+      "community": 2,
       "norm_label": "httperror()"
     },
     {
@@ -920,7 +920,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "functions_admin_imagine_checkdailyimagecap",
-      "community": 1,
+      "community": 2,
       "norm_label": "checkdailyimagecap()"
     },
     {
@@ -930,7 +930,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "functions_admin_imagine_sanitizetext",
-      "community": 1,
+      "community": 2,
       "norm_label": "sanitizetext()"
     },
     {
@@ -940,7 +940,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "functions_admin_imagine_parselimit",
-      "community": 1,
+      "community": 2,
       "norm_label": "parselimit()"
     },
     {
@@ -950,7 +950,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "functions_admin_imagine_ensureaijobstable",
-      "community": 1,
+      "community": 2,
       "norm_label": "ensureaijobstable()"
     },
     {
@@ -960,7 +960,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "functions_admin_imagine_parsevisualinput",
-      "community": 1,
+      "community": 2,
       "norm_label": "parsevisualinput()"
     },
     {
@@ -970,7 +970,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "functions_admin_imagine_createrunningjob",
-      "community": 1,
+      "community": 2,
       "norm_label": "createrunningjob()"
     },
     {
@@ -980,7 +980,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "functions_admin_imagine_markjobsucceeded",
-      "community": 1,
+      "community": 2,
       "norm_label": "markjobsucceeded()"
     },
     {
@@ -990,7 +990,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "functions_admin_imagine_markjobfailed",
-      "community": 1,
+      "community": 2,
       "norm_label": "markjobfailed()"
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "functions_admin_imagine_generateandstoreasset",
-      "community": 1,
+      "community": 2,
       "norm_label": "generateandstoreasset()"
     },
     {
@@ -1010,7 +1010,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "functions_admin_imagine_onrequestget",
-      "community": 1,
+      "community": 2,
       "norm_label": "onrequestget()"
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L263",
       "_origin": "ast",
       "id": "functions_admin_imagine_onrequestpost",
-      "community": 1,
+      "community": 2,
       "norm_label": "onrequestpost()"
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "functions_admin_imagine_onrequestput",
-      "community": 1,
+      "community": 2,
       "norm_label": "onrequestput()"
     },
     {
@@ -1180,7 +1180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_newsletter",
-      "community": 4,
+      "community": 23,
       "norm_label": "newsletter.js"
     },
     {
@@ -1190,7 +1190,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_newsletter_json",
-      "community": 4,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -1200,7 +1200,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_admin_newsletter_sanitizecsvcell",
-      "community": 4,
+      "community": 23,
       "norm_label": "sanitizecsvcell()"
     },
     {
@@ -1210,7 +1210,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_newsletter_onrequestget",
-      "community": 4,
+      "community": 23,
       "norm_label": "onrequestget()"
     },
     {
@@ -1220,7 +1220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_payments",
-      "community": 4,
+      "community": 23,
       "norm_label": "payments.js"
     },
     {
@@ -1230,7 +1230,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_admin_payments_json",
-      "community": 4,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -1240,7 +1240,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_admin_payments_onrequestget",
-      "community": 4,
+      "community": 23,
       "norm_label": "onrequestget()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_queue_booking",
-      "community": 4,
+      "community": 161,
       "norm_label": "_queue-booking.js"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "functions_api_queue_booking_torfc3339",
-      "community": 4,
+      "community": 161,
       "norm_label": "torfc3339()"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "functions_api_queue_booking_queue",
-      "community": 4,
+      "community": 161,
       "norm_label": "queue()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "functions_api_queue_booking_addminutes",
-      "community": 4,
+      "community": 161,
       "norm_label": "addminutes()"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_newsletter",
-      "community": 4,
+      "community": 161,
       "norm_label": "newsletter.js"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_api_newsletter_cors_headers",
-      "community": 4,
+      "community": 161,
       "norm_label": "cors_headers"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "functions_api_newsletter_onrequestoptions",
-      "community": 4,
+      "community": 161,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "functions_api_newsletter_onrequestpost",
-      "community": 4,
+      "community": 161,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2820,7 +2820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification",
-      "community": 23,
+      "community": 26,
       "norm_label": "send-launch-notification.js"
     },
     {
@@ -2830,7 +2830,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_json",
-      "community": 23,
+      "community": 26,
       "norm_label": "json()"
     },
     {
@@ -2840,7 +2840,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_recipients",
-      "community": 23,
+      "community": 26,
       "norm_label": "recipients"
     },
     {
@@ -2850,7 +2850,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_html_body",
-      "community": 23,
+      "community": 26,
       "norm_label": "html_body"
     },
     {
@@ -2860,7 +2860,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_onrequestpost",
-      "community": 23,
+      "community": 26,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook",
-      "community": 21,
+      "community": 179,
       "norm_label": "stripe-webhook.js"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_cors_headers",
-      "community": 21,
+      "community": 179,
       "norm_label": "cors_headers"
     },
     {
@@ -2970,7 +2970,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_onrequestoptions",
-      "community": 21,
+      "community": 179,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2980,7 +2980,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_onrequestpost",
-      "community": 21,
+      "community": 179,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2990,7 +2990,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_verifystripesignature",
-      "community": 21,
+      "community": 179,
       "norm_label": "verifystripesignature()"
     },
     {
@@ -3000,7 +3000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_composer",
-      "community": 1,
+      "community": 2,
       "norm_label": "composer.js"
     },
     {
@@ -3010,7 +3010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_composer_escxml",
-      "community": 1,
+      "community": 2,
       "norm_label": "escxml()"
     },
     {
@@ -3020,7 +3020,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "functions_lib_ai_composer_buildoverlaysvg",
-      "community": 1,
+      "community": 2,
       "norm_label": "buildoverlaysvg()"
     },
     {
@@ -3880,7 +3880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_datacrypt",
-      "community": 4,
+      "community": 23,
       "norm_label": "datacrypt.js"
     },
     {
@@ -3890,7 +3890,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_arraybuffertobase64",
-      "community": 4,
+      "community": 23,
       "norm_label": "arraybuffertobase64()"
     },
     {
@@ -3900,7 +3900,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_base64toarraybuffer",
-      "community": 4,
+      "community": 23,
       "norm_label": "base64toarraybuffer()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_hextobytes",
-      "community": 4,
+      "community": 23,
       "norm_label": "hextobytes()"
     },
     {
@@ -3920,7 +3920,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt",
-      "community": 4,
+      "community": 23,
       "norm_label": "datacrypt"
     },
     {
@@ -3930,7 +3930,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_constructor",
-      "community": 4,
+      "community": 23,
       "norm_label": ".constructor()"
     },
     {
@@ -3940,67 +3940,77 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_primarykeyhex",
-      "community": 4,
+      "community": 23,
       "norm_label": ".primarykeyhex()"
+    },
+    {
+      "label": ".oldestKeyHex()",
+      "file_type": "code",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L116",
+      "_origin": "ast",
+      "id": "functions_lib_datacrypt_datacrypt_oldestkeyhex",
+      "community": 23,
+      "norm_label": ".oldestkeyhex()"
     },
     {
       "label": "._getKeys()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L117",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_getkeys",
-      "community": 4,
+      "community": 23,
       "norm_label": "._getkeys()"
     },
     {
       "label": ".encrypt()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L140",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_encrypt",
-      "community": 4,
+      "community": 23,
       "norm_label": ".encrypt()"
     },
     {
       "label": ".decrypt()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L166",
+      "source_location": "L174",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decrypt",
-      "community": 4,
+      "community": 23,
       "norm_label": ".decrypt()"
     },
     {
       "label": ".decryptFields()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L199",
+      "source_location": "L207",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decryptfields",
-      "community": 4,
+      "community": 23,
       "norm_label": ".decryptfields()"
     },
     {
       "label": ".hash()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L218",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_hash",
-      "community": 4,
+      "community": 23,
       "norm_label": ".hash()"
     },
     {
       "label": ".keyedHash()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L233",
+      "source_location": "L241",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_keyedhash",
-      "community": 4,
+      "community": 23,
       "norm_label": ".keyedhash()"
     },
     {
@@ -4010,7 +4020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_db",
-      "community": 4,
+      "community": 161,
       "norm_label": "db.js"
     },
     {
@@ -4030,7 +4040,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "functions_lib_db_createbooking",
-      "community": 4,
+      "community": 161,
       "norm_label": "createbooking()"
     },
     {
@@ -4040,7 +4050,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "functions_lib_db_confirmbooking",
-      "community": 4,
+      "community": 161,
       "norm_label": "confirmbooking()"
     },
     {
@@ -4050,7 +4060,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "functions_lib_db_getdecryptedbooking",
-      "community": 4,
+      "community": 161,
       "norm_label": "getdecryptedbooking()"
     },
     {
@@ -4070,7 +4080,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "functions_lib_db_subscribenewsletter",
-      "community": 4,
+      "community": 161,
       "norm_label": "subscribenewsletter()"
     },
     {
@@ -4080,7 +4090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_geo",
-      "community": 4,
+      "community": 173,
       "norm_label": "geo.js"
     },
     {
@@ -4090,7 +4100,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_lib_geo_tofloat",
-      "community": 4,
+      "community": 173,
       "norm_label": "tofloat()"
     },
     {
@@ -4100,7 +4110,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_lib_geo_decodemaybe",
-      "community": 4,
+      "community": 173,
       "norm_label": "decodemaybe()"
     },
     {
@@ -4110,7 +4120,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "functions_lib_geo_normalizepostalcode",
-      "community": 4,
+      "community": 173,
       "norm_label": "normalizepostalcode()"
     },
     {
@@ -4120,7 +4130,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "functions_lib_geo_extractedgegeo",
-      "community": 4,
+      "community": 173,
       "norm_label": "extractedgegeo()"
     },
     {
@@ -4130,7 +4140,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "functions_lib_geo_toh3cell",
-      "community": 4,
+      "community": 173,
       "norm_label": "toh3cell()"
     },
     {
@@ -4140,7 +4150,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "functions_lib_geo_buildgeoleadmeta",
-      "community": 4,
+      "community": 173,
       "norm_label": "buildgeoleadmeta()"
     },
     {
@@ -4230,7 +4240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_rate_limit",
-      "community": 4,
+      "community": 2,
       "norm_label": "rate-limit.js"
     },
     {
@@ -4240,7 +4250,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_lib_rate_limit_checkratelimit",
-      "community": 4,
+      "community": 2,
       "norm_label": "checkratelimit()"
     },
     {
@@ -8040,7 +8050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_datacrypt_test",
-      "community": 4,
+      "community": 23,
       "norm_label": "datacrypt.test.js"
     },
     {
@@ -8080,7 +8090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_queue_test",
-      "community": 4,
+      "community": 23,
       "norm_label": "queue.test.js"
     },
     {
@@ -16070,7 +16080,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_24_phase_3_5_cloudflare_access_branding_sync_guardrails",
-      "community": 8,
+      "community": 194,
       "norm_label": "2026-06-24 phase 3.5 \u2014 cloudflare access branding & sync guardrails"
     },
     {
@@ -16080,7 +16090,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_upraveno",
-      "community": 8,
+      "community": 194,
       "norm_label": "co bylo upraveno"
     },
     {
@@ -16090,7 +16100,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_provozn\u00ed_z\u00e1v\u011br",
-      "community": 8,
+      "community": 194,
       "norm_label": "provozni zaver"
     },
     {
@@ -17130,7 +17140,7 @@
       "source_location": "L1009",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_03_s1_krok_3_plo\u0161n\u00e1_oprava_adresy_a_merge_den\u00edku",
-      "community": 8,
+      "community": 188,
       "norm_label": "2026-06-03 s1, krok 3 \u2014 plosna oprava adresy a merge deniku"
     },
     {
@@ -17140,7 +17150,7 @@
       "source_location": "L1014",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1014",
-      "community": 8,
+      "community": 188,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17150,7 +17160,7 @@
       "source_location": "L1027",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_akcepta\u010dn\u00ed_krit\u00e9ria_spln\u011bno_1027",
-      "community": 8,
+      "community": 188,
       "norm_label": "akceptacni kriteria \u2014 splneno?"
     },
     {
@@ -17770,7 +17780,7 @@
       "source_location": "L1633",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_08_fn_1_coderabbit_opravy_pro_pr_26",
-      "community": 161,
+      "community": 8,
       "norm_label": "2026-06-08 fn-1 \u2014 coderabbit opravy pro pr #26"
     },
     {
@@ -17780,7 +17790,7 @@
       "source_location": "L1638",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1638",
-      "community": 161,
+      "community": 8,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17790,7 +17800,7 @@
       "source_location": "L1643",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_1643",
-      "community": 161,
+      "community": 8,
       "norm_label": "soubory zmenene"
     },
     {
@@ -17850,7 +17860,7 @@
       "source_location": "L1697",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_09_blok_b_\u00faklid_a_hygiena_repozit\u00e1\u0159e_dead_1_2_5_coderabbit_fix",
-      "community": 8,
+      "community": 193,
       "norm_label": "2026-06-09 blok b \u2014 uklid a hygiena repozitare (dead-1/2/5 + coderabbit fix)"
     },
     {
@@ -17860,7 +17870,7 @@
       "source_location": "L1702",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1702",
-      "community": 8,
+      "community": 193,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -17870,7 +17880,7 @@
       "source_location": "L1712",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_1712",
-      "community": 8,
+      "community": 193,
       "norm_label": "soubory zmenene"
     },
     {
@@ -18040,7 +18050,7 @@
       "source_location": "L1855",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_10_admin_p\u00e1te\u0159_f\u00e1ze_b_oprava_api_js_wrapperu_p\u0159ehledu_health_admin_me_logout_calendar_demo_data",
-      "community": 173,
+      "community": 8,
       "norm_label": "2026-06-10 admin pater faze b \u2014 oprava api.js wrapperu, prehledu, health, /admin/me, logout, calendar demo data"
     },
     {
@@ -18050,7 +18060,7 @@
       "source_location": "L1860",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_otestov\u00e1no_1860",
-      "community": 173,
+      "community": 8,
       "norm_label": "co bylo implementovano / otestovano"
     },
     {
@@ -18060,7 +18070,7 @@
       "source_location": "L1870",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_vytvo\u0159en\u00e9_1870",
-      "community": 173,
+      "community": 8,
       "norm_label": "soubory zmenene / vytvorene"
     },
     {
@@ -18070,7 +18080,7 @@
       "source_location": "L1882",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_11_admin_ui_f\u00e1ze_b_oprava_prav\u00e9ho_panelu_oba_re\u017eimy_overlay_1280px_zvone\u010dek_toast_grid_overflow_fix",
-      "community": 174,
+      "community": 8,
       "norm_label": "2026-06-11 admin ui faze b \u2014 oprava praveho panelu (oba rezimy), overlay \u22641280px, zvonecek toast, grid overflow fix"
     },
     {
@@ -18080,7 +18090,7 @@
       "source_location": "L1887",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_1887",
-      "community": 174,
+      "community": 8,
       "norm_label": "co bylo implementovano"
     },
     {
@@ -18090,7 +18100,7 @@
       "source_location": "L1898",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_1898",
-      "community": 174,
+      "community": 8,
       "norm_label": "soubory zmenene"
     },
     {
@@ -18280,7 +18290,7 @@
       "source_location": "L2047",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_11_dokumentace_adr_003_ai_studio",
-      "community": 179,
+      "community": 8,
       "norm_label": "2026-06-11 dokumentace \u2014 adr-003 ai studio"
     },
     {
@@ -18290,7 +18300,7 @@
       "source_location": "L2052",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_otestov\u00e1no_2052",
-      "community": 179,
+      "community": 8,
       "norm_label": "co bylo implementovano / otestovano"
     },
     {
@@ -18300,7 +18310,7 @@
       "source_location": "L2055",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_vytvo\u0159en\u00e9_zm\u011bn\u011bn\u00e9",
-      "community": 179,
+      "community": 8,
       "norm_label": "soubory vytvorene / zmenene"
     },
     {
@@ -28548,7 +28558,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L157",
+      "source_location": "L165",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_encrypt",
       "target": "functions_lib_datacrypt_arraybuffertobase64",
@@ -28559,7 +28569,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L170",
+      "source_location": "L178",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_decrypt",
       "target": "functions_lib_datacrypt_base64toarraybuffer",
@@ -28570,7 +28580,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L239",
+      "source_location": "L249",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_keyedhash",
       "target": "functions_lib_datacrypt_hextobytes",
@@ -28590,7 +28600,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L166",
+      "source_location": "L174",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_decrypt",
@@ -28600,7 +28610,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L199",
+      "source_location": "L207",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_decryptfields",
@@ -28610,7 +28620,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L140",
+      "source_location": "L148",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_encrypt",
@@ -28620,7 +28630,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L117",
+      "source_location": "L125",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
@@ -28630,7 +28640,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L218",
+      "source_location": "L226",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_hash",
@@ -28640,10 +28650,20 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L233",
+      "source_location": "L241",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_keyedhash",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "functions_lib_datacrypt_datacrypt",
+      "target": "functions_lib_datacrypt_datacrypt_oldestkeyhex",
       "confidence_score": 1.0
     },
     {
@@ -28694,7 +28714,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L169",
+      "source_location": "L177",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_decrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
@@ -28705,7 +28725,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L142",
+      "source_location": "L150",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_encrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
@@ -28716,7 +28736,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L204",
+      "source_location": "L212",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_decryptfields",
       "target": "functions_lib_datacrypt_datacrypt_decrypt",
@@ -46909,5 +46929,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "84bc03888ff0a3eb2ca66f04bbb2e11b7976675b"
+  "built_at_commit": "9477838786bdb4ff0346322cdfe825badf8c4fc5"
 }

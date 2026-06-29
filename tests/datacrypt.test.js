@@ -73,5 +73,30 @@ describe('DataCrypt — AES-GCM Encryption and Key Rotation', () => {
     expect(decrypted.name).toBe(encryptedObj.name); // remains encrypted
     expect(decrypted.publicId).toBe('12345'); // untouched
   });
+
+  it('should support oldestKeyHex and stable keyedHash across key rotations', async () => {
+    const keysSingle = KEY_A;
+    const cryptSingle = new DataCrypt(keysSingle);
+    expect(cryptSingle.primaryKeyHex).toBe(KEY_A);
+    expect(cryptSingle.oldestKeyHex).toBe(KEY_A);
+
+    const keysRotated = `${KEY_B},${KEY_A}`;
+    const cryptRotated = new DataCrypt(keysRotated);
+    expect(cryptRotated.primaryKeyHex).toBe(KEY_B);
+    expect(cryptRotated.oldestKeyHex).toBe(KEY_A);
+
+    const email = 'info@bicom-pisek.cz';
+    
+    // Hash under single key KEY_A (oldest is KEY_A)
+    const hashA = await DataCrypt.keyedHash(email, keysSingle);
+
+    // Hash under rotated list KEY_B,KEY_A (oldest is still KEY_A)
+    const hashB = await DataCrypt.keyedHash(email, keysRotated);
+
+    expect(hashA).toBe(hashB); // Hashing should be stable because both use KEY_A!
+
+    // Verify keyedHash throws on missing key
+    await expect(DataCrypt.keyedHash(email, null)).rejects.toThrow();
+  });
 });
 
