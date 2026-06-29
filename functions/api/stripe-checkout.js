@@ -267,7 +267,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
         phoneEnc,
         service,
         noteEnc,
-        preferredDate.toISOString(),
+        `${formatDate(preferredDate)}T00:00:00.000Z`,
         validatedSlotStart,
         validatedSlotEnd,
         psc || null,

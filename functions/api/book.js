@@ -324,7 +324,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           ).bind(
             bookingId, nameEnc, emailEnc, phoneEnc, service, noteEnc,
-            preferredDate.toISOString(), validatedSlotStart, validatedSlotEnd,
+            `${formatDate(preferredDate)}T00:00:00.000Z`, validatedSlotStart, validatedSlotEnd,
             psc ? sanitize(psc) : null, null, CONSENT_VERSION,
             parsedConsentMarketing ? 1 : 0, reminderChannel, status, emailHash
           ),
@@ -381,7 +381,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       env.BOOKING_QUEUE.send({
         bookingId,
         service,
-        preferred_date: preferredDate.toISOString(),
+        preferred_date: `${formatDate(preferredDate)}T00:00:00.000Z`,
         slot_start: validatedSlotStart,
         slot_end: validatedSlotEnd,
         reminder_channel: reminderChannel,

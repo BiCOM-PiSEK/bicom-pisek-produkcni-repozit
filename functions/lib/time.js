@@ -12,7 +12,7 @@
  */
 export function parseLocalDate(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+  return new Date(year, month - 1, day, 0, 0, 0, 0);
 }
 
 /**

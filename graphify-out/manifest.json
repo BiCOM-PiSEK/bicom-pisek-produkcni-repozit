@@ -385,8 +385,8 @@
     "semantic_hash": "703af6f98cf8a05120da4c268ceacddf"
   },
   "functions/api/book.js": {
-    "mtime": 1782742696.659988,
-    "ast_hash": "c1de5f49b5073be2909541b9032bf9dc",
+    "mtime": 1782744951.8484037,
+    "ast_hash": "8c1d129785b30344a7edad509ef1c3c3",
     "semantic_hash": ""
   },
   "functions/api/booking-config.js": {
@@ -455,8 +455,8 @@
     "semantic_hash": "2b376c76938bcb69825d556ae089d6fd"
   },
   "functions/api/stripe-checkout.js": {
-    "mtime": 1782741305.6443088,
-    "ast_hash": "572c966f66e38973bdb5a83febf3e108",
+    "mtime": 1782744996.8018193,
+    "ast_hash": "ac156a9bb8662aa53ba822545c94b89d",
     "semantic_hash": ""
   },
   "functions/api/stripe-webhook.js": {
@@ -780,8 +780,8 @@
     "semantic_hash": "2e4813d50c9321133b796a73a188f87b"
   },
   "functions/lib/time.js": {
-    "mtime": 1782741405.7949715,
-    "ast_hash": "48ad34dc4c9d620b0c0934f5cc66f9dc",
+    "mtime": 1782744944.720047,
+    "ast_hash": "43e5e768517439d78f7bd00d1539aaf9",
     "semantic_hash": ""
   },
   ".agents/AGENTS.md": {
