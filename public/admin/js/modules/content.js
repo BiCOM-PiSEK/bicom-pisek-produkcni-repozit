@@ -499,7 +499,7 @@ async function renderFaq(body) {
           </div>
         </div>
       </div>
-      ${previewPaneHtml('biorezonance-pisek.html')}
+      ${previewPaneHtml('biorezonance-pisek')}
     </div>`;
 
   const rowsWrap = body.querySelector('.faq-rows');
@@ -554,11 +554,11 @@ function faqRow(it) {
 
 const SEO_PAGES = [
   ['seo-homepage', 'Homepage', ''],
-  ['seo-pisek', 'Písek', 'biorezonance-pisek.html'],
-  ['seo-strakonice', 'Strakonice', 'biorezonance-strakonice.html'],
-  ['seo-vodnany', 'Vodňany', 'biorezonance-vodnany.html'],
-  ['seo-milevsko', 'Milevsko', 'biorezonance-milevsko.html'],
-  ['seo-protivin', 'Protivín', 'biorezonance-protivin.html'],
+  ['seo-pisek', 'Písek', 'biorezonance-pisek'],
+  ['seo-strakonice', 'Strakonice', 'biorezonance-strakonice'],
+  ['seo-vodnany', 'Vodňany', 'biorezonance-vodnany'],
+  ['seo-milevsko', 'Milevsko', 'biorezonance-milevsko'],
+  ['seo-protivin', 'Protivín', 'biorezonance-protivin'],
 ];
 const SEO_FIELDS = [
   ['title', 'Titulek (title)', 'text'], ['description', 'Popis (meta description)', 'textarea'],
@@ -612,7 +612,7 @@ async function renderLanding(body) {
   const open = () => {
     const city = sel.value;
     const label = LANDING_PAGES.find((p) => p[0] === city)[1];
-    configEditor(detail, 'landing-' + city, 'Landing – ' + label, LANDING_FIELDS, 'biorezonance-' + city + '.html');
+    configEditor(detail, 'landing-' + city, 'Landing – ' + label, LANDING_FIELDS, 'biorezonance-' + city);
   };
   sel.addEventListener('change', open);
   open();

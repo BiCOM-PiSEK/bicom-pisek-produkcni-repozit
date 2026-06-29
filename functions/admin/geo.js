@@ -51,10 +51,12 @@ export async function onRequestGet({ env, data }) {
       }
     }
 
-    const cities = Array.from(cityMap.entries())
+    const allCities = Array.from(cityMap.entries())
       .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .sort((a, b) => b.count - a.count);
+
+    const totalLeads = allCities.reduce((s, c) => s + c.count, 0);
+    const cities = allCities.slice(0, 10);
 
     // Service popularity by region
     const serviceResult = await env.DB.prepare(
@@ -132,7 +134,7 @@ export async function onRequestGet({ env, data }) {
         topH3,
         points,
         insights,
-        totalLeads: cities.reduce((s, c) => s + c.count, 0),
+        totalLeads,
         googleMapsApiKey: env.SECRET_GOOGLE_MAPS_PLATFORM_API || null,
       },
     });

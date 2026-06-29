@@ -84,6 +84,10 @@ function base64url(input) {
   return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
+// Module-level token cache — persists across requests within the same isolate.
+// Keyed by service-account client_email so multiple accounts won't collide.
+const _tokenCache = new Map();
+
 export class GoogleSearchConsoleConnector {
   /**
    * @param {object} env - Cloudflare Worker environment bindings.
@@ -94,16 +98,12 @@ export class GoogleSearchConsoleConnector {
     this.clientEmail = creds?.client_email || '';
     this.privateKeyPem = creds?.private_key || '';
     this.projectId = creds?.project_id || '';
-    this.siteUrl = 'https://bicom-pisek.cz'; // canonical site URL in GSC
+    this.siteUrl = env.GSC_SITE_URL || 'https://bicom-pisek.cz';
     
     this.configured =
       Boolean(this.clientEmail) &&
       Boolean(this.privateKeyPem) &&
       Boolean(this.siteUrl);
-
-    // Token cache
-    this._accessToken = null;
-    this._tokenExpiry = 0;
   }
 
   /**
@@ -116,8 +116,9 @@ export class GoogleSearchConsoleConnector {
     }
 
     const now = Math.floor(Date.now() / 1000);
-    if (this._accessToken && now < this._tokenExpiry - 60) {
-      return this._accessToken;
+    const cached = _tokenCache.get(this.clientEmail);
+    if (cached && now < cached.expiry - 60) {
+      return cached.token;
     }
 
     const header = { alg: 'RS256', typ: 'JWT' };
@@ -159,9 +160,11 @@ export class GoogleSearchConsoleConnector {
     }
 
     const data = await res.json();
-    this._accessToken = data.access_token;
-    this._tokenExpiry = now + (data.expires_in || 3600);
-    return this._accessToken;
+    _tokenCache.set(this.clientEmail, {
+      token: data.access_token,
+      expiry: now + (data.expires_in || 3600),
+    });
+    return data.access_token;
   }
 
   /**

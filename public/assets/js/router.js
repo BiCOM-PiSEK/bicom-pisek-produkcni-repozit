@@ -35,6 +35,11 @@ function escapeHtml(str) {
 async function resolveRoute() {
   const path = window.location.pathname;
   
+  // Static landing pages live outside the SPA — let the server handle them.
+  if (path.startsWith('/biorezonance-')) {
+    return; // _redirects rewrite serves the correct .html file
+  }
+
   if (!mainEl) mainEl = document.querySelector("main") || document.getElementById("hero")?.parentElement;
   
   // Lazily create subpage container if missing

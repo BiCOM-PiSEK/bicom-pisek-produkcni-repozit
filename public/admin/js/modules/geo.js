@@ -271,10 +271,15 @@ function loadGoogleMapsScript(apiKey) {
     }
     const existing = document.getElementById('google-maps-js-sdk');
     if (existing) {
-      // already injected, wait for it
-      existing.addEventListener('load', () => resolve());
-      existing.addEventListener('error', (e) => reject(e));
-      return;
+      // If a previous load attempt failed, remove the stale script and retry
+      if (existing.getAttribute('data-failed') === 'true') {
+        existing.remove();
+      } else {
+        // Script is already injected and loading — attach listeners
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', (e) => reject(e));
+        return;
+      }
     }
     const script = document.createElement('script');
     script.id = 'google-maps-js-sdk';
@@ -282,7 +287,10 @@ function loadGoogleMapsScript(apiKey) {
     script.async = true;
     script.defer = true;
     script.onload = () => resolve();
-    script.onerror = (e) => reject(e);
+    script.onerror = (e) => {
+      script.setAttribute('data-failed', 'true');
+      reject(e);
+    };
     document.head.appendChild(script);
   });
 }

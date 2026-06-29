@@ -8,6 +8,13 @@ import { GoogleSearchConsoleConnector } from '../lib/connectors/google-search-co
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Strip diacritics for locale-insensitive comparison. */
+function stripDiacritics(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 function getFormattedDate(offsetDays) {
   const d = new Date(Date.now() - offsetDays * 24 * 60 * 60 * 1000);
   const year = d.getFullYear();
@@ -24,6 +31,14 @@ export async function onRequestGet({ request, env, data }) {
   const url = new URL(request.url);
   const startDate = url.searchParams.get('startDate') || getFormattedDate(33);
   const endDate = url.searchParams.get('endDate') || getFormattedDate(3);
+
+  // Validate date parameters
+  if (!DATE_RE.test(startDate) || !DATE_RE.test(endDate)) {
+    return json({ ok: false, error: 'Neplatný formát data. Použijte YYYY-MM-DD.' }, 400);
+  }
+  if (startDate > endDate) {
+    return json({ ok: false, error: 'startDate musí být dříve nebo rovno endDate.' }, 400);
+  }
 
   try {
     const connector = new GoogleSearchConsoleConnector(env);
@@ -42,12 +57,13 @@ export async function onRequestGet({ request, env, data }) {
 
     // Analyze regional/local queries
     const localKeywords = ['písek', 'písku', 'strakonic', 'milevsk', 'vodňan', 'protivín', 'blatn'];
+    const normalizedKeywords = localKeywords.map(k => stripDiacritics(k));
     const localRows = [];
     const generalRows = [];
 
     for (const row of rows) {
-      const qLower = (row.query || '').toLowerCase();
-      const isLocal = localKeywords.some(keyword => qLower.includes(keyword));
+      const qNorm = stripDiacritics((row.query || '').toLowerCase());
+      const isLocal = normalizedKeywords.some(keyword => qNorm.includes(keyword));
       if (isLocal) {
         localRows.push(row);
       } else {
@@ -60,10 +76,14 @@ export async function onRequestGet({ request, env, data }) {
     localRows.sort(sortByClicks);
     generalRows.sort(sortByClicks);
 
+    // Impression-weighted average position
+    const totalImpressions = rows.reduce((acc, r) => acc + r.impressions, 0);
     const stats = {
       totalClicks: rows.reduce((acc, r) => acc + r.clicks, 0),
-      totalImpressions: rows.reduce((acc, r) => acc + r.impressions, 0),
-      avgPosition: rows.length > 0 ? (rows.reduce((acc, r) => acc + r.position, 0) / rows.length) : 0,
+      totalImpressions,
+      avgPosition: totalImpressions > 0
+        ? rows.reduce((acc, r) => acc + r.position * r.impressions, 0) / totalImpressions
+        : 0,
       localKeywordsCount: localRows.length,
       generalKeywordsCount: generalRows.length
     };
