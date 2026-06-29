@@ -25,4 +25,5 @@ docs/audit/
 
 # Graphify local config
 graphify-out/.*
+graphify-out/cache/
 

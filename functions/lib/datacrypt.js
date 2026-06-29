@@ -102,6 +102,22 @@ class DataCrypt {
   }
 
   /**
+   * Returns the primary (first) hex key.
+   * @type {string}
+   */
+  get primaryKeyHex() {
+    return this._hexKeys[0];
+  }
+
+  /**
+   * Returns the oldest (last) hex key for lookup stability during rotation.
+   * @type {string}
+   */
+  get oldestKeyHex() {
+    return this._hexKeys[this._hexKeys.length - 1];
+  }
+
+  /**
    * Lazily imports and caches the CryptoKeys.
    * @private
    * @returns {Promise<CryptoKey[]>}
@@ -183,6 +199,25 @@ class DataCrypt {
   }
 
   /**
+   * Decrypts only specific fields of an object, leaving others encrypted.
+   * @param {Object} obj - Object with encrypted field values
+   * @param {string[]} fields - List of fields to decrypt
+   * @returns {Promise<Object>} Decrypted object containing decrypted fields and original values for others
+   */
+  async decryptFields(obj, fields) {
+    if (obj == null) return null;
+    const decrypted = {};
+    for (const key of Object.keys(obj)) {
+      if (fields.includes(key) && obj[key] != null) {
+        decrypted[key] = await this.decrypt(obj[key]);
+      } else {
+        decrypted[key] = obj[key];
+      }
+    }
+    return decrypted;
+  }
+
+  /**
    * Computes a SHA-256 hash of the given value.
    * Useful for deduplication (e.g. email hash) without exposing plaintext.
    * @param {string} value - The string to hash
@@ -192,6 +227,36 @@ class DataCrypt {
     const encoded = new TextEncoder().encode(value);
     const digest = await crypto.subtle.digest('SHA-256', encoded);
     return [...new Uint8Array(digest)]
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  /**
+   * Computes a keyed HMAC-SHA256 hash of the given value.
+   * Helps prevent dictionary attacks on stored hashes of low-entropy values.
+   * @param {string} value - The string to hash
+   * @param {string} secretKeyHex - 64-character hex key (or list of keys)
+   * @returns {Promise<string>} Lowercase hex-encoded HMAC-SHA-256 signature
+   */
+  static async keyedHash(value, secretKeyHex) {
+    if (!secretKeyHex || typeof secretKeyHex !== 'string') {
+      throw new Error('DataCrypt.keyedHash: secretKeyHex must be a non-empty string');
+    }
+    const encoder = new TextEncoder();
+    // Use the oldest (last) key in the list for lookup stability during key rotations
+    const keys = secretKeyHex.split(',').map(k => k.trim());
+    const oldestKeyHex = keys[keys.length - 1];
+    const keyBytes = hexToBytes(oldestKeyHex);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyBytes,
+      { name: 'HMAC', hash: { name: 'SHA-256' } },
+      false,
+      ['sign']
+    );
+    const data = encoder.encode(value);
+    const signature = await crypto.subtle.sign('HMAC', key, data);
+    return [...new Uint8Array(signature)]
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
   }

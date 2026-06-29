@@ -4,7 +4,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { verifyTurnstile } from '../lib/turnstile.js';
-import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from './availability.js';
+import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from '../lib/time.js';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -204,11 +204,12 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const bookingId = crypto.randomUUID();
 
     // 1. Encrypt sensitive fields
-    const [nameEnc, emailEnc, phoneEnc, noteEnc] = await Promise.all([
+    const [nameEnc, emailEnc, phoneEnc, noteEnc, emailHash] = await Promise.all([
       crypt.encrypt(name),
       crypt.encrypt(email),
       crypt.encrypt(phone),
       note ? crypt.encrypt(note) : Promise.resolve(null),
+      DataCrypt.keyedHash(email.toLowerCase().trim(), env.SECRET_ENCRYPTION_KEY),
     ]);
 
     const depositAmount = 500; // 500 CZK deposit
@@ -257,8 +258,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     // 3. Save pending_payment booking to D1 database
     try {
       await env.DB.prepare(
-        `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, slot_start, slot_end, psc, estimated_price, consent_version, consent_marketing, reminder_channel, status, stripe_session_id, stripe_payment_status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?, 'pending_payment')`
+        `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, slot_start, slot_end, psc, estimated_price, consent_version, consent_marketing, reminder_channel, status, stripe_session_id, stripe_payment_status, email_hash)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?, 'pending_payment', ?)`
       ).bind(
         bookingId,
         nameEnc,
@@ -266,7 +267,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
         phoneEnc,
         service,
         noteEnc,
-        preferredDate.toISOString(),
+        `${formatDate(preferredDate)}T00:00:00.000Z`,
         validatedSlotStart,
         validatedSlotEnd,
         psc || null,
@@ -274,7 +275,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
         CONSENT_VERSION,
         parsedConsentMarketing ? 1 : 0,
         reminderChannel,
-        session.id
+        session.id,
+        emailHash
       ).run();
     } catch (dbErr) {
       const msg = String(dbErr?.message || '');

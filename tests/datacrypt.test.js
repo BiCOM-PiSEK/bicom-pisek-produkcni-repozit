@@ -54,4 +54,49 @@ describe('DataCrypt — AES-GCM Encryption and Key Rotation', () => {
     const hash2 = await DataCrypt.hash(email);
     expect(hash).toBe(hash2); // deterministic
   });
+
+  it('should decrypt only specified fields of an object', async () => {
+    const crypt = new DataCrypt(KEY_A);
+    const secretName = 'Jan Novak';
+    const secretPhone = '+420777666555';
+    
+    const encryptedObj = {
+      name: await crypt.encrypt(secretName),
+      phone: await crypt.encrypt(secretPhone),
+      publicId: '12345'
+    };
+
+    // Decrypt only the phone field
+    const decrypted = await crypt.decryptFields(encryptedObj, ['phone']);
+    
+    expect(decrypted.phone).toBe(secretPhone);
+    expect(decrypted.name).toBe(encryptedObj.name); // remains encrypted
+    expect(decrypted.publicId).toBe('12345'); // untouched
+  });
+
+  it('should support oldestKeyHex and stable keyedHash across key rotations', async () => {
+    const keysSingle = KEY_A;
+    const cryptSingle = new DataCrypt(keysSingle);
+    expect(cryptSingle.primaryKeyHex).toBe(KEY_A);
+    expect(cryptSingle.oldestKeyHex).toBe(KEY_A);
+
+    const keysRotated = `${KEY_B},${KEY_A}`;
+    const cryptRotated = new DataCrypt(keysRotated);
+    expect(cryptRotated.primaryKeyHex).toBe(KEY_B);
+    expect(cryptRotated.oldestKeyHex).toBe(KEY_A);
+
+    const email = 'info@bicom-pisek.cz';
+    
+    // Hash under single key KEY_A (oldest is KEY_A)
+    const hashA = await DataCrypt.keyedHash(email, keysSingle);
+
+    // Hash under rotated list KEY_B,KEY_A (oldest is still KEY_A)
+    const hashB = await DataCrypt.keyedHash(email, keysRotated);
+
+    expect(hashA).toBe(hashB); // Hashing should be stable because both use KEY_A!
+
+    // Verify keyedHash throws on missing key
+    await expect(DataCrypt.keyedHash(email, null)).rejects.toThrow();
+  });
 });
+

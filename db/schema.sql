@@ -37,11 +37,13 @@ CREATE TABLE IF NOT EXISTS bookings (
     confirmation_sent_at TIMESTAMP,
     cancellation_notified_at TIMESTAMP,
     no_show_flag INTEGER DEFAULT 0,
+    email_hash TEXT,
     FOREIGN KEY (operator_id) REFERENCES operators(id)
 );
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_created ON bookings(created_at);
 CREATE INDEX IF NOT EXISTS idx_bookings_stripe_session ON bookings(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_email_hash ON bookings(email_hash);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_bookings_slot_unique
   ON bookings(slot_start)
   WHERE slot_start IS NOT NULL
