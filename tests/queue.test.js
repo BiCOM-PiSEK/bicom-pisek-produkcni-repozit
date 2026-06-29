@@ -68,20 +68,18 @@ describe('Booking Queue Consumer — Secure DB Decryption', () => {
       calendar_event_id: null
     };
 
-    // Mock DB queries
+    // Mock DB queries & capture binds
+    const binds = {};
     mockDB.prepare.mockImplementation((sql) => {
-      if (sql.includes('SELECT * FROM bookings WHERE id = ?')) {
+      const mockBind = vi.fn().mockImplementation((...args) => {
+        binds[sql] = args;
         return {
-          bind: vi.fn().mockReturnValue({
-            first: vi.fn().mockResolvedValue(dbRow)
-          })
-        };
-      }
-      // For updates and inserts, return chainable run mock
-      return {
-        bind: vi.fn().mockReturnValue({
+          first: vi.fn().mockResolvedValue(dbRow),
           run: vi.fn().mockResolvedValue({ meta: { changes: 1 } })
-        })
+        };
+      });
+      return {
+        bind: mockBind
       };
     });
 
@@ -106,12 +104,28 @@ describe('Booking Queue Consumer — Secure DB Decryption', () => {
     await queueConsumer.queue(batch, env);
 
     // Verify DB fetches were called
-    expect(mockDB.prepare).toHaveBeenCalledWith('SELECT * FROM bookings WHERE id = ?');
+    expect(mockDB.prepare).toHaveBeenCalledWith(expect.stringContaining('bookings WHERE id = ?'));
     expect(mockMessage.ack).toHaveBeenCalled();
     expect(mockMessage.retry).not.toHaveBeenCalled();
 
-    // Verify update for calendar_event_id was called
-    const preparedSQLs = mockDB.prepare.mock.calls.map(c => c[0]);
-    expect(preparedSQLs).toContain('UPDATE bookings SET calendar_event_id = ? WHERE id = ?');
+    // Verify update for calendar_event_id was called with correct values
+    const calendarUpdateSql = Object.keys(binds).find(sql => sql.includes('UPDATE bookings SET calendar_event_id = ?'));
+    expect(calendarUpdateSql).toBeDefined();
+    expect(binds[calendarUpdateSql]).toEqual(['mock-event-123', mockBookingId]);
+
+    // Verify Email Reminder Insert
+    const emailReminderSql = Object.keys(binds).find(sql => sql.includes('INSERT INTO reminders') && sql.includes("'email'"));
+    expect(emailReminderSql).toBeDefined();
+    expect(binds[emailReminderSql][1]).toBe(mockBookingId);
+
+    // Verify SMS Reminder Insert
+    const smsReminderSql = Object.keys(binds).find(sql => sql.includes('INSERT INTO reminders') && sql.includes("'sms'"));
+    expect(smsReminderSql).toBeDefined();
+    expect(binds[smsReminderSql][1]).toBe(mockBookingId);
+
+    // Verify Audit Log Write
+    const auditLogSql = Object.keys(binds).find(sql => sql.includes('INSERT INTO audit_log'));
+    expect(auditLogSql).toBeDefined();
+    expect(binds[auditLogSql][1]).toBe(mockBookingId);
   });
 });

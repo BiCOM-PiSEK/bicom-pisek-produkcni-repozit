@@ -38,19 +38,39 @@ export default {
       try {
         const job = message.body;
 
-        // Fetch and decrypt the booking directly from D1
-        const booking = await getDecryptedBooking(env.DB, crypt, job.bookingId);
-        if (!booking) {
+        // Fetch raw columns first to allow duplicate check without decryption
+        const rawBooking = await env.DB.prepare(
+          'SELECT calendar_event_id, name_enc, email_enc, phone_enc, note_enc, service, preferred_date, slot_start, slot_end, estimated_price, reminder_channel FROM bookings WHERE id = ?'
+        ).bind(job.bookingId).first();
+
+        if (!rawBooking) {
           console.error(`[queue-booking] Booking ${job.bookingId} not found in DB.`);
           message.ack();
           continue;
         }
 
-        if (booking.calendar_event_id) {
-          console.info(`[queue-booking] Booking ${booking.id} already processed, skipping duplicate message.`);
+        if (rawBooking.calendar_event_id) {
+          console.info(`[queue-booking] Booking ${job.bookingId} already processed, skipping duplicate message.`);
           message.ack();
           continue;
         }
+
+        // Decrypt PII fields only for messages that will be processed
+        const [name, email, phone, note] = await Promise.all([
+          crypt.decrypt(rawBooking.name_enc),
+          crypt.decrypt(rawBooking.email_enc),
+          crypt.decrypt(rawBooking.phone_enc),
+          rawBooking.note_enc ? crypt.decrypt(rawBooking.note_enc) : Promise.resolve(null),
+        ]);
+
+        const booking = {
+          ...rawBooking,
+          id: job.bookingId,
+          name,
+          email,
+          phone,
+          note,
+        };
 
         // 1. Insert event into Google Calendar (yellow = pending)
         // Rozlišit: slot (přesný čas) vs. bez slotu (celodenní)
