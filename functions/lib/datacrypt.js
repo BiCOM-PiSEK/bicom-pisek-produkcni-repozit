@@ -183,6 +183,25 @@ class DataCrypt {
   }
 
   /**
+   * Decrypts only specific fields of an object, leaving others encrypted.
+   * @param {Object} obj - Object with encrypted field values
+   * @param {string[]} fields - List of fields to decrypt
+   * @returns {Promise<Object>} Decrypted object containing decrypted fields and original values for others
+   */
+  async decryptFields(obj, fields) {
+    if (obj == null) return null;
+    const decrypted = {};
+    for (const key of Object.keys(obj)) {
+      if (fields.includes(key) && obj[key] != null) {
+        decrypted[key] = await this.decrypt(obj[key]);
+      } else {
+        decrypted[key] = obj[key];
+      }
+    }
+    return decrypted;
+  }
+
+  /**
    * Computes a SHA-256 hash of the given value.
    * Useful for deduplication (e.g. email hash) without exposing plaintext.
    * @param {string} value - The string to hash

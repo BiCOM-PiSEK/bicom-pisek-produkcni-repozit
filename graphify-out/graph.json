@@ -10,7 +10,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_middleware",
-      "community": 61,
+      "community": 60,
       "norm_label": "_middleware.js"
     },
     {
@@ -20,7 +20,7 @@
       "source_location": "L395",
       "_origin": "ast",
       "id": "functions_middleware_onrequest",
-      "community": 61,
+      "community": 60,
       "norm_label": "onrequest()"
     },
     {
@@ -30,7 +30,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_middleware",
-      "community": 23,
+      "community": 22,
       "norm_label": "_middleware.js"
     },
     {
@@ -40,7 +40,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "functions_admin_middleware_getcorsheaders",
-      "community": 23,
+      "community": 22,
       "norm_label": "getcorsheaders()"
     },
     {
@@ -50,7 +50,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "functions_admin_middleware_createsessiontoken",
-      "community": 23,
+      "community": 22,
       "norm_label": "createsessiontoken()"
     },
     {
@@ -60,7 +60,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "functions_admin_middleware_verifysessiontoken",
-      "community": 23,
+      "community": 22,
       "norm_label": "verifysessiontoken()"
     },
     {
@@ -70,7 +70,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "functions_admin_middleware_onrequest",
-      "community": 23,
+      "community": 22,
       "norm_label": "onrequest()"
     },
     {
@@ -80,7 +80,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "functions_admin_middleware_findoperator",
-      "community": 23,
+      "community": 22,
       "norm_label": "findoperator()"
     },
     {
@@ -90,7 +90,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "functions_admin_middleware_getcookievalue",
-      "community": 23,
+      "community": 22,
       "norm_label": "getcookievalue()"
     },
     {
@@ -100,7 +100,7 @@
       "source_location": "L373",
       "_origin": "ast",
       "id": "functions_admin_middleware_jsonerror",
-      "community": 23,
+      "community": 22,
       "norm_label": "jsonerror()"
     },
     {
@@ -110,7 +110,7 @@
       "source_location": "L386",
       "_origin": "ast",
       "id": "functions_admin_middleware_corsresponse",
-      "community": 23,
+      "community": 22,
       "norm_label": "corsresponse()"
     },
     {
@@ -120,7 +120,7 @@
       "source_location": "L397",
       "_origin": "ast",
       "id": "functions_admin_middleware_handlespafallback",
-      "community": 23,
+      "community": 22,
       "norm_label": "handlespafallback()"
     },
     {
@@ -260,7 +260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_booking_detail",
-      "community": 7,
+      "community": 8,
       "norm_label": "booking-detail.js"
     },
     {
@@ -270,7 +270,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_json",
-      "community": 7,
+      "community": 8,
       "norm_label": "json()"
     },
     {
@@ -280,7 +280,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_onrequestget",
-      "community": 7,
+      "community": 8,
       "norm_label": "onrequestget()"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_dashboard",
-      "community": 7,
+      "community": 8,
       "norm_label": "dashboard.js"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_dashboard_json",
-      "community": 7,
+      "community": 8,
       "norm_label": "json()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "functions_admin_dashboard_onrequestget",
-      "community": 7,
+      "community": 8,
       "norm_label": "onrequestget()"
     },
     {
@@ -1110,7 +1110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_me",
-      "community": 57,
+      "community": 56,
       "norm_label": "me.js"
     },
     {
@@ -1120,7 +1120,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_admin_me_json",
-      "community": 57,
+      "community": 56,
       "norm_label": "json()"
     },
     {
@@ -1130,7 +1130,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_admin_me_onrequestget",
-      "community": 57,
+      "community": 56,
       "norm_label": "onrequestget()"
     },
     {
@@ -1180,7 +1180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_newsletter",
-      "community": 7,
+      "community": 8,
       "norm_label": "newsletter.js"
     },
     {
@@ -1190,7 +1190,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_newsletter_json",
-      "community": 7,
+      "community": 8,
       "norm_label": "json()"
     },
     {
@@ -1200,7 +1200,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_admin_newsletter_sanitizecsvcell",
-      "community": 7,
+      "community": 8,
       "norm_label": "sanitizecsvcell()"
     },
     {
@@ -1210,7 +1210,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_newsletter_onrequestget",
-      "community": 7,
+      "community": 8,
       "norm_label": "onrequestget()"
     },
     {
@@ -1220,7 +1220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_payments",
-      "community": 7,
+      "community": 8,
       "norm_label": "payments.js"
     },
     {
@@ -1230,7 +1230,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_admin_payments_json",
-      "community": 7,
+      "community": 8,
       "norm_label": "json()"
     },
     {
@@ -1240,7 +1240,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_admin_payments_onrequestget",
-      "community": 7,
+      "community": 8,
       "norm_label": "onrequestget()"
     },
     {
@@ -1250,7 +1250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_preview_path",
-      "community": 8,
+      "community": 58,
       "norm_label": "[[path]].js"
     },
     {
@@ -1260,7 +1260,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_admin_preview_path_onrequestget",
-      "community": 8,
+      "community": 58,
       "norm_label": "onrequestget()"
     },
     {
@@ -1490,7 +1490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_users",
-      "community": 18,
+      "community": 23,
       "norm_label": "users.js"
     },
     {
@@ -1500,7 +1500,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "functions_admin_users_json",
-      "community": 18,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -1510,7 +1510,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "functions_admin_users_onrequestpost",
-      "community": 18,
+      "community": 23,
       "norm_label": "onrequestpost()"
     },
     {
@@ -1520,7 +1520,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "functions_admin_users_onrequestget",
-      "community": 18,
+      "community": 23,
       "norm_label": "onrequestget()"
     },
     {
@@ -1530,7 +1530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_backup",
-      "community": 24,
+      "community": 5,
       "norm_label": "_cron-backup.js"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_api_cron_backup_scheduled",
-      "community": 24,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_blog_publish",
-      "community": 24,
+      "community": 5,
       "norm_label": "_cron-blog-publish.js"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_cron_blog_publish_scheduled",
-      "community": 24,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_cashflow",
-      "community": 16,
+      "community": 5,
       "norm_label": "_cron-cashflow.js"
     },
     {
@@ -1580,7 +1580,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_cron_cashflow_scheduled",
-      "community": 16,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_gdpr",
-      "community": 24,
+      "community": 5,
       "norm_label": "_cron-gdpr.js"
     },
     {
@@ -1600,7 +1600,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_cron_gdpr_scheduled",
-      "community": 24,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_geo",
-      "community": 16,
+      "community": 5,
       "norm_label": "_cron-geo.js"
     },
     {
@@ -1620,7 +1620,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "functions_api_cron_geo_scheduled",
-      "community": 16,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_instagram",
-      "community": 13,
+      "community": 14,
       "norm_label": "_cron-instagram.js"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_cron_instagram_scheduled",
-      "community": 13,
+      "community": 14,
       "norm_label": "scheduled()"
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_social",
-      "community": 24,
+      "community": 5,
       "norm_label": "_cron-social.js"
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_cron_social_scheduled",
-      "community": 24,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_cron_worker",
-      "community": 24,
+      "community": 5,
       "norm_label": "_cron-worker.js"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_cron_worker_scheduled",
-      "community": 24,
+      "community": 5,
       "norm_label": "scheduled()"
     },
     {
@@ -1710,7 +1710,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_middleware",
-      "community": 60,
+      "community": 59,
       "norm_label": "_middleware.js"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "functions_api_middleware_onrequest",
-      "community": 60,
+      "community": 59,
       "norm_label": "onrequest()"
     },
     {
@@ -1730,7 +1730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_monitor_health",
-      "community": 19,
+      "community": 18,
       "norm_label": "_monitor-health.js"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "functions_api_monitor_health_ensuresyntheticschema",
-      "community": 19,
+      "community": 18,
       "norm_label": "ensuresyntheticschema()"
     },
     {
@@ -1750,7 +1750,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "functions_api_monitor_health_createid",
-      "community": 19,
+      "community": 18,
       "norm_label": "createid()"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "functions_api_monitor_health_sqlitenow",
-      "community": 19,
+      "community": 18,
       "norm_label": "sqlitenow()"
     },
     {
@@ -1770,7 +1770,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "functions_api_monitor_health_fetchwithtimeout",
-      "community": 19,
+      "community": 18,
       "norm_label": "fetchwithtimeout()"
     },
     {
@@ -1780,7 +1780,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "functions_api_monitor_health_slo_targets",
-      "community": 19,
+      "community": 18,
       "norm_label": "slo_targets"
     },
     {
@@ -1790,7 +1790,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "functions_api_monitor_health_isduplicate",
-      "community": 19,
+      "community": 18,
       "norm_label": "isduplicate()"
     },
     {
@@ -1800,7 +1800,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "functions_api_monitor_health_storetestresult",
-      "community": 19,
+      "community": 18,
       "norm_label": "storetestresult()"
     },
     {
@@ -1810,7 +1810,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "functions_api_monitor_health_storealert",
-      "community": 19,
+      "community": 18,
       "norm_label": "storealert()"
     },
     {
@@ -1820,7 +1820,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "functions_api_monitor_health_sendemailalert",
-      "community": 19,
+      "community": 18,
       "norm_label": "sendemailalert()"
     },
     {
@@ -1830,7 +1830,7 @@
       "source_location": "L187",
       "_origin": "ast",
       "id": "functions_api_monitor_health_runtest",
-      "community": 19,
+      "community": 18,
       "norm_label": "runtest()"
     },
     {
@@ -1840,7 +1840,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "functions_api_monitor_health_onrequest",
-      "community": 19,
+      "community": 18,
       "norm_label": "onrequest()"
     },
     {
@@ -1850,7 +1850,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "functions_api_monitor_health_onrequestget",
-      "community": 19,
+      "community": 18,
       "norm_label": "onrequestget()"
     },
     {
@@ -1860,7 +1860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_notify",
-      "community": 25,
+      "community": 24,
       "norm_label": "_notify.js"
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_api_notify_getresendapikey",
-      "community": 25,
+      "community": 24,
       "norm_label": "getresendapikey()"
     },
     {
@@ -1880,7 +1880,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "functions_api_notify_getthrottleseconds",
-      "community": 25,
+      "community": 24,
       "norm_label": "getthrottleseconds()"
     },
     {
@@ -1890,7 +1890,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "functions_api_notify_buildthrottlekey",
-      "community": 25,
+      "community": 24,
       "norm_label": "buildthrottlekey()"
     },
     {
@@ -1900,7 +1900,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "functions_api_notify_shouldthrottle",
-      "community": 25,
+      "community": 24,
       "norm_label": "shouldthrottle()"
     },
     {
@@ -1910,7 +1910,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "functions_api_notify_renderalertemail",
-      "community": 25,
+      "community": 24,
       "norm_label": "renderalertemail()"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "functions_api_notify_sendviaresend",
-      "community": 25,
+      "community": 24,
       "norm_label": "sendviaresend()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "functions_api_notify_handlerequest",
-      "community": 25,
+      "community": 24,
       "norm_label": "handlerequest()"
     },
     {
@@ -1940,7 +1940,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "functions_api_notify_onrequest",
-      "community": 25,
+      "community": 24,
       "norm_label": "onrequest()"
     },
     {
@@ -1950,7 +1950,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "functions_api_notify_onrequestpost",
-      "community": 25,
+      "community": 24,
       "norm_label": "onrequestpost()"
     },
     {
@@ -1960,7 +1960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_perf_log",
-      "community": 20,
+      "community": 19,
       "norm_label": "_perf-log.js"
     },
     {
@@ -1970,7 +1970,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_api_perf_log_ensureperflogschema",
-      "community": 20,
+      "community": 19,
       "norm_label": "ensureperflogschema()"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "functions_api_perf_log_simplehash",
-      "community": 20,
+      "community": 19,
       "norm_label": "simplehash()"
     },
     {
@@ -1990,7 +1990,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "functions_api_perf_log_createid",
-      "community": 20,
+      "community": 19,
       "norm_label": "createid()"
     },
     {
@@ -2000,7 +2000,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "functions_api_perf_log_generatededupkey",
-      "community": 20,
+      "community": 19,
       "norm_label": "generatededupkey()"
     },
     {
@@ -2010,7 +2010,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "functions_api_perf_log_extractmessage",
-      "community": 20,
+      "community": 19,
       "norm_label": "extractmessage()"
     },
     {
@@ -2020,7 +2020,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "functions_api_perf_log_isduplicate",
-      "community": 20,
+      "community": 19,
       "norm_label": "isduplicate()"
     },
     {
@@ -2030,7 +2030,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "functions_api_perf_log_determineseverity",
-      "community": 20,
+      "community": 19,
       "norm_label": "determineseverity()"
     },
     {
@@ -2040,7 +2040,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "functions_api_perf_log_storebugreport",
-      "community": 20,
+      "community": 19,
       "norm_label": "storebugreport()"
     },
     {
@@ -2050,7 +2050,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "functions_api_perf_log_triggeralertifneeded",
-      "community": 20,
+      "community": 19,
       "norm_label": "triggeralertifneeded()"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "functions_api_perf_log_handlerequest",
-      "community": 20,
+      "community": 19,
       "norm_label": "handlerequest()"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "functions_api_perf_log_onrequest",
-      "community": 20,
+      "community": 19,
       "norm_label": "onrequest()"
     },
     {
@@ -2080,7 +2080,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "functions_api_perf_log_onrequestpost",
-      "community": 20,
+      "community": 19,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_queue_booking",
-      "community": 53,
+      "community": 5,
       "norm_label": "_queue-booking.js"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_queue_booking_torfc3339",
-      "community": 53,
+      "community": 5,
       "norm_label": "torfc3339()"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "functions_api_queue_booking_queue",
-      "community": 53,
+      "community": 5,
       "norm_label": "queue()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L187",
       "_origin": "ast",
       "id": "functions_api_queue_booking_addminutes",
-      "community": 53,
+      "community": 5,
       "norm_label": "addminutes()"
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_queue_social",
-      "community": 16,
+      "community": 5,
       "norm_label": "_queue-social.js"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_api_queue_social_queue",
-      "community": 16,
+      "community": 5,
       "norm_label": "queue()"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_availability",
-      "community": 3,
+      "community": 4,
       "norm_label": "availability.js"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_api_availability_cors_headers",
-      "community": 3,
+      "community": 4,
       "norm_label": "cors_headers"
     },
     {
@@ -2170,97 +2170,27 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_availability_onrequestoptions",
-      "community": 3,
+      "community": 4,
       "norm_label": "onrequestoptions()"
-    },
-    {
-      "label": "parseLocalDate()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "functions_api_availability_parselocaldate",
-      "community": 3,
-      "norm_label": "parselocaldate()"
-    },
-    {
-      "label": "getNowInPrague()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L30",
-      "_origin": "ast",
-      "id": "functions_api_availability_getnowinprague",
-      "community": 3,
-      "norm_label": "getnowinprague()"
-    },
-    {
-      "label": "formatTime()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L58",
-      "_origin": "ast",
-      "id": "functions_api_availability_formattime",
-      "community": 3,
-      "norm_label": "formattime()"
-    },
-    {
-      "label": "formatDate()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L67",
-      "_origin": "ast",
-      "id": "functions_api_availability_formatdate",
-      "community": 3,
-      "norm_label": "formatdate()"
-    },
-    {
-      "label": "formatDateTime()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L77",
-      "_origin": "ast",
-      "id": "functions_api_availability_formatdatetime",
-      "community": 3,
-      "norm_label": "formatdatetime()"
-    },
-    {
-      "label": "addMinutes()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L84",
-      "_origin": "ast",
-      "id": "functions_api_availability_addminutes",
-      "community": 3,
-      "norm_label": "addminutes()"
-    },
-    {
-      "label": "addDays()",
-      "file_type": "code",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L93",
-      "_origin": "ast",
-      "id": "functions_api_availability_adddays",
-      "community": 3,
-      "norm_label": "adddays()"
     },
     {
       "label": "computeAvailability()",
       "file_type": "code",
       "source_file": "functions/api/availability.js",
-      "source_location": "L104",
+      "source_location": "L45",
       "_origin": "ast",
       "id": "functions_api_availability_computeavailability",
-      "community": 3,
+      "community": 4,
       "norm_label": "computeavailability()"
     },
     {
       "label": "onRequestGet()",
       "file_type": "code",
       "source_file": "functions/api/availability.js",
-      "source_location": "L229",
+      "source_location": "L170",
       "_origin": "ast",
       "id": "functions_api_availability_onrequestget",
-      "community": 3,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -2310,7 +2240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_book",
-      "community": 3,
+      "community": 4,
       "norm_label": "book.js"
     },
     {
@@ -2320,7 +2250,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "functions_api_book_allowed_services",
-      "community": 3,
+      "community": 4,
       "norm_label": "allowed_services"
     },
     {
@@ -2330,7 +2260,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "functions_api_book_cors_headers",
-      "community": 3,
+      "community": 4,
       "norm_label": "cors_headers"
     },
     {
@@ -2340,7 +2270,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "functions_api_book_sanitize",
-      "community": 3,
+      "community": 4,
       "norm_label": "sanitize()"
     },
     {
@@ -2350,7 +2280,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "functions_api_book_onrequestoptions",
-      "community": 3,
+      "community": 4,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2360,7 +2290,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "functions_api_book_onrequestpost",
-      "community": 3,
+      "community": 4,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2410,7 +2340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_calendar_hook",
-      "community": 7,
+      "community": 40,
       "norm_label": "calendar-hook.js"
     },
     {
@@ -2420,7 +2350,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_calendar_hook_cors_headers",
-      "community": 7,
+      "community": 40,
       "norm_label": "cors_headers"
     },
     {
@@ -2430,7 +2360,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "functions_api_calendar_hook_color_to_status",
-      "community": 7,
+      "community": 40,
       "norm_label": "color_to_status"
     },
     {
@@ -2440,7 +2370,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "functions_api_calendar_hook_onrequestoptions",
-      "community": 7,
+      "community": 40,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2450,7 +2380,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "functions_api_calendar_hook_onrequestpost",
-      "community": 7,
+      "community": 40,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2710,7 +2640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_media_path",
-      "community": 59,
+      "community": 9,
       "norm_label": "[[path]].js"
     },
     {
@@ -2720,7 +2650,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_api_media_path_onrequestget",
-      "community": 59,
+      "community": 9,
       "norm_label": "onrequestget()"
     },
     {
@@ -2730,7 +2660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_newsletter",
-      "community": 3,
+      "community": 2,
       "norm_label": "newsletter.js"
     },
     {
@@ -2740,7 +2670,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_api_newsletter_cors_headers",
-      "community": 3,
+      "community": 2,
       "norm_label": "cors_headers"
     },
     {
@@ -2750,7 +2680,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "functions_api_newsletter_onrequestoptions",
-      "community": 3,
+      "community": 2,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2760,7 +2690,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "functions_api_newsletter_onrequestpost",
-      "community": 3,
+      "community": 2,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2890,7 +2820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification",
-      "community": 40,
+      "community": 23,
       "norm_label": "send-launch-notification.js"
     },
     {
@@ -2900,7 +2830,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_json",
-      "community": 40,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -2910,7 +2840,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_recipients",
-      "community": 40,
+      "community": 23,
       "norm_label": "recipients"
     },
     {
@@ -2920,7 +2850,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_html_body",
-      "community": 40,
+      "community": 23,
       "norm_label": "html_body"
     },
     {
@@ -2930,7 +2860,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_onrequestpost",
-      "community": 40,
+      "community": 23,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2940,7 +2870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_services",
-      "community": 54,
+      "community": 53,
       "norm_label": "services.js"
     },
     {
@@ -2950,7 +2880,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "functions_api_services_cors_headers",
-      "community": 54,
+      "community": 53,
       "norm_label": "cors_headers"
     },
     {
@@ -2960,7 +2890,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_api_services_onrequestoptions",
-      "community": 54,
+      "community": 53,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2970,7 +2900,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "functions_api_services_onrequestget",
-      "community": 54,
+      "community": 53,
       "norm_label": "onrequestget()"
     },
     {
@@ -2980,7 +2910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_stripe_checkout",
-      "community": 3,
+      "community": 4,
       "norm_label": "stripe-checkout.js"
     },
     {
@@ -2990,7 +2920,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_stripe_checkout_cors_headers",
-      "community": 3,
+      "community": 4,
       "norm_label": "cors_headers"
     },
     {
@@ -3000,7 +2930,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_api_stripe_checkout_onrequestoptions",
-      "community": 3,
+      "community": 4,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -3010,7 +2940,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "functions_api_stripe_checkout_onrequestpost",
-      "community": 3,
+      "community": 4,
       "norm_label": "onrequestpost()"
     },
     {
@@ -3020,7 +2950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook",
-      "community": 22,
+      "community": 21,
       "norm_label": "stripe-webhook.js"
     },
     {
@@ -3030,7 +2960,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_cors_headers",
-      "community": 22,
+      "community": 21,
       "norm_label": "cors_headers"
     },
     {
@@ -3040,7 +2970,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_onrequestoptions",
-      "community": 22,
+      "community": 21,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -3050,7 +2980,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_onrequestpost",
-      "community": 22,
+      "community": 21,
       "norm_label": "onrequestpost()"
     },
     {
@@ -3060,7 +2990,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_verifystripesignature",
-      "community": 22,
+      "community": 21,
       "norm_label": "verifystripesignature()"
     },
     {
@@ -3180,7 +3110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_chatbot",
-      "community": 14,
+      "community": 15,
       "norm_label": "chatbot.js"
     },
     {
@@ -3190,7 +3120,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_chatbot_buildchatbotmessages",
-      "community": 14,
+      "community": 15,
       "norm_label": "buildchatbotmessages()"
     },
     {
@@ -3200,7 +3130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_index",
-      "community": 14,
+      "community": 15,
       "norm_label": "index.js"
     },
     {
@@ -3210,7 +3140,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_index_skills",
-      "community": 14,
+      "community": 15,
       "norm_label": "skills"
     },
     {
@@ -3260,7 +3190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_text_content",
-      "community": 14,
+      "community": 15,
       "norm_label": "text-content.js"
     },
     {
@@ -3270,7 +3200,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_text_content_buildoutputcontract",
-      "community": 14,
+      "community": 15,
       "norm_label": "buildoutputcontract()"
     },
     {
@@ -3280,7 +3210,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_text_content_buildtextcontentmessages",
-      "community": 14,
+      "community": 15,
       "norm_label": "buildtextcontentmessages()"
     },
     {
@@ -3290,7 +3220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_visual_content",
-      "community": 14,
+      "community": 15,
       "norm_label": "visual-content.js"
     },
     {
@@ -3300,7 +3230,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_visual_content_presets",
-      "community": 14,
+      "community": 15,
       "norm_label": "presets"
     },
     {
@@ -3310,7 +3240,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_lib_ai_skills_visual_content_buildvisualcontentprompt",
-      "community": 14,
+      "community": 15,
       "norm_label": "buildvisualcontentprompt()"
     },
     {
@@ -3324,20 +3254,10 @@
       "norm_label": "cms.js"
     },
     {
-      "label": "json()",
-      "file_type": "code",
-      "source_file": "functions/lib/cms.js",
-      "source_location": "L17",
-      "_origin": "ast",
-      "id": "functions_lib_cms_json",
-      "community": 1,
-      "norm_label": "json()"
-    },
-    {
       "label": "auditStmt()",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L32",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "functions_lib_cms_auditstmt",
       "community": 1,
@@ -3347,7 +3267,7 @@
       "label": "invalidateCache()",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L47",
+      "source_location": "L37",
       "_origin": "ast",
       "id": "functions_lib_cms_invalidatecache",
       "community": 1,
@@ -3357,7 +3277,7 @@
       "label": "cacheKey",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L56",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "functions_lib_cms_cachekey",
       "community": 1,
@@ -3367,7 +3287,7 @@
       "label": "DRAFT_ENTITIES",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L63",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "functions_lib_cms_draft_entities",
       "community": 1,
@@ -3377,7 +3297,7 @@
       "label": "draftKeyColumn()",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L66",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "functions_lib_cms_draftkeycolumn",
       "community": 1,
@@ -3387,7 +3307,7 @@
       "label": "applyWorkingDraftStmt()",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L81",
+      "source_location": "L71",
       "_origin": "ast",
       "id": "functions_lib_cms_applyworkingdraftstmt",
       "community": 1,
@@ -3397,7 +3317,7 @@
       "label": "invalidateServicesCache()",
       "file_type": "code",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L104",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "functions_lib_cms_invalidateservicescache",
       "community": 1,
@@ -3410,7 +3330,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_connectors_fetch_retry",
-      "community": 13,
+      "community": 14,
       "norm_label": "_fetch-retry.js"
     },
     {
@@ -3420,7 +3340,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_lib_connectors_fetch_retry_sleep",
-      "community": 13,
+      "community": 14,
       "norm_label": "sleep()"
     },
     {
@@ -3430,7 +3350,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "functions_lib_connectors_fetch_retry_fetchwithretry",
-      "community": 13,
+      "community": 14,
       "norm_label": "fetchwithretry()"
     },
     {
@@ -3440,7 +3360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar",
-      "community": 13,
+      "community": 14,
       "norm_label": "google-calendar.js"
     },
     {
@@ -3450,7 +3370,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_importprivatekey",
-      "community": 13,
+      "community": 14,
       "norm_label": "importprivatekey()"
     },
     {
@@ -3460,7 +3380,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_base64url",
-      "community": 13,
+      "community": 14,
       "norm_label": "base64url()"
     },
     {
@@ -3470,7 +3390,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector",
-      "community": 13,
+      "community": 14,
       "norm_label": "googlecalendarconnector"
     },
     {
@@ -3480,7 +3400,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_constructor",
-      "community": 13,
+      "community": 14,
       "norm_label": ".constructor()"
     },
     {
@@ -3490,7 +3410,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_getaccesstoken",
-      "community": 13,
+      "community": 14,
       "norm_label": "._getaccesstoken()"
     },
     {
@@ -3500,7 +3420,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_insertevent",
-      "community": 13,
+      "community": 14,
       "norm_label": ".insertevent()"
     },
     {
@@ -3510,7 +3430,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_updateeventcolor",
-      "community": 13,
+      "community": 14,
       "norm_label": ".updateeventcolor()"
     },
     {
@@ -3520,7 +3440,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_updateeventtime",
-      "community": 13,
+      "community": 14,
       "norm_label": ".updateeventtime()"
     },
     {
@@ -3530,7 +3450,7 @@
       "source_location": "L276",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_deleteevent",
-      "community": 13,
+      "community": 14,
       "norm_label": ".deleteevent()"
     },
     {
@@ -3540,7 +3460,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "functions_lib_connectors_google_calendar_googlecalendarconnector_listevents",
-      "community": 13,
+      "community": 14,
       "norm_label": ".listevents()"
     },
     {
@@ -3700,7 +3620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad",
-      "community": 22,
+      "community": 21,
       "norm_label": "idoklad.js"
     },
     {
@@ -3710,7 +3630,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad_idokladconnector",
-      "community": 22,
+      "community": 21,
       "norm_label": "idokladconnector"
     },
     {
@@ -3720,7 +3640,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad_idokladconnector_constructor",
-      "community": 22,
+      "community": 21,
       "norm_label": ".constructor()"
     },
     {
@@ -3730,7 +3650,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad_idokladconnector_getaccesstoken",
-      "community": 22,
+      "community": 21,
       "norm_label": "._getaccesstoken()"
     },
     {
@@ -3740,7 +3660,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad_idokladconnector_createinvoice",
-      "community": 22,
+      "community": 21,
       "norm_label": ".createinvoice()"
     },
     {
@@ -3750,7 +3670,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad_idokladconnector_getinvoices",
-      "community": 22,
+      "community": 21,
       "norm_label": ".getinvoices()"
     },
     {
@@ -3760,7 +3680,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "functions_lib_connectors_idoklad_idokladconnector_getstats",
-      "community": 22,
+      "community": 21,
       "norm_label": ".getstats()"
     },
     {
@@ -3770,7 +3690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend",
-      "community": 18,
+      "community": 23,
       "norm_label": "resend.js"
     },
     {
@@ -3780,7 +3700,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector",
-      "community": 18,
+      "community": 26,
       "norm_label": "resendconnector"
     },
     {
@@ -3790,7 +3710,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_constructor",
-      "community": 18,
+      "community": 26,
       "norm_label": ".constructor()"
     },
     {
@@ -3800,7 +3720,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_sendemail",
-      "community": 18,
+      "community": 26,
       "norm_label": ".sendemail()"
     },
     {
@@ -3810,7 +3730,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_sendbookingconfirmation",
-      "community": 18,
+      "community": 26,
       "norm_label": ".sendbookingconfirmation()"
     },
     {
@@ -3820,7 +3740,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_sendbookingrescheduled",
-      "community": 18,
+      "community": 26,
       "norm_label": ".sendbookingrescheduled()"
     },
     {
@@ -3830,7 +3750,7 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_sendbookingcancelled",
-      "community": 18,
+      "community": 26,
       "norm_label": ".sendbookingcancelled()"
     },
     {
@@ -3840,7 +3760,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_sendbookingreminder",
-      "community": 18,
+      "community": 26,
       "norm_label": ".sendbookingreminder()"
     },
     {
@@ -3850,7 +3770,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_resendconnector_sendadminwelcome",
-      "community": 18,
+      "community": 26,
       "norm_label": ".sendadminwelcome()"
     },
     {
@@ -3860,7 +3780,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "functions_lib_connectors_resend_escapehtml",
-      "community": 18,
+      "community": 26,
       "norm_label": "escapehtml()"
     },
     {
@@ -3870,7 +3790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram",
-      "community": 16,
+      "community": 5,
       "norm_label": "telegram.js"
     },
     {
@@ -3880,7 +3800,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector",
-      "community": 16,
+      "community": 5,
       "norm_label": "telegramconnector"
     },
     {
@@ -3890,7 +3810,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector_constructor",
-      "community": 16,
+      "community": 5,
       "norm_label": ".constructor()"
     },
     {
@@ -3900,7 +3820,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector_sendmessage",
-      "community": 16,
+      "community": 5,
       "norm_label": ".sendmessage()"
     },
     {
@@ -3910,7 +3830,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector_sendbookingnotification",
-      "community": 16,
+      "community": 5,
       "norm_label": ".sendbookingnotification()"
     },
     {
@@ -3920,7 +3840,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector_sendescalation",
-      "community": 16,
+      "community": 5,
       "norm_label": ".sendescalation()"
     },
     {
@@ -3930,7 +3850,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector_sendcashflowalert",
-      "community": 16,
+      "community": 5,
       "norm_label": ".sendcashflowalert()"
     },
     {
@@ -3940,7 +3860,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_telegramconnector_sendweeklydigest",
-      "community": 16,
+      "community": 5,
       "norm_label": ".sendweeklydigest()"
     },
     {
@@ -3950,7 +3870,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "functions_lib_connectors_telegram_escapehtml",
-      "community": 16,
+      "community": 5,
       "norm_label": "escapehtml()"
     },
     {
@@ -3960,7 +3880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_datacrypt",
-      "community": 7,
+      "community": 8,
       "norm_label": "datacrypt.js"
     },
     {
@@ -3970,7 +3890,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_arraybuffertobase64",
-      "community": 7,
+      "community": 8,
       "norm_label": "arraybuffertobase64()"
     },
     {
@@ -3980,7 +3900,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_base64toarraybuffer",
-      "community": 7,
+      "community": 8,
       "norm_label": "base64toarraybuffer()"
     },
     {
@@ -3990,7 +3910,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_hextobytes",
-      "community": 7,
+      "community": 8,
       "norm_label": "hextobytes()"
     },
     {
@@ -4000,7 +3920,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt",
-      "community": 7,
+      "community": 8,
       "norm_label": "datacrypt"
     },
     {
@@ -4010,7 +3930,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_constructor",
-      "community": 7,
+      "community": 8,
       "norm_label": ".constructor()"
     },
     {
@@ -4020,7 +3940,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_getkeys",
-      "community": 7,
+      "community": 8,
       "norm_label": "._getkeys()"
     },
     {
@@ -4030,7 +3950,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_encrypt",
-      "community": 7,
+      "community": 8,
       "norm_label": ".encrypt()"
     },
     {
@@ -4040,17 +3960,27 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decrypt",
-      "community": 7,
+      "community": 8,
       "norm_label": ".decrypt()"
+    },
+    {
+      "label": ".decryptFields()",
+      "file_type": "code",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L191",
+      "_origin": "ast",
+      "id": "functions_lib_datacrypt_datacrypt_decryptfields",
+      "community": 8,
+      "norm_label": ".decryptfields()"
     },
     {
       "label": ".hash()",
       "file_type": "code",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L191",
+      "source_location": "L210",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_hash",
-      "community": 7,
+      "community": 8,
       "norm_label": ".hash()"
     },
     {
@@ -4060,7 +3990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_db",
-      "community": 3,
+      "community": 4,
       "norm_label": "db.js"
     },
     {
@@ -4070,7 +4000,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_lib_db_parseboolean",
-      "community": 3,
+      "community": 4,
       "norm_label": "parseboolean()"
     },
     {
@@ -4080,7 +4010,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "functions_lib_db_createbooking",
-      "community": 3,
+      "community": 4,
       "norm_label": "createbooking()"
     },
     {
@@ -4090,7 +4020,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "functions_lib_db_confirmbooking",
-      "community": 3,
+      "community": 4,
       "norm_label": "confirmbooking()"
     },
     {
@@ -4100,7 +4030,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "functions_lib_db_getdecryptedbooking",
-      "community": 3,
+      "community": 4,
       "norm_label": "getdecryptedbooking()"
     },
     {
@@ -4110,7 +4040,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "functions_lib_db_addgeolead",
-      "community": 3,
+      "community": 4,
       "norm_label": "addgeolead()"
     },
     {
@@ -4120,7 +4050,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "functions_lib_db_subscribenewsletter",
-      "community": 3,
+      "community": 4,
       "norm_label": "subscribenewsletter()"
     },
     {
@@ -4130,7 +4060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_geo",
-      "community": 3,
+      "community": 4,
       "norm_label": "geo.js"
     },
     {
@@ -4140,7 +4070,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_lib_geo_tofloat",
-      "community": 3,
+      "community": 4,
       "norm_label": "tofloat()"
     },
     {
@@ -4150,7 +4080,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_lib_geo_decodemaybe",
-      "community": 3,
+      "community": 4,
       "norm_label": "decodemaybe()"
     },
     {
@@ -4160,7 +4090,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "functions_lib_geo_normalizepostalcode",
-      "community": 3,
+      "community": 4,
       "norm_label": "normalizepostalcode()"
     },
     {
@@ -4170,7 +4100,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "functions_lib_geo_extractedgegeo",
-      "community": 3,
+      "community": 4,
       "norm_label": "extractedgegeo()"
     },
     {
@@ -4180,7 +4110,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "functions_lib_geo_toh3cell",
-      "community": 3,
+      "community": 4,
       "norm_label": "toh3cell()"
     },
     {
@@ -4190,7 +4120,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "functions_lib_geo_buildgeoleadmeta",
-      "community": 3,
+      "community": 4,
       "norm_label": "buildgeoleadmeta()"
     },
     {
@@ -4200,7 +4130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_guardrail_index",
-      "community": 14,
+      "community": 15,
       "norm_label": "index.js"
     },
     {
@@ -4210,7 +4140,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_lib_guardrail_index_rulebooks",
-      "community": 14,
+      "community": 15,
       "norm_label": "rulebooks"
     },
     {
@@ -4220,7 +4150,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_lib_guardrail_index_normalizestrictness",
-      "community": 14,
+      "community": 15,
       "norm_label": "normalizestrictness()"
     },
     {
@@ -4230,7 +4160,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "functions_lib_guardrail_index_buildsystemprompt",
-      "community": 14,
+      "community": 15,
       "norm_label": "buildsystemprompt()"
     },
     {
@@ -4240,7 +4170,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_guardrail_rules_health",
-      "community": 14,
+      "community": 15,
       "norm_label": "rules-health.js"
     },
     {
@@ -4250,8 +4180,28 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "functions_lib_guardrail_rules_health_rules_health",
-      "community": 14,
+      "community": 15,
       "norm_label": "rules_health"
+    },
+    {
+      "label": "http.js",
+      "file_type": "code",
+      "source_file": "functions/lib/http.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "functions_lib_http",
+      "community": 1,
+      "norm_label": "http.js"
+    },
+    {
+      "label": "json()",
+      "file_type": "code",
+      "source_file": "functions/lib/http.js",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "functions_lib_http_json",
+      "community": 1,
+      "norm_label": "json()"
     },
     {
       "label": "rate-limit.js",
@@ -4260,7 +4210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_rate_limit",
-      "community": 3,
+      "community": 2,
       "norm_label": "rate-limit.js"
     },
     {
@@ -4270,7 +4220,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_lib_rate_limit_checkratelimit",
-      "community": 3,
+      "community": 2,
       "norm_label": "checkratelimit()"
     },
     {
@@ -4324,13 +4274,93 @@
       "norm_label": "striptags()"
     },
     {
+      "label": "time.js",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "functions_lib_time",
+      "community": 4,
+      "norm_label": "time.js"
+    },
+    {
+      "label": "parseLocalDate()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "functions_lib_time_parselocaldate",
+      "community": 4,
+      "norm_label": "parselocaldate()"
+    },
+    {
+      "label": "getNowInPrague()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "functions_lib_time_getnowinprague",
+      "community": 4,
+      "norm_label": "getnowinprague()"
+    },
+    {
+      "label": "formatTime()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "functions_lib_time_formattime",
+      "community": 4,
+      "norm_label": "formattime()"
+    },
+    {
+      "label": "formatDate()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L58",
+      "_origin": "ast",
+      "id": "functions_lib_time_formatdate",
+      "community": 4,
+      "norm_label": "formatdate()"
+    },
+    {
+      "label": "formatDateTime()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "functions_lib_time_formatdatetime",
+      "community": 4,
+      "norm_label": "formatdatetime()"
+    },
+    {
+      "label": "addMinutes()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "functions_lib_time_addminutes",
+      "community": 4,
+      "norm_label": "addminutes()"
+    },
+    {
+      "label": "addDays()",
+      "file_type": "code",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "functions_lib_time_adddays",
+      "community": 4,
+      "norm_label": "adddays()"
+    },
+    {
       "label": "turnstile.js",
       "file_type": "code",
       "source_file": "functions/lib/turnstile.js",
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_turnstile",
-      "community": 3,
+      "community": 4,
       "norm_label": "turnstile.js"
     },
     {
@@ -4340,7 +4370,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "functions_lib_turnstile_isturnstileconfigured",
-      "community": 3,
+      "community": 4,
       "norm_label": "isturnstileconfigured()"
     },
     {
@@ -4350,7 +4380,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_lib_turnstile_verifyturnstile",
-      "community": 3,
+      "community": 4,
       "norm_label": "verifyturnstile()"
     },
     {
@@ -4360,7 +4390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "package",
-      "community": 5,
+      "community": 6,
       "norm_label": "package.json"
     },
     {
@@ -4370,7 +4400,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "package_name",
-      "community": 5,
+      "community": 6,
       "norm_label": "name"
     },
     {
@@ -4380,7 +4410,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "package_version",
-      "community": 5,
+      "community": 6,
       "norm_label": "version"
     },
     {
@@ -4390,7 +4420,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "package_private",
-      "community": 5,
+      "community": 6,
       "norm_label": "private"
     },
     {
@@ -4400,7 +4430,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "package_description",
-      "community": 5,
+      "community": 6,
       "norm_label": "description"
     },
     {
@@ -4410,7 +4440,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "package_type",
-      "community": 5,
+      "community": 6,
       "norm_label": "type"
     },
     {
@@ -4420,7 +4450,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "package_scripts",
-      "community": 5,
+      "community": 6,
       "norm_label": "scripts"
     },
     {
@@ -4430,7 +4460,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "package_scripts_dev",
-      "community": 5,
+      "community": 6,
       "norm_label": "dev"
     },
     {
@@ -4440,7 +4470,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "package_scripts_db_init_local",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:init:local"
     },
     {
@@ -4450,7 +4480,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "package_scripts_db_init_prod",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:init:prod"
     },
     {
@@ -4460,7 +4490,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "package_scripts_db_migrate",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:migrate"
     },
     {
@@ -4470,7 +4500,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "package_scripts_db_migrate_unsafe",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:migrate:unsafe"
     },
     {
@@ -4480,7 +4510,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "package_scripts_db_clean_demo",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:clean-demo"
     },
     {
@@ -4490,7 +4520,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "package_scripts_db_diagnostics",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:diagnostics"
     },
     {
@@ -4500,7 +4530,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "package_scripts_db_generate_jsonld",
-      "community": 5,
+      "community": 6,
       "norm_label": "db:generate-jsonld"
     },
     {
@@ -4510,7 +4540,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "package_scripts_seed",
-      "community": 5,
+      "community": 6,
       "norm_label": "seed"
     },
     {
@@ -4520,7 +4550,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "package_scripts_build",
-      "community": 5,
+      "community": 6,
       "norm_label": "build"
     },
     {
@@ -4530,7 +4560,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "package_scripts_deploy",
-      "community": 5,
+      "community": 6,
       "norm_label": "deploy"
     },
     {
@@ -4540,7 +4570,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "package_scripts_deploy_cron",
-      "community": 5,
+      "community": 6,
       "norm_label": "deploy:cron"
     },
     {
@@ -4550,7 +4580,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "package_scripts_deploy_booking",
-      "community": 5,
+      "community": 6,
       "norm_label": "deploy:booking"
     },
     {
@@ -4560,7 +4590,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "package_scripts_deploy_social",
-      "community": 5,
+      "community": 6,
       "norm_label": "deploy:social"
     },
     {
@@ -4570,7 +4600,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "package_scripts_lint",
-      "community": 5,
+      "community": 6,
       "norm_label": "lint"
     },
     {
@@ -4580,7 +4610,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "package_scripts_test",
-      "community": 5,
+      "community": 6,
       "norm_label": "test"
     },
     {
@@ -4590,7 +4620,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "package_devdependencies",
-      "community": 5,
+      "community": 6,
       "norm_label": "devdependencies"
     },
     {
@@ -4600,7 +4630,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "package_devdependencies_eslint",
-      "community": 5,
+      "community": 6,
       "norm_label": "eslint"
     },
     {
@@ -4610,7 +4640,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "package_devdependencies_jsdom",
-      "community": 5,
+      "community": 6,
       "norm_label": "jsdom"
     },
     {
@@ -4620,7 +4650,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "package_devdependencies_vitest",
-      "community": 5,
+      "community": 6,
       "norm_label": "vitest"
     },
     {
@@ -4630,7 +4660,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "package_devdependencies_wrangler",
-      "community": 5,
+      "community": 6,
       "norm_label": "wrangler"
     },
     {
@@ -4640,7 +4670,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "package_dependencies",
-      "community": 5,
+      "community": 6,
       "norm_label": "dependencies"
     },
     {
@@ -4650,7 +4680,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "package_dependencies_h3_js",
-      "community": 5,
+      "community": 6,
       "norm_label": "h3-js"
     },
     {
@@ -5370,7 +5400,7 @@
       "source_location": "L758",
       "_origin": "ast",
       "id": "public_admin_js_api_adminapi",
-      "community": 6,
+      "community": 7,
       "norm_label": "adminapi"
     },
     {
@@ -5380,7 +5410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_app",
-      "community": 6,
+      "community": 7,
       "norm_label": "app.js"
     },
     {
@@ -5390,7 +5420,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "public_admin_js_app_state",
-      "community": 6,
+      "community": 7,
       "norm_label": "state"
     },
     {
@@ -5400,7 +5430,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "c_users_pc_documents_github_bicom_pisek_produkcni_repozit_public_admin_js_app",
-      "community": 6,
+      "community": 7,
       "norm_label": "$()"
     },
     {
@@ -5410,7 +5440,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "public_admin_js_app_togglesidebar",
-      "community": 6,
+      "community": 7,
       "norm_label": "togglesidebar()"
     },
     {
@@ -5420,7 +5450,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "public_admin_js_app_toggleactivity",
-      "community": 6,
+      "community": 7,
       "norm_label": "toggleactivity()"
     },
     {
@@ -5430,7 +5460,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "public_admin_js_app_togglemobilemenu",
-      "community": 6,
+      "community": 7,
       "norm_label": "togglemobilemenu()"
     },
     {
@@ -5440,7 +5470,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "public_admin_js_app_updatetogglebuttons",
-      "community": 6,
+      "community": 7,
       "norm_label": "updatetogglebuttons()"
     },
     {
@@ -5450,7 +5480,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "public_admin_js_app_refreshactivityfeed",
-      "community": 6,
+      "community": 7,
       "norm_label": "refreshactivityfeed()"
     },
     {
@@ -5460,7 +5490,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "public_admin_js_app_renderactivityitem",
-      "community": 6,
+      "community": 7,
       "norm_label": "renderactivityitem()"
     },
     {
@@ -5470,7 +5500,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "public_admin_js_app_formatrelativetime",
-      "community": 6,
+      "community": 7,
       "norm_label": "formatrelativetime()"
     },
     {
@@ -5480,7 +5510,7 @@
       "source_location": "L180",
       "_origin": "ast",
       "id": "public_admin_js_app_refreshstatusbar",
-      "community": 6,
+      "community": 7,
       "norm_label": "refreshstatusbar()"
     },
     {
@@ -5490,7 +5520,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "public_admin_js_app_loadoperatorinfo",
-      "community": 6,
+      "community": 7,
       "norm_label": "loadoperatorinfo()"
     },
     {
@@ -5500,7 +5530,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "public_admin_js_app_initkeyboardshortcuts",
-      "community": 6,
+      "community": 7,
       "norm_label": "initkeyboardshortcuts()"
     },
     {
@@ -5510,7 +5540,7 @@
       "source_location": "L280",
       "_origin": "ast",
       "id": "public_admin_js_app_escapehtml",
-      "community": 6,
+      "community": 7,
       "norm_label": "escapehtml()"
     },
     {
@@ -5520,7 +5550,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "public_admin_js_app_escapeattr",
-      "community": 6,
+      "community": 7,
       "norm_label": "escapeattr()"
     },
     {
@@ -5530,7 +5560,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "public_admin_js_app_init",
-      "community": 6,
+      "community": 7,
       "norm_label": "init()"
     },
     {
@@ -5540,7 +5570,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "public_admin_js_app_stoppollers",
-      "community": 6,
+      "community": 7,
       "norm_label": "stoppollers()"
     },
     {
@@ -5680,7 +5710,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar",
-      "community": 15,
+      "community": 16,
       "norm_label": "calendar.js"
     },
     {
@@ -5690,7 +5720,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_render",
-      "community": 15,
+      "community": 16,
       "norm_label": "render()"
     },
     {
@@ -5700,7 +5730,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_destroy",
-      "community": 15,
+      "community": 16,
       "norm_label": "destroy()"
     },
     {
@@ -5710,7 +5740,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_renderbookingstable",
-      "community": 15,
+      "community": 16,
       "norm_label": "renderbookingstable()"
     },
     {
@@ -5720,7 +5750,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_renderskeleton",
-      "community": 15,
+      "community": 16,
       "norm_label": "renderskeleton()"
     },
     {
@@ -5730,7 +5760,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_esc",
-      "community": 15,
+      "community": 16,
       "norm_label": "esc()"
     },
     {
@@ -5740,7 +5770,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_statusbadge",
-      "community": 15,
+      "community": 16,
       "norm_label": "statusbadge()"
     },
     {
@@ -5750,7 +5780,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_fmtdate",
-      "community": 15,
+      "community": 16,
       "norm_label": "fmtdate()"
     },
     {
@@ -5760,7 +5790,7 @@
       "source_location": "L253",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_fmtdatetime",
-      "community": 15,
+      "community": 16,
       "norm_label": "fmtdatetime()"
     },
     {
@@ -5770,7 +5800,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_findbookingbyid",
-      "community": 15,
+      "community": 16,
       "norm_label": "findbookingbyid()"
     },
     {
@@ -5780,7 +5810,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_showmodal",
-      "community": 15,
+      "community": 16,
       "norm_label": "showmodal()"
     },
     {
@@ -5790,7 +5820,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_showcancelmodal",
-      "community": 15,
+      "community": 16,
       "norm_label": "showcancelmodal()"
     },
     {
@@ -5800,7 +5830,7 @@
       "source_location": "L366",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_shownoshowmodal",
-      "community": 15,
+      "community": 16,
       "norm_label": "shownoshowmodal()"
     },
     {
@@ -5810,7 +5840,7 @@
       "source_location": "L420",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_showdeletemodal",
-      "community": 15,
+      "community": 16,
       "norm_label": "showdeletemodal()"
     },
     {
@@ -5820,7 +5850,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_showdetailmodal",
-      "community": 15,
+      "community": 16,
       "norm_label": "showdetailmodal()"
     },
     {
@@ -5830,7 +5860,7 @@
       "source_location": "L592",
       "_origin": "ast",
       "id": "public_admin_js_modules_calendar_showreschedulemodal",
-      "community": 15,
+      "community": 16,
       "norm_label": "showreschedulemodal()"
     },
     {
@@ -5840,7 +5870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_modules_content",
-      "community": 4,
+      "community": 3,
       "norm_label": "content.js"
     },
     {
@@ -5850,7 +5880,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_esc",
-      "community": 4,
+      "community": 3,
       "norm_label": "esc()"
     },
     {
@@ -5860,7 +5890,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_fmtdate",
-      "community": 4,
+      "community": 3,
       "norm_label": "fmtdate()"
     },
     {
@@ -5870,7 +5900,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_draftbadge",
-      "community": 4,
+      "community": 3,
       "norm_label": "draftbadge()"
     },
     {
@@ -5880,7 +5910,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_previewpanehtml",
-      "community": 4,
+      "community": 3,
       "norm_label": "previewpanehtml()"
     },
     {
@@ -5890,7 +5920,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_refreshpreview",
-      "community": 4,
+      "community": 3,
       "norm_label": "refreshpreview()"
     },
     {
@@ -5900,7 +5930,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_versioncontrolshtml",
-      "community": 4,
+      "community": 3,
       "norm_label": "versioncontrolshtml()"
     },
     {
@@ -5910,7 +5940,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_wireversioncontrols",
-      "community": 4,
+      "community": 3,
       "norm_label": "wireversioncontrols()"
     },
     {
@@ -5920,7 +5950,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_openversionsmodal",
-      "community": 4,
+      "community": 3,
       "norm_label": "openversionsmodal()"
     },
     {
@@ -5930,7 +5960,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_render",
-      "community": 4,
+      "community": 3,
       "norm_label": "render()"
     },
     {
@@ -5940,7 +5970,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_switchtab",
-      "community": 4,
+      "community": 3,
       "norm_label": "switchtab()"
     },
     {
@@ -5950,7 +5980,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderstranky",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderstranky()"
     },
     {
@@ -5960,7 +5990,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_cardgroupcard",
-      "community": 4,
+      "community": 3,
       "norm_label": "cardgroupcard()"
     },
     {
@@ -5970,7 +6000,7 @@
       "source_location": "L274",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_cardrow",
-      "community": 4,
+      "community": 3,
       "norm_label": "cardrow()"
     },
     {
@@ -5980,7 +6010,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_wirecardgroup",
-      "community": 4,
+      "community": 3,
       "norm_label": "wirecardgroup()"
     },
     {
@@ -5990,7 +6020,7 @@
       "source_location": "L332",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_sectioncard",
-      "community": 4,
+      "community": 3,
       "norm_label": "sectioncard()"
     },
     {
@@ -6000,7 +6030,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_wiresectioncard",
-      "community": 4,
+      "community": 3,
       "norm_label": "wiresectioncard()"
     },
     {
@@ -6010,7 +6040,7 @@
       "source_location": "L394",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_nap_fields",
-      "community": 4,
+      "community": 3,
       "norm_label": "nap_fields"
     },
     {
@@ -6020,7 +6050,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderfooter",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderfooter()"
     },
     {
@@ -6030,7 +6060,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderfaq",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderfaq()"
     },
     {
@@ -6040,7 +6070,7 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_faqrow",
-      "community": 4,
+      "community": 3,
       "norm_label": "faqrow()"
     },
     {
@@ -6050,7 +6080,7 @@
       "source_location": "L555",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_seo_pages",
-      "community": 4,
+      "community": 3,
       "norm_label": "seo_pages"
     },
     {
@@ -6060,7 +6090,7 @@
       "source_location": "L563",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_seo_fields",
-      "community": 4,
+      "community": 3,
       "norm_label": "seo_fields"
     },
     {
@@ -6070,7 +6100,7 @@
       "source_location": "L568",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_landing_pages",
-      "community": 4,
+      "community": 3,
       "norm_label": "landing_pages"
     },
     {
@@ -6080,7 +6110,7 @@
       "source_location": "L571",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_landing_fields",
-      "community": 4,
+      "community": 3,
       "norm_label": "landing_fields"
     },
     {
@@ -6090,7 +6120,7 @@
       "source_location": "L579",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderseo",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderseo()"
     },
     {
@@ -6100,7 +6130,7 @@
       "source_location": "L600",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderlanding",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderlanding()"
     },
     {
@@ -6110,7 +6140,7 @@
       "source_location": "L626",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_configeditor",
-      "community": 4,
+      "community": 3,
       "norm_label": "configeditor()"
     },
     {
@@ -6120,7 +6150,7 @@
       "source_location": "L693",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_rendergalerie",
-      "community": 4,
+      "community": 3,
       "norm_label": "rendergalerie()"
     },
     {
@@ -6130,7 +6160,7 @@
       "source_location": "L728",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_rendergallerydetail",
-      "community": 4,
+      "community": 3,
       "norm_label": "rendergallerydetail()"
     },
     {
@@ -6140,7 +6170,7 @@
       "source_location": "L765",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_galleryitemcard",
-      "community": 4,
+      "community": 3,
       "norm_label": "galleryitemcard()"
     },
     {
@@ -6150,7 +6180,7 @@
       "source_location": "L788",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_wiregalleryitem",
-      "community": 4,
+      "community": 3,
       "norm_label": "wiregalleryitem()"
     },
     {
@@ -6160,7 +6190,7 @@
       "source_location": "L819",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderhero",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderhero()"
     },
     {
@@ -6170,7 +6200,7 @@
       "source_location": "L855",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderheroform",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderheroform()"
     },
     {
@@ -6180,7 +6210,7 @@
       "source_location": "L929",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_renderhistorie",
-      "community": 4,
+      "community": 3,
       "norm_label": "renderhistorie()"
     },
     {
@@ -6190,7 +6220,7 @@
       "source_location": "L959",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_svc_categories",
-      "community": 4,
+      "community": 3,
       "norm_label": "svc_categories"
     },
     {
@@ -6200,7 +6230,7 @@
       "source_location": "L960",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_svc_segments",
-      "community": 4,
+      "community": 3,
       "norm_label": "svc_segments"
     },
     {
@@ -6210,7 +6240,7 @@
       "source_location": "L963",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_rendersluzby",
-      "community": 4,
+      "community": 3,
       "norm_label": "rendersluzby()"
     },
     {
@@ -6220,7 +6250,7 @@
       "source_location": "L998",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_openservicemodal",
-      "community": 4,
+      "community": 3,
       "norm_label": "openservicemodal()"
     },
     {
@@ -6230,7 +6260,7 @@
       "source_location": "L1069",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_showmodal",
-      "community": 4,
+      "community": 3,
       "norm_label": "showmodal()"
     },
     {
@@ -6240,7 +6270,7 @@
       "source_location": "L1082",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_emptycard",
-      "community": 4,
+      "community": 3,
       "norm_label": "emptycard()"
     },
     {
@@ -6250,7 +6280,7 @@
       "source_location": "L1086",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_demonote",
-      "community": 4,
+      "community": 3,
       "norm_label": "demonote()"
     },
     {
@@ -6260,7 +6290,7 @@
       "source_location": "L1091",
       "_origin": "ast",
       "id": "public_admin_js_modules_content_destroy",
-      "community": 4,
+      "community": 3,
       "norm_label": "destroy()"
     },
     {
@@ -6270,7 +6300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard",
-      "community": 10,
+      "community": 11,
       "norm_label": "dashboard.js"
     },
     {
@@ -6280,7 +6310,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_render",
-      "community": 10,
+      "community": 11,
       "norm_label": "render()"
     },
     {
@@ -6290,7 +6320,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_destroy",
-      "community": 10,
+      "community": 11,
       "norm_label": "destroy()"
     },
     {
@@ -6300,7 +6330,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_renderdashboard",
-      "community": 10,
+      "community": 11,
       "norm_label": "renderdashboard()"
     },
     {
@@ -6310,7 +6340,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_renderkpi",
-      "community": 10,
+      "community": 11,
       "norm_label": "renderkpi()"
     },
     {
@@ -6320,7 +6350,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_renderbookingslist",
-      "community": 10,
+      "community": 11,
       "norm_label": "renderbookingslist()"
     },
     {
@@ -6330,7 +6360,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_renderemptybookings",
-      "community": 10,
+      "community": 11,
       "norm_label": "renderemptybookings()"
     },
     {
@@ -6340,7 +6370,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_renderquickaction",
-      "community": 10,
+      "community": 11,
       "norm_label": "renderquickaction()"
     },
     {
@@ -6350,7 +6380,7 @@
       "source_location": "L237",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_getquickactioniconpath",
-      "community": 10,
+      "community": 11,
       "norm_label": "getquickactioniconpath()"
     },
     {
@@ -6360,7 +6390,7 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_rendergeohighlights",
-      "community": 10,
+      "community": 11,
       "norm_label": "rendergeohighlights()"
     },
     {
@@ -6370,7 +6400,7 @@
       "source_location": "L270",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_rendersystemstatus",
-      "community": 10,
+      "community": 11,
       "norm_label": "rendersystemstatus()"
     },
     {
@@ -6380,7 +6410,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_renderskeleton",
-      "community": 10,
+      "community": 11,
       "norm_label": "renderskeleton()"
     },
     {
@@ -6390,7 +6420,7 @@
       "source_location": "L303",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_bindevents",
-      "community": 10,
+      "community": 11,
       "norm_label": "bindevents()"
     },
     {
@@ -6400,7 +6430,7 @@
       "source_location": "L396",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_formatcurrency",
-      "community": 10,
+      "community": 11,
       "norm_label": "formatcurrency()"
     },
     {
@@ -6410,7 +6440,7 @@
       "source_location": "L401",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_formatdate",
-      "community": 10,
+      "community": 11,
       "norm_label": "formatdate()"
     },
     {
@@ -6420,7 +6450,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_escapehtml",
-      "community": 10,
+      "community": 11,
       "norm_label": "escapehtml()"
     },
     {
@@ -6430,7 +6460,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "public_admin_js_modules_dashboard_escapeattr",
-      "community": 10,
+      "community": 11,
       "norm_label": "escapeattr()"
     },
     {
@@ -6500,7 +6530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo",
-      "community": 26,
+      "community": 25,
       "norm_label": "geo.js"
     },
     {
@@ -6510,7 +6540,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_render",
-      "community": 26,
+      "community": 25,
       "norm_label": "render()"
     },
     {
@@ -6520,7 +6550,7 @@
       "source_location": "L259",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_destroy",
-      "community": 26,
+      "community": 25,
       "norm_label": "destroy()"
     },
     {
@@ -6530,7 +6560,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_loadgooglemapsscript",
-      "community": 26,
+      "community": 25,
       "norm_label": "loadgooglemapsscript()"
     },
     {
@@ -6540,7 +6570,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_initgooglemap",
-      "community": 26,
+      "community": 25,
       "norm_label": "initgooglemap()"
     },
     {
@@ -6550,7 +6580,7 @@
       "source_location": "L371",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_rendershell",
-      "community": 26,
+      "community": 25,
       "norm_label": "rendershell()"
     },
     {
@@ -6560,7 +6590,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_renderloading",
-      "community": 26,
+      "community": 25,
       "norm_label": "renderloading()"
     },
     {
@@ -6570,7 +6600,7 @@
       "source_location": "L396",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_renderempty",
-      "community": 26,
+      "community": 25,
       "norm_label": "renderempty()"
     },
     {
@@ -6580,7 +6610,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_attachrefresh",
-      "community": 26,
+      "community": 25,
       "norm_label": "attachrefresh()"
     },
     {
@@ -6590,7 +6620,7 @@
       "source_location": "L415",
       "_origin": "ast",
       "id": "public_admin_js_modules_geo_esc",
-      "community": 26,
+      "community": 25,
       "norm_label": "esc()"
     },
     {
@@ -6820,7 +6850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_modules_settings",
-      "community": 55,
+      "community": 54,
       "norm_label": "settings.js"
     },
     {
@@ -6830,7 +6860,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "public_admin_js_modules_settings_render",
-      "community": 55,
+      "community": 54,
       "norm_label": "render()"
     },
     {
@@ -6840,7 +6870,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "public_admin_js_modules_settings_destroy",
-      "community": 55,
+      "community": 54,
       "norm_label": "destroy()"
     },
     {
@@ -6850,7 +6880,7 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "public_admin_js_modules_settings_getdefaults",
-      "community": 55,
+      "community": 54,
       "norm_label": "getdefaults()"
     },
     {
@@ -6860,7 +6890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_modules_studio",
-      "community": 56,
+      "community": 55,
       "norm_label": "studio.js"
     },
     {
@@ -6870,7 +6900,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "public_admin_js_modules_studio_kind_labels",
-      "community": 56,
+      "community": 55,
       "norm_label": "kind_labels"
     },
     {
@@ -6880,7 +6910,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_admin_js_modules_studio_render",
-      "community": 56,
+      "community": 55,
       "norm_label": "render()"
     },
     {
@@ -6890,7 +6920,7 @@
       "source_location": "L514",
       "_origin": "ast",
       "id": "public_admin_js_modules_studio_destroy",
-      "community": 56,
+      "community": 55,
       "norm_label": "destroy()"
     },
     {
@@ -6900,7 +6930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_admin_js_router",
-      "community": 6,
+      "community": 7,
       "norm_label": "router.js"
     },
     {
@@ -6910,7 +6940,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "public_admin_js_router_routes",
-      "community": 6,
+      "community": 7,
       "norm_label": "routes"
     },
     {
@@ -6920,7 +6950,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "public_admin_js_router_modulecache",
-      "community": 6,
+      "community": 7,
       "norm_label": "modulecache"
     },
     {
@@ -6930,7 +6960,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "public_admin_js_router_matchroute",
-      "community": 6,
+      "community": 7,
       "norm_label": "matchroute()"
     },
     {
@@ -6940,7 +6970,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "public_admin_js_router_loadmodule",
-      "community": 6,
+      "community": 7,
       "norm_label": "loadmodule()"
     },
     {
@@ -6950,7 +6980,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "public_admin_js_router_navigate",
-      "community": 6,
+      "community": 7,
       "norm_label": "navigate()"
     },
     {
@@ -6960,7 +6990,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "public_admin_js_router_updatesidebaractive",
-      "community": 6,
+      "community": 7,
       "norm_label": "updatesidebaractive()"
     },
     {
@@ -6970,7 +7000,7 @@
       "source_location": "L261",
       "_origin": "ast",
       "id": "public_admin_js_router_updatebreadcrumb",
-      "community": 6,
+      "community": 7,
       "norm_label": "updatebreadcrumb()"
     },
     {
@@ -6980,7 +7010,7 @@
       "source_location": "L274",
       "_origin": "ast",
       "id": "public_admin_js_router_showtoast",
-      "community": 6,
+      "community": 7,
       "norm_label": "showtoast()"
     },
     {
@@ -6990,7 +7020,7 @@
       "source_location": "L305",
       "_origin": "ast",
       "id": "public_admin_js_router_escapehtml",
-      "community": 6,
+      "community": 7,
       "norm_label": "escapehtml()"
     },
     {
@@ -7000,7 +7030,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "public_admin_js_router_initrouter",
-      "community": 6,
+      "community": 7,
       "norm_label": "initrouter()"
     },
     {
@@ -7060,7 +7090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_assets_js_cms_client",
-      "community": 9,
+      "community": 10,
       "norm_label": "cms-client.js"
     },
     {
@@ -7070,7 +7100,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_endpoint",
-      "community": 9,
+      "community": 10,
       "norm_label": "endpoint()"
     },
     {
@@ -7080,7 +7110,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_getjson",
-      "community": 9,
+      "community": 10,
       "norm_label": "getjson()"
     },
     {
@@ -7090,7 +7120,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_issafeurl",
-      "community": 9,
+      "community": 10,
       "norm_label": "issafeurl()"
     },
     {
@@ -7100,7 +7130,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_escattr",
-      "community": 9,
+      "community": 10,
       "norm_label": "escattr()"
     },
     {
@@ -7110,7 +7140,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_rendersection",
-      "community": 9,
+      "community": 10,
       "norm_label": "rendersection()"
     },
     {
@@ -7120,7 +7150,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_loadgallery",
-      "community": 9,
+      "community": 10,
       "norm_label": "loadgallery()"
     },
     {
@@ -7130,7 +7160,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applyhero",
-      "community": 9,
+      "community": 10,
       "norm_label": "applyhero()"
     },
     {
@@ -7140,7 +7170,7 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applynap",
-      "community": 9,
+      "community": 10,
       "norm_label": "applynap()"
     },
     {
@@ -7150,7 +7180,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applylist",
-      "community": 9,
+      "community": 10,
       "norm_label": "applylist()"
     },
     {
@@ -7160,7 +7190,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_populatebookingselect",
-      "community": 9,
+      "community": 10,
       "norm_label": "populatebookingselect()"
     },
     {
@@ -7170,7 +7200,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_fetchservices",
-      "community": 9,
+      "community": 10,
       "norm_label": "fetchservices()"
     },
     {
@@ -7180,7 +7210,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_setmeta",
-      "community": 9,
+      "community": 10,
       "norm_label": "setmeta()"
     },
     {
@@ -7190,7 +7220,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applyseo",
-      "community": 9,
+      "community": 10,
       "norm_label": "applyseo()"
     },
     {
@@ -7200,7 +7230,7 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applyfaq",
-      "community": 9,
+      "community": 10,
       "norm_label": "applyfaq()"
     },
     {
@@ -7210,7 +7240,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applyprograms",
-      "community": 9,
+      "community": 10,
       "norm_label": "applyprograms()"
     },
     {
@@ -7220,7 +7250,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_applylanding",
-      "community": 9,
+      "community": 10,
       "norm_label": "applylanding()"
     },
     {
@@ -7230,7 +7260,7 @@
       "source_location": "L316",
       "_origin": "ast",
       "id": "public_assets_js_cms_client_init",
-      "community": 9,
+      "community": 10,
       "norm_label": "init()"
     },
     {
@@ -7240,7 +7270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_assets_js_consent",
-      "community": 58,
+      "community": 57,
       "norm_label": "consent.js"
     },
     {
@@ -7250,7 +7280,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "public_assets_js_consent_checkconsent",
-      "community": 58,
+      "community": 57,
       "norm_label": "checkconsent()"
     },
     {
@@ -7260,7 +7290,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "public_assets_js_consent_initanalytics",
-      "community": 58,
+      "community": 57,
       "norm_label": "initanalytics()"
     },
     {
@@ -7270,7 +7300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_assets_js_guide",
-      "community": 11,
+      "community": 12,
       "norm_label": "guide.js"
     },
     {
@@ -7280,7 +7310,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "public_assets_js_guide_loadservices",
-      "community": 11,
+      "community": 12,
       "norm_label": "loadservices()"
     },
     {
@@ -7290,7 +7320,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "public_assets_js_guide_updateguidecontent",
-      "community": 11,
+      "community": 12,
       "norm_label": "updateguidecontent()"
     },
     {
@@ -7300,7 +7330,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "public_assets_js_guide_normalizephone",
-      "community": 11,
+      "community": 12,
       "norm_label": "normalizephone()"
     },
     {
@@ -7310,7 +7340,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "public_assets_js_guide_escapehtml",
-      "community": 11,
+      "community": 12,
       "norm_label": "escapehtml()"
     },
     {
@@ -7320,7 +7350,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "public_assets_js_guide_fetchplacesuggestions",
-      "community": 11,
+      "community": 12,
       "norm_label": "fetchplacesuggestions()"
     },
     {
@@ -7330,7 +7360,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "public_assets_js_guide_hideplacesuggestions",
-      "community": 11,
+      "community": 12,
       "norm_label": "hideplacesuggestions()"
     },
     {
@@ -7340,7 +7370,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "public_assets_js_guide_selectplacesuggestion",
-      "community": 11,
+      "community": 12,
       "norm_label": "selectplacesuggestion()"
     },
     {
@@ -7350,7 +7380,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "public_assets_js_guide_renderplacesuggestions",
-      "community": 11,
+      "community": 12,
       "norm_label": "renderplacesuggestions()"
     },
     {
@@ -7360,7 +7390,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "public_assets_js_guide_bindaddressautocomplete",
-      "community": 11,
+      "community": 12,
       "norm_label": "bindaddressautocomplete()"
     },
     {
@@ -7370,7 +7400,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "public_assets_js_guide_updatephonerequirement",
-      "community": 11,
+      "community": 12,
       "norm_label": "updatephonerequirement()"
     },
     {
@@ -7380,7 +7410,7 @@
       "source_location": "L260",
       "_origin": "ast",
       "id": "public_assets_js_guide_initbookingconfig",
-      "community": 11,
+      "community": 12,
       "norm_label": "initbookingconfig()"
     },
     {
@@ -7390,7 +7420,7 @@
       "source_location": "L360",
       "_origin": "ast",
       "id": "public_assets_js_guide_loadturnstilescript",
-      "community": 11,
+      "community": 12,
       "norm_label": "loadturnstilescript()"
     },
     {
@@ -7400,7 +7430,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "public_assets_js_guide_renderturnstile",
-      "community": 11,
+      "community": 12,
       "norm_label": "renderturnstile()"
     },
     {
@@ -7410,7 +7440,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "public_assets_js_guide_loadavailability",
-      "community": 11,
+      "community": 12,
       "norm_label": "loadavailability()"
     },
     {
@@ -7420,7 +7450,7 @@
       "source_location": "L429",
       "_origin": "ast",
       "id": "public_assets_js_guide_rendertimeslots",
-      "community": 11,
+      "community": 12,
       "norm_label": "rendertimeslots()"
     },
     {
@@ -7430,7 +7460,7 @@
       "source_location": "L603",
       "_origin": "ast",
       "id": "public_assets_js_guide_showtoast",
-      "community": 11,
+      "community": 12,
       "norm_label": "showtoast()"
     },
     {
@@ -7440,7 +7470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_assets_js_markdown",
-      "community": 12,
+      "community": 13,
       "norm_label": "markdown.js"
     },
     {
@@ -7450,7 +7480,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "public_assets_js_markdown_rendermarkdown",
-      "community": 12,
+      "community": 13,
       "norm_label": "rendermarkdown()"
     },
     {
@@ -7460,7 +7490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger",
-      "community": 21,
+      "community": 20,
       "norm_label": "performance-logger.js"
     },
     {
@@ -7470,7 +7500,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger",
-      "community": 21,
+      "community": 20,
       "norm_label": "performancelogger"
     },
     {
@@ -7480,7 +7510,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_constructor",
-      "community": 21,
+      "community": 20,
       "norm_label": ".constructor()"
     },
     {
@@ -7490,7 +7520,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_generatesessionid",
-      "community": 21,
+      "community": 20,
       "norm_label": ".generatesessionid()"
     },
     {
@@ -7500,7 +7530,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_init",
-      "community": 21,
+      "community": 20,
       "norm_label": ".init()"
     },
     {
@@ -7510,7 +7540,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_setupwebvitalsobserver",
-      "community": 21,
+      "community": 20,
       "norm_label": ".setupwebvitalsobserver()"
     },
     {
@@ -7520,7 +7550,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_setupdomeventtracking",
-      "community": 21,
+      "community": 20,
       "norm_label": ".setupdomeventtracking()"
     },
     {
@@ -7530,7 +7560,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_setuperrorhandling",
-      "community": 21,
+      "community": 20,
       "norm_label": ".setuperrorhandling()"
     },
     {
@@ -7540,7 +7570,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_setupbatchsender",
-      "community": 21,
+      "community": 20,
       "norm_label": ".setupbatchsender()"
     },
     {
@@ -7550,7 +7580,7 @@
       "source_location": "L237",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_logevent",
-      "community": 21,
+      "community": 20,
       "norm_label": ".logevent()"
     },
     {
@@ -7560,7 +7590,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_sendbatch",
-      "community": 21,
+      "community": 20,
       "norm_label": ".sendbatch()"
     },
     {
@@ -7570,7 +7600,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_performancelogger_flush",
-      "community": 21,
+      "community": 20,
       "norm_label": ".flush()"
     },
     {
@@ -7580,7 +7610,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "public_assets_js_performance_logger_nanoid",
-      "community": 21,
+      "community": 20,
       "norm_label": "nanoid()"
     },
     {
@@ -7590,7 +7620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_assets_js_router",
-      "community": 12,
+      "community": 13,
       "norm_label": "router.js"
     },
     {
@@ -7600,7 +7630,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "public_assets_js_router_escapehtml",
-      "community": 12,
+      "community": 13,
       "norm_label": "escapehtml()"
     },
     {
@@ -7610,7 +7640,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "public_assets_js_router_resolveroute",
-      "community": 12,
+      "community": 13,
       "norm_label": "resolveroute()"
     },
     {
@@ -7620,7 +7650,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "public_assets_js_router_renderhomebloggrid",
-      "community": 12,
+      "community": 13,
       "norm_label": "renderhomebloggrid()"
     },
     {
@@ -7630,7 +7660,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "public_assets_js_router_setmetadescription",
-      "community": 12,
+      "community": 13,
       "norm_label": "setmetadescription()"
     },
     {
@@ -7640,7 +7670,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "public_assets_js_router_fetchservices",
-      "community": 12,
+      "community": 13,
       "norm_label": "fetchservices()"
     },
     {
@@ -7650,7 +7680,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "public_assets_js_router_fetchblog",
-      "community": 12,
+      "community": 13,
       "norm_label": "fetchblog()"
     },
     {
@@ -7660,7 +7690,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "public_assets_js_router_renderservicedetail",
-      "community": 12,
+      "community": 13,
       "norm_label": "renderservicedetail()"
     },
     {
@@ -7670,7 +7700,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "public_assets_js_router_renderblogdetail",
-      "community": 12,
+      "community": 13,
       "norm_label": "renderblogdetail()"
     },
     {
@@ -7680,7 +7710,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "public_assets_js_router_rendergdprpage",
-      "community": 12,
+      "community": 13,
       "norm_label": "rendergdprpage()"
     },
     {
@@ -7690,7 +7720,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "public_assets_js_router_renderrezervacepotvrzenapage",
-      "community": 12,
+      "community": 13,
       "norm_label": "renderrezervacepotvrzenapage()"
     },
     {
@@ -7700,7 +7730,7 @@
       "source_location": "L508",
       "_origin": "ast",
       "id": "public_assets_js_router_renderrezervacezrusenapage",
-      "community": 12,
+      "community": 13,
       "norm_label": "renderrezervacezrusenapage()"
     },
     {
@@ -7710,7 +7740,7 @@
       "source_location": "L556",
       "_origin": "ast",
       "id": "public_assets_js_router_render404page",
-      "community": 12,
+      "community": 13,
       "norm_label": "render404page()"
     },
     {
@@ -7720,7 +7750,7 @@
       "source_location": "L583",
       "_origin": "ast",
       "id": "public_assets_js_router_handlelinkclick",
-      "community": 12,
+      "community": 13,
       "norm_label": "handlelinkclick()"
     },
     {
@@ -7730,7 +7760,7 @@
       "source_location": "L614",
       "_origin": "ast",
       "id": "public_assets_js_router_initmenutoggle",
-      "community": 12,
+      "community": 13,
       "norm_label": "initmenutoggle()"
     },
     {
@@ -7740,7 +7770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_build_sitemap",
-      "community": 8,
+      "community": 9,
       "norm_label": "build-sitemap.js"
     },
     {
@@ -7750,7 +7780,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "scripts_build_sitemap_static_routes",
-      "community": 8,
+      "community": 9,
       "norm_label": "static_routes"
     },
     {
@@ -7760,7 +7790,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "scripts_build_sitemap_generatesitemap",
-      "community": 8,
+      "community": 9,
       "norm_label": "generatesitemap()"
     },
     {
@@ -7770,7 +7800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_check_d1_ledger_sync",
-      "community": 62,
+      "community": 61,
       "norm_label": "check-d1-ledger-sync.js"
     },
     {
@@ -7780,7 +7810,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "scripts_check_d1_ledger_sync_flag",
-      "community": 62,
+      "community": 61,
       "norm_label": "flag"
     },
     {
@@ -7790,7 +7820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_db_diagnostics",
-      "community": 8,
+      "community": 9,
       "norm_label": "db-diagnostics.js"
     },
     {
@@ -7800,7 +7830,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "scripts_db_diagnostics_wrangler_js",
-      "community": 8,
+      "community": 9,
       "norm_label": "wrangler_js"
     },
     {
@@ -7810,7 +7840,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "scripts_db_diagnostics_tables",
-      "community": 8,
+      "community": 9,
       "norm_label": "tables"
     },
     {
@@ -7820,7 +7850,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "scripts_db_diagnostics_runquery",
-      "community": 8,
+      "community": 9,
       "norm_label": "runquery()"
     },
     {
@@ -7830,7 +7860,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "scripts_db_diagnostics_rundiagnostics",
-      "community": 8,
+      "community": 9,
       "norm_label": "rundiagnostics()"
     },
     {
@@ -7840,7 +7870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_generate_service_jsonld",
-      "community": 8,
+      "community": 9,
       "norm_label": "generate-service-jsonld.js"
     },
     {
@@ -7850,7 +7880,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "scripts_generate_service_jsonld_wrangler_js",
-      "community": 8,
+      "community": 9,
       "norm_label": "wrangler_js"
     },
     {
@@ -7860,7 +7890,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "scripts_generate_service_jsonld_runquery",
-      "community": 8,
+      "community": 9,
       "norm_label": "runquery()"
     },
     {
@@ -7870,7 +7900,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "scripts_generate_service_jsonld_generatejsonld",
-      "community": 8,
+      "community": 9,
       "norm_label": "generatejsonld()"
     },
     {
@@ -7880,7 +7910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_resolve_ledger_drift",
-      "community": 8,
+      "community": 9,
       "norm_label": "resolve-ledger-drift.js"
     },
     {
@@ -7890,7 +7920,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "scripts_resolve_ledger_drift_isapply",
-      "community": 8,
+      "community": 9,
       "norm_label": "isapply"
     },
     {
@@ -7900,7 +7930,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "scripts_resolve_ledger_drift_wrangler_js",
-      "community": 8,
+      "community": 9,
       "norm_label": "wrangler_js"
     },
     {
@@ -7910,7 +7940,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "scripts_resolve_ledger_drift_runquery",
-      "community": 8,
+      "community": 9,
       "norm_label": "runquery()"
     },
     {
@@ -7920,7 +7950,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "scripts_resolve_ledger_drift_resolvedrift",
-      "community": 8,
+      "community": 9,
       "norm_label": "resolvedrift()"
     },
     {
@@ -7930,7 +7960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_seed_hero",
-      "community": 8,
+      "community": 9,
       "norm_label": "seed-hero.js"
     },
     {
@@ -7940,7 +7970,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "scripts_seed_hero_wrangler_js",
-      "community": 8,
+      "community": 9,
       "norm_label": "wrangler_js"
     },
     {
@@ -7950,7 +7980,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "scripts_seed_hero_runquery",
-      "community": 8,
+      "community": 9,
       "norm_label": "runquery()"
     },
     {
@@ -7960,7 +7990,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "scripts_seed_hero_seedhero",
-      "community": 8,
+      "community": 9,
       "norm_label": "seedhero()"
     },
     {
@@ -7970,7 +8000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_auth_test",
-      "community": 23,
+      "community": 22,
       "norm_label": "auth.test.js"
     },
     {
@@ -7980,7 +8010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_availability_test",
-      "community": 3,
+      "community": 4,
       "norm_label": "availability.test.js"
     },
     {
@@ -7990,7 +8020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_datacrypt_test",
-      "community": 7,
+      "community": 8,
       "norm_label": "datacrypt.test.js"
     },
     {
@@ -8000,7 +8030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_gdpr_test",
-      "community": 24,
+      "community": 5,
       "norm_label": "gdpr.test.js"
     },
     {
@@ -8010,7 +8040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_menu_test",
-      "community": 63,
+      "community": 62,
       "norm_label": "menu.test.js"
     },
     {
@@ -8020,7 +8050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_monitoring_monitoring_test",
-      "community": 64,
+      "community": 63,
       "norm_label": "monitoring.test.js"
     },
     {
@@ -8030,7 +8060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "vitest_config",
-      "community": 65,
+      "community": 64,
       "norm_label": "vitest.config.js"
     }
   ],
@@ -8509,28 +8539,6 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "functions/admin/bookings.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "functions_admin_bookings",
-      "target": "functions_api_availability",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/admin/bookings.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "functions_admin_bookings",
-      "target": "functions_api_availability_getnowinprague",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/admin/bookings.js",
       "source_location": "L7",
       "weight": 1.0,
       "source": "functions_admin_bookings",
@@ -8593,6 +8601,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/admin/bookings.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "functions_admin_bookings",
+      "target": "functions_lib_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/admin/bookings.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "functions_admin_bookings",
+      "target": "functions_lib_time_getnowinprague",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -8634,7 +8664,7 @@
       "source_location": "L365",
       "weight": 1.0,
       "source": "functions_admin_bookings_onrequestput",
-      "target": "functions_api_availability_getnowinprague"
+      "target": "functions_lib_time_getnowinprague"
     },
     {
       "relation": "contains",
@@ -8778,7 +8808,7 @@
       "source_location": "L22",
       "weight": 1.0,
       "source": "functions_admin_content",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -8911,7 +8941,7 @@
       "source_location": "L62",
       "weight": 1.0,
       "source": "functions_admin_content_onrequestget",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -8955,7 +8985,7 @@
       "source_location": "L115",
       "weight": 1.0,
       "source": "functions_admin_content_onrequestpost",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -8988,7 +9018,7 @@
       "source_location": "L159",
       "weight": 1.0,
       "source": "functions_admin_content_onrequestput",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -9032,7 +9062,7 @@
       "source_location": "L194",
       "weight": 1.0,
       "source": "functions_admin_content_onrequestdelete",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -9064,7 +9094,7 @@
       "source_location": "L226",
       "weight": 1.0,
       "source": "functions_admin_content_handledraftaction",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -9480,7 +9510,7 @@
       "source_location": "L20",
       "weight": 1.0,
       "source": "functions_admin_drafts",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -9591,7 +9621,7 @@
       "source_location": "L64",
       "weight": 1.0,
       "source": "functions_admin_drafts_onrequestget",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -9624,7 +9654,7 @@
       "source_location": "L84",
       "weight": 1.0,
       "source": "functions_admin_drafts_onrequestpost",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -9667,7 +9697,7 @@
       "source_location": "L139",
       "weight": 1.0,
       "source": "functions_admin_drafts_handleload",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -9701,7 +9731,7 @@
       "source_location": "L155",
       "weight": 1.0,
       "source": "functions_admin_drafts_onrequestput",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -9734,7 +9764,7 @@
       "source_location": "L182",
       "weight": 1.0,
       "source": "functions_admin_drafts_onrequestdelete",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10028,7 +10058,7 @@
       "source_location": "L16",
       "weight": 1.0,
       "source": "functions_admin_gallery",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -10073,7 +10103,7 @@
       "source_location": "L49",
       "weight": 1.0,
       "source": "functions_admin_gallery_onrequestget",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10106,7 +10136,7 @@
       "source_location": "L80",
       "weight": 1.0,
       "source": "functions_admin_gallery_onrequestpost",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10150,7 +10180,7 @@
       "source_location": "L141",
       "weight": 1.0,
       "source": "functions_admin_gallery_onrequestput",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10194,7 +10224,7 @@
       "source_location": "L195",
       "weight": 1.0,
       "source": "functions_admin_gallery_onrequestdelete",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "contains",
@@ -10359,7 +10389,7 @@
       "source_location": "L15",
       "weight": 1.0,
       "source": "functions_admin_hero",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -10437,7 +10467,7 @@
       "source_location": "L62",
       "weight": 1.0,
       "source": "functions_admin_hero_onrequestget",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10459,7 +10489,7 @@
       "source_location": "L89",
       "weight": 1.0,
       "source": "functions_admin_hero_onrequestput",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10503,7 +10533,7 @@
       "source_location": "L129",
       "weight": 1.0,
       "source": "functions_admin_hero_onrequestpost",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -10794,7 +10824,7 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "functions_admin_imagine",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -11048,7 +11078,7 @@
       "source_location": "L215",
       "weight": 1.0,
       "source": "functions_admin_imagine_onrequestget",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -11070,7 +11100,7 @@
       "source_location": "L264",
       "weight": 1.0,
       "source": "functions_admin_imagine_onrequestpost",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -11092,7 +11122,7 @@
       "source_location": "L336",
       "weight": 1.0,
       "source": "functions_admin_imagine_onrequestput",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "contains",
@@ -11474,61 +11504,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/build-sitemap.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_build_sitemap",
-      "target": "functions_admin_preview_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/db-diagnostics.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_db_diagnostics",
-      "target": "functions_admin_preview_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/generate-service-jsonld.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_generate_service_jsonld",
-      "target": "functions_admin_preview_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/resolve-ledger-drift.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "scripts_resolve_ledger_drift",
-      "target": "functions_admin_preview_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/seed-hero.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scripts_seed_hero",
-      "target": "functions_admin_preview_path",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/admin/seo-analytics.js",
@@ -11774,7 +11749,7 @@
       "source_location": "L17",
       "weight": 1.0,
       "source": "functions_admin_services",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -11874,7 +11849,7 @@
       "source_location": "L79",
       "weight": 1.0,
       "source": "functions_admin_services_onrequestget",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -11918,7 +11893,7 @@
       "source_location": "L112",
       "weight": 1.0,
       "source": "functions_admin_services_onrequestpost",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -11951,7 +11926,7 @@
       "source_location": "L148",
       "weight": 1.0,
       "source": "functions_admin_services_onrequestput",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -11995,7 +11970,7 @@
       "source_location": "L171",
       "weight": 1.0,
       "source": "functions_admin_services_onrequestdelete",
-      "target": "functions_lib_cms_json"
+      "target": "functions_lib_http_json"
     },
     {
       "relation": "calls",
@@ -12027,7 +12002,7 @@
       "source_location": "L197",
       "weight": 1.0,
       "source": "functions_admin_services_handledraftaction",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -13366,27 +13341,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/availability.js",
-      "source_location": "L93",
-      "weight": 1.0,
-      "source": "functions_api_availability",
-      "target": "functions_api_availability_adddays",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L84",
-      "weight": 1.0,
-      "source": "functions_api_availability",
-      "target": "functions_api_availability_addminutes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L104",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "functions_api_availability",
       "target": "functions_api_availability_computeavailability",
@@ -13406,47 +13361,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/availability.js",
-      "source_location": "L67",
-      "weight": 1.0,
-      "source": "functions_api_availability",
-      "target": "functions_api_availability_formatdate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L77",
-      "weight": 1.0,
-      "source": "functions_api_availability",
-      "target": "functions_api_availability_formatdatetime",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L58",
-      "weight": 1.0,
-      "source": "functions_api_availability",
-      "target": "functions_api_availability_formattime",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L30",
-      "weight": 1.0,
-      "source": "functions_api_availability",
-      "target": "functions_api_availability_getnowinprague",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L229",
+      "source_location": "L170",
       "weight": 1.0,
       "source": "functions_api_availability",
       "target": "functions_api_availability_onrequestget",
@@ -13463,35 +13378,91 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
+      "relation": "re_exports",
+      "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/availability.js",
-      "source_location": "L22",
+      "source_location": "L29",
       "weight": 1.0,
       "source": "functions_api_availability",
-      "target": "functions_api_availability_parselocaldate",
+      "target": "functions_lib_time",
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
+      "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
       "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability",
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_adddays",
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
+      "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
       "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability",
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_addminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_formatdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_formatdatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_formattime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_getnowinprague",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/availability.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "functions_api_availability",
+      "target": "functions_lib_time_parselocaldate",
       "confidence_score": 1.0
     },
     {
@@ -13509,382 +13480,52 @@
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "functions/api/availability.js",
-      "source_location": "L105",
+      "source_location": "L80",
       "weight": 1.0,
       "source": "functions_api_availability_computeavailability",
-      "target": "functions_api_availability_parselocaldate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L250",
-      "weight": 1.0,
-      "source": "functions_api_availability_onrequestget",
-      "target": "functions_api_availability_parselocaldate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability_parselocaldate",
-      "confidence_score": 1.0
+      "target": "functions_lib_time_adddays"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "functions/api/book.js",
-      "source_location": "L203",
-      "weight": 1.0,
-      "source": "functions_api_book_onrequestpost",
-      "target": "functions_api_availability_parselocaldate"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability_parselocaldate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L83",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout_onrequestpost",
-      "target": "functions_api_availability_parselocaldate"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
       "source_file": "functions/api/availability.js",
-      "source_location": "L234",
-      "weight": 1.0,
-      "source": "functions_api_availability_onrequestget",
-      "target": "functions_api_availability_getnowinprague",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability_getnowinprague",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/book.js",
-      "source_location": "L211",
-      "weight": 1.0,
-      "source": "functions_api_book_onrequestpost",
-      "target": "functions_api_availability_getnowinprague"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability_getnowinprague",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L91",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout_onrequestpost",
-      "target": "functions_api_availability_getnowinprague"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L78",
-      "weight": 1.0,
-      "source": "functions_api_availability_formatdatetime",
-      "target": "functions_api_availability_formattime",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L145",
+      "source_location": "L79",
       "weight": 1.0,
       "source": "functions_api_availability_computeavailability",
-      "target": "functions_api_availability_formatdate",
-      "confidence_score": 1.0
+      "target": "functions_lib_time_addminutes"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "functions/api/availability.js",
-      "source_location": "L78",
-      "weight": 1.0,
-      "source": "functions_api_availability_formatdatetime",
-      "target": "functions_api_availability_formatdate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L253",
-      "weight": 1.0,
-      "source": "functions_api_availability_onrequestget",
-      "target": "functions_api_availability_formatdate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability_formatdate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/book.js",
-      "source_location": "L204",
-      "weight": 1.0,
-      "source": "functions_api_book_onrequestpost",
-      "target": "functions_api_availability_formatdate"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability_formatdate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L84",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout_onrequestpost",
-      "target": "functions_api_availability_formatdate"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability_formatdatetime",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/book.js",
-      "source_location": "L284",
-      "weight": 1.0,
-      "source": "functions_api_book_onrequestpost",
-      "target": "functions_api_availability_formatdatetime"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability_formatdatetime",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L160",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout_onrequestpost",
-      "target": "functions_api_availability_formatdatetime"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L138",
+      "source_location": "L86",
       "weight": 1.0,
       "source": "functions_api_availability_computeavailability",
-      "target": "functions_api_availability_addminutes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability_addminutes",
-      "confidence_score": 1.0
+      "target": "functions_lib_time_formatdate"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "functions/api/book.js",
-      "source_location": "L255",
-      "weight": 1.0,
-      "source": "functions_api_book_onrequestpost",
-      "target": "functions_api_availability_addminutes"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability_addminutes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L130",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout_onrequestpost",
-      "target": "functions_api_availability_addminutes"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
       "source_file": "functions/api/availability.js",
-      "source_location": "L139",
+      "source_location": "L46",
       "weight": 1.0,
       "source": "functions_api_availability_computeavailability",
-      "target": "functions_api_availability_adddays",
-      "confidence_score": 1.0
+      "target": "functions_lib_time_parselocaldate"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/availability.js",
-      "source_location": "L304",
-      "weight": 1.0,
-      "source": "functions_api_availability_onrequestget",
-      "target": "functions_api_availability_adddays",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/book.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "functions_api_book",
-      "target": "functions_api_availability_adddays",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/book.js",
-      "source_location": "L213",
-      "weight": 1.0,
-      "source": "functions_api_book_onrequestpost",
-      "target": "functions_api_availability_adddays"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout",
-      "target": "functions_api_availability_adddays",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "functions/api/stripe-checkout.js",
-      "source_location": "L93",
-      "weight": 1.0,
-      "source": "functions_api_stripe_checkout_onrequestpost",
-      "target": "functions_api_availability_adddays"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "functions/api/availability.js",
-      "source_location": "L345",
+      "source_location": "L286",
       "weight": 1.0,
       "source": "functions_api_availability_onrequestget",
       "target": "functions_api_availability_computeavailability",
@@ -13900,6 +13541,50 @@
       "source": "tests_availability_test",
       "target": "functions_api_availability_computeavailability",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/availability.js",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "functions_api_availability_onrequestget",
+      "target": "functions_lib_time_adddays"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/availability.js",
+      "source_location": "L194",
+      "weight": 1.0,
+      "source": "functions_api_availability_onrequestget",
+      "target": "functions_lib_time_formatdate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/availability.js",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "functions_api_availability_onrequestget",
+      "target": "functions_lib_time_getnowinprague"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/availability.js",
+      "source_location": "L191",
+      "weight": 1.0,
+      "source": "functions_api_availability_onrequestget",
+      "target": "functions_lib_time_parselocaldate"
     },
     {
       "relation": "contains",
@@ -14096,6 +13781,83 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time_adddays",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time_addminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time_formatdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time_formatdatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time_getnowinprague",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_api_book",
+      "target": "functions_lib_time_parselocaldate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/book.js",
       "source_location": "L9",
       "weight": 1.0,
       "source": "functions_api_book",
@@ -14178,6 +13940,72 @@
       "weight": 1.0,
       "source": "functions_api_book_onrequestpost",
       "target": "functions_lib_rate_limit_checkratelimit"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/book.js",
+      "source_location": "L213",
+      "weight": 1.0,
+      "source": "functions_api_book_onrequestpost",
+      "target": "functions_lib_time_adddays"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/book.js",
+      "source_location": "L255",
+      "weight": 1.0,
+      "source": "functions_api_book_onrequestpost",
+      "target": "functions_lib_time_addminutes"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/book.js",
+      "source_location": "L204",
+      "weight": 1.0,
+      "source": "functions_api_book_onrequestpost",
+      "target": "functions_lib_time_formatdate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/book.js",
+      "source_location": "L284",
+      "weight": 1.0,
+      "source": "functions_api_book_onrequestpost",
+      "target": "functions_lib_time_formatdatetime"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/book.js",
+      "source_location": "L211",
+      "weight": 1.0,
+      "source": "functions_api_book_onrequestpost",
+      "target": "functions_lib_time_getnowinprague"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/book.js",
+      "source_location": "L203",
+      "weight": 1.0,
+      "source": "functions_api_book_onrequestpost",
+      "target": "functions_lib_time_parselocaldate"
     },
     {
       "relation": "calls",
@@ -14724,6 +14552,61 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/build-sitemap.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "scripts_build_sitemap",
+      "target": "functions_api_media_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/db-diagnostics.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "scripts_db_diagnostics",
+      "target": "functions_api_media_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/generate-service-jsonld.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "scripts_generate_service_jsonld",
+      "target": "functions_api_media_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/resolve-ledger-drift.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "scripts_resolve_ledger_drift",
+      "target": "functions_api_media_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed-hero.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "scripts_seed_hero",
+      "target": "functions_api_media_path",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/newsletter.js",
@@ -15178,6 +15061,83 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time_adddays",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time_addminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time_formatdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time_formatdatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time_getnowinprague",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout",
+      "target": "functions_lib_time_parselocaldate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/api/stripe-checkout.js",
       "source_location": "L6",
       "weight": 1.0,
       "source": "functions_api_stripe_checkout",
@@ -15216,6 +15176,72 @@
       "weight": 1.0,
       "source": "functions_api_stripe_checkout_onrequestpost",
       "target": "functions_lib_db_subscribenewsletter"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout_onrequestpost",
+      "target": "functions_lib_time_adddays"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout_onrequestpost",
+      "target": "functions_lib_time_addminutes"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout_onrequestpost",
+      "target": "functions_lib_time_formatdate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L160",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout_onrequestpost",
+      "target": "functions_lib_time_formatdatetime"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout_onrequestpost",
+      "target": "functions_lib_time_getnowinprague"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "functions/api/stripe-checkout.js",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "functions_api_stripe_checkout_onrequestpost",
+      "target": "functions_lib_time_parselocaldate"
     },
     {
       "relation": "calls",
@@ -15771,7 +15797,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L81",
+      "source_location": "L71",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_applyworkingdraftstmt",
@@ -15781,7 +15807,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L32",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_auditstmt",
@@ -15791,7 +15817,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L56",
+      "source_location": "L46",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_cachekey",
@@ -15801,7 +15827,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L63",
+      "source_location": "L53",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_draft_entities",
@@ -15811,7 +15837,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L66",
+      "source_location": "L56",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_draftkeycolumn",
@@ -15821,7 +15847,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L47",
+      "source_location": "L37",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_invalidatecache",
@@ -15831,20 +15857,32 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L104",
+      "source_location": "L94",
       "weight": 1.0,
       "source": "functions_lib_cms",
       "target": "functions_lib_cms_invalidateservicescache",
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
+      "relation": "re_exports",
+      "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/cms.js",
-      "source_location": "L17",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "functions_lib_cms",
-      "target": "functions_lib_cms_json",
+      "target": "functions_lib_http",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/cms.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "functions_lib_cms",
+      "target": "functions_lib_http_json",
       "confidence_score": 1.0
     },
     {
@@ -17117,6 +17155,16 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L191",
+      "weight": 1.0,
+      "source": "functions_lib_datacrypt_datacrypt",
+      "target": "functions_lib_datacrypt_datacrypt_decryptfields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/datacrypt.js",
       "source_location": "L132",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
@@ -17137,7 +17185,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "functions/lib/datacrypt.js",
-      "source_location": "L191",
+      "source_location": "L210",
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt",
       "target": "functions_lib_datacrypt_datacrypt_hash",
@@ -17185,6 +17233,17 @@
       "weight": 1.0,
       "source": "functions_lib_datacrypt_datacrypt_encrypt",
       "target": "functions_lib_datacrypt_datacrypt_getkeys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/datacrypt.js",
+      "source_location": "L196",
+      "weight": 1.0,
+      "source": "functions_lib_datacrypt_datacrypt_decryptfields",
+      "target": "functions_lib_datacrypt_datacrypt_decrypt",
       "confidence_score": 1.0
     },
     {
@@ -17449,6 +17508,16 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "functions/lib/http.js",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "functions_lib_http",
+      "target": "functions_lib_http_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "functions/lib/rate-limit.js",
       "source_location": "L12",
       "weight": 1.0,
@@ -17494,6 +17563,98 @@
       "weight": 1.0,
       "source": "functions_lib_sanitize",
       "target": "functions_lib_sanitize_striptags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_adddays",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_addminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_formatdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_formatdatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_formattime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_getnowinprague",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "functions_lib_time",
+      "target": "functions_lib_time_parselocaldate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "functions_lib_time_formatdatetime",
+      "target": "functions_lib_time_formattime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "functions/lib/time.js",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "functions_lib_time_formatdatetime",
+      "target": "functions_lib_time_formatdate",
       "confidence_score": 1.0
     },
     {
@@ -23962,5 +24123,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "52fbc217eae54150dc5df64969fff7f92a5c1db8"
+  "built_at_commit": "db57115e7223beb77fc8fbf60c750171d8c33037"
 }

@@ -4,7 +4,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '../lib/db.js';
 import { verifyTurnstile } from '../lib/turnstile.js';
-import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from './availability.js';
+import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from '../lib/time.js';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',

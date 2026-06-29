@@ -6,7 +6,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { GoogleCalendarConnector } from '../lib/connectors/google-calendar.js';
 import { ResendConnector } from '../lib/connectors/resend.js';
-import { getNowInPrague } from '../api/availability.js';
+import { getNowInPrague } from '../lib/time.js';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });

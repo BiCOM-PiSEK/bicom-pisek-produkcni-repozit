@@ -7,7 +7,7 @@ import { addGeoLead, subscribeNewsletter, CONSENT_VERSION, parseBoolean } from '
 import { buildGeoLeadMeta } from '../lib/geo.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 import { verifyTurnstile } from '../lib/turnstile.js';
-import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from './availability.js';
+import { getNowInPrague, parseLocalDate, addMinutes, addDays, formatDate, formatDateTime } from '../lib/time.js';
 
 // Allowed service slugs — keep in sync with db/seed/services.sql
 const ALLOWED_SERVICES = [
