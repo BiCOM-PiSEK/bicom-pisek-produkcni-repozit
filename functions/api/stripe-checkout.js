@@ -209,7 +209,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       crypt.encrypt(email),
       crypt.encrypt(phone),
       note ? crypt.encrypt(note) : Promise.resolve(null),
-      DataCrypt.hash(email.toLowerCase().trim()),
+      DataCrypt.keyedHash(email.toLowerCase().trim(), env.SECRET_ENCRYPTION_KEY),
     ]);
 
     const depositAmount = 500; // 500 CZK deposit

@@ -260,7 +260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_booking_detail",
-      "community": 23,
+      "community": 4,
       "norm_label": "booking-detail.js"
     },
     {
@@ -270,7 +270,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_json",
-      "community": 23,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -280,7 +280,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "functions_admin_booking_detail_onrequestget",
-      "community": 23,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -290,7 +290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_bookings",
-      "community": 174,
+      "community": 4,
       "norm_label": "bookings.js"
     },
     {
@@ -300,7 +300,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_bookings_json",
-      "community": 174,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -310,7 +310,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestget",
-      "community": 174,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -320,7 +320,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestput",
-      "community": 174,
+      "community": 4,
       "norm_label": "onrequestput()"
     },
     {
@@ -330,7 +330,7 @@
       "source_location": "L521",
       "_origin": "ast",
       "id": "functions_admin_bookings_onrequestdelete",
-      "community": 174,
+      "community": 4,
       "norm_label": "onrequestdelete()"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_dashboard",
-      "community": 23,
+      "community": 4,
       "norm_label": "dashboard.js"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_dashboard_json",
-      "community": 23,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "functions_admin_dashboard_onrequestget",
-      "community": 23,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -1180,7 +1180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_newsletter",
-      "community": 23,
+      "community": 4,
       "norm_label": "newsletter.js"
     },
     {
@@ -1190,7 +1190,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_admin_newsletter_json",
-      "community": 23,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -1200,7 +1200,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_admin_newsletter_sanitizecsvcell",
-      "community": 23,
+      "community": 4,
       "norm_label": "sanitizecsvcell()"
     },
     {
@@ -1210,7 +1210,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "functions_admin_newsletter_onrequestget",
-      "community": 23,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -1220,7 +1220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_payments",
-      "community": 23,
+      "community": 4,
       "norm_label": "payments.js"
     },
     {
@@ -1230,7 +1230,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "functions_admin_payments_json",
-      "community": 23,
+      "community": 4,
       "norm_label": "json()"
     },
     {
@@ -1240,7 +1240,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_admin_payments_onrequestget",
-      "community": 23,
+      "community": 4,
       "norm_label": "onrequestget()"
     },
     {
@@ -1250,7 +1250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_admin_preview_path",
-      "community": 58,
+      "community": 9,
       "norm_label": "[[path]].js"
     },
     {
@@ -1260,7 +1260,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_admin_preview_path_onrequestget",
-      "community": 58,
+      "community": 9,
       "norm_label": "onrequestget()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_queue_booking",
-      "community": 161,
+      "community": 4,
       "norm_label": "_queue-booking.js"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "functions_api_queue_booking_torfc3339",
-      "community": 161,
+      "community": 4,
       "norm_label": "torfc3339()"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "functions_api_queue_booking_queue",
-      "community": 161,
+      "community": 4,
       "norm_label": "queue()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "functions_api_queue_booking_addminutes",
-      "community": 161,
+      "community": 4,
       "norm_label": "addminutes()"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_media_path",
-      "community": 9,
+      "community": 161,
       "norm_label": "[[path]].js"
     },
     {
@@ -2650,7 +2650,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "functions_api_media_path_onrequestget",
-      "community": 9,
+      "community": 161,
       "norm_label": "onrequestget()"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_newsletter",
-      "community": 161,
+      "community": 4,
       "norm_label": "newsletter.js"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "functions_api_newsletter_cors_headers",
-      "community": 161,
+      "community": 4,
       "norm_label": "cors_headers"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "functions_api_newsletter_onrequestoptions",
-      "community": 161,
+      "community": 4,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "functions_api_newsletter_onrequestpost",
-      "community": 161,
+      "community": 4,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2820,7 +2820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification",
-      "community": 26,
+      "community": 23,
       "norm_label": "send-launch-notification.js"
     },
     {
@@ -2830,7 +2830,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_json",
-      "community": 26,
+      "community": 23,
       "norm_label": "json()"
     },
     {
@@ -2840,7 +2840,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_recipients",
-      "community": 26,
+      "community": 23,
       "norm_label": "recipients"
     },
     {
@@ -2850,7 +2850,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_html_body",
-      "community": 26,
+      "community": 23,
       "norm_label": "html_body"
     },
     {
@@ -2860,7 +2860,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "functions_api_send_launch_notification_onrequestpost",
-      "community": 26,
+      "community": 23,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook",
-      "community": 179,
+      "community": 21,
       "norm_label": "stripe-webhook.js"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_cors_headers",
-      "community": 179,
+      "community": 21,
       "norm_label": "cors_headers"
     },
     {
@@ -2970,7 +2970,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_onrequestoptions",
-      "community": 179,
+      "community": 21,
       "norm_label": "onrequestoptions()"
     },
     {
@@ -2980,7 +2980,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_onrequestpost",
-      "community": 179,
+      "community": 21,
       "norm_label": "onrequestpost()"
     },
     {
@@ -2990,7 +2990,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "functions_api_stripe_webhook_verifystripesignature",
-      "community": 179,
+      "community": 21,
       "norm_label": "verifystripesignature()"
     },
     {
@@ -3880,7 +3880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_datacrypt",
-      "community": 23,
+      "community": 4,
       "norm_label": "datacrypt.js"
     },
     {
@@ -3890,7 +3890,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_arraybuffertobase64",
-      "community": 23,
+      "community": 4,
       "norm_label": "arraybuffertobase64()"
     },
     {
@@ -3900,7 +3900,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_base64toarraybuffer",
-      "community": 23,
+      "community": 4,
       "norm_label": "base64toarraybuffer()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_hextobytes",
-      "community": 23,
+      "community": 4,
       "norm_label": "hextobytes()"
     },
     {
@@ -3920,7 +3920,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt",
-      "community": 23,
+      "community": 4,
       "norm_label": "datacrypt"
     },
     {
@@ -3930,7 +3930,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_constructor",
-      "community": 23,
+      "community": 4,
       "norm_label": ".constructor()"
     },
     {
@@ -3940,7 +3940,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_primarykeyhex",
-      "community": 23,
+      "community": 4,
       "norm_label": ".primarykeyhex()"
     },
     {
@@ -3950,7 +3950,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_oldestkeyhex",
-      "community": 23,
+      "community": 4,
       "norm_label": ".oldestkeyhex()"
     },
     {
@@ -3960,7 +3960,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_getkeys",
-      "community": 23,
+      "community": 4,
       "norm_label": "._getkeys()"
     },
     {
@@ -3970,7 +3970,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_encrypt",
-      "community": 23,
+      "community": 4,
       "norm_label": ".encrypt()"
     },
     {
@@ -3980,7 +3980,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decrypt",
-      "community": 23,
+      "community": 4,
       "norm_label": ".decrypt()"
     },
     {
@@ -3990,7 +3990,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_decryptfields",
-      "community": 23,
+      "community": 4,
       "norm_label": ".decryptfields()"
     },
     {
@@ -4000,7 +4000,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_hash",
-      "community": 23,
+      "community": 4,
       "norm_label": ".hash()"
     },
     {
@@ -4010,7 +4010,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "functions_lib_datacrypt_datacrypt_keyedhash",
-      "community": 23,
+      "community": 4,
       "norm_label": ".keyedhash()"
     },
     {
@@ -4020,7 +4020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_db",
-      "community": 161,
+      "community": 4,
       "norm_label": "db.js"
     },
     {
@@ -4040,7 +4040,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "functions_lib_db_createbooking",
-      "community": 161,
+      "community": 4,
       "norm_label": "createbooking()"
     },
     {
@@ -4050,7 +4050,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "functions_lib_db_confirmbooking",
-      "community": 161,
+      "community": 4,
       "norm_label": "confirmbooking()"
     },
     {
@@ -4060,7 +4060,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "functions_lib_db_getdecryptedbooking",
-      "community": 161,
+      "community": 4,
       "norm_label": "getdecryptedbooking()"
     },
     {
@@ -4080,7 +4080,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "functions_lib_db_subscribenewsletter",
-      "community": 161,
+      "community": 4,
       "norm_label": "subscribenewsletter()"
     },
     {
@@ -4090,7 +4090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "functions_lib_geo",
-      "community": 173,
+      "community": 4,
       "norm_label": "geo.js"
     },
     {
@@ -4100,7 +4100,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "functions_lib_geo_tofloat",
-      "community": 173,
+      "community": 4,
       "norm_label": "tofloat()"
     },
     {
@@ -4110,7 +4110,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "functions_lib_geo_decodemaybe",
-      "community": 173,
+      "community": 4,
       "norm_label": "decodemaybe()"
     },
     {
@@ -4120,7 +4120,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "functions_lib_geo_normalizepostalcode",
-      "community": 173,
+      "community": 4,
       "norm_label": "normalizepostalcode()"
     },
     {
@@ -4130,7 +4130,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "functions_lib_geo_extractedgegeo",
-      "community": 173,
+      "community": 4,
       "norm_label": "extractedgegeo()"
     },
     {
@@ -4140,7 +4140,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "functions_lib_geo_toh3cell",
-      "community": 173,
+      "community": 4,
       "norm_label": "toh3cell()"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "functions_lib_geo_buildgeoleadmeta",
-      "community": 173,
+      "community": 4,
       "norm_label": "buildgeoleadmeta()"
     },
     {
@@ -8050,7 +8050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_datacrypt_test",
-      "community": 23,
+      "community": 4,
       "norm_label": "datacrypt.test.js"
     },
     {
@@ -8090,7 +8090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_queue_test",
-      "community": 23,
+      "community": 4,
       "norm_label": "queue.test.js"
     },
     {
@@ -18290,7 +18290,7 @@
       "source_location": "L2047",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_11_dokumentace_adr_003_ai_studio",
-      "community": 8,
+      "community": 58,
       "norm_label": "2026-06-11 dokumentace \u2014 adr-003 ai studio"
     },
     {
@@ -18300,7 +18300,7 @@
       "source_location": "L2052",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_otestov\u00e1no_2052",
-      "community": 8,
+      "community": 58,
       "norm_label": "co bylo implementovano / otestovano"
     },
     {
@@ -18310,7 +18310,7 @@
       "source_location": "L2055",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_vytvo\u0159en\u00e9_zm\u011bn\u011bn\u00e9",
-      "community": 8,
+      "community": 58,
       "norm_label": "soubory vytvorene / zmenene"
     },
     {
@@ -18360,7 +18360,7 @@
       "source_location": "L2107",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_2026_06_11_cleanup_b1_oprava_e_mail_bugu_a_odstran\u011bn\u00ed_mock\u016f",
-      "community": 192,
+      "community": 8,
       "norm_label": "2026-06-11 cleanup b1 \u2014 oprava e-mail bugu a odstraneni mocku"
     },
     {
@@ -18370,7 +18370,7 @@
       "source_location": "L2112",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_co_bylo_implementov\u00e1no_otestov\u00e1no_2112",
-      "community": 192,
+      "community": 8,
       "norm_label": "co bylo implementovano / otestovano"
     },
     {
@@ -18380,7 +18380,7 @@
       "source_location": "L2134",
       "_origin": "ast",
       "id": "docs_agent_tasks_work_diary_soubory_zm\u011bn\u011bn\u00e9_2134",
-      "community": 192,
+      "community": 8,
       "norm_label": "soubory zmenene"
     },
     {
@@ -22904,6 +22904,61 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/build-sitemap.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "scripts_build_sitemap",
+      "target": "functions_admin_preview_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/db-diagnostics.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "scripts_db_diagnostics",
+      "target": "functions_admin_preview_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/generate-service-jsonld.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "scripts_generate_service_jsonld",
+      "target": "functions_admin_preview_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/resolve-ledger-drift.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "scripts_resolve_ledger_drift",
+      "target": "functions_admin_preview_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed-hero.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "scripts_seed_hero",
+      "target": "functions_admin_preview_path",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "functions/admin/seo-analytics.js",
@@ -25982,61 +26037,6 @@
       "weight": 1.0,
       "source": "functions_api_media_path",
       "target": "functions_api_media_path_onrequestget",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/build-sitemap.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_build_sitemap",
-      "target": "functions_api_media_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/db-diagnostics.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_db_diagnostics",
-      "target": "functions_api_media_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/generate-service-jsonld.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_generate_service_jsonld",
-      "target": "functions_api_media_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/resolve-ledger-drift.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "scripts_resolve_ledger_drift",
-      "target": "functions_api_media_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/seed-hero.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scripts_seed_hero",
-      "target": "functions_api_media_path",
       "confidence_score": 1.0
     },
     {
@@ -46929,5 +46929,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9477838786bdb4ff0346322cdfe825badf8c4fc5"
+  "built_at_commit": "1e51a66308b173a393ab06c028a06208d1e3a210"
 }

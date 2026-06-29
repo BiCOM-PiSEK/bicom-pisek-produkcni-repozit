@@ -1,16 +1,16 @@
 # Graph Report - bicom-pisek-produkcni-repozit  (2026-06-29)
 
 ## Corpus Check
-- 205 files · ~1,687,423 words
+- 205 files · ~1,687,424 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1946 nodes · 2662 edges · 195 communities (176 shown, 19 thin omitted)
+- 1946 nodes · 2662 edges · 191 communities (173 shown, 18 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `94778387`
+- Built from commit: `1e51a663`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -72,6 +72,7 @@
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
 - [[_COMMUNITY_Community 56|Community 56]]
+- [[_COMMUNITY_Community 58|Community 58]]
 - [[_COMMUNITY_Community 61|Community 61]]
 - [[_COMMUNITY_Community 65|Community 65]]
 - [[_COMMUNITY_Community 66|Community 66]]
@@ -166,7 +167,6 @@
 - [[_COMMUNITY_Community 158|Community 158]]
 - [[_COMMUNITY_Community 159|Community 159]]
 - [[_COMMUNITY_Community 160|Community 160]]
-- [[_COMMUNITY_Community 161|Community 161]]
 - [[_COMMUNITY_Community 162|Community 162]]
 - [[_COMMUNITY_Community 163|Community 163]]
 - [[_COMMUNITY_Community 164|Community 164]]
@@ -178,13 +178,10 @@
 - [[_COMMUNITY_Community 170|Community 170]]
 - [[_COMMUNITY_Community 171|Community 171]]
 - [[_COMMUNITY_Community 172|Community 172]]
-- [[_COMMUNITY_Community 173|Community 173]]
-- [[_COMMUNITY_Community 174|Community 174]]
 - [[_COMMUNITY_Community 175|Community 175]]
 - [[_COMMUNITY_Community 176|Community 176]]
 - [[_COMMUNITY_Community 177|Community 177]]
 - [[_COMMUNITY_Community 178|Community 178]]
-- [[_COMMUNITY_Community 179|Community 179]]
 - [[_COMMUNITY_Community 180|Community 180]]
 - [[_COMMUNITY_Community 181|Community 181]]
 - [[_COMMUNITY_Community 182|Community 182]]
@@ -197,7 +194,6 @@
 - [[_COMMUNITY_Community 189|Community 189]]
 - [[_COMMUNITY_Community 190|Community 190]]
 - [[_COMMUNITY_Community 191|Community 191]]
-- [[_COMMUNITY_Community 192|Community 192]]
 - [[_COMMUNITY_Community 193|Community 193]]
 - [[_COMMUNITY_Community 194|Community 194]]
 
@@ -214,8 +210,6 @@
 10. `🔬 Hloubkový průzkum projektu — Repo + Cloudflare + ostatní` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `onRequestPut()` --calls--> `getNowInPrague()`  [EXTRACTED]
-  functions/admin/bookings.js → functions/lib/time.js
 - `onRequestGet()` --calls--> `json()`  [EXTRACTED]
   functions/admin/content.js → functions/lib/http.js
 - `onRequestGet()` --calls--> `json()`  [EXTRACTED]
@@ -224,11 +218,13 @@
   functions/admin/gallery.js → functions/lib/http.js
 - `sanitizeText()` --calls--> `stripTags()`  [EXTRACTED]
   functions/admin/imagine.js → functions/lib/sanitize.js
+- `generateAndStoreAsset()` --calls--> `auditStmt()`  [EXTRACTED]
+  functions/admin/imagine.js → functions/lib/cms.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (195 total, 19 thin omitted)
+## Communities (191 total, 18 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -247,8 +243,8 @@ Cohesion: 0.12
 Nodes (39): cardGroupCard(), cardRow(), configEditor(), demoNote(), draftBadge(), emptyCard(), esc(), faqRow() (+31 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.20
-Nodes (20): computeAvailability(), CORS_HEADERS, onRequestGet(), ALLOWED_SERVICES, CORS_HEADERS, onRequestPost(), sanitize(), CORS_HEADERS (+12 more)
+Cohesion: 0.06
+Nodes (50): json(), onRequestGet(), json(), onRequestDelete(), onRequestGet(), onRequestPut(), json(), onRequestGet() (+42 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.22
@@ -264,7 +260,7 @@ Nodes (26): $(), AdminAPI, escapeAttr(), escapeHtml(), formatRelativeTime(), ini
 
 ### Community 8 - "Community 8"
 Cohesion: 0.05
-Nodes (40): 2026-05-26 Fáze A — Jádro a databáze (Sprint A.1–A.3), 2026-06-03 S1 — /admin redirect (nález C-24) — Fáze A: Čistá diagnóza, 2026-06-08 FN-1 — CodeRabbit opravy pro PR #26, 2026-06-08 FN-1 — Produkční nasazení migrace 0010 (seed operators), 2026-06-10 Admin páteř Fáze B — Oprava api.js wrapperu, Přehledu, health, /admin/me, logout, calendar demo data, 2026-06-11 Admin UI Fáze B — Oprava pravého panelu (oba režimy), overlay ≤1280px, zvoneček toast, grid overflow fix, 2026-06-11 Dokumentace — ADR-003 AI Studio, 2026-06-13 (pátek) — ROADMAP.md: Založení kompasu stavu projektu (+32 more)
+Nodes (40): 2026-05-26 Fáze A — Jádro a databáze (Sprint A.1–A.3), 2026-06-03 S1 — /admin redirect (nález C-24) — Fáze A: Čistá diagnóza, 2026-06-08 FN-1 — CodeRabbit opravy pro PR #26, 2026-06-08 FN-1 — Produkční nasazení migrace 0010 (seed operators), 2026-06-10 Admin páteř Fáze B — Oprava api.js wrapperu, Přehledu, health, /admin/me, logout, calendar demo data, 2026-06-11 Admin UI Fáze B — Oprava pravého panelu (oba režimy), overlay ≤1280px, zvoneček toast, grid overflow fix, 2026-06-11 Cleanup B1 — oprava e-mail bugu a odstranění mocků, 2026-06-13 (pátek) — ROADMAP.md: Založení kompasu stavu projektu (+32 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.10
@@ -310,13 +306,17 @@ Nodes (12): createId(), ensureSyntheticSchema(), fetchWithTimeout(), isDuplicate
 Cohesion: 0.31
 Nodes (12): createId(), determineSeverity(), ensurePerfLogSchema(), extractMessage(), generateDedupKey(), handleRequest(), isDuplicate(), onRequest() (+4 more)
 
+### Community 21 - "Community 21"
+Cohesion: 0.27
+Nodes (4): CORS_HEADERS, onRequestPost(), verifyStripeSignature(), IDokladConnector
+
 ### Community 22 - "Community 22"
 Cohesion: 0.36
 Nodes (9): corsResponse(), createSessionToken(), findOperator(), getCookieValue(), getCorsHeaders(), handleSpaFallback(), jsonError(), onRequest() (+1 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.11
-Nodes (13): json(), onRequestGet(), json(), onRequestGet(), json(), onRequestGet(), sanitizeCsvCell(), json() (+5 more)
+Cohesion: 0.50
+Nodes (4): HTML_BODY, json(), onRequestPost(), RECIPIENTS
 
 ### Community 24 - "Community 24"
 Cohesion: 0.38
@@ -327,8 +327,8 @@ Cohesion: 0.36
 Nodes (8): attachRefresh(), esc(), initGoogleMap(), loadGoogleMapsScript(), render(), renderEmpty(), renderLoading(), renderShell()
 
 ### Community 26 - "Community 26"
-Cohesion: 0.14
-Nodes (11): json(), onRequestGet(), onRequestPost(), COLOR_TO_STATUS, CORS_HEADERS, HTML_BODY, json(), onRequestPost() (+3 more)
+Cohesion: 0.19
+Nodes (7): json(), onRequestGet(), onRequestPost(), COLOR_TO_STATUS, CORS_HEADERS, escapeHtml(), ResendConnector
 
 ### Community 27 - "Community 27"
 Cohesion: 0.57
@@ -397,6 +397,10 @@ Nodes (3): CORS, json(), onRequestGet()
 ### Community 52 - "Community 52"
 Cohesion: 0.67
 Nodes (3): CORS, json(), onRequestGet()
+
+### Community 58 - "Community 58"
+Cohesion: 0.67
+Nodes (3): 2026-06-11 Dokumentace — ADR-003 AI Studio, Co bylo implementováno / otestováno, Soubory vytvořené / změněné
 
 ### Community 65 - "Community 65"
 Cohesion: 0.07
@@ -770,10 +774,6 @@ Nodes (4): Blok A — Zpevnění webu, Blok B — Předávací a vývojová doku
 Cohesion: 0.50
 Nodes (3): docs/assets/originals/, Pravidla, Struktura
 
-### Community 161 - "Community 161"
-Cohesion: 0.22
-Nodes (7): CORS_HEADERS, onRequestPost(), addMinutes(), queue(), toRfc3339(), getDecryptedBooking(), subscribeNewsletter()
-
 ### Community 163 - "Community 163"
 Cohesion: 0.67
 Nodes (3): Admin CRUD endpointy (JWT protected), 🔧 Checklist — Fáze 2: API Endpointy, Veřejné endpointy (bez auth, cache)
@@ -814,14 +814,6 @@ Nodes (3): 2026-06-09 SEC-6a finální — Živý re-test GDPR anonymizace, Co b
 Cohesion: 0.67
 Nodes (3): 2026-06-03 S1, krok 2 — Fáze A: cron-fix (Čistá diagnóza), Akceptační kritéria — splněno?, Co bylo zjištěno
 
-### Community 173 - "Community 173"
-Cohesion: 0.57
-Nodes (6): buildGeoLeadMeta(), decodeMaybe(), extractEdgeGeo(), normalizePostalCode(), toFloat(), toH3Cell()
-
-### Community 174 - "Community 174"
-Cohesion: 0.70
-Nodes (4): json(), onRequestDelete(), onRequestGet(), onRequestPut()
-
 ### Community 175 - "Community 175"
 Cohesion: 0.67
 Nodes (3): 2026-06-11 Blog data fix — oprava literálních \n + smazání vadného draftu, Co bylo implementováno / otestováno, Soubory změněné
@@ -837,10 +829,6 @@ Nodes (3): 2026-06-11 Copywriter — delší a strukturované blogové články,
 ### Community 178 - "Community 178"
 Cohesion: 0.67
 Nodes (3): 2026-06-03 S1, krok 2 — Fáze B: cron-fix (Merge, Deploy a Test), Akceptační kritéria — splněno?, Co bylo implementováno
-
-### Community 179 - "Community 179"
-Cohesion: 0.50
-Nodes (3): CORS_HEADERS, onRequestPost(), verifyStripeSignature()
 
 ### Community 180 - "Community 180"
 Cohesion: 0.67
@@ -882,10 +870,6 @@ Nodes (3): 2026-06-03 S1, krok 3 — Plošná oprava adresy a merge deníku, Akc
 Cohesion: 0.67
 Nodes (3): 2026-06-09 FN-1 / FN-1b — Governance úklid a uzavření admin bloku, Co bylo implementováno, Soubory změněné
 
-### Community 192 - "Community 192"
-Cohesion: 0.67
-Nodes (3): 2026-06-11 Cleanup B1 — oprava e-mail bugu a odstranění mocků, Co bylo implementováno / otestováno, Soubory změněné
-
 ### Community 193 - "Community 193"
 Cohesion: 0.67
 Nodes (3): 2026-06-09 Blok B — Úklid a hygiena repozitáře (DEAD-1/2/5 + CodeRabbit fix), Co bylo implementováno, Soubory změněné
@@ -897,12 +881,12 @@ Nodes (3): 2026-06-24 Phase 3.5 — Cloudflare Access branding & sync guardrails
 ## Knowledge Gaps
 - **940 isolated node(s):** `ALLOWED_TYPES`, `JSON_TYPES`, `MIME_EXT`, `PSC_TO_CITY`, `HERO_FIELDS` (+935 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pracovní deník agentů — Bicom Písek` connect `Community 8` to `Community 128`, `Community 129`, `Community 130`, `Community 131`, `Community 132`, `Community 133`, `Community 134`, `Community 135`, `Community 139`, `Community 140`, `Community 141`, `Community 142`, `Community 143`, `Community 144`, `Community 145`, `Community 146`, `Community 147`, `Community 148`, `Community 149`, `Community 150`, `Community 151`, `Community 152`, `Community 153`, `Community 154`, `Community 155`, `Community 156`, `Community 157`, `Community 158`, `Community 159`, `Community 165`, `Community 166`, `Community 167`, `Community 168`, `Community 169`, `Community 170`, `Community 171`, `Community 172`, `Community 175`, `Community 176`, `Community 177`, `Community 178`, `Community 180`, `Community 181`, `Community 182`, `Community 183`, `Community 184`, `Community 185`, `Community 186`, `Community 187`, `Community 188`, `Community 189`, `Community 192`, `Community 193`, `Community 194`, `Community 69`, `Community 87`, `Community 112`, `Community 113`, `Community 114`, `Community 115`, `Community 116`, `Community 117`, `Community 123`, `Community 124`, `Community 125`, `Community 126`, `Community 127`?**
+- **Why does `Pracovní deník agentů — Bicom Písek` connect `Community 8` to `Community 128`, `Community 129`, `Community 130`, `Community 131`, `Community 132`, `Community 133`, `Community 134`, `Community 135`, `Community 139`, `Community 140`, `Community 141`, `Community 142`, `Community 143`, `Community 144`, `Community 145`, `Community 146`, `Community 147`, `Community 148`, `Community 149`, `Community 150`, `Community 151`, `Community 152`, `Community 153`, `Community 154`, `Community 155`, `Community 156`, `Community 157`, `Community 158`, `Community 159`, `Community 165`, `Community 166`, `Community 167`, `Community 168`, `Community 169`, `Community 170`, `Community 171`, `Community 172`, `Community 175`, `Community 176`, `Community 177`, `Community 178`, `Community 180`, `Community 181`, `Community 182`, `Community 183`, `Community 184`, `Community 185`, `Community 58`, `Community 186`, `Community 188`, `Community 189`, `Community 187`, `Community 193`, `Community 194`, `Community 69`, `Community 87`, `Community 112`, `Community 113`, `Community 114`, `Community 115`, `Community 116`, `Community 117`, `Community 123`, `Community 124`, `Community 125`, `Community 126`, `Community 127`?**
   _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `🚀 Launch Testing Guide — L1/L5/L8/L9 Verification (v1.0 RC)` connect `Community 15` to `Community 87`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
