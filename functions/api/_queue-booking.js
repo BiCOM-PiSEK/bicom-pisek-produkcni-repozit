@@ -4,6 +4,7 @@
 // Telegram notification, SMS reminder scheduling.
 
 import { DataCrypt } from '../lib/datacrypt.js';
+import { getDecryptedBooking } from '../lib/db.js';
 import { GoogleCalendarConnector } from '../lib/connectors/google-calendar.js';
 import { TelegramConnector } from '../lib/connectors/telegram.js';
 import { ResendConnector } from '../lib/connectors/resend.js';
@@ -35,12 +36,18 @@ export default {
 
     for (const message of batch.messages) {
       try {
-        const booking = message.body;
-        const existing = await env.DB.prepare(
-          'SELECT calendar_event_id FROM bookings WHERE id = ?'
-        ).bind(booking.bookingId).first();
-        if (existing?.calendar_event_id) {
-          console.info(`[queue-booking] Booking ${booking.bookingId} already processed, skipping duplicate message.`);
+        const job = message.body;
+
+        // Fetch and decrypt the booking directly from D1
+        const booking = await getDecryptedBooking(env.DB, crypt, job.bookingId);
+        if (!booking) {
+          console.error(`[queue-booking] Booking ${job.bookingId} not found in DB.`);
+          message.ack();
+          continue;
+        }
+
+        if (booking.calendar_event_id) {
+          console.info(`[queue-booking] Booking ${booking.id} already processed, skipping duplicate message.`);
           message.ack();
           continue;
         }
@@ -99,7 +106,7 @@ export default {
         if (calendarEvent?.id) {
           await env.DB.prepare(
             'UPDATE bookings SET calendar_event_id = ? WHERE id = ?'
-          ).bind(calendarEvent.id, booking.bookingId).run();
+          ).bind(calendarEvent.id, booking.id).run();
         }
 
         // F6: Použij slot_start pokud je dostupný (přesný čas), jinak preferred_date
@@ -151,23 +158,23 @@ export default {
         await env.DB.prepare(
           `INSERT INTO reminders (id, booking_id, channel, send_at)
            VALUES (?, ?, 'email', ?)`
-        ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+        ).bind(crypto.randomUUID(), booking.id, reminderTime).run();
 
         // Secondary reminder channel based on client's preference
         if (reminderChannel === 'sms') {
           await env.DB.prepare(
             `INSERT INTO reminders (id, booking_id, channel, send_at)
              VALUES (?, ?, 'sms', ?)`
-          ).bind(crypto.randomUUID(), booking.bookingId, reminderTime).run();
+          ).bind(crypto.randomUUID(), booking.id, reminderTime).run();
         } else if (reminderChannel === 'whatsapp') {
-          console.warn(`[queue-booking] WhatsApp upomínka pro rezervaci ${booking.bookingId} přeskočena – dispatcher zatím WhatsApp neodesílá.`);
+          console.warn(`[queue-booking] WhatsApp upomínka pro rezervaci ${booking.id} přeskočena – dispatcher zatím WhatsApp neodesílá.`);
         }
 
         // 7. Audit log
         await env.DB.prepare(
           `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
            VALUES (?, 'bookings', ?, 'update', 'system', 'Async processing complete: calendar + email + telegram + reminders')`
-        ).bind(crypto.randomUUID(), booking.bookingId).run();
+        ).bind(crypto.randomUUID(), booking.id).run();
 
         message.ack();
       } catch (err) {

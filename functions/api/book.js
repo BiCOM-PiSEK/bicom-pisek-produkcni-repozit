@@ -320,13 +320,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
       try {
         await env.DB.batch([
           env.DB.prepare(
-            `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, slot_start, slot_end, psc, estimated_price, consent_version, consent_marketing, reminder_channel, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, slot_start, slot_end, psc, estimated_price, consent_version, consent_marketing, reminder_channel, status, email_hash)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           ).bind(
             bookingId, nameEnc, emailEnc, phoneEnc, service, noteEnc,
             preferredDate.toISOString(), validatedSlotStart, validatedSlotEnd,
             psc ? sanitize(psc) : null, null, CONSENT_VERSION,
-            parsedConsentMarketing ? 1 : 0, reminderChannel, status
+            parsedConsentMarketing ? 1 : 0, reminderChannel, status, emailHash
           ),
           env.DB.prepare(
             `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
@@ -380,14 +380,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
     waitUntil(
       env.BOOKING_QUEUE.send({
         bookingId,
-        name: cleanName,
-        email,
-        phone,
         service,
         preferred_date: preferredDate.toISOString(),
         slot_start: validatedSlotStart,
         slot_end: validatedSlotEnd,
-        note: cleanNote,
         reminder_channel: reminderChannel,
       }).catch((err) => console.error('[book] Queue send error:', err))
     );

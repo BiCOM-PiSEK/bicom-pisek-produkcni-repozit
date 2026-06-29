@@ -42,9 +42,9 @@ export async function createBooking(db, crypt, data) {
 
   await db.batch([
     db.prepare(
-      `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, estimated_price, consent_version, consent_marketing, reminder_channel)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(id, nameEnc, emailEnc, phoneEnc, data.service, noteEnc, data.preferred_date, data.psc || null, data.estimated_price || null, data.consent_version || null, data.consent_marketing ? 1 : 0, data.reminder_channel || 'email'),
+      `INSERT INTO bookings (id, name_enc, email_enc, phone_enc, service, note_enc, preferred_date, psc, estimated_price, consent_version, consent_marketing, reminder_channel, email_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, nameEnc, emailEnc, phoneEnc, data.service, noteEnc, data.preferred_date, data.psc || null, data.estimated_price || null, data.consent_version || null, data.consent_marketing ? 1 : 0, data.reminder_channel || 'email', emailHash),
     db.prepare(
       `INSERT INTO audit_log (id, entity, entity_id, action, actor, details)
        VALUES (?, 'bookings', ?, 'create', 'system', 'New booking created')`

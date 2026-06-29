@@ -155,9 +155,9 @@
     "semantic_hash": "9b481453d0a8cfc131b69e75a26330ed"
   },
   "db/schema.sql": {
-    "mtime": 1782448193.6935992,
-    "ast_hash": "099b6d5300026d730314143e6bfc5727",
-    "semantic_hash": "099b6d5300026d730314143e6bfc5727"
+    "mtime": 1782738402.127792,
+    "ast_hash": "d16a9e3fa23052aad0550bc75d97cc1b",
+    "semantic_hash": ""
   },
   "db/seed/services.sql": {
     "mtime": 1781895559.6479175,
@@ -200,9 +200,9 @@
     "semantic_hash": "5e41820d28f2633e257b3dcd9ff45bac"
   },
   "functions/admin/bookings.js": {
-    "mtime": 1782721146.7250564,
-    "ast_hash": "164756f5de1f623a8ad3cb025bae2f5d",
-    "semantic_hash": "164756f5de1f623a8ad3cb025bae2f5d"
+    "mtime": 1782738453.8204665,
+    "ast_hash": "781a35ebfbe797d0f76d33ae2455a7fd",
+    "semantic_hash": ""
   },
   "functions/admin/content.js": {
     "mtime": 1782011927.8651297,
@@ -365,9 +365,9 @@
     "semantic_hash": "d376991584e63992c54b68cf6bcab15f"
   },
   "functions/api/_queue-booking.js": {
-    "mtime": 1782011928.0369635,
-    "ast_hash": "452bcc8e11cdabaf327e9b84d7980273",
-    "semantic_hash": "452bcc8e11cdabaf327e9b84d7980273"
+    "mtime": 1782738450.0875852,
+    "ast_hash": "1883fe4e20663037ceef972d988aa4b7",
+    "semantic_hash": ""
   },
   "functions/api/_queue-social.js": {
     "mtime": 1781895560.0230684,
@@ -385,9 +385,9 @@
     "semantic_hash": "703af6f98cf8a05120da4c268ceacddf"
   },
   "functions/api/book.js": {
-    "mtime": 1782721106.753409,
-    "ast_hash": "1d5e1be09b86607d979dd158678fa2d1",
-    "semantic_hash": "1d5e1be09b86607d979dd158678fa2d1"
+    "mtime": 1782738419.6195605,
+    "ast_hash": "e3983639fc9809b0f11b05a8c38d0db7",
+    "semantic_hash": ""
   },
   "functions/api/booking-config.js": {
     "mtime": 1782011928.0838275,
@@ -460,9 +460,9 @@
     "semantic_hash": "77beb13f72a6a507be6c7942ece05634"
   },
   "functions/api/stripe-webhook.js": {
-    "mtime": 1782011928.2088003,
-    "ast_hash": "5f6d4c36a58a2c0ef9aaabc000b76c75",
-    "semantic_hash": "5f6d4c36a58a2c0ef9aaabc000b76c75"
+    "mtime": 1782738428.469502,
+    "ast_hash": "c1d577ef9bfab5847cf73f2a0519505e",
+    "semantic_hash": ""
   },
   "functions/lib/ai/composer.js": {
     "mtime": 1782448193.740451,
@@ -545,9 +545,9 @@
     "semantic_hash": "25baad5d650f0c767eb55dd6a6095615"
   },
   "functions/lib/db.js": {
-    "mtime": 1782448193.740451,
-    "ast_hash": "7209663aefd4de989fbe93e21f95089b",
-    "semantic_hash": "7209663aefd4de989fbe93e21f95089b"
+    "mtime": 1782738409.7791302,
+    "ast_hash": "76d6b7c24756ab8209bf2e2be9b82b63",
+    "semantic_hash": ""
   },
   "functions/lib/geo.js": {
     "mtime": 1782448193.740451,
@@ -783,5 +783,670 @@
     "mtime": 1782721056.1106339,
     "ast_hash": "43e5e768517439d78f7bd00d1539aaf9",
     "semantic_hash": "43e5e768517439d78f7bd00d1539aaf9"
+  },
+  ".agents/AGENTS.md": {
+    "mtime": 1782456660.3516264,
+    "ast_hash": "65e22057255e8a9ca4e65a2dced499ef",
+    "semantic_hash": ""
+  },
+  ".agents/rules/graphify.md": {
+    "mtime": 1782718148.0941274,
+    "ast_hash": "a0e4d192b9e2e17256124dbfc8e24e6a",
+    "semantic_hash": ""
+  },
+  ".agents/workflows/graphify.md": {
+    "mtime": 1782718148.0951252,
+    "ast_hash": "637776aa6f7496d069afe7520c845c8a",
+    "semantic_hash": ""
+  },
+  ".github/AI_AGENT_PROMPT.md": {
+    "mtime": 1781895559.6058986,
+    "ast_hash": "ae72e9c46ec96a439d5b89651aa505ca",
+    "semantic_hash": ""
+  },
+  ".github/github-app.yml": {
+    "mtime": 1782448193.6779656,
+    "ast_hash": "a594e60105a12eb816f2912f5105a33e",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1782656190.4930024,
+    "ast_hash": "4e135fcd3d809ca8d67f71d1f60c0fd2",
+    "semantic_hash": ""
+  },
+  ".github/workflows/phase2-monitoring-tests.yml": {
+    "mtime": 1782448193.6779656,
+    "ast_hash": "694b8b7158d74556c30d1b9f9abf8e88",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1782448193.6779656,
+    "ast_hash": "0471890aad4e6c0762521b7aad6d3f7d",
+    "semantic_hash": ""
+  },
+  "GITHUB_SETUP_AND_PLANNING.md": {
+    "mtime": 1781895559.6255488,
+    "ast_hash": "b45efb57090d2b9bc8ac2946af95abb2",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1782448193.6779656,
+    "ast_hash": "6a481c3bea4427978437b8bd645cf444",
+    "semantic_hash": ""
+  },
+  "WHITE_PAPER.md": {
+    "mtime": 1781895559.6265426,
+    "ast_hash": "f66191d2fbb550d05cf81dbc31096a8b",
+    "semantic_hash": ""
+  },
+  "agent_journal.md": {
+    "mtime": 1782718115.4978113,
+    "ast_hash": "bce3be14abaa3f84107188ad0224626d",
+    "semantic_hash": ""
+  },
+  "docs/API_KEYS_CHECKLIST.md": {
+    "mtime": 1782448193.6935992,
+    "ast_hash": "e2cd26bd4dafdee45afcf98b6bef6faa",
+    "semantic_hash": ""
+  },
+  "docs/ARCHITEKTURA.md": {
+    "mtime": 1781895559.6479175,
+    "ast_hash": "423509cc199095edf6da03eb724abc7d",
+    "semantic_hash": ""
+  },
+  "docs/ASSET_STRATEGY.md": {
+    "mtime": 1781895559.6479175,
+    "ast_hash": "75a4fb5514cb04cd31985043d665a0e6",
+    "semantic_hash": ""
+  },
+  "docs/CMS_GUIDE.md": {
+    "mtime": 1782011927.4554243,
+    "ast_hash": "8ce333d495e0e84f1944556f2786f18b",
+    "semantic_hash": ""
+  },
+  "docs/DATABASE_MANAGEMENT.md": {
+    "mtime": 1782448193.6935992,
+    "ast_hash": "be2463fd7e477c92b90748921b98d4b4",
+    "semantic_hash": ""
+  },
+  "docs/DEEP_RESEARCH_2026-06-21.md": {
+    "mtime": 1782448193.6935992,
+    "ast_hash": "30456e0fd5dca062f5e12cb3b822b972",
+    "semantic_hash": ""
+  },
+  "docs/DOCUMENTATION-FRAMEWORK.md": {
+    "mtime": 1782011927.5335376,
+    "ast_hash": "0a77ecd3f3ae14a4503f9373cb7c2c5c",
+    "semantic_hash": ""
+  },
+  "docs/DOCUMENTATION-IMPLEMENTATION-PLAN.md": {
+    "mtime": 1782011927.5743062,
+    "ast_hash": "c9166318b6a2854a151518f326093afc",
+    "semantic_hash": ""
+  },
+  "docs/EDGE_OPS_LOG.md": {
+    "mtime": 1781895559.6479175,
+    "ast_hash": "3a75e83a3fa395a71dae462716eb04fa",
+    "semantic_hash": ""
+  },
+  "docs/GAP_ANALYSIS_OPPORTUNITIES.md": {
+    "mtime": 1781895559.6479175,
+    "ast_hash": "93c0bcd86190c1c71401049aea3465f5",
+    "semantic_hash": ""
+  },
+  "docs/GEO_AEO.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "2575d72f4e8f7cc84c0636523fdd2d8d",
+    "semantic_hash": ""
+  },
+  "docs/GEO_AEO_SEO_STRATEGY.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "8db124673c0ea41f0921b41086584241",
+    "semantic_hash": ""
+  },
+  "docs/GIT_WORKFLOW.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "f763547b8ebfc9898cb7970e32090c61",
+    "semantic_hash": ""
+  },
+  "docs/GROWTH-ROADMAP-CESTA-B.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "d416ab67b5318fe4c41cfa7e49d16889",
+    "semantic_hash": ""
+  },
+  "docs/HANDOVER.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "19a0900c66fc345beb487ecead324e01",
+    "semantic_hash": ""
+  },
+  "docs/INCIDENT_RESPONSE_GUIDE.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "6e1ead2cb271b18351c05e8276caa5fd",
+    "semantic_hash": ""
+  },
+  "docs/LAUNCH-TESTING-GUIDE.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "f3a502f849328b4e3142311819214933",
+    "semantic_hash": ""
+  },
+  "docs/MASTER-GOALS-BACKLOG.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "a47fe4e29cef98ed537982d5a4726c0d",
+    "semantic_hash": ""
+  },
+  "docs/PRODUCTION-DEPLOYMENT-RUNBOOK.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "afbbdc960f9860be7eae299eca833e97",
+    "semantic_hash": ""
+  },
+  "docs/PRODUCTION-SECRETS-CHECKLIST.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "a83020a3103c417e823f2520065df1cb",
+    "semantic_hash": ""
+  },
+  "docs/REPO_MAPA_ULOZIST.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "52b2aa4110c6e123920630c4a39c77e9",
+    "semantic_hash": ""
+  },
+  "docs/ROADMAP.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "35a45e0886638068257bd024c8638952",
+    "semantic_hash": ""
+  },
+  "docs/STRIPE_INTEGRATION.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "58cd17d8874cfcd1f8d9b8c8bc1e1ed4",
+    "semantic_hash": ""
+  },
+  "docs/STYLE_BRIEF.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "2fb204437abfbaa2d32e53f5b3f69c92",
+    "semantic_hash": ""
+  },
+  "docs/adr/ADR-001-cloudflare-first.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "1560da1bc18f4bbc3b5c66f6939b1773",
+    "semantic_hash": ""
+  },
+  "docs/adr/ADR-002-guardrail-modularni-vrstva.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "9451034df9e84c6266aa1577341198ad",
+    "semantic_hash": ""
+  },
+  "docs/adr/ADR-003-ai-studio.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "b7fb297556acb107bec2eccdc8676760",
+    "semantic_hash": ""
+  },
+  "docs/adr/ADR-004-rezervacni-system.md": {
+    "mtime": 1781895559.6560438,
+    "ast_hash": "7fd54b5c7146f289f34da42f85e597c7",
+    "semantic_hash": ""
+  },
+  "docs/adr/ADR-005-admin-sprava-rezervaci.md": {
+    "mtime": 1782011927.6520886,
+    "ast_hash": "0ede5cacc1d0a7d2b710382acef25a7a",
+    "semantic_hash": ""
+  },
+  "docs/adr/ADR-006-monitoring-alerts.md": {
+    "mtime": 1782448193.709208,
+    "ast_hash": "25616b5336eff7fd09919f9a751985bb",
+    "semantic_hash": ""
+  },
+  "docs/agent-tasks/CMS-FEATURE-SPEC.md": {
+    "mtime": 1782011927.7064922,
+    "ast_hash": "5102a00516be6af328f06f7a72812892",
+    "semantic_hash": ""
+  },
+  "docs/agent-tasks/CMS-IMPLEMENTATION-EXAMPLES.md": {
+    "mtime": 1782011927.7321491,
+    "ast_hash": "aa38336b2f8c66b8322dd04822ceaa86",
+    "semantic_hash": ""
+  },
+  "docs/agent-tasks/CMS-TASK-CHECKLIST.md": {
+    "mtime": 1782011927.747771,
+    "ast_hash": "9d3e19aafc2477e3e9b5293b96940daa",
+    "semantic_hash": ""
+  },
+  "docs/agent-tasks/README.md": {
+    "mtime": 1782011927.787022,
+    "ast_hash": "62e55fd1128c660c7d12d30c63e1de4c",
+    "semantic_hash": ""
+  },
+  "docs/agent-tasks/WORK-DIARY.md": {
+    "mtime": 1782448193.724829,
+    "ast_hash": "c9ac9ecea635bd78ba02089a28a49f08",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/README.md": {
+    "mtime": 1781895559.672763,
+    "ast_hash": "7a5490b3806cf9d55d6260cc10eb83a1",
+    "semantic_hash": ""
+  },
+  "implementation_plan.md": {
+    "mtime": 1782718115.536927,
+    "ast_hash": "a2980f4730e44f35970058753e731e63",
+    "semantic_hash": ""
+  },
+  "public/admin/index.html": {
+    "mtime": 1782448193.7608564,
+    "ast_hash": "b2cbe47c8b97f1bc13b18dc0cb3979c0",
+    "semantic_hash": ""
+  },
+  "public/biorezonance-blatna.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "92d86fd828f58ea8e380e7eb2eeb2898",
+    "semantic_hash": ""
+  },
+  "public/biorezonance-milevsko.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "43282f1aa548e37026185eabf353e28f",
+    "semantic_hash": ""
+  },
+  "public/biorezonance-pisek.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "292453b2ba16c7402826b5c6fa19617f",
+    "semantic_hash": ""
+  },
+  "public/biorezonance-protivin.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "0be37deeba41fdcc232ea139bee8d5ac",
+    "semantic_hash": ""
+  },
+  "public/biorezonance-strakonice.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "28bc806c5cabcea5bc1e76e351cdd3be",
+    "semantic_hash": ""
+  },
+  "public/biorezonance-vodnany.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "ccbe839fe63711318d6e02363c99a513",
+    "semantic_hash": ""
+  },
+  "public/index.html": {
+    "mtime": 1782718115.5525525,
+    "ast_hash": "f6eafc254e8521ab9b56cb7fcce13548",
+    "semantic_hash": ""
+  },
+  "public/launch-notification.html": {
+    "mtime": 1782448193.8427532,
+    "ast_hash": "ea68069ef5fcf76730abea59ee36ebe0",
+    "semantic_hash": ""
+  },
+  "public/llms.txt": {
+    "mtime": 1782718115.5681734,
+    "ast_hash": "0f008fba2d55bac2550e7c2dd9670086",
+    "semantic_hash": ""
+  },
+  "public/robots.txt": {
+    "mtime": 1781895560.1635764,
+    "ast_hash": "e830ac991cb06ae6b315adddabdc584b",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/gallery/ordinace-01.png": {
+    "mtime": 1781895559.7061067,
+    "ast_hash": "f45753f8e7b0b30be61377c8bc095fc9",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/gallery/ordinace-02.png": {
+    "mtime": 1781895559.739315,
+    "ast_hash": "4e8e9455555564b1a91609c6ba845ec4",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/gallery/ordinace-03.png": {
+    "mtime": 1781895559.7726612,
+    "ast_hash": "5fb5282ac69ffaee1c24ba5646a50454",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/gallery/ordinace-04.png": {
+    "mtime": 1781895559.8060257,
+    "ast_hash": "602ccc0ebea2dc0d313910a573d7b37a",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/gallery/ordinace-05.png": {
+    "mtime": 1781895559.8227239,
+    "ast_hash": "e6ae7694688213e7a7d85712d56f36f4",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/hero/hero-device-bicom-optima.png": {
+    "mtime": 1781895559.8560846,
+    "ast_hash": "e1682a88e7e50ab2fa096adef369cc49",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/hero/hero-lifestyle-main.png": {
+    "mtime": 1781895559.8894036,
+    "ast_hash": "194befa9dfd908eec0f00c65906dbdcb",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/apple-touch-icon-source.png": {
+    "mtime": 1781895559.8894036,
+    "ast_hash": "a1891f8e3fde8f072f16b1f81c25f687",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/favicon-source.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "6244802d326657e9f501b2e2d6e33a85",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-bolest-a-pohybovy-aparat-trans.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "3ea06d2ce2824178228919b17fd393b2",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-bolest-a-pohybovy-aparat.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "0f2ed4543900f9f6a8f7039d597bafd5",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-energie-a-vitalita-trans.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "1868031a08868c0713957a8c2e57dfa1",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-energie-a-vitalita.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "69d301b6c37777cd2aedabd43f7f82ea",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-extra-wellness-trans.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "856e916b4343cd78f8a8c99554449598",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-extra-wellness.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "b997cb499f0d66583e4213fb606333e3",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-hormonalni-system-trans.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "f86dd3d7a7389b13f54f06e9ad697eb1",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-hormonalni-system.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "f6c3e1a2a1a9b3f1b437b1c629f69ff3",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-imunita-a-obranyschopnost-trans.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "f9117f50e1171bea6b7d4a0db14b9c8e",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-imunita-a-obranyschopnost.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "beb0baceb2c58e880c077d595526ad6d",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-metabolismus-trans.png": {
+    "mtime": 1781895559.906201,
+    "ast_hash": "05c0c0d99437286d00956d71bf786618",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-metabolismus.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "9a572af2364be124eb42b677d1663471",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-organy-a-detoxikace-trans.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "beb088eadf4a07c7f9f2cf716f6407ab",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-organy-a-detoxikace.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "db1bf23ad584189f8bc93c512675b5c5",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-patogeny-trans.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "0b2636672232cdeb504da2f05066dfd3",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-patogeny.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "5b261cc0eacdf295f7ec4dfbbaa5b75d",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-podpora-pri-onkologii-trans.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "b457ad1baad273504530e20950412b9f",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-podpora-pri-onkologii.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "8ea353cc861c85eb3e5918ae30b0dd73",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-prevence-a-rekonvalescence-trans.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "6062c13996ee933b2427a9324198237c",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-prevence-a-rekonvalescence.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "ac685871cb1411b02b111059b664c68f",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-prostredi-a-zateze-trans.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "30ddc18eda3c133ec444d4695d5314e8",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-prostredi-a-zateze.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "c9707386b21813ddcebc57be46e2a18e",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-psychika-a-emocni-rovnovaha-trans.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "d1b2118c9111ed29c3a576f009f109f9",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/icons/icon-psychika-a-emocni-rovnovaha.png": {
+    "mtime": 1781895559.922964,
+    "ast_hash": "8b4f9a6b48f9bb9278706cde74192984",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/og/og-card-source.png": {
+    "mtime": 1781895559.9560816,
+    "ast_hash": "6f8d56f91b2b508d6b867ea1987bf581",
+    "semantic_hash": ""
+  },
+  "public/apple-touch-icon.png": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "a9ac9197609ecb22d8b511f39a4323c3",
+    "semantic_hash": ""
+  },
+  "public/assets/img/gallery/ordinace-01.webp": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "bc02d5f68036bd996517170686901761",
+    "semantic_hash": ""
+  },
+  "public/assets/img/gallery/ordinace-02.webp": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "3c14665bd159547c7cbb9be13a5d003f",
+    "semantic_hash": ""
+  },
+  "public/assets/img/gallery/ordinace-03.webp": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "335bf71c61306840062b8efb342aa9a7",
+    "semantic_hash": ""
+  },
+  "public/assets/img/gallery/ordinace-04.webp": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "e8579ee48b4565339b761be697092783",
+    "semantic_hash": ""
+  },
+  "public/assets/img/gallery/ordinace-05.webp": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "9aed16de791385d3136fc80829e53df9",
+    "semantic_hash": ""
+  },
+  "public/assets/img/hero-device.webp": {
+    "mtime": 1781895560.0730388,
+    "ast_hash": "e6988fe92813d838c02631189660cfba",
+    "semantic_hash": ""
+  },
+  "public/assets/img/hero-lifestyle.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "96b95c8d916972e75ad98ce259493a7e",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-bolest-a-pohybovy-aparat-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "24ad73cb6c1c778a6759565ef85e139c",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-bolest-a-pohybovy-aparat.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "2df605b9a586975fa818df87ba83e23e",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-energie-a-vitalita-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "bb74c00eb12692da2ff05449d08c32ad",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-energie-a-vitalita.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "4476b7d2dedc4cad0b05a595267712cd",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-extra-wellness-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "88f45d1838b678f0d522d3ba3f2bef3b",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-extra-wellness.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "7ec4494379d406711128fa862c059815",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-hormonalni-system-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "b371eecd40aa1ed0801b737e492809b5",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-hormonalni-system.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "ac33afa7796564f6f838909e9f57ea51",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-imunita-a-obranyschopnost-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "ea2ddaa70225ce13d6110f765c5cfc2c",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-imunita-a-obranyschopnost.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "fb9f798a1ad3ea20781e442cf6501bcc",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-metabolismus-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "86c528cf9488dd63046cc508bd058bb7",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-metabolismus.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "fd26ea8ce2871d869354faa359e26d95",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-organy-a-detoxikace-trans.webp": {
+    "mtime": 1781895560.0897393,
+    "ast_hash": "182b36e8fd641907323eb58f61850b4a",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-organy-a-detoxikace.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "79d03613e0c11bd17b22399efa359f74",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-patogeny-trans.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "ab144ed59bf455f15d7a4189321b87b3",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-patogeny.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "deba08cc2270e89b8b16830ea3e489b9",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-podpora-pri-onkologii-trans.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "e25b3635c1061aed77adec980a0ebe0b",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-podpora-pri-onkologii.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "d16712d3ff38462abccfe79ead476de5",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-prevence-a-rekonvalescence-trans.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "541130a50866c76a0bf69464d059961b",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-prevence-a-rekonvalescence.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "c225540b20818b4180085835523f27be",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-prostredi-a-zateze-trans.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "f363a404427663c88d212a09176ba4fd",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-prostredi-a-zateze.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "9f2459dafcb43f6022cf40a857acd53f",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-psychika-a-emocni-rovnovaha-trans.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "968129591a44096a28b2004f4cb36a68",
+    "semantic_hash": ""
+  },
+  "public/assets/img/icons/icon-psychika-a-emocni-rovnovaha.webp": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "9a8a8a7867faf7ffd88699ddcd0f1a34",
+    "semantic_hash": ""
+  },
+  "public/assets/img/og.jpg": {
+    "mtime": 1781895560.1063464,
+    "ast_hash": "78c8c0ac480d3459c0a626bcc9a077ff",
+    "semantic_hash": ""
+  },
+  "public/icon.svg": {
+    "mtime": 1781895560.144397,
+    "ast_hash": "1870bc10d06a70b3e10a9230bfa1358d",
+    "semantic_hash": ""
+  },
+  "docs/assets/originals/video/hero-ambient-original.mp4": {
+    "mtime": 1781895560.0064864,
+    "ast_hash": "f57a0a6825b1ac70b589a41eed2f0641",
+    "semantic_hash": ""
+  },
+  "public/assets/video/hero-ambient.mp4": {
+    "mtime": 1781895560.1231835,
+    "ast_hash": "b7000c6d2b1752550105a05c8a9893fb",
+    "semantic_hash": ""
+  },
+  "public/assets/video/hero-ambient.webm": {
+    "mtime": 1781895560.144397,
+    "ast_hash": "7c8a8a5bbef8144bf096f48b7f689275",
+    "semantic_hash": ""
+  },
+  "db/migrations/0028_add_booking_email_hash.sql": {
+    "mtime": 1782738393.9311461,
+    "ast_hash": "91a013eb4b0a048d5a38ca4260ed896b",
+    "semantic_hash": ""
+  },
+  "tests/queue.test.js": {
+    "mtime": 1782738532.138418,
+    "ast_hash": "0f09ae656653530bac94226ddaab135e",
+    "semantic_hash": ""
   }
 }
