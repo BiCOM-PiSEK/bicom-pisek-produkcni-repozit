@@ -1,2 +1,3 @@
 /admin/* /admin/index.html 200
+/biorezonance-:splat /biorezonance-:splat.html 200
 /* /index.html 200
