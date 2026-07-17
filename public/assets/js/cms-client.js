@@ -20,6 +20,191 @@
   'use strict';
 
   var PREVIEW = !!window.__CMS_PREVIEW__;
+  var VISUAL_BRIDGE = PREVIEW && window.parent && window.parent !== window;
+  var _vbBlocks = [];
+  var _vbSelectedId = '';
+  var _vbInitDone = false;
+  var _vbPublishTimer = null;
+
+  /** Naplánuje synchronizaci mapy CMS bloků pro Visual Builder. */
+  function scheduleVisualMapSync() {
+    if (!VISUAL_BRIDGE) return;
+    if (_vbPublishTimer) clearTimeout(_vbPublishTimer);
+    _vbPublishTimer = setTimeout(function () {
+      publishVisualMap();
+      _vbPublishTimer = null;
+    }, 120);
+  }
+
+  /** Přidá CSS pro zvýraznění bloků v náhledu. */
+  function ensureVisualStyles() {
+    if (!VISUAL_BRIDGE) return;
+    if (document.getElementById('cms-vb-style')) return;
+    var style = document.createElement('style');
+    style.id = 'cms-vb-style';
+    style.textContent = [
+      '[data-cms-vb-id]{scroll-margin-top:80px;}',
+      '.cms-vb-selected{outline:3px solid #3A4A3C !important; outline-offset:2px; transition:outline-color .16s ease;}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  /** Vygeneruje deduplikovanou mapu CMS bloků z DOM. @returns {Array<Object>} */
+  function collectVisualBlocks() {
+    var blocks = [];
+    var seen = Object.create(null);
+    var idx = 0;
+    var landingCity = (document.body && document.body.getAttribute('data-cms-landing')) || '';
+
+    function push(node, type, key, sectionKey, field) {
+      if (!node) return;
+      var dedupe = [type || '', key || '', sectionKey || '', field || ''].join('|');
+      if (seen[dedupe]) return;
+      seen[dedupe] = true;
+      idx += 1;
+      var id = 'cmsvb-' + idx;
+      node.setAttribute('data-cms-vb-id', id);
+      blocks.push({
+        id: id,
+        type: type || '',
+        key: key || '',
+        sectionKey: sectionKey || '',
+        field: field || ''
+      });
+    }
+
+    document.querySelectorAll('[data-cms-section]').forEach(function (node) {
+      var key = node.getAttribute('data-cms-section') || '';
+      push(node, 'section', key, key, '');
+    });
+    document.querySelectorAll('[data-cms-list]').forEach(function (node) {
+      var key = node.getAttribute('data-cms-list') || '';
+      push(node, 'list', key, key, '');
+    });
+    document.querySelectorAll('[data-cms-gallery]').forEach(function (node) {
+      var key = node.getAttribute('data-cms-gallery') || '';
+      push(node, 'gallery', key, key, '');
+    });
+    document.querySelectorAll('[data-cms-hero]').forEach(function (node) {
+      var key = node.getAttribute('data-cms-hero') || '';
+      push(node, 'hero', key, key, '');
+    });
+    document.querySelectorAll('[data-cms-hero-field]').forEach(function (node) {
+      var field = node.getAttribute('data-cms-hero-field') || '';
+      var owner = node.closest('[data-cms-hero]');
+      var key = owner ? (owner.getAttribute('data-cms-hero') || '') : '';
+      push(node, 'heroField', key, key, field);
+    });
+    document.querySelectorAll('[data-cms-nap]').forEach(function (node) {
+      var field = node.getAttribute('data-cms-nap') || '';
+      push(node, 'nap', 'site-nap', 'site-nap', field);
+    });
+    document.querySelectorAll('[data-cms-faq]').forEach(function (node) {
+      var key = node.getAttribute('data-cms-faq') || '';
+      push(node, 'faq', key, key, '');
+    });
+    document.querySelectorAll('[data-cms-programs]').forEach(function (node) {
+      push(node, 'programs', 'services', 'services', '');
+    });
+    if (document.body && document.body.getAttribute('data-cms-seo')) {
+      var seoKey = document.body.getAttribute('data-cms-seo') || '';
+      push(document.body, 'seo', seoKey, seoKey, '');
+    }
+    if (landingCity) {
+      push(document.body, 'landing', landingCity, 'landing-' + landingCity, '');
+    }
+    document.querySelectorAll('[data-cms-landing-field]').forEach(function (node) {
+      var field = node.getAttribute('data-cms-landing-field') || '';
+      var key = landingCity || '';
+      var sectionKey = key ? ('landing-' + key) : '';
+      push(node, 'landingField', key, sectionKey, field);
+    });
+
+    return blocks;
+  }
+
+  /** Vrátí blok dle ID. @param {string} id @returns {Object|null} */
+  function getVisualBlock(id) {
+    for (var i = 0; i < _vbBlocks.length; i++) {
+      if (_vbBlocks[i].id === id) return _vbBlocks[i];
+    }
+    return null;
+  }
+
+  /** Odešle zprávu parent oknu. @param {Object} payload */
+  function postVisual(payload) {
+    if (!VISUAL_BRIDGE) return;
+    try { window.parent.postMessage(payload, window.location.origin); } catch (_) { /* noop */ }
+  }
+
+  /**
+   * Nastaví aktivní výběr bloků v preview.
+   * @param {string} id
+   * @param {boolean} scroll
+   * @param {boolean} fromParent
+   */
+  function selectVisualBlock(id, scroll, fromParent) {
+    var prev = _vbSelectedId ? document.querySelector('[data-cms-vb-id="' + _vbSelectedId + '"]') : null;
+    if (prev) prev.classList.remove('cms-vb-selected');
+    _vbSelectedId = id || '';
+    var el = _vbSelectedId ? document.querySelector('[data-cms-vb-id="' + _vbSelectedId + '"]') : null;
+    if (!el) return;
+    el.classList.add('cms-vb-selected');
+    if (scroll) {
+      try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) { el.scrollIntoView(); }
+    }
+    if (!fromParent) {
+      var block = getVisualBlock(_vbSelectedId);
+      if (block) postVisual({ type: 'cms-vb-select', block: block });
+    }
+  }
+
+  /** Přepočte a pošle mapu bloků do parent okna. */
+  function publishVisualMap() {
+    if (!VISUAL_BRIDGE) return;
+    _vbBlocks = collectVisualBlocks();
+    if (_vbSelectedId && !_vbBlocks.some(function (b) { return b.id === _vbSelectedId; })) {
+      _vbSelectedId = '';
+    }
+    postVisual({ type: 'cms-vb-map', blocks: _vbBlocks });
+  }
+
+  /** Inicializuje message bridge pro Visual Builder. */
+  function initVisualBridge() {
+    if (!VISUAL_BRIDGE || _vbInitDone) return;
+    _vbInitDone = true;
+    ensureVisualStyles();
+
+    window.addEventListener('message', function (event) {
+      if (event.origin !== window.location.origin) return;
+      var msg = event.data || {};
+      if (msg.type === 'cms-vb-ping') {
+        publishVisualMap();
+        return;
+      }
+      if (msg.type === 'cms-vb-highlight') {
+        selectVisualBlock(msg.id || '', !!msg.scroll, true);
+        return;
+      }
+      if (msg.type === 'cms-vb-clear') {
+        selectVisualBlock('', false, true);
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!target || typeof target.closest !== 'function') return;
+      var el = target.closest('[data-cms-vb-id]');
+      if (!el) return;
+      event.preventDefault();
+      event.stopPropagation();
+      selectVisualBlock(el.getAttribute('data-cms-vb-id') || '', false, false);
+    }, true);
+
+    scheduleVisualMapSync();
+    setTimeout(scheduleVisualMapSync, 500);
+    setTimeout(scheduleVisualMapSync, 1500);
+  }
 
   /**
    * Sestaví URL endpointu dle režimu (veřejný vs. náhled konceptů).
@@ -30,7 +215,7 @@
   function endpoint(kind, key) {
     var k = encodeURIComponent(key);
     if (PREVIEW) {
-      if (kind === 'gallery') return '/admin/gallery?key=' + k;
+      if (kind === 'gallery') return '/admin/gallery?key=' + k + '&preview=1';
       return '/admin/' + kind + '?key=' + k + '&preview=1';
     }
     return '/api/' + kind + '?key=' + k;
@@ -68,7 +253,10 @@
   async function renderSection(key, el) {
     try {
       var data = await getJSON(endpoint('content', key));
-      if (data && data.content) el.innerHTML = data.content;
+      if (data && data.content) {
+        el.innerHTML = data.content;
+        scheduleVisualMapSync();
+      }
     } catch (err) {
       console.warn('[cms] section "' + key + '" — ponechán fallback:', err.message);
     }
@@ -88,6 +276,7 @@
         return '<div class="gallery-item"><img src="' + escAttr(it.image_url) +
           '" alt="' + escAttr(it.caption || it.title || '') + '" loading="lazy"></div>';
       }).join('');
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] gallery "' + key + '" — ponechán fallback:', err.message);
     }
@@ -114,6 +303,7 @@
       if (data.background_image_url && isSafeUrl(data.background_image_url)) {
         el.style.backgroundImage = 'url("' + escAttr(data.background_image_url) + '")';
       }
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] hero "' + key + '" — ponechán fallback:', err.message);
     }
@@ -140,6 +330,7 @@
           else if (field === 'email') node.setAttribute('href', 'mailto:' + val);
         }
       });
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] NAP — ponechán fallback:', err.message);
     }
@@ -166,6 +357,7 @@
         var p = card.querySelector('p');
         if (p && it.text != null) p.textContent = it.text;
       });
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] list "' + key + '" — ponechán fallback:', err.message);
     }
@@ -200,6 +392,7 @@
         opt.textContent = s.name;
         sel.appendChild(opt);
       });
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] booking select — ponechán fallback:', err.message);
     }
@@ -240,6 +433,7 @@
         var l = document.querySelector('link[rel="canonical"]');
         if (l) l.setAttribute('href', seo.canonical);
       }
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] SEO "' + key + '" — ponechán fallback:', err.message);
     }
@@ -266,6 +460,7 @@
         p.innerHTML = it.a || '';
         inner.appendChild(h); inner.appendChild(p); card.appendChild(inner); el.appendChild(card);
       });
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] FAQ "' + key + '" — ponechán fallback:', err.message);
     }
@@ -289,6 +484,7 @@
         p.textContent = s.short_desc || 'Komplementární biorezonanční program. Cena se zjistí v objednávce.';
         div.appendChild(h); div.appendChild(p); a.appendChild(div); el.appendChild(a);
       });
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] programy — ponechán fallback:', err.message);
     }
@@ -307,6 +503,7 @@
         var f = node.getAttribute('data-cms-landing-field');
         if (cfg[f] != null && cfg[f] !== '') node.textContent = cfg[f];
       });
+      scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] landing "' + city + '" — ponechán fallback:', err.message);
     }
@@ -314,6 +511,7 @@
 
   /** Projde DOM a aplikuje CMS na všechny opt-in elementy. */
   function init() {
+    if (VISUAL_BRIDGE) initVisualBridge();
     document.querySelectorAll('[data-cms-section]').forEach(function (el) {
       renderSection(el.getAttribute('data-cms-section'), el);
     });
@@ -338,6 +536,9 @@
     if (landingEl) applyLanding(landingEl.getAttribute('data-cms-landing'));
     applyNap();
     populateBookingSelect();
+    scheduleVisualMapSync();
+    setTimeout(scheduleVisualMapSync, 600);
+    setTimeout(scheduleVisualMapSync, 1800);
   }
 
   window.CMS = { renderSection, loadGallery, applyHero, applyList, applyFaq, applyPrograms, applySeo, applyLanding, applyNap, populateBookingSelect, init, preview: PREVIEW };

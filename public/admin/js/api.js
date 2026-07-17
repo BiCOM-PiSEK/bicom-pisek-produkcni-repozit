@@ -592,9 +592,17 @@ function updateGalleryItem(body) {
 function reorderGallery(gallery_key, items) {
   return request('/gallery', { method: 'PUT', body: { action: 'reorder', gallery_key, items } });
 }
-/** DELETE /admin/gallery?id= — smaže obrázek. @param {string} id @returns {Promise<ApiResponse>} */
-function deleteGalleryItem(id) {
-  return request(`/gallery?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+/** POST /admin/gallery {action:publish}. @param {string} gallery_key @returns {Promise<ApiResponse>} */
+function publishGallery(gallery_key) {
+  return request('/gallery', { method: 'POST', body: { action: 'publish', gallery_key } });
+}
+/** POST /admin/gallery {action:discard}. @param {string} gallery_key @returns {Promise<ApiResponse>} */
+function discardGallery(gallery_key) {
+  return request('/gallery', { method: 'POST', body: { action: 'discard', gallery_key } });
+}
+/** DELETE /admin/gallery?id=&gallery_key= — smaže obrázek v konceptu. @param {string} id @param {string} gallery_key @returns {Promise<ApiResponse>} */
+function deleteGalleryItem(id, gallery_key) {
+  return request(`/gallery?id=${encodeURIComponent(id)}&gallery_key=${encodeURIComponent(gallery_key)}`, { method: 'DELETE' });
 }
 
 /**
@@ -750,6 +758,8 @@ const AdminAPI = {
   getGalleryItems,
   updateGalleryItem,
   reorderGallery,
+  publishGallery,
+  discardGallery,
   deleteGalleryItem,
   uploadGalleryImage,
   getHeroes,

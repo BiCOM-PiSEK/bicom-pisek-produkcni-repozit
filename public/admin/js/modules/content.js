@@ -12,12 +12,19 @@
  */
 
 let _ctx = null;
+const EDIT_HISTORY_LIMIT = 10;
+const _editHistory = new Map();
 
 /** Escapuje text pro bezpečné vložení do HTML. @param {*} str @returns {string} */
 function esc(str) {
   const el = document.createElement('span');
   el.textContent = str == null ? '' : String(str);
   return el.innerHTML;
+}
+
+/** Escapuje text pro bezpečné vložení do HTML atributu. @param {*} str @returns {string} */
+function escAttr(str) {
+  return esc(str).replace(/"/g, '&quot;');
 }
 
 /** Naformátuje timestamp (cs-CZ). @param {string} ts @returns {string} */
@@ -48,15 +55,16 @@ function previewPaneHtml(page) {
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem;">
         <h3 class="card-title" style="margin:0;">👁️ Náhled (s koncepty)</h3>
         <div style="display:flex; gap:.25rem;">
+          <button class="btn btn-secondary btn-sm" id="cms-preview-visual" title="Otevřít interaktivní Visual Builder">🧩</button>
           <button class="btn btn-secondary btn-sm" id="cms-preview-refresh" title="Obnovit náhled">↻</button>
           <a class="btn btn-ghost btn-sm" href="${live}" target="_blank" rel="noopener" title="Zobrazit živý web">web ↗</a>
         </div>
       </div>
       <div style="border:1px solid rgba(115,138,117,0.2); border-radius:12px; overflow:hidden; background:#fff;">
-        <iframe id="cms-preview-frame" src="${src}" title="Náhled webu"
+        <iframe id="cms-preview-frame" src="${src}" data-preview-page="${escAttr(page || '')}" title="Náhled webu"
           style="width:100%; height:70vh; border:0; display:block;"></iframe>
       </div>
-      <p class="form-hint" style="margin-top:.5rem;">Náhled ukazuje i neuložené koncepty. Po „Uložit koncept" klikněte na ↻.</p>
+      <p class="form-hint" style="margin-top:.5rem;">Náhled ukazuje i neuložené koncepty. Po „Uložit koncept" klikněte na ↻ nebo otevřete 🧩 Visual Builder.</p>
     </div>`;
 }
 
@@ -64,6 +72,383 @@ function previewPaneHtml(page) {
 function refreshPreview(root) {
   const f = root.querySelector('#cms-preview-frame');
   if (f) f.contentWindow.location.reload();
+}
+
+/**
+ * Popis bloku z Visual Builder mapy pro boční seznam.
+ * @param {Object} block
+ * @returns {string}
+ */
+function visualBlockLabel(block) {
+  const t = String(block?.type || '');
+  const key = block?.key || block?.sectionKey || '';
+  const field = block?.field || '';
+  if (t === 'section') return `Text · ${key}`;
+  if (t === 'list') return `Karty · ${key}`;
+  if (t === 'gallery') return `Galerie · ${key}`;
+  if (t === 'hero') return `Hero · ${key}`;
+  if (t === 'heroField') return `Hero pole · ${field}`;
+  if (t === 'nap') return `Kontakt/NAP · ${field}`;
+  if (t === 'faq') return `FAQ · ${key}`;
+  if (t === 'programs') return 'Programy (služby)';
+  if (t === 'seo') return `SEO · ${key}`;
+  if (t === 'landing') return `Landing · ${key}`;
+  if (t === 'landingField') return `Landing pole · ${field}`;
+  return key || field || 'CMS blok';
+}
+
+/**
+ * Najde odpovídající element editoru pro vybraný blok.
+ * @param {HTMLElement} root
+ * @param {Object} block
+ * @returns {HTMLElement|null}
+ */
+function findEditorTarget(root, block) {
+  const key = String(block?.key || '');
+  const sectionKey = String(block?.sectionKey || '');
+  const field = String(block?.field || '');
+  const type = String(block?.type || '');
+
+  if (type === 'section' && key) {
+    return root.querySelector(`.cms-section-card[data-key="${CSS.escape(key)}"]`);
+  }
+  if (type === 'list' && key) {
+    return root.querySelector(`.cms-cardgroup-card[data-key="${CSS.escape(key)}"]`);
+  }
+  if (type === 'gallery' && key) {
+    return root.querySelector('#cms-gallery-detail');
+  }
+  if (type === 'nap' && field) {
+    return root.querySelector(`[data-nap="${CSS.escape(field)}"]`);
+  }
+  if (type === 'heroField' && field) {
+    return root.querySelector(`[data-f="${CSS.escape(field)}"]`);
+  }
+  if ((type === 'landingField' || type === 'seo') && field) {
+    return root.querySelector(`[data-cfg="${CSS.escape(field)}"]`);
+  }
+  if (type === 'faq') {
+    return root.querySelector('.faq-rows') || root.querySelector('[data-config-key="faq-main"]');
+  }
+  if (type === 'programs') {
+    return root.querySelector('.cms-tab[data-tab="sluzby"]');
+  }
+  if (sectionKey) {
+    return root.querySelector(`[data-config-key="${CSS.escape(sectionKey)}"]`);
+  }
+  return null;
+}
+
+/**
+ * Posune editor na odpovídající element a vizuálně ho zvýrazní.
+ * @param {HTMLElement} root
+ * @param {Object} block
+ * @returns {boolean}
+ */
+function focusEditorTarget(root, block) {
+  const target = findEditorTarget(root, block);
+  if (!target) return false;
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const prevShadow = target.style.boxShadow;
+  target.style.boxShadow = '0 0 0 3px rgba(58,74,60,0.35)';
+  if (typeof target.focus === 'function') {
+    try { target.focus({ preventScroll: true }); } catch { target.focus(); }
+  }
+  setTimeout(() => { target.style.boxShadow = prevShadow; }, 1400);
+  return true;
+}
+
+/** Otevře interaktivní Visual Builder modal. @param {HTMLElement} root */
+function openVisualBuilder(root) {
+  const { showToast } = _ctx;
+  const sourceFrame = root.querySelector('#cms-preview-frame');
+  if (!sourceFrame) return;
+  const src = sourceFrame.getAttribute('src') || '/admin/preview/';
+  const liveHref = root.querySelector('.cms-preview a[title="Zobrazit živý web"]')?.getAttribute('href') || '/';
+
+  showModal(`
+    <div class="modal" style="width:min(96vw,1480px); max-width:min(96vw,1480px);">
+      <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between;">
+        <h3 class="card-title" style="margin:0;">🧩 Visual Builder</h3>
+        <button class="btn-icon" data-m="close">✕</button>
+      </div>
+      <div class="modal-body" style="display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:1rem; max-height:82vh;">
+        <div style="display:flex; flex-direction:column; gap:.5rem; min-height:0;">
+          <div style="display:flex; gap:.5rem; align-items:center; justify-content:space-between;">
+            <div class="form-hint" id="cms-vb-status">Načítám mapu bloků…</div>
+            <div style="display:flex; gap:.25rem;">
+              <button class="btn btn-secondary btn-sm" id="cms-vb-refresh">↻</button>
+              <a class="btn btn-ghost btn-sm" href="${escAttr(liveHref)}" target="_blank" rel="noopener">živý web ↗</a>
+            </div>
+          </div>
+          <div style="border:1px solid rgba(115,138,117,0.2); border-radius:12px; overflow:hidden; background:#fff; min-height:0; flex:1;">
+            <iframe id="cms-vb-frame" src="${escAttr(src)}" title="Visual Builder náhled" style="width:100%; height:100%; min-height:62vh; border:0; display:block;"></iframe>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:.6rem; min-height:0;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Vyhledat blok</label>
+            <input type="text" class="form-input" id="cms-vb-filter" placeholder="např. galerie, faq, home-...">
+          </div>
+          <div id="cms-vb-list" style="border:1px solid rgba(115,138,117,0.15); border-radius:10px; overflow:auto; padding:.35rem; min-height:220px; max-height:52vh;"></div>
+          <div id="cms-vb-selected" class="form-hint" style="min-height:2.2rem;">Vyberte blok kliknutím v náhledu nebo v seznamu.</div>
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" id="cms-vb-focus" disabled>🎯 Najít v editoru</button>
+            <button class="btn btn-secondary btn-sm" id="cms-vb-clear">Vyčistit výběr</button>
+          </div>
+        </div>
+      </div>
+    </div>`, (overlay, close) => {
+    const vbFrame = overlay.querySelector('#cms-vb-frame');
+    const statusEl = overlay.querySelector('#cms-vb-status');
+    const listEl = overlay.querySelector('#cms-vb-list');
+    const filterEl = overlay.querySelector('#cms-vb-filter');
+    const selectedEl = overlay.querySelector('#cms-vb-selected');
+    const focusBtn = overlay.querySelector('#cms-vb-focus');
+    let blocks = [];
+    let selectedId = '';
+
+    const setStatus = (text) => { statusEl.textContent = text; };
+    const selectedBlock = () => blocks.find((b) => b.id === selectedId) || null;
+    const post = (payload) => {
+      if (!vbFrame?.contentWindow) return;
+      vbFrame.contentWindow.postMessage(payload, window.location.origin);
+    };
+    const matchesFilter = (block, q) => {
+      if (!q) return true;
+      const hay = `${visualBlockLabel(block)} ${block.key || ''} ${block.sectionKey || ''} ${block.field || ''}`.toLowerCase();
+      return hay.includes(q);
+    };
+    const renderSelected = () => {
+      const block = selectedBlock();
+      if (!block) {
+        selectedEl.textContent = 'Vyberte blok kliknutím v náhledu nebo v seznamu.';
+        focusBtn.disabled = true;
+        return;
+      }
+      selectedEl.innerHTML = `<strong>${esc(visualBlockLabel(block))}</strong><br><code>${esc(block.sectionKey || block.key || block.field || block.id)}</code>`;
+      focusBtn.disabled = false;
+    };
+    const renderList = () => {
+      const q = (filterEl.value || '').trim().toLowerCase();
+      const visible = blocks.filter((b) => matchesFilter(b, q));
+      listEl.innerHTML = visible.length
+        ? visible.map((b) => `
+            <button class="btn btn-ghost btn-sm" data-vb-id="${escAttr(b.id)}" style="width:100%; text-align:left; justify-content:flex-start; margin:.15rem 0; ${b.id === selectedId ? 'border-color:var(--c-forest,#3A4A3C); background:rgba(58,74,60,0.08);' : ''}">
+              ${esc(visualBlockLabel(b))}
+            </button>`).join('')
+        : `<div class="empty-state" style="padding:1rem; text-align:center;">Žádný blok neodpovídá filtru.</div>`;
+    };
+    const selectBlock = (id, shouldScrollPreview) => {
+      selectedId = id || '';
+      renderList();
+      renderSelected();
+      if (selectedId) post({ type: 'cms-vb-highlight', id: selectedId, scroll: !!shouldScrollPreview });
+    };
+
+    listEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-vb-id]');
+      if (!btn) return;
+      selectBlock(btn.dataset.vbId, true);
+    });
+    filterEl.addEventListener('input', renderList);
+    overlay.querySelector('#cms-vb-refresh')?.addEventListener('click', () => {
+      setStatus('Obnovuji mapu bloků…');
+      post({ type: 'cms-vb-ping' });
+    });
+    overlay.querySelector('#cms-vb-clear')?.addEventListener('click', () => {
+      selectedId = '';
+      renderList();
+      renderSelected();
+      post({ type: 'cms-vb-clear' });
+    });
+    focusBtn.addEventListener('click', () => {
+      const block = selectedBlock();
+      if (!block) return;
+      const ok = focusEditorTarget(root, block);
+      if (ok) {
+        showToast('Blok zvýrazněn v editoru.', 'success');
+        close();
+      } else {
+        showToast('Tento blok v aktuální záložce editoru nevidím.', 'warning');
+      }
+    });
+    overlay.querySelector('[data-m="close"]')?.addEventListener('click', close);
+
+    const onMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.source !== vbFrame.contentWindow) return;
+      const msg = event.data || {};
+      if (msg.type === 'cms-vb-map') {
+        blocks = Array.isArray(msg.blocks) ? msg.blocks : [];
+        if (!blocks.length) {
+          setStatus('Na stránce nebyly nalezeny mapované CMS bloky.');
+          selectedId = '';
+        } else {
+          setStatus(`Nalezeno bloků: ${blocks.length}`);
+          if (!selectedId || !blocks.some((b) => b.id === selectedId)) selectedId = blocks[0].id;
+        }
+        renderList();
+        renderSelected();
+        return;
+      }
+      if (msg.type === 'cms-vb-select' && msg.block?.id) {
+        if (!blocks.some((b) => b.id === msg.block.id)) blocks.push(msg.block);
+        selectedId = msg.block.id;
+        renderList();
+        renderSelected();
+      }
+    };
+    window.addEventListener('message', onMessage);
+
+    const observer = new MutationObserver(() => {
+      if (!document.body.contains(overlay)) {
+        window.removeEventListener('message', onMessage);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    vbFrame.addEventListener('load', () => {
+      setStatus('Načítám mapu bloků…');
+      setTimeout(() => post({ type: 'cms-vb-ping' }), 220);
+    });
+  });
+}
+
+/** Naváže akce náhledu (refresh + visual builder). @param {HTMLElement} root */
+function initPreviewPane(root) {
+  const refreshBtn = root.querySelector('#cms-preview-refresh');
+  if (refreshBtn && !refreshBtn.dataset.bound) {
+    refreshBtn.dataset.bound = '1';
+    refreshBtn.addEventListener('click', () => refreshPreview(root));
+  }
+  const visualBtn = root.querySelector('#cms-preview-visual');
+  if (visualBtn && !visualBtn.dataset.bound) {
+    visualBtn.dataset.bound = '1';
+    visualBtn.addEventListener('click', () => openVisualBuilder(root));
+  }
+}
+
+/** HTML tlačítek pro undo/redo/reset na zveřejněný stav. @returns {string} */
+function historyControlsHtml() {
+  return `
+    <button class="btn btn-ghost btn-sm" data-history="undo" disabled title="Krok zpět (max 10)">↶ Zpět</button>
+    <button class="btn btn-ghost btn-sm" data-history="redo" disabled title="Krok vpřed">↷ Vpřed</button>
+    <button class="btn btn-ghost btn-sm" data-history="reset" title="Vrátit formulář na aktuálně zveřejněný stav">⟲ Reset na zveřejněný stav</button>`;
+}
+
+/**
+ * Naváže session-level undo/redo historii na editor.
+ * @param {HTMLElement} scope
+ * @param {Object} options
+ * @param {string} options.contextKey
+ * @param {Function} options.getState
+ * @param {Function} options.applyState
+ * @param {*} options.publishedState
+ * @param {string} [options.inputSelector]
+ * @param {string} [options.resetConfirmText]
+ * @returns {{capture: Function, clear: Function}}
+ */
+function wireEditHistory(scope, options) {
+  const {
+    contextKey,
+    getState,
+    applyState,
+    publishedState,
+    inputSelector = 'input, textarea, select',
+    resetConfirmText = 'Vrátit formulář na právě zveřejněný stav?',
+  } = options;
+  const undoBtn = scope.querySelector('[data-history="undo"]');
+  const redoBtn = scope.querySelector('[data-history="redo"]');
+  const resetBtn = scope.querySelector('[data-history="reset"]');
+  if (!undoBtn || !redoBtn || !resetBtn) {
+    return { capture: () => {}, clear: () => {} };
+  }
+
+  const toJson = (v) => JSON.stringify(v ?? null);
+  const fromJson = (v) => {
+    try { return JSON.parse(v); } catch { return null; }
+  };
+  const getRecord = () => {
+    if (!_editHistory.has(contextKey)) {
+      _editHistory.set(contextKey, { undo: [], redo: [], current: toJson(getState()), published: toJson(publishedState) });
+    }
+    return _editHistory.get(contextKey);
+  };
+  const updateButtons = () => {
+    const rec = getRecord();
+    undoBtn.disabled = rec.undo.length === 0;
+    redoBtn.disabled = rec.redo.length === 0;
+    resetBtn.disabled = rec.current === rec.published;
+  };
+  const capture = () => {
+    const rec = getRecord();
+    const next = toJson(getState());
+    if (next === rec.current) {
+      updateButtons();
+      return;
+    }
+    rec.undo.push(rec.current);
+    if (rec.undo.length > EDIT_HISTORY_LIMIT) rec.undo.shift();
+    rec.redo = [];
+    rec.current = next;
+    updateButtons();
+  };
+  const clear = () => {
+    const rec = getRecord();
+    rec.undo = [];
+    rec.redo = [];
+    rec.current = toJson(getState());
+    rec.published = toJson(publishedState);
+    updateButtons();
+  };
+  const applyJson = (nextJson) => {
+    applyState(fromJson(nextJson));
+    const rec = getRecord();
+    rec.current = nextJson;
+    updateButtons();
+  };
+
+  const rec = getRecord();
+  rec.published = toJson(publishedState);
+  rec.current = toJson(getState());
+  updateButtons();
+
+  const onFieldChange = (event) => {
+    const target = event.target;
+    if (target && typeof target.matches === 'function' && target.matches(inputSelector)) {
+      capture();
+    }
+  };
+  scope.addEventListener('input', onFieldChange);
+  scope.addEventListener('change', onFieldChange);
+
+  undoBtn.addEventListener('click', () => {
+    const r = getRecord();
+    if (!r.undo.length) return;
+    r.redo.push(r.current);
+    applyJson(r.undo.pop());
+  });
+  redoBtn.addEventListener('click', () => {
+    const r = getRecord();
+    if (!r.redo.length) return;
+    r.undo.push(r.current);
+    if (r.undo.length > EDIT_HISTORY_LIMIT) r.undo.shift();
+    applyJson(r.redo.pop());
+  });
+  resetBtn.addEventListener('click', () => {
+    const r = getRecord();
+    if (r.current === r.published) return;
+    if (!confirm(resetConfirmText)) return;
+    r.undo.push(r.current);
+    if (r.undo.length > EDIT_HISTORY_LIMIT) r.undo.shift();
+    r.redo = [];
+    applyJson(r.published);
+    _ctx.showToast('Formulář vrácen na zveřejněný stav.', 'success');
+  });
+
+  return { capture, clear };
 }
 
 // ─── POJMENOVANÉ KONCEPTY / VERZE (F12-D) ─────────────────────
@@ -240,9 +625,9 @@ async function renderStranky(body) {
       ${previewPaneHtml()}
     </div>
   `;
-  body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
-  sections.forEach((s) => wireSectionCard(body, s.section_key));
-  cards.forEach((c) => wireCardGroup(body, c.section_key));
+  initPreviewPane(body);
+  sections.forEach((s) => wireSectionCard(body, s.section_key, s));
+  cards.forEach((c) => wireCardGroup(body, c.section_key, c));
 }
 
 /** Vrátí HTML editoru skupiny karet (config JSON [{title,text}]). @param {Object} s @returns {string} */
@@ -264,6 +649,7 @@ function cardGroupCard(s) {
           <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" data-action="publish" ${s.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" data-action="discard" ${s.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          ${historyControlsHtml()}
           ${versionControlsHtml()}
         </div>
       </div>
@@ -284,7 +670,7 @@ function cardRow(it, i) {
 }
 
 /** Naváže akce editoru skupiny karet. @param {HTMLElement} root @param {string} key */
-function wireCardGroup(root, key) {
+function wireCardGroup(root, key, row) {
   const { api, showToast } = _ctx;
   const card = root.querySelector(`.cms-cardgroup-card[data-key="${CSS.escape(key)}"]`);
   if (!card) return;
@@ -301,12 +687,31 @@ function wireCardGroup(root, key) {
   const renumber = () => {
     rowsWrap.querySelectorAll('.cms-card-row strong').forEach((el, i) => { el.textContent = `Karta ${i + 1}`; });
   };
+  let publishedItems = [];
+  try { publishedItems = JSON.parse(row?.content_markdown || '[]') || []; } catch { publishedItems = []; }
+  const applyItems = (nextItems) => {
+    const arr = Array.isArray(nextItems) ? nextItems : [];
+    rowsWrap.innerHTML = arr.map((it, i) => cardRow(it || { title: '', text: '' }, i)).join('');
+  };
+  const history = wireEditHistory(card, {
+    contextKey: `content_blocks:${key}:cards`,
+    inputSelector: '.cms-card-row [data-card]',
+    getState: collect,
+    applyState: applyItems,
+    publishedState: publishedItems,
+    resetConfirmText: 'Vrátit karty na zveřejněný stav?',
+  });
   rowsWrap.addEventListener('click', (e) => {
     const del = e.target.closest('[data-action="del-row"]');
-    if (del) { del.closest('.cms-card-row').remove(); renumber(); }
+    if (del) {
+      del.closest('.cms-card-row').remove();
+      renumber();
+      history.capture();
+    }
   });
   card.querySelector('[data-action="add-row"]').addEventListener('click', () => {
     rowsWrap.insertAdjacentHTML('beforeend', cardRow({ title: '', text: '' }, rowsWrap.children.length));
+    history.capture();
   });
   card.querySelector('[data-action="save"]').addEventListener('click', async () => {
     // title NEposíláme — PUT zachová původní (DOM h3 má suffix „(karty)", řetězil by se)
@@ -325,6 +730,7 @@ function wireCardGroup(root, key) {
     if (r.ok) { showToast('Koncept zahozen ✓', 'success'); await renderStranky(root); }
     else showToast('Chyba: ' + r.error, 'error');
   });
+  history.clear();
   wireVersionControls(card, 'content_blocks', key, () => ({ content_markdown: JSON.stringify(collect()) }), () => renderStranky(root));
 }
 
@@ -352,14 +758,15 @@ function sectionCard(s) {
           <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" data-action="publish" ${s.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" data-action="discard" ${s.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          ${historyControlsHtml()}
           ${versionControlsHtml()}
         </div>
       </div>
     </div>`;
 }
 
-/** Naváže akce (uložit koncept / zveřejnit / zahodit) na kartu sekce. @param {HTMLElement} root @param {string} key */
-function wireSectionCard(root, key) {
+/** Naváže akce (uložit koncept / zveřejnit / zahodit) na kartu sekce. @param {HTMLElement} root @param {string} key @param {Object} row */
+function wireSectionCard(root, key, row) {
   const { api, showToast } = _ctx;
   const card = root.querySelector(`.cms-section-card[data-key="${CSS.escape(key)}"]`);
   if (!card) return;
@@ -369,6 +776,21 @@ function wireSectionCard(root, key) {
     card.querySelector('[data-action="publish"]').disabled = !hasDraft;
     card.querySelector('[data-action="discard"]').disabled = !hasDraft;
   };
+  const setVal = (f, v) => {
+    const el = card.querySelector(`[data-field="${f}"]`);
+    if (el) el.value = v == null ? '' : String(v);
+  };
+  const history = wireEditHistory(card, {
+    contextKey: `content_blocks:${key}:text`,
+    inputSelector: '[data-field]',
+    getState: () => ({ title: val('title'), content_markdown: val('content_markdown') }),
+    applyState: (state) => {
+      setVal('title', state?.title || '');
+      setVal('content_markdown', state?.content_markdown || '');
+    },
+    publishedState: { title: row?.title || '', content_markdown: row?.content_markdown || '' },
+    resetConfirmText: 'Vrátit text sekce na zveřejněný stav?',
+  });
 
   card.querySelector('[data-action="save"]').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: key, title: val('title'), content_markdown: val('content_markdown'), content_type: 'text' });
@@ -386,6 +808,7 @@ function wireSectionCard(root, key) {
     if (r.ok) { showToast('Koncept zahozen ✓', 'success'); await renderStranky(root); }
     else showToast('Chyba: ' + r.error, 'error');
   });
+  history.clear();
   wireVersionControls(card, 'content_blocks', key, () => ({ title: val('title'), content_markdown: val('content_markdown') }), () => renderStranky(root));
 }
 
@@ -431,6 +854,7 @@ async function renderFooter(body) {
             <button class="btn btn-secondary btn-sm" id="nap-save">💾 Uložit koncept</button>
             <button class="btn btn-primary btn-sm" id="nap-publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
             <button class="btn btn-ghost btn-sm" id="nap-discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            ${historyControlsHtml()}
             ${versionControlsHtml()}
           </div>
         </div>
@@ -438,7 +862,7 @@ async function renderFooter(body) {
       ${previewPaneHtml()}
     </div>`;
 
-  body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
+  initPreviewPane(body);
   const setBadge = (hasDraft) => {
     body.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
     body.querySelector('#nap-publish').disabled = !hasDraft;
@@ -449,6 +873,22 @@ async function renderFooter(body) {
     body.querySelectorAll('[data-nap]').forEach((el) => { out[el.getAttribute('data-nap')] = el.value; });
     return out;
   };
+  let publishedNap = {};
+  try { publishedNap = JSON.parse(row.content_markdown || '{}') || {}; } catch { publishedNap = {}; }
+  const applyNap = (state) => {
+    body.querySelectorAll('[data-nap]').forEach((el) => {
+      const k = el.getAttribute('data-nap');
+      el.value = state?.[k] == null ? '' : String(state[k]);
+    });
+  };
+  const history = wireEditHistory(body.querySelector('.card'), {
+    contextKey: 'content_blocks:site-nap',
+    inputSelector: '[data-nap]',
+    getState: collect,
+    applyState: applyNap,
+    publishedState: publishedNap,
+    resetConfirmText: 'Vrátit kontakt a patičku na zveřejněný stav?',
+  });
   body.querySelector('#nap-save').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: 'site-nap', title: 'Kontaktní údaje a patička (NAP)', content_markdown: JSON.stringify(collect()), content_type: 'config' });
     showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
@@ -465,6 +905,7 @@ async function renderFooter(body) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) renderFooter(body);
   });
+  history.clear();
   wireVersionControls(body, 'content_blocks', 'site-nap', () => ({ content_markdown: JSON.stringify(collect()), title: 'Kontaktní údaje a patička (NAP)' }), () => renderFooter(body));
 }
 
@@ -495,6 +936,7 @@ async function renderFaq(body) {
             <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
             <button class="btn btn-primary btn-sm" data-action="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
             <button class="btn btn-ghost btn-sm" data-action="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            ${historyControlsHtml()}
             ${versionControlsHtml()}
           </div>
         </div>
@@ -503,7 +945,7 @@ async function renderFaq(body) {
     </div>`;
 
   const rowsWrap = body.querySelector('.faq-rows');
-  body.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(body));
+  initPreviewPane(body);
   const setBadge = (hasDraft) => {
     body.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
     body.querySelector('[data-action="publish"]').disabled = !hasDraft;
@@ -512,12 +954,30 @@ async function renderFaq(body) {
   const collect = () => Array.from(rowsWrap.querySelectorAll('.faq-row')).map((r) => ({
     q: r.querySelector('[data-faq="q"]').value, a: r.querySelector('[data-faq="a"]').value,
   }));
+  let publishedFaq = [];
+  try { publishedFaq = JSON.parse(row.content_markdown || '[]') || []; } catch { publishedFaq = []; }
+  const applyFaq = (state) => {
+    const arr = Array.isArray(state) ? state : [];
+    rowsWrap.innerHTML = arr.map((it) => faqRow(it || { q: '', a: '' })).join('');
+  };
+  const history = wireEditHistory(body.querySelector('.card'), {
+    contextKey: 'content_blocks:faq-main',
+    inputSelector: '[data-faq]',
+    getState: collect,
+    applyState: applyFaq,
+    publishedState: publishedFaq,
+    resetConfirmText: 'Vrátit FAQ na zveřejněný stav?',
+  });
   rowsWrap.addEventListener('click', (e) => {
     const del = e.target.closest('[data-action="del-row"]');
-    if (del) del.closest('.faq-row').remove();
+    if (del) {
+      del.closest('.faq-row').remove();
+      history.capture();
+    }
   });
   body.querySelector('[data-action="add-row"]').addEventListener('click', () => {
     rowsWrap.insertAdjacentHTML('beforeend', faqRow({ q: '', a: '' }));
+    history.capture();
   });
   body.querySelector('[data-action="save"]').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: 'faq-main', title: 'FAQ (sdílené)', content_markdown: JSON.stringify(collect()), content_type: 'config' });
@@ -535,6 +995,7 @@ async function renderFaq(body) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) renderFaq(body);
   });
+  history.clear();
   wireVersionControls(body, 'content_blocks', 'faq-main', () => ({ content_markdown: JSON.stringify(collect()), title: 'FAQ (sdílené)' }), () => renderFaq(body));
 }
 
@@ -634,7 +1095,7 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
 
   host.innerHTML = `
     <div style="display:grid; grid-template-columns: minmax(0,1fr) minmax(0,460px); gap:1.5rem; align-items:start;">
-      <div class="card">
+      <div class="card cms-config-card" data-config-key="${escAttr(sectionKey)}">
         <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
           <h3 class="card-title" style="margin:0;">${esc(titleLabel)}</h3>
           <span class="cms-state">${draftBadge(!!row.has_draft)}</span>
@@ -651,13 +1112,14 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
             <button class="btn btn-secondary btn-sm" data-action="save">💾 Uložit koncept</button>
             <button class="btn btn-primary btn-sm" data-action="publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
             <button class="btn btn-ghost btn-sm" data-action="discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            ${historyControlsHtml()}
             ${versionControlsHtml()}
           </div>
         </div>
       </div>
       ${previewPaneHtml(previewPage)}
     </div>`;
-  host.querySelector('#cms-preview-refresh')?.addEventListener('click', () => refreshPreview(host));
+  initPreviewPane(host);
   const setBadge = (hasDraft) => {
     host.querySelector('.cms-state').innerHTML = draftBadge(hasDraft);
     host.querySelector('[data-action="publish"]').disabled = !hasDraft;
@@ -668,6 +1130,22 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
     host.querySelectorAll('[data-cfg]').forEach((el) => { out[el.getAttribute('data-cfg')] = el.value; });
     return out;
   };
+  let publishedCfg = {};
+  try { publishedCfg = JSON.parse(row.content_markdown || '{}') || {}; } catch { publishedCfg = {}; }
+  const applyCfg = (state) => {
+    host.querySelectorAll('[data-cfg]').forEach((el) => {
+      const k = el.getAttribute('data-cfg');
+      el.value = state?.[k] == null ? '' : String(state[k]);
+    });
+  };
+  const history = wireEditHistory(host.querySelector('.cms-config-card'), {
+    contextKey: `content_blocks:${sectionKey}:config`,
+    inputSelector: '[data-cfg]',
+    getState: collect,
+    applyState: applyCfg,
+    publishedState: publishedCfg,
+    resetConfirmText: 'Vrátit nastavení na zveřejněný stav?',
+  });
   host.querySelector('[data-action="save"]').addEventListener('click', async () => {
     const r = await api.updateContentSection({ section_key: sectionKey, title: titleLabel, content_markdown: JSON.stringify(collect()), content_type: 'config' });
     showToast(r.ok ? 'Koncept uložen ✓ — obnovte náhled (↻)' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
@@ -684,10 +1162,11 @@ async function configEditor(host, sectionKey, titleLabel, fields, previewPage) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) configEditor(host, sectionKey, titleLabel, fields, previewPage);
   });
+  history.clear();
   wireVersionControls(host, 'content_blocks', sectionKey, () => ({ content_markdown: JSON.stringify(collect()), title: titleLabel }), () => configEditor(host, sectionKey, titleLabel, fields, previewPage));
 }
 
-// ─── GALERIE (okamžitá publikace) ─────────────────────────────
+// ─── GALERIE (draft/publish) ──────────────────────────────────
 
 /** Vykreslí záložku Galerie. @param {HTMLElement} body */
 async function renderGalerie(body) {
@@ -701,7 +1180,7 @@ async function renderGalerie(body) {
         <div class="form-group" style="margin:0;">
           <label class="form-label">Galerie</label>
           <select class="form-select" id="cms-gallery-select" style="min-width:240px;">
-            ${galleries.map((g) => `<option value="${esc(g.gallery_key)}">${esc(g.gallery_key)} (${g.count})</option>`).join('')}
+            ${galleries.map((g) => `<option value="${esc(g.gallery_key)}">${esc(g.gallery_key)} (${g.count})${g.has_draft ? ' • koncept' : ''}</option>`).join('')}
           </select>
         </div>
         <div class="form-group" style="margin:0;">
@@ -730,15 +1209,23 @@ async function renderGalleryDetail(detail, galleryKey) {
   detail.innerHTML = `<div class="card"><div class="card-body">Načítám galerii „${esc(galleryKey)}"…</div></div>`;
   const res = await api.getGalleryItems(galleryKey);
   const items = res.ok ? (res.data?.items || []) : [];
+  const hasDraft = !!res.data?.has_draft;
   detail.innerHTML = `
     <div class="card mb-6">
-      <div class="card-header"><h3 class="card-title">🖼️ Galerie „${esc(galleryKey)}"</h3></div>
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; gap:.5rem; flex-wrap:wrap;">
+        <h3 class="card-title" style="margin:0;">🖼️ Galerie „${esc(galleryKey)}"</h3>
+        <span class="cms-state">${draftBadge(hasDraft)}</span>
+      </div>
       <div class="card-body">
         <div class="form-group">
           <label class="form-label">Nahrát obrázek</label>
           <input type="file" class="form-input" id="cms-upload" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
-          <p class="form-hint">Max 5 MB na soubor. Galerie se publikují okamžitě (bez konceptu).</p>
+          <p class="form-hint">Max 5 MB na soubor. Nahrání ukládá koncept — na web se změny dostanou až po zveřejnění.</p>
           <div id="cms-upload-progress" class="form-hint" style="margin-top:.5rem;"></div>
+        </div>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="cms-gallery-publish" ${hasDraft ? '' : 'disabled'}>✅ Zveřejnit</button>
+          <button class="btn btn-ghost btn-sm" id="cms-gallery-discard" ${hasDraft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
         </div>
       </div>
     </div>
@@ -755,8 +1242,30 @@ async function renderGalleryDetail(detail, galleryKey) {
       if (r.ok) ok++; else { failed++; showToast(`Chyba u ${files[i].name}: ${r.error}`, 'error'); }
     }
     prog.textContent = '';
-    showToast(failed === 0 ? `Nahráno: ${ok} ✓` : `Nahráno ${ok}, selhalo ${failed}`, failed === 0 ? 'success' : 'warning');
+    showToast(
+      failed === 0 ? `Nahráno do konceptu: ${ok} ✓` : `Nahráno do konceptu ${ok}, selhalo ${failed}`,
+      failed === 0 ? 'success' : 'warning'
+    );
     renderGalleryDetail(detail, galleryKey);
+  });
+  detail.querySelector('#cms-gallery-publish')?.addEventListener('click', async () => {
+    const r = await api.publishGallery(galleryKey);
+    if (r.ok) {
+      showToast('Galerie zveřejněna ✓', 'success');
+      const host = detail.closest('#cms-tab-body');
+      if (host) renderGalerie(host); else renderGalleryDetail(detail, galleryKey);
+    }
+    else showToast('Chyba: ' + r.error, 'error');
+  });
+  detail.querySelector('#cms-gallery-discard')?.addEventListener('click', async () => {
+    if (!confirm('Zahodit koncept galerie a vrátit se na zveřejněný stav?')) return;
+    const r = await api.discardGallery(galleryKey);
+    if (r.ok) {
+      showToast('Koncept galerie zahozen ✓', 'success');
+      const host = detail.closest('#cms-tab-body');
+      if (host) renderGalerie(host); else renderGalleryDetail(detail, galleryKey);
+    }
+    else showToast('Chyba: ' + r.error, 'error');
   });
   detail.querySelectorAll('.cms-gallery-item').forEach((card) => wireGalleryItem(detail, galleryKey, card, items));
 }
@@ -790,13 +1299,14 @@ function wireGalleryItem(detail, galleryKey, card, items) {
   const id = card.dataset.id;
   const index = Number(card.dataset.index);
   card.querySelector('[data-action="save"]').addEventListener('click', async () => {
-    const r = await api.updateGalleryItem({ id, caption: card.querySelector('[data-field="caption"]').value });
-    showToast(r.ok ? 'Uloženo ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+    const r = await api.updateGalleryItem({ id, gallery_key: galleryKey, caption: card.querySelector('[data-field="caption"]').value });
+    if (r.ok) { showToast('Uloženo do konceptu ✓', 'success'); renderGalleryDetail(detail, galleryKey); }
+    else showToast('Chyba: ' + r.error, 'error');
   });
   card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
     if (!confirm('Opravdu smazat tento obrázek?')) return;
-    const r = await api.deleteGalleryItem(id);
-    if (r.ok) { showToast('Smazáno ✓', 'success'); renderGalleryDetail(detail, galleryKey); }
+    const r = await api.deleteGalleryItem(id, galleryKey);
+    if (r.ok) { showToast('Smazáno v konceptu ✓', 'success'); renderGalleryDetail(detail, galleryKey); }
     else showToast('Chyba: ' + r.error, 'error');
   });
   const move = async (dir) => {
@@ -886,21 +1396,61 @@ function renderHeroForm(detail, row) {
           <button class="btn btn-secondary btn-sm" id="cms-hero-save">💾 Uložit koncept</button>
           <button class="btn btn-primary btn-sm" id="cms-hero-publish" ${row.has_draft ? '' : 'disabled'}>✅ Zveřejnit</button>
           <button class="btn btn-ghost btn-sm" id="cms-hero-discard" ${row.has_draft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+          ${historyControlsHtml()}
           ${heroExists ? versionControlsHtml() : ''}
         </div>
       </div>
     </div>`;
   const getf = (f) => detail.querySelector(`[data-f="${f}"]`).value;
+  const setf = (f, value) => {
+    const el = detail.querySelector(`[data-f="${f}"]`);
+    if (el) el.value = value == null ? '' : String(value);
+  };
+  const collectState = () => ({
+    headline: getf('headline'),
+    subheadline: getf('subheadline'),
+    cta_text: getf('cta_text'),
+    cta_link: getf('cta_link'),
+    background_image_url: getf('background_image_url'),
+    overlay_color: getf('overlay_color'),
+  });
+  const applyState = (state) => {
+    setf('headline', state?.headline || '');
+    setf('subheadline', state?.subheadline || '');
+    setf('cta_text', state?.cta_text || '');
+    setf('cta_link', state?.cta_link || '');
+    setf('background_image_url', state?.background_image_url || '');
+    setf('overlay_color', state?.overlay_color || '');
+  };
+  const history = wireEditHistory(detail.querySelector('.card'), {
+    contextKey: `hero_config:${row.page_key}`,
+    inputSelector: '[data-f]',
+    getState: collectState,
+    applyState,
+    publishedState: {
+      headline: row.headline || '',
+      subheadline: row.subheadline || '',
+      cta_text: row.cta_text || '',
+      cta_link: row.cta_link || '',
+      background_image_url: row.background_image_url || '',
+      overlay_color: row.overlay_color || '',
+    },
+    resetConfirmText: 'Vrátit hero banner na zveřejněný stav?',
+  });
   detail.querySelector('#cms-hero-bg').addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     showToast('Nahrávám pozadí…', 'info');
     const r = await api.uploadGalleryImage('hero', file);
-    if (r.ok) { detail.querySelector('[data-f="background_image_url"]').value = r.data.image_url; showToast('Pozadí nahráno ✓', 'success'); }
+    if (r.ok) {
+      detail.querySelector('[data-f="background_image_url"]').value = r.data.image_url;
+      history.capture();
+      showToast('Pozadí nahráno ✓', 'success');
+    }
     else showToast('Chyba: ' + r.error, 'error');
   });
   detail.querySelector('#cms-hero-save').addEventListener('click', async () => {
-    const payload = { page_key: row.page_key, headline: getf('headline'), subheadline: getf('subheadline'), cta_text: getf('cta_text'), cta_link: getf('cta_link'), background_image_url: getf('background_image_url'), overlay_color: getf('overlay_color') };
+    const payload = { page_key: row.page_key, ...collectState() };
     const r = await api.saveHero(payload);
     showToast(r.ok ? 'Koncept uložen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) renderHeroForm(detail, { page_key: row.page_key, has_draft: 1, draft_json: JSON.stringify(payload) });
@@ -916,9 +1466,10 @@ function renderHeroForm(detail, row) {
     showToast(r.ok ? 'Koncept zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
     if (r.ok) { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); }
   });
+  history.clear();
   if (heroExists) {
     wireVersionControls(detail, 'hero_config', row.page_key,
-      () => ({ headline: getf('headline'), subheadline: getf('subheadline'), cta_text: getf('cta_text'), cta_link: getf('cta_link'), background_image_url: getf('background_image_url'), overlay_color: getf('overlay_color') }),
+      () => collectState(),
       async () => { const x = await api.getHero(row.page_key); renderHeroForm(detail, x.ok && x.data ? x.data : { page_key: row.page_key }); });
   }
 }

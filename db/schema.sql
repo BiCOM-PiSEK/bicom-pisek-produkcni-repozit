@@ -295,6 +295,15 @@ CREATE INDEX IF NOT EXISTS idx_ai_jobs_status_created_at ON ai_jobs(status, crea
 
 -- CMS — galerie obrázků (F11, migrace 0016). Texty využívají content_blocks výše,
 -- audit změn obsahu se zapisuje do existující tabulky audit_log.
+-- Pracovní koncept galerie (F13): JSON snapshot per gallery_key, publikace až přes
+-- explicitní akci v adminu.
+CREATE TABLE IF NOT EXISTS gallery_drafts (
+    gallery_key TEXT PRIMARY KEY,
+    draft_json TEXT NOT NULL,
+    updated_by TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (updated_by) REFERENCES operators(id)
+);
 CREATE TABLE IF NOT EXISTS gallery_items (
     id TEXT PRIMARY KEY,
     gallery_key TEXT NOT NULL,
