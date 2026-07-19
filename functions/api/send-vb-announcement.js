@@ -16,6 +16,7 @@ const json = (data, status = 200) =>
 const RECIPIENTS = [
   { email: 'info@bicompisek.cz', name: 'BiCOM Písek — ordinace' },
   { email: 'admin@bicom-pisek.cz', name: 'BiCOM Admin' },
+  { email: 'matej@meverik.xyz', name: 'Matěj Kocanda — MEVERIK' },
 ];
 
 const SUBJECT = '✅ Visual Builder nasazen — přístupy uděleny | BiCOM Písek';
