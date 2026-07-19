@@ -1,12 +1,12 @@
 -- ============================================================
--- Migration 0027: CMS Galerie — draft/publish workflow (F13)
+-- Migration 0029: CMS Galerie — draft/publish workflow (F13)
 -- ============================================================
 -- Galerie už není "okamžitě živá": změny se ukládají jako koncept
 -- do gallery_drafts a publikují se explicitně přes /admin/gallery
 -- action:publish.
 --
--- Run (local):  wrangler d1 execute DB --local  --file=db/migrations/0027_gallery_drafts.sql
--- Run (remote): wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0027_gallery_drafts.sql
+-- Run (local):  wrangler d1 execute DB --local  --file=db/migrations/0029_gallery_drafts.sql
+-- Run (remote): wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0029_gallery_drafts.sql
 
 CREATE TABLE IF NOT EXISTS gallery_drafts (
     gallery_key TEXT PRIMARY KEY,
@@ -17,5 +17,5 @@ CREATE TABLE IF NOT EXISTS gallery_drafts (
 );
 
 -- ============================================================
--- Done — migrace 0027
+-- Done — migrace 0029
 -- ============================================================

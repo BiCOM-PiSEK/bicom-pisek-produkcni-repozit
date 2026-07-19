@@ -153,7 +153,7 @@ Slouží pro přehled a dohledatelnost — nic se odsud needituje.
 
 | Vrstva | Soubor(y) |
 |---|---|
-| DB migrace | `db/migrations/0016_cms_gallery_hero.sql`, `db/migrations/0027_gallery_drafts.sql` (+ `db/schema.sql`) |
+| DB migrace | `db/migrations/0016_cms_gallery_hero.sql`, `db/migrations/0029_gallery_drafts.sql` (+ `db/schema.sql`) |
 | Texty (admin) | `functions/admin/content.js` → `/admin/content` |
 | Galerie (admin) | `functions/admin/gallery.js` → `/admin/gallery` (upload do R2 `MEDIA`) |
 | Hero (admin) | `functions/admin/hero.js` → `/admin/hero` |
@@ -194,7 +194,7 @@ A na stránce načíst klienta: `<script src="/assets/js/cms-client.js" defer></
 **Migrace na produkci:**
 ```bash
 wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0016_cms_gallery_hero.sql
-wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0027_gallery_drafts.sql
+wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0029_gallery_drafts.sql
 ```
 
 ---
