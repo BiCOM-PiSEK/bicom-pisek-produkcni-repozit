@@ -12,8 +12,8 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { initRouter, navigate, showToast } from './router.js';
-import AdminAPI from './api.js';
+import { initRouter, navigate, showToast } from './router.js?v=20260717-admin-hotfix-8';
+import AdminAPI from './api.js?v=20260717-admin-hotfix-8';
 
 // ─── STATE ──────────────────────────────────────────────────────
 const state = {

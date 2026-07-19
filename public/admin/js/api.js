@@ -12,13 +12,75 @@
  */
 
 const API_BASE = '/admin';
+const ADMIN_PASSWORD_STORAGE_KEY = 'admin_auth_password';
+let _authPromptActive = false;
+const ADMIN_PASSWORD_COOKIE_NAME = 'admin_auth';
+const ADMIN_PASSWORD_DASH_VARIANTS_REGEX = /[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g;
+const ADMIN_PASSWORD_PLUS_VARIANTS_REGEX = /[\uFF0B\uFE62\u207A\u208A\u2795]/g;
+const ADMIN_PASSWORD_AT_VARIANTS_REGEX = /[\uFF20\uFE6B]/g;
+const ADMIN_PASSWORD_ZERO_WIDTH_REGEX = /[\u200B-\u200D\u2060\uFEFF]/g;
+const ADMIN_PASSWORD_CZ_NUMBER_ROW_REGEX = /[ěščřžýáíéĚŠČŘŽÝÁÍÉ]/g;
+const ADMIN_PASSWORD_CZ_NUMBER_ROW_MAP = {
+  'ě': '2', 'š': '3', 'č': '4', 'ř': '5', 'ž': '6', 'ý': '7', 'á': '8', 'í': '9', 'é': '0',
+  'Ě': '2', 'Š': '3', 'Č': '4', 'Ř': '5', 'Ž': '6', 'Ý': '7', 'Á': '8', 'Í': '9', 'É': '0',
+};
 
 /**
- * Vykreslí statickou obrazovku "Váš účet nemá přístup — kontaktujte správce"
+ * Normalizuje heslo z UI tak, aby ručně psané varianty
+ * (typografická pomlčka / full-width znaky) odpovídaly serveru.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function normalizeAdminPassword(value) {
+  return String(value ?? '')
+    .normalize('NFKC')
+    .replace(ADMIN_PASSWORD_ZERO_WIDTH_REGEX, '')
+    .replace(ADMIN_PASSWORD_DASH_VARIANTS_REGEX, '-')
+    .replace(ADMIN_PASSWORD_PLUS_VARIANTS_REGEX, '+')
+    .replace(ADMIN_PASSWORD_AT_VARIANTS_REGEX, '@')
+    .replace(ADMIN_PASSWORD_CZ_NUMBER_ROW_REGEX, (ch) => ADMIN_PASSWORD_CZ_NUMBER_ROW_MAP[ch] || ch)
+    .replace(/\s*([+-])\s*/g, '$1')
+    .trim();
+}
+
+/**
+ * Persistuje admin heslo i do cookie, aby fungovaly i iframe requesty
+ * (např. /admin/preview), které neumí přidat custom header.
+ * @param {string} value
+ */
+function setAdminPasswordCookie(value) {
+  const encoded = encodeURIComponent(normalizeAdminPassword(value));
+  document.cookie = `${ADMIN_PASSWORD_COOKIE_NAME}=${encoded}; path=/admin; SameSite=Lax; Secure`;
+}
+
+function clearAdminPasswordCookie() {
+  document.cookie = `${ADMIN_PASSWORD_COOKIE_NAME}=; Max-Age=0; path=/admin; SameSite=Lax; Secure`;
+  document.cookie = `${ADMIN_PASSWORD_COOKIE_NAME}=; Max-Age=0; path=/; SameSite=Lax; Secure`;
+}
+
+/** @returns {string} */
+function getAdminPassword() {
+  try { return normalizeAdminPassword(sessionStorage.getItem(ADMIN_PASSWORD_STORAGE_KEY) || ''); } catch { return ''; }
+}
+
+/** @param {string} value */
+function setAdminPassword(value) {
+  const normalized = normalizeAdminPassword(value);
+  try { sessionStorage.setItem(ADMIN_PASSWORD_STORAGE_KEY, normalized); } catch { /* noop */ }
+  try { setAdminPasswordCookie(normalized); } catch { /* noop */ }
+}
+
+function clearAdminPassword() {
+  try { sessionStorage.removeItem(ADMIN_PASSWORD_STORAGE_KEY); } catch { /* noop */ }
+  try { clearAdminPasswordCookie(); } catch { /* noop */ }
+}
+
+/**
+ * Vykreslí statickou obrazovku "Přístup odepřen"
  * a zastaví pollery na pozadí.
  * @param {string} [reason]
  */
-function showAccessDenied(reason = 'Váš účet nemá přístup — kontaktujte správce.') {
+function showAccessDenied(reason = 'Přístup odepřen.') {
   // Zastaví pollery (funkce z app.js)
   if (typeof window.stopPollers === 'function') {
     window.stopPollers();
@@ -55,12 +117,13 @@ function showAccessDenied(reason = 'Váš účet nemá přístup — kontaktujte
         margin-bottom: 2rem;
         line-height: 1.6;
       ">${reason}</p>
-      <a href="/cdn-cgi/access/logout" style="
+      <button id="admin-login-retry-btn" style="
         display: inline-flex;
         align-items: center;
         justify-content: center;
         height: 36px;
         padding: 0 1.25rem;
+        border: 0;
         border-radius: 10px;
         background-color: #3A4A3C;
         color: #FFFFFF;
@@ -69,45 +132,171 @@ function showAccessDenied(reason = 'Váš účet nemá přístup — kontaktujte
         text-decoration: none;
         box-shadow: 0 4px 12px rgba(58, 74, 60, 0.08);
         transition: background-color 150ms ease;
+        cursor: pointer;
       " onmouseover="this.style.backgroundColor='#2D3A2F'" onmouseout="this.style.backgroundColor='#3A4A3C'">
-        Odhlásit se
-      </a>
+        Zadat heslo znovu
+      </button>
     </div>
   `;
+  const retryBtn = document.getElementById('admin-login-retry-btn');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', () => {
+      clearAdminPassword();
+      window.location.reload();
+    });
+  }
 }
 
 // Zpřístupníme na window pro ostatní moduly a skripty
 window.showAccessDenied = showAccessDenied;
 
 /**
+ * Zobrazí vlastní přihlašovací modal s maskovaným polem pro heslo.
+ * Guard `_authPromptActive` zabraňuje vícenásobnému otevření při souběžných 401.
+ * @param {boolean} isRetry — true = zobrazí chybovou hlášku "špatné heslo"
+ */
+function showPasswordModal(isRetry) {
+  if (_authPromptActive) return;
+  _authPromptActive = true;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'admin-auth-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Přihlášení do administrace');
+  overlay.style.cssText = [
+    'position:fixed', 'inset:0', 'z-index:99999',
+    'display:flex', 'align-items:center', 'justify-content:center',
+    'background:rgba(0,0,0,0.55)', 'backdrop-filter:blur(4px)',
+  ].join(';');
+
+  overlay.innerHTML = `
+    <div style="
+      background:#FAF8F5;
+      border-radius:16px;
+      padding:2.5rem 2rem;
+      width:min(360px,90vw);
+      box-shadow:0 24px 60px rgba(0,0,0,0.22);
+      font-family:'Montserrat',system-ui,sans-serif;
+      color:#2B2B2B;
+    ">
+      <div style="font-size:2.5rem;text-align:center;margin-bottom:1rem">🔒</div>
+      <h2 style="
+        font-family:'Cormorant Garamond',Georgia,serif;
+        font-size:1.6rem;font-weight:600;
+        color:#3A4A3C;text-align:center;
+        margin:0 0 0.5rem;
+      ">Administrace</h2>
+      <p style="font-size:0.82rem;color:#738A75;text-align:center;margin:0 0 1.5rem">
+        Bicom Písek — Virtual Office
+      </p>
+      ${isRetry ? `<p id="auth-modal-error" style="
+        font-size:0.82rem;color:#c0392b;background:#fff0ee;
+        border-radius:8px;padding:0.5rem 0.75rem;
+        margin:0 0 1rem;text-align:center;
+      ">Heslo není správné. Zkuste znovu.</p>` : ''}
+      <div style="position:relative;margin-bottom:1rem">
+        <input id="auth-modal-pw" type="password"
+          placeholder="Heslo"
+          autocomplete="current-password"
+          style="
+            width:100%;box-sizing:border-box;
+            padding:0.65rem 2.75rem 0.65rem 0.875rem;
+            border:1.5px solid #d0d8d1;border-radius:10px;
+            font-size:1rem;font-family:inherit;
+            background:#fff;color:#2B2B2B;
+            outline:none;transition:border-color 150ms;
+          "
+          onfocus="this.style.borderColor='#3A4A3C'"
+          onblur="this.style.borderColor='#d0d8d1'"
+        />
+        <button id="auth-modal-eye" type="button" title="Zobrazit/skrýt heslo" style="
+          position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);
+          background:none;border:none;cursor:pointer;padding:0;
+          font-size:1.1rem;color:#738A75;line-height:1;
+        ">👁</button>
+      </div>
+      <button id="auth-modal-submit" type="button" style="
+        display:block;width:100%;
+        padding:0.7rem 1.25rem;
+        background:#3A4A3C;color:#fff;
+        border:none;border-radius:10px;
+        font-size:0.9rem;font-weight:600;
+        font-family:inherit;cursor:pointer;
+        transition:background 150ms;margin-bottom:0.75rem;
+      "
+        onmouseover="this.style.background='#2D3A2F'"
+        onmouseout="this.style.background='#3A4A3C'"
+      >Přihlásit se</button>
+      <button id="auth-modal-cancel" type="button" style="
+        display:block;width:100%;
+        padding:0.55rem;background:none;
+        border:none;color:#738A75;font-size:0.82rem;
+        font-family:inherit;cursor:pointer;
+      ">Zrušit přihlášení</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const pwInput  = overlay.querySelector('#auth-modal-pw');
+  const eyeBtn   = overlay.querySelector('#auth-modal-eye');
+  const submitBtn = overlay.querySelector('#auth-modal-submit');
+  const cancelBtn = overlay.querySelector('#auth-modal-cancel');
+
+  eyeBtn.addEventListener('click', () => {
+    pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+    eyeBtn.textContent = pwInput.type === 'password' ? '👁' : '🙈';
+    pwInput.focus();
+  });
+
+  const doSubmit = () => {
+    const normalized = normalizeAdminPassword(pwInput.value);
+    if (!normalized) {
+      let errEl = overlay.querySelector('#auth-modal-error');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.id = 'auth-modal-error';
+        errEl.style.cssText = 'font-size:0.82rem;color:#c0392b;background:#fff0ee;border-radius:8px;padding:0.5rem 0.75rem;margin:0 0 1rem;text-align:center';
+        pwInput.parentElement.before(errEl);
+      }
+      errEl.textContent = 'Zadejte heslo.';
+      pwInput.focus();
+      return;
+    }
+    setAdminPassword(normalized);
+    _authPromptActive = false;
+    overlay.remove();
+    window.location.reload();
+  };
+
+  submitBtn.addEventListener('click', doSubmit);
+  pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSubmit(); });
+
+  cancelBtn.addEventListener('click', () => {
+    _authPromptActive = false;
+    overlay.remove();
+    clearAdminPassword();
+    showAccessDenied('Přístup vyžaduje heslo.');
+  });
+
+  setTimeout(() => pwInput.focus(), 60);
+}
+
+/**
  * Centrální ošetření chyb přihlášení (401 a 403).
  * @param {number} status
+ * @param {Response} [response]
  */
-function handleAuthError(status) {
+function handleAuthError(status, response) {
   if (status === 403) {
     console.warn('[api] 403 Forbidden - Access Denied.');
-    showAccessDenied('Váš účet nemá přístup — kontaktujte správce.');
+    showAccessDenied('Váš účet nemá přístup.');
     return;
   }
-
   if (status === 401) {
-    const now = Date.now();
-    const lastRedirect = sessionStorage.getItem('admin_auth_redirect_at');
-
-    if (lastRedirect) {
-      const diff = now - parseInt(lastRedirect, 10);
-      if (diff < 10000) {
-        console.error('[api] Auth redirect loop detected (<10s). Breaking loop.');
-        showAccessDenied('Smyčka přesměrování detekována. Přihlášení selhalo opakovaně.');
-        return;
-      }
-    }
-
-    // Uložíme čas redirectu do sessionStorage a přesměrujeme
-    sessionStorage.setItem('admin_auth_redirect_at', now.toString());
-    console.warn('[api] 401 Unauthenticated - Redirecting to Cloudflare Access login.');
-    const returnUrl = `${location.pathname}${location.search}${location.hash}`;
-    window.location.href = '/cdn-cgi/access/login?redirect_url=' + encodeURIComponent(returnUrl);
+    const isRetry = !!getAdminPassword();
+    showPasswordModal(isRetry);
   }
 }
 
@@ -147,6 +336,10 @@ async function request(path, options = {}) {
     'Accept': 'application/json',
     ...headers,
   };
+  const adminPassword = getAdminPassword();
+  if (adminPassword) {
+    fetchHeaders['X-Admin-Password'] = adminPassword;
+  }
 
   // Cloudflare Access JWT se přidává automaticky prohlížečem
   // (cookie CF_Authorization), nemusíme ho explicitně nastavovat.
@@ -189,7 +382,7 @@ async function request(path, options = {}) {
 
         // 401/403 → centrální ošetření autentizačních chyb (Access Denied / Redirect)
         if (response.status === 401 || response.status === 403) {
-          handleAuthError(response.status);
+          handleAuthError(response.status, response);
           return { ok: false, data: null, error: 'Neoprávněný přístup', status: response.status };
         }
 
@@ -620,12 +813,15 @@ async function uploadGalleryImage(galleryKey, file) {
       method: 'POST',
       body: form,
       credentials: 'same-origin',
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        ...(getAdminPassword() ? { 'X-Admin-Password': getAdminPassword() } : {}),
+      },
     });
     let body = null;
     try { body = await res.json(); } catch { body = null; }
     if (res.status === 401 || res.status === 403) {
-      handleAuthError(res.status);
+      handleAuthError(res.status, res);
       return { ok: false, data: null, error: 'Neoprávněný přístup', status: res.status };
     }
     return {

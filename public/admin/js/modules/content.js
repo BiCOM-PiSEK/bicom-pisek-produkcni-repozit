@@ -22,6 +22,24 @@ function esc(str) {
   return el.innerHTML;
 }
 
+/** Vrátí štítek stavu builder bloku. @param {Object} block @returns {string} */
+function visualBlockStatusBadge(block) {
+  const status = String(block?.status || (block?.editable === false ? 'locked' : 'editable'));
+  if (status === 'dynamic') return '<span class="badge badge-pending" title="Generováno z dat nebo funkční logiky">Dynamické</span>';
+  if (status === 'locked') return '<span class="badge" style="background:#F4ECE0;color:#7A5520;" title="Součást šablony">Zamčeno</span>';
+  if (block?.mediaKind) return '<span class="badge badge-confirmed" title="Napojený mediální blok">Média</span>';
+  return '<span class="badge badge-confirmed" title="Napojeno na CMS editor">Editovatelné</span>';
+}
+
+/** Popisuje primární akce dostupné pro blok. @param {Object} block @returns {string} */
+function visualBlockActionText(block) {
+  const actions = Array.isArray(block?.actions) ? block.actions : [];
+  if (actions.includes('replaceMedia')) return 'Výměna média';
+  if (actions.includes('openEditor')) return 'Upravit v editoru';
+  if (block?.status === 'dynamic') return 'Spravuje specializovaný modul';
+  return block?.lockedReason || 'Orientační blok šablony';
+}
+
 /** Escapuje text pro bezpečné vložení do HTML atributu. @param {*} str @returns {string} */
 function escAttr(str) {
   return esc(str).replace(/"/g, '&quot;');
@@ -80,9 +98,13 @@ function refreshPreview(root) {
  * @returns {string}
  */
 function visualBlockLabel(block) {
+  if (block?.label) return String(block.label);
   const t = String(block?.type || '');
   const key = block?.key || block?.sectionKey || '';
   const field = block?.field || '';
+  if (t === 'structure') return `Kosterní blok · ${key}`;
+  if (t === 'dynamic') return `Dynamický blok · ${key}`;
+  if (t === 'media') return `Média · ${key}`;
   if (t === 'section') return `Text · ${key}`;
   if (t === 'list') return `Karty · ${key}`;
   if (t === 'gallery') return `Galerie · ${key}`;
@@ -133,6 +155,12 @@ function findEditorTarget(root, block) {
   if (type === 'programs') {
     return root.querySelector('.cms-tab[data-tab="sluzby"]');
   }
+  if (type === 'media' && block?.key === 'ordinace') {
+    return root.querySelector('#cms-gallery-detail') || root.querySelector('.cms-tab[data-tab="galerie"]');
+  }
+  if (type === 'media' && block?.key === 'hero-media') {
+    return root.querySelector('.cms-tab[data-tab="hero"]');
+  }
   if (sectionKey) {
     return root.querySelector(`[data-config-key="${CSS.escape(sectionKey)}"]`);
   }
@@ -158,9 +186,57 @@ function focusEditorTarget(root, block) {
   return true;
 }
 
+/** @param {Array<[string,string,string]>} fields @param {string} field @returns {[string,string,string]|null} */
+function fieldMeta(fields, field) {
+  return (fields || []).find(([k]) => k === field) || null;
+}
+
+/** @param {Object} row @returns {Object} */
+function effectiveConfig(row) {
+  try {
+    return JSON.parse(row?.has_draft ? (row.draft_content_markdown ?? row.content_markdown) : row?.content_markdown) || {};
+  } catch {
+    return {};
+  }
+}
+
+/** @param {Object} row @returns {Object} */
+function effectiveHeroConfig(row) {
+  const draft = (() => {
+    try { return row?.has_draft && row.draft_json ? JSON.parse(row.draft_json) : {}; } catch { return {}; }
+  })();
+  return {
+    headline: draft.headline ?? row?.headline ?? '',
+    subheadline: draft.subheadline ?? row?.subheadline ?? '',
+    cta_text: draft.cta_text ?? row?.cta_text ?? '',
+    cta_link: draft.cta_link ?? row?.cta_link ?? '',
+    background_image_url: draft.background_image_url ?? row?.background_image_url ?? '',
+    overlay_color: draft.overlay_color ?? row?.overlay_color ?? 'rgba(0,0,0,0.3)',
+  };
+}
+
+/** @param {Object} row @param {string} field @returns {string} */
+function currentContentValue(row, field) {
+  if (field === 'title') return row?.has_draft ? (row.draft_title ?? row.title ?? '') : (row?.title ?? '');
+  return row?.has_draft ? (row.draft_content_markdown ?? row.content_markdown ?? '') : (row?.content_markdown ?? '');
+}
+
+/** @param {string} field @returns {[string,string,string]|null} */
+function heroFieldMeta(field) {
+  const fields = [
+    ['headline', 'Hlavní nadpis', 'text'],
+    ['subheadline', 'Podnadpis', 'textarea'],
+    ['cta_text', 'Text tlačítka', 'text'],
+    ['cta_link', 'Odkaz tlačítka', 'text'],
+    ['background_image_url', 'Obrázek pozadí', 'text'],
+    ['overlay_color', 'Barva překryvu', 'text'],
+  ];
+  return fieldMeta(fields, field);
+}
+
 /** Otevře interaktivní Visual Builder modal. @param {HTMLElement} root */
 function openVisualBuilder(root) {
-  const { showToast } = _ctx;
+  const { api, showToast } = _ctx;
   const sourceFrame = root.querySelector('#cms-preview-frame');
   if (!sourceFrame) return;
   const src = sourceFrame.getAttribute('src') || '/admin/preview/';
@@ -172,28 +248,47 @@ function openVisualBuilder(root) {
         <h3 class="card-title" style="margin:0;">🧩 Visual Builder</h3>
         <button class="btn-icon" data-m="close">✕</button>
       </div>
-      <div class="modal-body" style="display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:1rem; max-height:82vh;">
+      <div class="modal-body" style="display:grid; grid-template-columns:minmax(0,1fr) 390px; gap:1rem; max-height:82vh;">
         <div style="display:flex; flex-direction:column; gap:.5rem; min-height:0;">
           <div style="display:flex; gap:.5rem; align-items:center; justify-content:space-between;">
             <div class="form-hint" id="cms-vb-status">Načítám mapu bloků…</div>
-            <div style="display:flex; gap:.25rem;">
+            <div style="display:flex; gap:.25rem; align-items:center;">
+              <button class="btn btn-ghost btn-sm" data-vb-size="mobile" title="Mobilní náhled">Mobil</button>
+              <button class="btn btn-ghost btn-sm" data-vb-size="tablet" title="Tablet náhled">Tablet</button>
+              <button class="btn btn-secondary btn-sm" data-vb-size="desktop" title="Desktop náhled">Desktop</button>
+              <button class="btn btn-primary btn-sm" id="cms-vb-mode-toggle" title="Přepnout mezi editací a volnou navigací" style="min-width:8rem;">✏️ Editovat</button>
               <button class="btn btn-secondary btn-sm" id="cms-vb-refresh">↻</button>
               <a class="btn btn-ghost btn-sm" href="${escAttr(liveHref)}" target="_blank" rel="noopener">živý web ↗</a>
             </div>
           </div>
-          <div style="border:1px solid rgba(115,138,117,0.2); border-radius:12px; overflow:hidden; background:#fff; min-height:0; flex:1;">
+          <div id="cms-vb-frame-shell" style="border:1px solid rgba(115,138,117,0.2); border-radius:12px; overflow:hidden; background:#fff; min-height:0; flex:1; margin-inline:auto; width:100%;">
             <iframe id="cms-vb-frame" src="${escAttr(src)}" title="Visual Builder náhled" style="width:100%; height:100%; min-height:62vh; border:0; display:block;"></iframe>
           </div>
         </div>
         <div style="display:flex; flex-direction:column; gap:.6rem; min-height:0;">
+          <div style="background:#FAF8F4; border:1px solid rgba(115,138,117,.16); border-radius:10px; padding:.65rem;">
+            <strong style="display:block; margin-bottom:.25rem;">Pracovní režim</strong>
+            <span class="form-hint">Klik v náhledu vybírá blok. Zamčené bloky se zobrazují záměrně, aby bylo jasné, že je načtená celá stránka.</span>
+          </div>
+          <div id="cms-vb-drafts" style="background:#fff; border:1px solid rgba(115,138,117,.16); border-radius:10px; padding:.65rem;">
+            <div class="form-hint">Načítám nezveřejněné změny…</div>
+          </div>
           <div class="form-group" style="margin:0;">
             <label class="form-label">Vyhledat blok</label>
             <input type="text" class="form-input" id="cms-vb-filter" placeholder="např. galerie, faq, home-...">
           </div>
+          <div style="display:flex; gap:.35rem; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" data-vb-filter-state="all">Vše</button>
+            <button class="btn btn-ghost btn-sm" data-vb-filter-state="editable">Editovatelné</button>
+            <button class="btn btn-ghost btn-sm" data-vb-filter-state="media">Média</button>
+            <button class="btn btn-ghost btn-sm" data-vb-filter-state="locked">Zamčené</button>
+            <button class="btn btn-ghost btn-sm" data-vb-filter-state="dynamic">Dynamické</button>
+          </div>
           <div id="cms-vb-list" style="border:1px solid rgba(115,138,117,0.15); border-radius:10px; overflow:auto; padding:.35rem; min-height:220px; max-height:52vh;"></div>
-          <div id="cms-vb-selected" class="form-hint" style="min-height:2.2rem;">Vyberte blok kliknutím v náhledu nebo v seznamu.</div>
+          <div id="cms-vb-selected" class="form-hint" style="min-height:2.2rem; border:1px solid rgba(115,138,117,.15); border-radius:10px; padding:.65rem;">Vyberte blok kliknutím v náhledu nebo v seznamu.</div>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
             <button class="btn btn-primary btn-sm" id="cms-vb-focus" disabled>🎯 Najít v editoru</button>
+            <button class="btn btn-secondary btn-sm" id="cms-vb-media" disabled>🖼️ Média</button>
             <button class="btn btn-secondary btn-sm" id="cms-vb-clear">Vyčistit výběr</button>
           </div>
         </div>
@@ -202,19 +297,284 @@ function openVisualBuilder(root) {
     const vbFrame = overlay.querySelector('#cms-vb-frame');
     const statusEl = overlay.querySelector('#cms-vb-status');
     const listEl = overlay.querySelector('#cms-vb-list');
+    const draftsEl = overlay.querySelector('#cms-vb-drafts');
     const filterEl = overlay.querySelector('#cms-vb-filter');
     const selectedEl = overlay.querySelector('#cms-vb-selected');
     const focusBtn = overlay.querySelector('#cms-vb-focus');
+    const mediaBtn = overlay.querySelector('#cms-vb-media');
+    const modeToggleBtn = overlay.querySelector('#cms-vb-mode-toggle');
+    const frameShell = overlay.querySelector('#cms-vb-frame-shell');
     let blocks = [];
     let selectedId = '';
+    let stateFilter = 'all';
+    let mapLoaded = false;
+    let pingAttempts = 0;
+    let pingTimer = null;
+    let editMode = true; // true = editovat bloky, false = volná navigace
+    let inlineEditorSeq = 0;
 
     const setStatus = (text) => { statusEl.textContent = text; };
+    const updateModeButton = () => {
+      if (!modeToggleBtn) return;
+      if (editMode) {
+        modeToggleBtn.textContent = '✏️ Editovat';
+        modeToggleBtn.className = 'btn btn-primary btn-sm';
+        modeToggleBtn.title = 'Aktivní: klik vybírá blok. Přepnout na volnou navigaci.';
+      } else {
+        modeToggleBtn.textContent = '🖱 Navigovat';
+        modeToggleBtn.className = 'btn btn-secondary btn-sm';
+        modeToggleBtn.title = 'Aktivní: volná navigace. Přepnout zpět na editaci.';
+      }
+    };
     const selectedBlock = () => blocks.find((b) => b.id === selectedId) || null;
     const post = (payload) => {
       if (!vbFrame?.contentWindow) return;
       vbFrame.contentWindow.postMessage(payload, window.location.origin);
     };
+    const selectDraftTarget = (item) => {
+      const match = blocks.find((b) =>
+        b.sectionKey === item.key || b.key === item.key || (item.type === 'hero' && b.type === 'heroField' && b.sectionKey === item.key)
+      );
+      if (match) {
+        selectBlock(match.id, true);
+        return;
+      }
+      filterEl.value = item.key;
+      renderList();
+      showToast('Změna je v jiném nebo složeném bloku. Seznam je vyfiltrovaný podle klíče.', 'info');
+    };
+    const renderDraftSummary = (items) => {
+      if (!draftsEl) return;
+      const shown = items.slice(0, 5);
+      draftsEl.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.35rem;">
+          <strong>Nezveřejněné změny</strong>
+          <button class="btn btn-ghost btn-sm" data-vb-drafts-refresh title="Obnovit souhrn">↻</button>
+        </div>
+        ${items.length
+          ? `<div class="form-hint" style="margin-bottom:.35rem;">${items.length} konceptů čeká na zveřejnění. Vybraný podporovaný blok lze publikovat přímo v inspektoru.</div>
+             <div style="display:flex; flex-direction:column; gap:.25rem;">
+               ${shown.map((it, i) => `
+                 <button class="btn btn-ghost btn-sm" data-vb-draft-index="${i}" style="justify-content:flex-start; text-align:left;">
+                   <span style="overflow:hidden; text-overflow:ellipsis;">${esc(it.label)}</span>
+                 </button>`).join('')}
+             </div>
+             ${items.length > shown.length ? `<div class="form-hint" style="margin-top:.25rem;">+ ${items.length - shown.length} dalších konceptů ve specializovaných editorech.</div>` : ''}`
+          : '<div class="form-hint">Žádné koncepty nečekají na zveřejnění.</div>'}`;
+      draftsEl.querySelector('[data-vb-drafts-refresh]')?.addEventListener('click', loadDraftSummary);
+      draftsEl.querySelectorAll('[data-vb-draft-index]').forEach((btn) => {
+        btn.addEventListener('click', () => selectDraftTarget(shown[Number(btn.dataset.vbDraftIndex)]));
+      });
+    };
+    const loadDraftSummary = async () => {
+      if (!api || !draftsEl) return;
+      draftsEl.innerHTML = '<div class="form-hint">Načítám nezveřejněné změny…</div>';
+      const results = await Promise.allSettled([
+        api.getContentSections?.(),
+        api.getHeroes?.(),
+        api.getGalleries?.(),
+        api.getServicesAdmin?.(),
+      ]);
+      const okData = (idx) => results[idx].status === 'fulfilled' && results[idx].value?.ok ? results[idx].value.data : null;
+      const items = [];
+      (okData(0)?.sections || []).filter((s) => s.has_draft).forEach((s) => items.push({
+        type: 'content',
+        key: s.section_key,
+        label: `Text/config · ${s.title || s.section_key}`,
+      }));
+      (okData(1)?.heroes || []).filter((h) => h.has_draft).forEach((h) => items.push({
+        type: 'hero',
+        key: h.page_key,
+        label: `Hero · ${h.page_key}`,
+      }));
+      (okData(2)?.galleries || []).filter((g) => g.has_draft).forEach((g) => items.push({
+        type: 'gallery',
+        key: g.gallery_key,
+        label: `Galerie · ${g.gallery_key}`,
+      }));
+      (okData(3)?.services || []).filter((s) => s.has_draft).forEach((s) => items.push({
+        type: 'service',
+        key: s.slug,
+        label: `Služba · ${s.name || s.slug}`,
+      }));
+      renderDraftSummary(items);
+    };
+    const reloadPreviews = () => {
+      setStatus('Obnovuji náhled s konceptem…');
+      try { sourceFrame.contentWindow.location.reload(); } catch { /* iframe nemusí být dostupný při zavírání modalu */ }
+      try { vbFrame.contentWindow.location.reload(); } catch { /* iframe nemusí být dostupný při zavírání modalu */ }
+      loadDraftSummary();
+    };
+    const editableInlineType = (block) => {
+      const type = String(block?.type || '');
+      if (type === 'section') return !!(block?.sectionKey || block?.key);
+      if (type === 'nap' || type === 'landingField' || type === 'seo') return !!block?.field;
+      if (type === 'heroField') return !!(block?.sectionKey || block?.key) && !!block?.field;
+      return false;
+    };
+    const inlineUnavailableHtml = (block) => {
+      if (!block) return '';
+      if (Array.isArray(block.actions) && block.actions.includes('replaceMedia')) {
+        return `<div style="margin-top:.6rem; padding-top:.6rem; border-top:1px solid rgba(115,138,117,.15);">
+          <strong>Výměna média</strong>
+          <p style="margin:.25rem 0 0;">Mediální asset se spravuje přes Mediatéku/Galerii/Hero, aby se zachoval audit, alt text a publikační workflow.</p>
+        </div>`;
+      }
+      if (Array.isArray(block.actions) && block.actions.includes('openEditor')) {
+        return `<div style="margin-top:.6rem; padding-top:.6rem; border-top:1px solid rgba(115,138,117,.15);">
+          <strong>Specializovaný editor</strong>
+          <p style="margin:.25rem 0 0;">Tento blok je složený nebo opakovatelný. Klikněte na „Najít v editoru" a upravte ho v plném formuláři.</p>
+        </div>`;
+      }
+      return '';
+    };
+    const inlineInputHtml = (id, label, type, value) => `
+      <div class="form-group" style="margin-top:.65rem;">
+        <label class="form-label" for="${id}">${esc(label)}</label>
+        ${type === 'textarea'
+          ? `<textarea class="form-input" id="${id}" rows="5">${esc(value)}</textarea>`
+          : `<input class="form-input" id="${id}" type="text" value="${esc(value)}">`}
+      </div>`;
+    const renderInlineEditor = async (block) => {
+      const host = selectedEl.querySelector('[data-vb-inline-editor]');
+      if (!host) return;
+      const seq = ++inlineEditorSeq;
+      if (!api || !editableInlineType(block)) {
+        host.innerHTML = inlineUnavailableHtml(block);
+        return;
+      }
+      host.innerHTML = '<div style="margin-top:.6rem; padding-top:.6rem; border-top:1px solid rgba(115,138,117,.15);">Načítám editor bloku…</div>';
+      try {
+        const type = String(block.type || '');
+        const key = String(block.sectionKey || block.key || '');
+        const field = String(block.field || '');
+        const id = `cms-vb-inline-${block.id.replace(/[^a-z0-9_-]/gi, '-')}`;
+        let editor = null;
+
+        if (type === 'section') {
+          const res = await api.getContentSection(key);
+          if (seq !== inlineEditorSeq) return;
+          if (!res.ok) { host.innerHTML = `<div class="empty-state">Chyba: ${esc(res.error || 'Sekci se nepodařilo načíst.')}</div>`; return; }
+          const row = res.data;
+          const isText = row.content_type === 'text';
+          editor = {
+            title: row.title || key,
+            stateLabel: draftBadge(!!row.has_draft),
+            hasDraft: !!row.has_draft,
+            input: isText
+              ? inlineInputHtml(id, 'Obsah bloku', 'textarea', currentContentValue(row, 'content'))
+              : `<p class="form-hint" style="margin-top:.65rem;">Strukturovaný blok typu <code>${esc(row.content_type)}</code> otevřete v plném editoru, aby se bezpečně upravovalo pořadí a opakovatelné položky.</p>`,
+            save: isText ? async () => api.updateContentSection({
+              section_key: key,
+              title: row.has_draft ? (row.draft_title ?? row.title) : row.title,
+              content_markdown: host.querySelector(`#${CSS.escape(id)}`).value,
+              content_type: row.content_type,
+            }) : null,
+            publish: () => api.publishContentSection(key),
+            discard: () => api.discardContentSection(key),
+            reload: () => renderInlineEditor(block),
+          };
+        } else if (type === 'nap' || type === 'landingField' || type === 'seo') {
+          const sectionKey = type === 'nap' ? 'site-nap' : key;
+          const meta = type === 'nap'
+            ? fieldMeta(NAP_FIELDS, field)
+            : fieldMeta(type === 'seo' ? SEO_FIELDS : LANDING_FIELDS, field);
+          const res = await api.getContentSection(sectionKey);
+          if (seq !== inlineEditorSeq) return;
+          if (!res.ok) { host.innerHTML = `<div class="empty-state">Chyba: ${esc(res.error || 'Konfiguraci se nepodařilo načíst.')}</div>`; return; }
+          const row = res.data;
+          const cfg = effectiveConfig(row);
+          const label = meta?.[1] || field;
+          const inputType = meta?.[2] || 'text';
+          const title = type === 'nap' ? 'Kontakt & patička' : (type === 'seo' ? 'SEO nastavení' : 'Landing stránka');
+          editor = {
+            title,
+            stateLabel: draftBadge(!!row.has_draft),
+            hasDraft: !!row.has_draft,
+            input: inlineInputHtml(id, label, inputType, cfg[field] || ''),
+            save: async () => {
+              cfg[field] = host.querySelector(`#${CSS.escape(id)}`).value;
+              return api.updateContentSection({
+                section_key: sectionKey,
+                title: row.title || title,
+                content_markdown: JSON.stringify(cfg),
+                content_type: 'config',
+              });
+            },
+            publish: () => api.publishContentSection(sectionKey),
+            discard: () => api.discardContentSection(sectionKey),
+            reload: () => renderInlineEditor(block),
+          };
+        } else if (type === 'heroField') {
+          const pageKey = key;
+          const meta = heroFieldMeta(field);
+          const res = await api.getHero(pageKey);
+          if (seq !== inlineEditorSeq) return;
+          if (!res.ok) { host.innerHTML = `<div class="empty-state">Chyba: ${esc(res.error || 'Hero se nepodařilo načíst.')}</div>`; return; }
+          const row = res.data || { page_key: pageKey };
+          const cfg = effectiveHeroConfig(row);
+          editor = {
+            title: `Hero — ${pageKey}`,
+            stateLabel: draftBadge(!!row.has_draft),
+            hasDraft: !!row.has_draft,
+            input: inlineInputHtml(id, meta?.[1] || field, meta?.[2] || 'text', cfg[field] || ''),
+            save: async () => {
+              cfg[field] = host.querySelector(`#${CSS.escape(id)}`).value;
+              return api.saveHero({ page_key: pageKey, ...cfg });
+            },
+            publish: () => api.publishHero(pageKey),
+            discard: () => api.discardHero(pageKey),
+            reload: () => renderInlineEditor(block),
+          };
+        }
+
+        if (!editor) {
+          host.innerHTML = inlineUnavailableHtml(block);
+          return;
+        }
+        host.innerHTML = `
+          <div style="margin-top:.6rem; padding-top:.6rem; border-top:1px solid rgba(115,138,117,.15);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;">
+              <strong>${esc(editor.title)}</strong>
+              <span data-vb-inline-state>${editor.stateLabel}</span>
+            </div>
+            ${editor.input}
+            <div style="display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.5rem;">
+              <button class="btn btn-secondary btn-sm" data-vb-inline="save" ${editor.save ? '' : 'disabled'}>💾 Uložit koncept</button>
+              <button class="btn btn-primary btn-sm" data-vb-inline="publish" ${editor.hasDraft ? '' : 'disabled'}>✅ Zveřejnit blok</button>
+              <button class="btn btn-ghost btn-sm" data-vb-inline="discard" ${editor.hasDraft ? '' : 'disabled'}>↩︎ Zahodit koncept</button>
+            </div>
+            <p class="form-hint" style="margin:.45rem 0 0;">Uložení vytvoří jen koncept. Na web se dostane až po zveřejnění.</p>
+          </div>`;
+        host.querySelector('[data-vb-inline="save"]')?.addEventListener('click', async () => {
+          const r = await editor.save();
+          showToast(r.ok ? 'Koncept bloku uložen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+          if (r.ok) {
+            block.status = 'editable';
+            reloadPreviews();
+            await editor.reload();
+          }
+        });
+        host.querySelector('[data-vb-inline="publish"]')?.addEventListener('click', async () => {
+          const r = await editor.publish();
+          showToast(r.ok ? 'Blok zveřejněn ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+          if (r.ok) { reloadPreviews(); await editor.reload(); }
+        });
+        host.querySelector('[data-vb-inline="discard"]')?.addEventListener('click', async () => {
+          if (!confirm('Zahodit koncept tohoto bloku?')) return;
+          const r = await editor.discard();
+          showToast(r.ok ? 'Koncept bloku zahozen ✓' : 'Chyba: ' + r.error, r.ok ? 'success' : 'error');
+          if (r.ok) { reloadPreviews(); await editor.reload(); }
+        });
+      } catch (err) {
+        if (seq === inlineEditorSeq) host.innerHTML = `<div class="empty-state">Chyba editoru: ${esc(err.message || err)}</div>`;
+      }
+    };
     const matchesFilter = (block, q) => {
+      if (stateFilter === 'editable' && block?.editable === false) return false;
+      if (stateFilter === 'media' && !block?.mediaKind && block?.group !== 'media') return false;
+      if (stateFilter === 'locked' && block?.status !== 'locked') return false;
+      if (stateFilter === 'dynamic' && block?.status !== 'dynamic' && block?.type !== 'dynamic') return false;
       if (!q) return true;
       const hay = `${visualBlockLabel(block)} ${block.key || ''} ${block.sectionKey || ''} ${block.field || ''}`.toLowerCase();
       return hay.includes(q);
@@ -224,10 +584,21 @@ function openVisualBuilder(root) {
       if (!block) {
         selectedEl.textContent = 'Vyberte blok kliknutím v náhledu nebo v seznamu.';
         focusBtn.disabled = true;
+        mediaBtn.disabled = true;
         return;
       }
-      selectedEl.innerHTML = `<strong>${esc(visualBlockLabel(block))}</strong><br><code>${esc(block.sectionKey || block.key || block.field || block.id)}</code>`;
-      focusBtn.disabled = false;
+      selectedEl.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.35rem;">
+          <strong>${esc(visualBlockLabel(block))}</strong>
+          ${visualBlockStatusBadge(block)}
+        </div>
+        <div><code>${esc(block.sectionKey || block.key || block.field || block.id)}</code></div>
+        <div style="margin-top:.35rem;">${esc(visualBlockActionText(block))}</div>
+        ${block.mediaUrl ? `<div style="margin-top:.35rem; overflow:hidden; text-overflow:ellipsis;"><strong>Asset:</strong> ${esc(block.mediaUrl)}</div>` : ''}
+        <div data-vb-inline-editor></div>`;
+      focusBtn.disabled = !findEditorTarget(root, block);
+      mediaBtn.disabled = !(Array.isArray(block.actions) && block.actions.includes('replaceMedia'));
+      renderInlineEditor(block);
     };
     const renderList = () => {
       const q = (filterEl.value || '').trim().toLowerCase();
@@ -235,7 +606,10 @@ function openVisualBuilder(root) {
       listEl.innerHTML = visible.length
         ? visible.map((b) => `
             <button class="btn btn-ghost btn-sm" data-vb-id="${escAttr(b.id)}" style="width:100%; text-align:left; justify-content:flex-start; margin:.15rem 0; ${b.id === selectedId ? 'border-color:var(--c-forest,#3A4A3C); background:rgba(58,74,60,0.08);' : ''}">
-              ${esc(visualBlockLabel(b))}
+              <span style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; width:100%;">
+                <span>${esc(visualBlockLabel(b))}</span>
+                ${visualBlockStatusBadge(b)}
+              </span>
             </button>`).join('')
         : `<div class="empty-state" style="padding:1rem; text-align:center;">Žádný blok neodpovídá filtru.</div>`;
     };
@@ -245,6 +619,23 @@ function openVisualBuilder(root) {
       renderSelected();
       if (selectedId) post({ type: 'cms-vb-highlight', id: selectedId, scroll: !!shouldScrollPreview });
     };
+    const clearPingTimer = () => {
+      if (!pingTimer) return;
+      clearInterval(pingTimer);
+      pingTimer = null;
+    };
+    const requestMapSync = () => {
+      pingAttempts += 1;
+      post({ type: 'cms-vb-ping' });
+      if (mapLoaded) {
+        clearPingTimer();
+        return;
+      }
+      if (pingAttempts >= 8) {
+        clearPingTimer();
+        setStatus('Mapa bloků se nenačetla. Klikněte na ↻ nebo zavřete a otevřete Visual Builder znovu.');
+      }
+    };
 
     listEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-vb-id]');
@@ -252,6 +643,29 @@ function openVisualBuilder(root) {
       selectBlock(btn.dataset.vbId, true);
     });
     filterEl.addEventListener('input', renderList);
+    overlay.querySelectorAll('[data-vb-filter-state]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        stateFilter = btn.dataset.vbFilterState || 'all';
+        overlay.querySelectorAll('[data-vb-filter-state]').forEach((x) => {
+          const active = x === btn;
+          x.classList.toggle('btn-secondary', active);
+          x.classList.toggle('btn-ghost', !active);
+        });
+        renderList();
+      });
+    });
+    overlay.querySelectorAll('[data-vb-size]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const size = btn.dataset.vbSize || 'desktop';
+        const widths = { mobile: '390px', tablet: '820px', desktop: '100%' };
+        frameShell.style.width = widths[size] || '100%';
+        overlay.querySelectorAll('[data-vb-size]').forEach((x) => {
+          const active = x === btn;
+          x.classList.toggle('btn-secondary', active);
+          x.classList.toggle('btn-ghost', !active);
+        });
+      });
+    });
     overlay.querySelector('#cms-vb-refresh')?.addEventListener('click', () => {
       setStatus('Obnovuji mapu bloků…');
       post({ type: 'cms-vb-ping' });
@@ -273,6 +687,26 @@ function openVisualBuilder(root) {
         showToast('Tento blok v aktuální záložce editoru nevidím.', 'warning');
       }
     });
+    mediaBtn.addEventListener('click', () => {
+      const block = selectedBlock();
+      if (!block) return;
+      const mediaTab = document.querySelector('.cms-tab[data-tab="media"]');
+      if (mediaTab) {
+        mediaTab.click();
+        showToast('Otevřena Mediatéka. Výměnu média proveďte přes příslušnou galerii nebo hero koncept.', 'success');
+        close();
+        return;
+      }
+      showToast('Mediální blok otevřete v záložce Galerie/Hero.', 'warning');
+      if (focusEditorTarget(root, block)) close();
+    });
+    modeToggleBtn?.addEventListener('click', () => {
+      editMode = !editMode;
+      updateModeButton();
+      post({ type: 'cms-vb-mode', mode: editMode ? 'edit' : 'navigate' });
+    });
+    updateModeButton();
+    loadDraftSummary();
     overlay.querySelector('[data-m="close"]')?.addEventListener('click', close);
 
     const onMessage = (event) => {
@@ -280,12 +714,17 @@ function openVisualBuilder(root) {
       if (event.source !== vbFrame.contentWindow) return;
       const msg = event.data || {};
       if (msg.type === 'cms-vb-map') {
+        mapLoaded = true;
+        clearPingTimer();
         blocks = Array.isArray(msg.blocks) ? msg.blocks : [];
         if (!blocks.length) {
-          setStatus('Na stránce nebyly nalezeny mapované CMS bloky.');
+          setStatus('Na stránce nebyly nalezeny mapované bloky. Zkontrolujte, zda se v náhledu načetl cms-client.js.');
           selectedId = '';
         } else {
-          setStatus(`Nalezeno bloků: ${blocks.length}`);
+          const editable = blocks.filter((b) => b.editable !== false).length;
+          const media = blocks.filter((b) => b.mediaKind || b.group === 'media').length;
+          const locked = blocks.length - editable;
+          setStatus(`Nalezeno bloků: ${blocks.length} · editovatelných ${editable} · médií ${media} · orientačních ${locked}`);
           if (!selectedId || !blocks.some((b) => b.id === selectedId)) selectedId = blocks[0].id;
         }
         renderList();
@@ -297,6 +736,16 @@ function openVisualBuilder(root) {
         selectedId = msg.block.id;
         renderList();
         renderSelected();
+        return;
+      }
+      // Iframe navigoval na novou stránku → aktualizovat mapu bloků
+      if (msg.type === 'cms-vb-navigate') {
+        mapLoaded = false;
+        pingAttempts = 0;
+        setStatus(`Stránka: ${msg.path || '/'} — načítám bloky…`);
+        clearPingTimer();
+        setTimeout(requestMapSync, 300);
+        pingTimer = setInterval(requestMapSync, 800);
       }
     };
     window.addEventListener('message', onMessage);
@@ -304,14 +753,21 @@ function openVisualBuilder(root) {
     const observer = new MutationObserver(() => {
       if (!document.body.contains(overlay)) {
         window.removeEventListener('message', onMessage);
+        clearPingTimer();
         observer.disconnect();
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
     vbFrame.addEventListener('load', () => {
+      mapLoaded = false;
+      pingAttempts = 0;
       setStatus('Načítám mapu bloků…');
-      setTimeout(() => post({ type: 'cms-vb-ping' }), 220);
+      clearPingTimer();
+      // Po načtení pošleme aktuální mode (editMode), aby iframe věděl v jakém režimu je
+      setTimeout(() => post({ type: 'cms-vb-mode', mode: editMode ? 'edit' : 'navigate' }), 100);
+      setTimeout(requestMapSync, 220);
+      pingTimer = setInterval(requestMapSync, 800);
     });
   });
 }
@@ -552,6 +1008,7 @@ export async function render(container, ctx) {
       <button class="btn btn-secondary cms-tab" data-tab="seo">🔍 SEO</button>
       <button class="btn btn-secondary cms-tab" data-tab="landing">📍 Landing</button>
       <button class="btn btn-secondary cms-tab" data-tab="galerie">🖼️ Galerie</button>
+      <button class="btn btn-secondary cms-tab" data-tab="media">🗂️ Mediatéka</button>
       <button class="btn btn-secondary cms-tab" data-tab="hero">🎯 Hero bannery</button>
       <button class="btn btn-secondary cms-tab" data-tab="historie">🕓 Historie</button>
     </div>
@@ -585,6 +1042,7 @@ async function switchTab(container, tab) {
     if (tab === 'seo') return renderSeo(body);
     if (tab === 'landing') return renderLanding(body);
     if (tab === 'galerie') return renderGalerie(body);
+    if (tab === 'media') return renderMediaLibrary(body);
     if (tab === 'hero') return renderHero(body);
     if (tab === 'historie') return renderHistorie(body);
   } catch (err) {
@@ -1321,6 +1779,140 @@ function wireGalleryItem(detail, galleryKey, card, items) {
   };
   card.querySelector('[data-action="up"]').addEventListener('click', () => move(-1));
   card.querySelector('[data-action="down"]').addEventListener('click', () => move(1));
+}
+
+// ─── MEDIATÉKA (centrální přehled assetů nad galeriemi) ─────────
+
+/** Vrátí jednoduchý typ assetu podle URL. @param {string} url @returns {string} */
+function mediaAssetKind(url) {
+  const clean = String(url || '').split('?')[0].toLowerCase();
+  if (/\.(mp4|webm|mov|m4v)$/.test(clean)) return 'video';
+  if (/\.(jpe?g|png|webp|gif|avif|svg)$/.test(clean)) return 'image';
+  return 'asset';
+}
+
+/** Sestaví agregovaný seznam assetů ze všech galerií. @returns {Promise<Array<Object>>} */
+async function loadMediaAssets() {
+  const { api } = _ctx;
+  const res = await api.getGalleries();
+  const galleries = res.ok ? (res.data?.galleries || []) : [];
+  const details = await Promise.all(galleries.map(async (gallery) => {
+    const detail = await api.getGalleryItems(gallery.gallery_key);
+    return {
+      gallery,
+      items: detail.ok ? (detail.data?.items || []) : [],
+      hasDraft: !!detail.data?.has_draft,
+    };
+  }));
+  const seen = new Set();
+  const assets = [];
+  details.forEach(({ gallery, items, hasDraft }) => {
+    items.forEach((item) => {
+      const url = item.image_url || '';
+      if (!url) return;
+      const key = `${gallery.gallery_key}|${url}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      assets.push({
+        id: item.id,
+        gallery_key: gallery.gallery_key,
+        title: item.title || '',
+        caption: item.caption || '',
+        url,
+        filename: item.image_filename || url.split('/').pop() || '',
+        kind: mediaAssetKind(url),
+        hasDraft,
+        updated_at: item.updated_at || item.created_at || '',
+      });
+    });
+  });
+  return assets.sort((a, b) => a.gallery_key.localeCompare(b.gallery_key) || a.filename.localeCompare(b.filename));
+}
+
+/** Vykreslí záložku Mediatéka. @param {HTMLElement} body */
+async function renderMediaLibrary(body) {
+  const { showToast } = _ctx;
+  body.innerHTML = `<div class="card"><div class="card-body">Načítám mediatéku…</div></div>`;
+  const assets = await loadMediaAssets();
+  body.innerHTML = `
+    <div class="card mb-6">
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:flex-start;">
+          <div>
+            <h3 class="card-title" style="margin:0 0 .35rem;">🗂️ Mediatéka</h3>
+            <p class="form-hint" style="margin:0;">Centrální přehled assetů používaných v galeriích a hero workflow. Výměny probíhají bezpečně přes koncept galerie/hero a teprve potom přes zveřejnění.</p>
+          </div>
+          <div style="display:flex; gap:.35rem; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" data-media-filter="all">Vše</button>
+            <button class="btn btn-ghost btn-sm" data-media-filter="image">Obrázky</button>
+            <button class="btn btn-ghost btn-sm" data-media-filter="video">Video-ready</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="cms-media-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem;">
+      ${assets.length ? assets.map(mediaAssetCard).join('') : emptyCard('Zatím tu nejsou žádné assety. Nahrajte obrázky v záložce Galerie nebo Hero.')}
+    </div>`;
+
+  const grid = body.querySelector('#cms-media-grid');
+  const applyFilter = (kind) => {
+    grid.querySelectorAll('[data-media-kind]').forEach((card) => {
+      card.hidden = kind !== 'all' && card.dataset.mediaKind !== kind;
+    });
+  };
+  body.querySelectorAll('[data-media-filter]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const kind = btn.dataset.mediaFilter || 'all';
+      body.querySelectorAll('[data-media-filter]').forEach((x) => {
+        const active = x === btn;
+        x.classList.toggle('btn-secondary', active);
+        x.classList.toggle('btn-ghost', !active);
+      });
+      applyFilter(kind);
+    });
+  });
+  body.querySelectorAll('[data-media-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-media-copy') || '';
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast('URL assetu zkopírována ✓', 'success');
+      } catch {
+        showToast('URL: ' + url, 'info');
+      }
+    });
+  });
+  body.querySelectorAll('[data-open-gallery]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = document.querySelector('.cms-tab[data-tab="galerie"]');
+      tab?.click();
+    });
+  });
+}
+
+/** Vrátí HTML karty media assetu. @param {Object} asset @returns {string} */
+function mediaAssetCard(asset) {
+  const isImage = asset.kind === 'image';
+  return `
+    <div class="card cms-media-asset" data-media-kind="${escAttr(asset.kind)}">
+      <div style="aspect-ratio:4/3; overflow:hidden; border-radius:8px 8px 0 0; background:#f3f1ec; display:grid; place-items:center;">
+        ${isImage
+          ? `<img src="${escAttr(asset.url)}" alt="${escAttr(asset.caption || asset.title || asset.filename)}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">`
+          : `<div style="font-size:2rem;">🎬</div>`}
+      </div>
+      <div class="card-body" style="padding:.75rem;">
+        <div style="display:flex; justify-content:space-between; gap:.5rem; align-items:center; margin-bottom:.35rem;">
+          <strong style="font-size:.9rem; overflow:hidden; text-overflow:ellipsis;">${esc(asset.caption || asset.title || asset.filename || asset.url)}</strong>
+          <span class="badge ${asset.hasDraft ? 'badge-pending' : 'badge-confirmed'}">${asset.hasDraft ? 'Koncept' : 'Live'}</span>
+        </div>
+        <p class="form-hint" style="margin:.2rem 0;">Galerie: <code>${esc(asset.gallery_key)}</code> · typ: ${esc(asset.kind)}</p>
+        <p class="form-hint" style="margin:.2rem 0; overflow:hidden; text-overflow:ellipsis;">${esc(asset.url)}</p>
+        <div style="display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.6rem;">
+          <button class="btn btn-secondary btn-sm" data-media-copy="${escAttr(asset.url)}">Kopírovat URL</button>
+          <button class="btn btn-ghost btn-sm" data-open-gallery="${escAttr(asset.gallery_key)}">Otevřít galerii</button>
+        </div>
+      </div>
+    </div>`;
 }
 
 // ─── HERO (draft/publish) ─────────────────────────────────────

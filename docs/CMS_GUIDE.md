@@ -30,11 +30,19 @@ Reset ani undo/redo samy nic nepublikují; stále platí **Uložit koncept → Z
 U všech záložek s náhledem je tlačítko **🧩 Visual Builder**:
 
 1. Otevře zvětšený náhled stránky (v modalu).
-2. Kliknete přímo na blok na webu (text, galerie, FAQ, landing pole, kontakt…).
-3. Vpravo se ukáže seznam mapovaných CMS bloků; vybraný blok lze přepnout i ze seznamu.
-4. Tlačítko **🎯 Najít v editoru** posune aktuální záložku adminu na odpovídající formulář.
+2. Kliknete přímo na blok na webu (text, galerie, FAQ, landing pole, kontakt, CTA, karta, formulář…).
+3. Vpravo se ukáže kompletní outline stránky včetně **editovatelných**, **mediálních**, **dynamických** a **zamčených** bloků.
+4. Filtry **Editovatelné / Média / Zamčené / Dynamické** pomohou najít přesně to, co chcete upravit.
+5. U jednoduchých textů, landing polí, kontaktu/NAP a hero polí lze upravit hodnotu rovnou v pravém inspektoru a dát **💾 Uložit koncept**.
+6. Panel **Nezveřejněné změny** ukazuje koncepty napříč texty, hero, galeriemi a službami. Vybraný podporovaný blok lze z inspektoru rovnou **✅ Zveřejnit blok** nebo **↩︎ Zahodit koncept**.
+7. Tlačítko **🎯 Najít v editoru** posune aktuální záložku adminu na odpovídající formulář, pokud blok potřebuje plný specializovaný editor.
 
-Visual Builder nic sám nepublikuje — stále platí workflow **uložit koncept → náhled → zveřejnit**.
+Zamčené bloky nejsou chyba načtení. Jsou to části šablony nebo funkční prvky (např. navigace, formulář, mapa,
+AI widget), které builder ukazuje kvůli orientaci v celé stránce. Pokud je uvnitř zamčeného bloku napojený text,
+obrázek nebo karta, má vlastní editovatelný blok. Mediální bloky jsou označené zvlášť a navádějí do galerie/hero
+workflow; přímá výměna z centrální media knihovny je připravená jako navazující krok.
+
+Visual Builder sám nic nepublikuje automaticky. I při inline úpravě stále platí workflow **uložit koncept → náhled → zveřejnit**.
 
 ### Pojmenované verze konceptu (F12-D)
 
@@ -57,7 +65,7 @@ vždy jen aktuální koncept přes **Zveřejnit**). Na položku lze uložit max.
 3. Nahoře jsou záložky: **Stránky** (texty + karty homepage), **Služby** (programy),
    **FAQ** (sdílené otázky na landing stránkách), **Footer & Kontakt** (NAP),
    **SEO** (titulky a popisy stránek pro Google/sdílení), **Landing** (texty stránek lokalit),
-   **Galerie**, **Hero bannery**, **Historie změn**.
+   **Galerie**, **Mediatéka**, **Hero bannery**, **Historie změn**.
 
 > **Služby:** záložka Služby = tabulka programů; „Upravit" otevře editor (název, popisy,
 > cena, ikona, viditelnost) s konceptem. Změny se promítnou do průvodce, rezervačního
@@ -98,7 +106,20 @@ Fotky jsou seskupené do **galerií** podle klíče (např. `ordinace`).
 
 ---
 
-## 4. Hero bannery
+## 4. Mediatéka
+
+Záložka **Mediatéka** je centrální přehled assetů používaných v galeriích a hero workflow:
+
+- Ukazuje náhled assetu, galerii, URL, typ souboru a stav **Live/Koncept**.
+- URL lze zkopírovat pro použití v SEO nebo hero poli.
+- Tlačítko **Otevřít galerii** vás přesune do bezpečného konceptového workflow galerie.
+- Video je v UI připravené jako typ assetu, ale produkční streamování/výběr technologie se řeší zvlášť.
+
+Mediatéka sama nic nemaže ani nepublikuje; je to bezpečný přehled nad existujícími R2/galerijními assety.
+
+---
+
+## 5. Hero bannery
 
 Hero = velký úvodní pruh stránky (nadpis, podnadpis, tlačítko, obrázek pozadí).
 
@@ -109,14 +130,14 @@ Hero = velký úvodní pruh stránky (nadpis, podnadpis, tlačítko, obrázek po
 
 ---
 
-## 5. Historie změn
+## 6. Historie změn
 
 Záložka **Historie změn** ukazuje, **kdo**, **kdy** a **co** změnil (texty, galerie, hero).
 Slouží pro přehled a dohledatelnost — nic se odsud needituje.
 
 ---
 
-## 6. Když se něco pokazí
+## 7. Když se něco pokazí
 
 - **Web ukazuje starý obsah:** počkejte ~1 minutu (cache), pak obnovte stránku (Ctrl/Cmd+R).
 - **Fotka se nenahrála:** zkontrolujte formát a velikost (max 5 MB). Při mnoha uploadech za sebou
