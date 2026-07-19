@@ -433,7 +433,7 @@ function openVisualBuilder(root) {
         <label class="form-label" for="${id}">${esc(label)}</label>
         ${type === 'textarea'
           ? `<textarea class="form-input" id="${id}" rows="5">${esc(value)}</textarea>`
-          : `<input class="form-input" id="${id}" type="text" value="${esc(value)}">`}
+          : `<input class="form-input" id="${id}" type="text" value="${escAttr(value)}">`}
       </div>`;
     const renderInlineEditor = async (block) => {
       const host = selectedEl.querySelector('[data-vb-inline-editor]');

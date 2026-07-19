@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS gallery_drafts (
     FOREIGN KEY (updated_by) REFERENCES operators(id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_gallery_image_url ON gallery_items(image_url);
+
 -- ============================================================
 -- Done — migrace 0029
 -- ============================================================
