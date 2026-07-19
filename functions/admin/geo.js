@@ -51,10 +51,12 @@ export async function onRequestGet({ env, data }) {
       }
     }
 
-    const cities = Array.from(cityMap.entries())
+    const allCities = Array.from(cityMap.entries())
       .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .sort((a, b) => b.count - a.count);
+
+    const totalLeads = allCities.reduce((s, c) => s + c.count, 0);
+    const cities = allCities.slice(0, 10);
 
     // Service popularity by region
     const serviceResult = await env.DB.prepare(
@@ -83,6 +85,16 @@ export async function onRequestGet({ env, data }) {
       h3: r.h3_hexagon_id,
       count: r.count,
     }));
+
+    // Query raw coordinate points for map rendering
+    const pointsResult = await env.DB.prepare(
+      `SELECT latitude, longitude, city, service, created_at
+       FROM geo_leads
+       WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+       ORDER BY created_at DESC
+       LIMIT 500`
+    ).all();
+    const points = pointsResult?.results || [];
 
     // Postřehy odvozené z REÁLNÝCH dat (žádná AI/mock — pravidlové shrnutí).
     // Zrcadlí logiku týdenního cronu _cron-geo.js (práh 5 pro tip na kampaň).
@@ -120,8 +132,10 @@ export async function onRequestGet({ env, data }) {
         cities,
         topServices,
         topH3,
+        points,
         insights,
-        totalLeads: cities.reduce((s, c) => s + c.count, 0),
+        totalLeads,
+        googleMapsApiKey: env.SECRET_GOOGLE_MAPS_PLATFORM_API || null,
       },
     });
   } catch (err) {

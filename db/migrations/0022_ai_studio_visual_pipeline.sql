@@ -1,7 +1,7 @@
 -- Migration 0022: AI Studio visual pipeline (media_assets + runtime keys)
 -- Adds storage/audit-ready lifecycle table for generated visual assets.
 
-BEGIN;
+-- BEGIN;
 
 CREATE TABLE IF NOT EXISTS media_assets (
     id TEXT PRIMARY KEY,
@@ -34,5 +34,5 @@ INSERT OR IGNORE INTO process_states (key, value, description) VALUES
     ('ai_studio_chat_max_sentences', '4', 'Max. počet vět v odpovědi AI chatu'),
     ('ai_studio_daily_image_cap', '50', 'Denní limit generování AI obrázků');
 
-COMMIT;
+-- COMMIT;
 

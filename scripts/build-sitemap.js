@@ -24,7 +24,8 @@ const STATIC_ROUTES = [
   '/biorezonance-strakonice',
   '/biorezonance-vodnany',
   '/biorezonance-milevsko',
-  '/biorezonance-protivin'
+  '/biorezonance-protivin',
+  '/biorezonance-blatna'
 ];
 
 function generateSitemap() {
@@ -36,11 +37,18 @@ function generateSitemap() {
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   
   for (const route of STATIC_ROUTES) {
+    let priority = '0.8';
+    if (route === '/') {
+      priority = '1.0';
+    } else if (route.startsWith('/biorezonance-')) {
+      priority = '0.9';
+    }
+    
     xml += '  <url>\n';
     xml += `    <loc>${BASE_URL}${route}</loc>\n`;
     xml += `    <lastmod>${today}</lastmod>\n`;
     xml += `    <changefreq>${route === '/' ? 'daily' : 'monthly'}</changefreq>\n`;
-    xml += `    <priority>${route === '/' ? '1.0' : '0.8'}</priority>\n`;
+    xml += `    <priority>${priority}</priority>\n`;
     xml += '  </url>\n';
   }
   

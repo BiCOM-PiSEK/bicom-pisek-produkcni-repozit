@@ -14,6 +14,40 @@
 
 ---
 
+## Oprava AI Studia, D1, CodeRabbit review a spuštění GEO/SEO/AEO Marketing kaskády
+- **Datum:** 2026-06-28 20:40
+- **Agent:** Gemini/Antigravity
+- **Úkol:** Oprava AI Studia, migrací, zprovoznění D1 lokálně/produkčně, vyřešení CodeRabbit review a implementace GEO/SEO/AEO vylepšení (nová lokální stránka, čistá URL, router bypass, llms.txt).
+- **Změny:**
+  - `public/admin/js/modules/studio.js` — UPRAVEN: Vyřešeno CodeRabbit review přidáním `try/catch` v `loadSettings`/`loadJobs` a `try/finally` v retry handleru.
+  - `wrangler.toml` — UPRAVEN: Přidány root-level bindingy a komentář vysvětlující vývojové izolace.
+  - `public/biorezonance-blatna.html` — NOVÝ: Vytvořena lokální landing page pro Blatnou s FAQ schema a AEO optimalizací.
+  - `public/biorezonance-*.html` (Písek, Strakonice, Milevsko, Vodňany, Protivín) — UPRAVENY: Odstraněna přípona `.html` v canonical URL, og:url, breadcrumb, a doplněn odkaz na Blatnou a čisté URL ve footeru.
+  - `public/index.html` — UPRAVEN: Přidán sloupec "Lokality" do patičky pro lepší indexaci lokálních stránek.
+  - `public/assets/js/router.js` — UPRAVEN: Přidán bypass pro `/biorezonance-` trasy v SPA click interceptoru (zabránění nechtěným 404).
+  - `public/llms.txt` — UPRAVEN: Rozšířena strukturovaná data o dojezdových časech, parkování, přípravě na biorezonanci a parametrech programů pro AEO.
+  - `scripts/build-sitemap.js` — UPRAVEN: Přidána Blatná, upraveny priority lokálních stránek na 0.9 a dynamic lastmod date.
+  - `public/sitemap.xml` — REGENEROVÁN: Aktualizován pomocí `node scripts/build-sitemap.js`.
+- **Rozhodnutí/odchylky:** Canonical a sitemap URL sjednoceny na extensionless verze (bez `.html`), přičemž SPA router pro ně byl upraven, aby nedocházelo ke klientským 404.
+- **QA:** lint N/A · testy ✅ (sitemap.xml úspěšně vygenerován reálným skriptem)
+- **Pro orchestrátora:** PR #98 byl úspěšně sloučen do `main`. Nové změny jsou uloženy na větvi `feature/geo-seo-aeo-sprint3` a připraveny k dalšímu postupu/nasazení.
+
+
+## Admin zprávy, newsletter export, srovnání DB a bezpečnostní hlavičky
+- **Datum:** 2026-06-28 15:40
+- **Agent:** Gemini/Antigravity
+- **Úkol:** Dokončit správu AI chat zpráv, stahování kontaktů newsletteru, srovnání ledgeru migrací a přidání CSP hlaviček.
+- **Změny:**
+  - `public/admin/js/modules/messages.js` — PŘEPSÁN: Vytvořeno kompletní admin UI pro prohlížení a mazání chatových konverzací s AI Rádcem.
+  - `public/admin/js/modules/dashboard.js` — UPRAVEN: Rychlá akce pro Newsletter nyní stahuje reálný CSV soubor z API `/admin/newsletter` místo zobrazení mock toastu.
+  - `wrangler.toml` — UPRAVEN: Přidána konfigurace `migrations_dir = "db/migrations"` pro vyřešení Windows checkout/symlink problémů.
+  - `scripts/resolve-ledger-drift.js` — UPRAVEN: Změněn SQL dotaz na sloupec `applied_at`, opraven INSERT bez explicitního `id` k zamezení PK kolizí na D1 a upraveno filtrování pro novou migraci `0021_chat_messages.sql`.
+  - `scripts/db-diagnostics.js`, `scripts/seed-hero.js`, `scripts/generate-service-jsonld.js` — UPRAVEN: Upraveny subprocess příkazy na platform-aware `npx.cmd` pro Windows prostředí.
+  - Ostatní soubory z dřívější rozpracované verze (migrace 0021, testy, workflow) byly staged a commitnuty do nové větve.
+- **Rozhodnutí/odchylky:** Omezeno automatické označování migrací za applied v ledger syncu o novou migraci `0021_chat_messages.sql`, čímž se docílilo toho, že Wrangler po srovnání ledgeru úspěšně a čistě provedl exekuci této nové tabulky.
+- **QA:** lint ❌ (chybí konfigurace eslint) · testy ✅ (všech 49 testů prošlo v pořádku)
+- **Pro orchestrátora:** Všechny změny jsou úspěšně otestovány a uloženy na větvi `feature/admin-messages-newsletter-hardening`. Až bude potřeba nasadit na produkci, stačí provést squash a merge do `main`.
+
 ## GEO-Marketing — odstranění demo/mock dat, příprava na reálný provoz
 - **Datum:** 2026-06-15 15:15
 - **Agent:** Claude Code

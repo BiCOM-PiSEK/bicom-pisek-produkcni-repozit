@@ -325,8 +325,39 @@ function bindEvents(container, ctx, data) {
 
   const quickNewsletter = container.querySelector('#btn-quick-newsletter');
   if (quickNewsletter) {
-    quickNewsletter.addEventListener('click', () => {
-      ctx.showToast('Newsletter modul bude brzy dostupný', 'info');
+    quickNewsletter.addEventListener('click', async () => {
+      if (ctx.api) {
+        quickNewsletter.disabled = true;
+        const origContent = quickNewsletter.innerHTML;
+        quickNewsletter.querySelector('.quick-action-text').innerHTML = `
+          <strong>Stahuji…</strong>
+          <small>Připravuji CSV soubor</small>
+        `;
+        try {
+          const res = await ctx.api.exportNewsletterCsv();
+          if (res.ok && res.data) {
+            const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'newsletter_subscribers.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            ctx.showToast('Kontakty úspěšně staženy ✓', 'success');
+          } else {
+            ctx.showToast('Chyba při exportu: ' + (res.error || 'neznámá chyba'), 'error');
+          }
+        } catch (e) {
+          ctx.showToast('Chyba při stahování: ' + e.message, 'error');
+        } finally {
+          quickNewsletter.disabled = false;
+          quickNewsletter.innerHTML = origContent;
+        }
+      } else {
+        ctx.showToast('API není dostupné', 'warning');
+      }
     });
   }
 

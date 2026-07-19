@@ -1,9 +1,26 @@
 # Bicom Písek — GEO / AEO / SEO strategie + keyword & entitní mapa
 
-> Navazuje na `docs/GEO_AEO.md` v repu (zdroj pravdy). Tento dokument rozšiřuje strategii o **SEO vrstvu, keyword/entitní mapu, schema.org plán a interní prolinkování**, a propojuje ji s tabulkami `blog_posts` a `geo_leads`.
+> Tento dokument slouží jako ucelený a jednotný zdroj pravdy pro optimalizaci obsahu pro generativní vyhledávače (GEO), odpovídací enginy (AEO) a klasické vyhledávání (SEO).
 > Všechna zdravotní tvrzení procházejí právním filtrem: „podpora", „může pomoci", „klienti uvádějí" — nikdy „vyléčení". Biorezonance není náhrada lékařské péče.
 
-## 1. Tři vrstvy optimalizace — jak se liší a jak spolupracují
+## 1. Co je GEO/AEO a jak AI hodnotí důvěru
+
+- **SEO** = optimalizace pro klasické vyhledávače (Google, Seznam, Bing).
+- **GEO** (Generative Engine Optimization) = optimalizace pro generativní AI, které tvoří odpovědi (Google AI Overviews, ChatGPT, Perplexity).
+- **AEO** (Answer Engine Optimization) = optimalizace pro „odpovědní" enginy (hlasové asistenty, featured snippets).
+
+AI hodnotí důvěru přes **E-E-A-T v éře LLM**: Experience, Expertise, Authoritativeness, Trust. Pro nás to znamená: konkrétní certifikovaná metoda (Bicom Optima, třída ZP IIa, ISO 13485), konkrétní lokalita (Písek), konzistentní fakta napříč webem i mapovými profily, a strukturovaná sémantická data.
+
+### Pět pilířů naší GEO/AEO strategie:
+1. **Pilíř A — Sémantické entity (JSON-LD):** Propojení metody Bicom Optima s lokalitou Písek a terapeutem pomocí typů `LocalBusiness`, `Service` a `Person`.
+2. **Pilíř B — Informační hustota:** Struktura otázka→odpověď (FAQ) přímým a věcným tónem.
+3. **Pilíř C — Autorita a co-citace:** Identická fakta a NAP (Name, Address, Phone) na platformách Google, Apple, Seznam i Bing.
+4. **Pilíř D — Lokální signály:** `areaServed` (spádová města jako Strakonice, Milevsko atd.) a reálné dojezdové časy.
+5. **Pilíř E — Strojová čitelnost:** Explicitně povolené AI crawlery v `robots.txt` a strojový souhrn `llms.txt`.
+
+---
+
+## 2. Tři vrstvy optimalizace — jak se liší a jak spolupracují
 
 | Vrstva | Cíl | Pro koho/co | Hlavní páka |
 |---|---|---|---|
@@ -95,3 +112,8 @@ Tyto FAQ ukládat i do `blog_posts.jsonld` jako `FAQPage` → dvojí užitek (we
 - `FAQPage` JSON-LD není v článcích → ztráta AEO/GEO potenciálu.
 - Není definovaný `author`/`Person` (E-E-A-T).
 - Chybí cenník/`Service` strukturovaná data.
+
+## 10. Co NEDĚLAT (Rizika a pravidla)
+- ❌ **Žádná nepovolená léčebná tvrzení:** Tvrzení jako „vyléčí rakovinu, atopický ekzém, alergie" jsou právně nepřípustná a AI vyhledávače je deindexují. Používej formulace „podpora", „harmonizace", „klienti uvádějí".
+- ❌ **Žádný keyword stuffing:** AI vyhledávače penalizují nepřirozené hromadění klíčových slov a skrytý text.
+- ❌ **Žádné fiktivní recenze:** Důvěryhodnost (E-E-A-T) stojí na reálném sociálním důkazu. Sběr recenzí probíhá bezpečně přes Google Business Profile.

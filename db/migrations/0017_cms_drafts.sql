@@ -16,7 +16,7 @@
 -- ── 1) DRAFT SLOUPCE ────────────────────────────────────────
 -- content_blocks: rozpracovaná verze textu/JSON vedle živé
 -- Poznámka: D1 nepodporuje ADD COLUMN IF NOT EXISTS; kontrola idempotence skrze PRAGMA table_info
-BEGIN;
+-- BEGIN;
   -- Idempotence check: if column already exists, SKIP
   -- (D1 nemá přijatelný fallback, takže se spoléháme na IGNORE + INSERT OR behavior)
   ALTER TABLE content_blocks ADD COLUMN draft_title TEXT;
@@ -32,7 +32,7 @@ BEGIN;
   -- services: rozpracovaná verze jako JSON (využije F2)
   ALTER TABLE services ADD COLUMN draft_json TEXT;
   ALTER TABLE services ADD COLUMN has_draft INTEGER NOT NULL DEFAULT 0;
-COMMIT;
+-- COMMIT;
 
 -- ── 2) SEED: homepage textové sekce (type 'text') ───────────
 -- Výchozí obsah převzat z aktuálního public/index.html.

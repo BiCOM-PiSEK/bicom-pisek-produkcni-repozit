@@ -6,7 +6,7 @@
 import { DataCrypt } from '../lib/datacrypt.js';
 import { GoogleCalendarConnector } from '../lib/connectors/google-calendar.js';
 import { ResendConnector } from '../lib/connectors/resend.js';
-import { getNowInPrague } from '../api/availability.js';
+import { getNowInPrague } from '../lib/time.js';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -43,7 +43,11 @@ export async function onRequestGet({ env, data, request }) {
 
     // Decrypt PII
     let bookings = result?.results || [];
-    if (env.SECRET_ENCRYPTION_KEY && bookings.length > 0) {
+    if (bookings.length > 0) {
+      if (!env.SECRET_ENCRYPTION_KEY) {
+        console.error('[admin/bookings] SECRET_ENCRYPTION_KEY is missing!');
+        return json({ ok: false, error: 'Šifrování není nakonfigurováno. Kontakty nelze zobrazit.' }, 500);
+      }
       const crypt = new DataCrypt(env.SECRET_ENCRYPTION_KEY);
       bookings = await Promise.all(bookings.map(async (b) => {
         try {

@@ -1,7 +1,7 @@
 -- Migration 0023: AI Studio job console table
 -- Adds execution telemetry and retry tracking for visual generation jobs.
 
-BEGIN;
+-- BEGIN;
 
 CREATE TABLE IF NOT EXISTS ai_jobs (
     id TEXT PRIMARY KEY,
@@ -23,5 +23,5 @@ CREATE TABLE IF NOT EXISTS ai_jobs (
 
 CREATE INDEX IF NOT EXISTS idx_ai_jobs_status_created_at ON ai_jobs(status, created_at);
 
-COMMIT;
+-- COMMIT;
 

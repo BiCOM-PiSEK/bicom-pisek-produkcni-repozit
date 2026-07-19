@@ -22,6 +22,8 @@ export async function onRequestGet({ env, params, request }) {
   const segs = Array.isArray(params.path) ? params.path : (params.path ? [params.path] : []);
   let file = (segs[0] || 'index.html').toLowerCase();
   if (file === '' || file === 'home' || file === 'index') file = 'index.html';
+  // Auto-append .html for extensionless landing page paths (e.g. biorezonance-pisek)
+  if (/^[a-z0-9-]+$/.test(file)) file += '.html';
   if (!/^[a-z0-9-]+\.html$/.test(file)) {
     return new Response('Neplatná stránka náhledu.', { status: 400 });
   }

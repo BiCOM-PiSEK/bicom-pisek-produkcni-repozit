@@ -2,6 +2,31 @@ name = "bicom-pisek"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "public"
 
+# NOTE: Root-level bindings point to production resources (same as env.production).
+# Reason: this project has no separate dev D1/R2/KV — the root-level entries are
+# required so that `wrangler d1 migrations apply --local` and similar local CLI
+# commands can resolve bindings without --env=production flag.
+# In wrangler dev, the D1 binding runs against the local SQLite emulator (--local),
+# so production data is NOT at risk during local development.
+# If a dedicated dev database is added in future, move these to [env.dev].
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bicom-pisek-db"
+database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
+migrations_dir = "db/migrations"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "bicom-multimedia"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "57e7c49eaba94dd4ad9ede723ff69aab"
+
+[ai]
+binding = "AI"
+
 # --- Environment: Production ---
 [env.production]
 vars = { ALERT_EMAIL_FROM = "alerts@bicom-pisek.cz", ALERT_EMAIL_TO = "admin@bicom-pisek.cz", MONITORING_ENABLED = "true", MONITORING_ALERT_THROTTLE_SECONDS = "300", MAINTENANCE_ENABLED = "false" }
@@ -10,6 +35,7 @@ vars = { ALERT_EMAIL_FROM = "alerts@bicom-pisek.cz", ALERT_EMAIL_TO = "admin@bic
 binding = "DB"
 database_name = "bicom-pisek-db"
 database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
+migrations_dir = "db/migrations"
 
 [[env.production.r2_buckets]]
 binding = "MEDIA"
@@ -38,6 +64,7 @@ vars = { ALERT_EMAIL_FROM = "alerts@localhost", ALERT_EMAIL_TO = "dev@localhost"
 binding = "DB"
 database_name = "bicom-pisek-db"
 database_id = "c04cb289-2ff4-45d7-9fa0-3243c34c3abe"
+migrations_dir = "db/migrations"
 
 [[env.preview.r2_buckets]]
 binding = "MEDIA"

@@ -2,9 +2,11 @@
 // Runs diagnostics on the live Cloudflare D1 database (bicom-pisek-db) using Wrangler CLI.
 // Checks row counts, tables health, and performs backup & GDPR dry-runs.
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import path from 'path';
 
 const DB_NAME = 'bicom-pisek-db';
+const WRANGLER_JS = path.resolve('node_modules/wrangler/bin/wrangler.js');
 const TABLES = [
   'bookings', 'newsletter_subscribers', 'blog_posts', 'services',
   'geo_leads', 'reminders', 'operators', 'calendar_slots',
@@ -14,15 +16,12 @@ const TABLES = [
 
 function runQuery(sql) {
   try {
-    const output = execSync(
-      `npx wrangler d1 execute ${DB_NAME} --remote --json --command="${sql.replace(/"/g, '\\"')}"`,
-      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
-    );
-    // Wrangler output contains some text before the JSON array, parse the array part
+    const args = [WRANGLER_JS, 'd1', 'execute', DB_NAME, '--remote', '--json', `--command=${sql}`];
+    const output = execFileSync('node', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
     const jsonStart = output.indexOf('[');
     if (jsonStart === -1) {
-      // Might be a single object/success message if not returning rows
-      return JSON.parse(output.substring(output.indexOf('{')));
+      const match = output.match(/\{.*\}/s);
+      return match ? JSON.parse(match[0]) : null;
     }
     return JSON.parse(output.substring(jsonStart));
   } catch (err) {

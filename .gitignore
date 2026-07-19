@@ -22,3 +22,8 @@ backups/
 
 # Audit (secrets)
 docs/audit/
+
+# Graphify local config
+graphify-out/.*
+graphify-out/cache/
+

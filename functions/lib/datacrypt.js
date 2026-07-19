@@ -83,34 +83,60 @@ function hexToBytes(hex) {
 class DataCrypt {
   /**
    * Creates a new DataCrypt instance.
-   * @param {string} hexKey - 64-character hex string representing a 256-bit key
+   * @param {string} hexKey - 64-character hex string representing a 256-bit key or a comma-separated list of keys
    */
   constructor(hexKey) {
-    if (!hexKey || typeof hexKey !== 'string' || hexKey.length !== 64) {
-      throw new Error('DataCrypt: hexKey must be a 64-character hex string (256-bit)');
+    if (!hexKey || typeof hexKey !== 'string') {
+      throw new Error('DataCrypt: hexKey must be a non-empty string');
+    }
+    const keys = hexKey.split(',').map(k => k.trim());
+    for (const key of keys) {
+      if (key.length !== 64 || !/^[0-9a-fA-F]+$/.test(key)) {
+        throw new Error('DataCrypt: hexKey must be a 64-character hex string (256-bit)');
+      }
     }
     /** @private */
-    this._hexKey = hexKey;
-    /** @private @type {CryptoKey|null} */
-    this._cachedKey = null;
+    this._hexKeys = keys;
+    /** @private @type {CryptoKey[]} */
+    this._cachedKeys = [];
   }
 
   /**
-   * Lazily imports and caches the CryptoKey from the hex string.
-   * @private
-   * @returns {Promise<CryptoKey>}
+   * Returns the primary (first) hex key.
+   * @type {string}
    */
-  async _getKey() {
-    if (this._cachedKey) return this._cachedKey;
-    const rawBytes = hexToBytes(this._hexKey);
-    this._cachedKey = await crypto.subtle.importKey(
-      'raw',
-      rawBytes,
-      { name: 'AES-GCM' },
-      false,
-      ['encrypt', 'decrypt']
+  get primaryKeyHex() {
+    return this._hexKeys[0];
+  }
+
+  /**
+   * Returns the oldest (last) hex key for lookup stability during rotation.
+   * @type {string}
+   */
+  get oldestKeyHex() {
+    return this._hexKeys[this._hexKeys.length - 1];
+  }
+
+  /**
+   * Lazily imports and caches the CryptoKeys.
+   * @private
+   * @returns {Promise<CryptoKey[]>}
+   */
+  async _getKeys() {
+    if (this._cachedKeys.length > 0) return this._cachedKeys;
+    this._cachedKeys = await Promise.all(
+      this._hexKeys.map(async (hk) => {
+        const rawBytes = hexToBytes(hk);
+        return crypto.subtle.importKey(
+          'raw',
+          rawBytes,
+          { name: 'AES-GCM' },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      })
     );
-    return this._cachedKey;
+    return this._cachedKeys;
   }
 
   /**
@@ -121,12 +147,13 @@ class DataCrypt {
    */
   async encrypt(plaintext) {
     if (plaintext == null) return null;
-    const key = await this._getKey();
+    const keys = await this._getKeys();
+    const primaryKey = keys[0];
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const encoded = new TextEncoder().encode(plaintext);
     const ciphertext = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
-      key,
+      primaryKey,
       encoded
     );
 
@@ -147,20 +174,47 @@ class DataCrypt {
   async decrypt(encryptedBase64) {
     if (encryptedBase64 == null) return null;
     if (encryptedBase64 === '') return '';
-    const key = await this._getKey();
+    const keys = await this._getKeys();
     const raw = base64ToArrayBuffer(encryptedBase64);
 
     // First 12 bytes = IV, remainder = ciphertext + auth tag
     const iv = raw.slice(0, 12);
     const ciphertext = raw.slice(12);
 
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      key,
-      ciphertext
-    );
+    let lastError = null;
+    for (const key of keys) {
+      try {
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv },
+          key,
+          ciphertext
+        );
+        return new TextDecoder().decode(decrypted);
+      } catch (err) {
+        lastError = err;
+      }
+    }
 
-    return new TextDecoder().decode(decrypted);
+    throw lastError || new Error('DataCrypt: Decryption failed for all keys');
+  }
+
+  /**
+   * Decrypts only specific fields of an object, leaving others encrypted.
+   * @param {Object} obj - Object with encrypted field values
+   * @param {string[]} fields - List of fields to decrypt
+   * @returns {Promise<Object>} Decrypted object containing decrypted fields and original values for others
+   */
+  async decryptFields(obj, fields) {
+    if (obj == null) return null;
+    const decrypted = {};
+    for (const key of Object.keys(obj)) {
+      if (fields.includes(key) && obj[key] != null) {
+        decrypted[key] = await this.decrypt(obj[key]);
+      } else {
+        decrypted[key] = obj[key];
+      }
+    }
+    return decrypted;
   }
 
   /**
@@ -173,6 +227,36 @@ class DataCrypt {
     const encoded = new TextEncoder().encode(value);
     const digest = await crypto.subtle.digest('SHA-256', encoded);
     return [...new Uint8Array(digest)]
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  /**
+   * Computes a keyed HMAC-SHA256 hash of the given value.
+   * Helps prevent dictionary attacks on stored hashes of low-entropy values.
+   * @param {string} value - The string to hash
+   * @param {string} secretKeyHex - 64-character hex key (or list of keys)
+   * @returns {Promise<string>} Lowercase hex-encoded HMAC-SHA-256 signature
+   */
+  static async keyedHash(value, secretKeyHex) {
+    if (!secretKeyHex || typeof secretKeyHex !== 'string') {
+      throw new Error('DataCrypt.keyedHash: secretKeyHex must be a non-empty string');
+    }
+    const encoder = new TextEncoder();
+    // Use the oldest (last) key in the list for lookup stability during key rotations
+    const keys = secretKeyHex.split(',').map(k => k.trim());
+    const oldestKeyHex = keys[keys.length - 1];
+    const keyBytes = hexToBytes(oldestKeyHex);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyBytes,
+      { name: 'HMAC', hash: { name: 'SHA-256' } },
+      false,
+      ['sign']
+    );
+    const data = encoder.encode(value);
+    const signature = await crypto.subtle.sign('HMAC', key, data);
+    return [...new Uint8Array(signature)]
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
   }

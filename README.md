@@ -504,6 +504,38 @@ sequenceDiagram
 - 🟥 Červená = Bezpečnost, audit, guardrail
 - 🟧 Ostatní = Platby, fakturace, AI, cron
 
+### 💳 Detailní tok platby a asynchronní fronty (Stripe & Queue Booking Flow)
+
+Tento diagram detailně znázorňuje proces online platby zálohy přes Stripe a navazující asynchronní zpracování rezervační fronty:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Klient / Web
+    participant API as /api/stripe-checkout
+    participant Stripe as Stripe Checkout
+    participant Webhook as /api/stripe-webhook
+    participant Queue as Fronta: booking-jobs
+    participant Consumer as booking-consumer (Worker)
+    participant D1 as D1 Databáze
+    participant GCal as Google Kalendář
+    participant Resend as Resend Mailer
+
+    Client->>API: Poptávka termínu a žádost o zálohu
+    API->>D1: Vytvoření rezervace (status: pending_payment)
+    API->>Stripe: Vytvoření Checkout Session (500 Kč)
+    Stripe-->>Client: Přesměrování na platební bránu
+    Client->>Stripe: Dokončení platby (Apple Pay / karta)
+    Stripe->>Webhook: Webhook: checkout.session.completed
+    Webhook->>D1: Ověření platby & změna statusu na 'pending' (zaplaceno)
+    Webhook->>Queue: Odeslání booking ID do fronty
+    Queue->>Consumer: Aktivace consumer Workeru
+    Consumer->>D1: Kontrola duplicity (anti-retry zamezení zacyklení)
+    Consumer->>GCal: Zápis do kalendáře (Domain delegation jako admin@)
+    Consumer->>Resend: Odeslání e-mailu klientovi (dešifrovaná data)
+    Consumer->>D1: Uložení google_event_id & zápis do audit_log
+```
+
 ---
 
 ## 🚀 Lokální Spuštění

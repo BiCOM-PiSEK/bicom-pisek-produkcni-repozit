@@ -6,11 +6,11 @@
 > Platby → `docs/STRIPE_INTEGRATION.md`.
 >
 > **Verze aplikace:** v1.0 — **LIVE PRODUCTION (24.6.2026, bicom-pisek.cz)**
-> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-25 Blok A (hyper-responzivita PR #93 live)
+> **Dokument vytvořen:** 2026-06-13 · **Poslední aktualizace:** 2026-06-29 Phase 5 (Stripe & Security PR #101 merged)
 > **Hloubkový audit stavu (21. 6. 2026):** [docs/DEEP_RESEARCH_2026-06-21.md](DEEP_RESEARCH_2026-06-21.md) — živá introspekce produkce + repo.
-> **Poslední merge:** Blok A CSS hyper-responzivita (PR #93, squash 0acee35); předtím Phase 3.5 (PR #92, squash 58186f9)
+> **Poslední merge:** Phase 5 (Stripe webhook, Queue deduplication, HMAC key-rotation-safe blind index, a timezone shift fixes - PR #101)
 > **Status:** ✅ Veřejný web LIVE (full production, no maintenance gate), admin konzole LIVE, monitoring 24/7 active
-> **Aktuální aktivita:** 🟡 Post-Phase 3.5 — CF Pages auto-deploy diagnostika; Blok A hotov
+> **Aktuální aktivita:** 🟡 Post-Phase 3.5 — CF Pages auto-deploy diagnostika; Blok A hotov; Phase 5 dokončena a nasazena
 > **Aktualizovat:** na konci každého dokončeného bloku/fáze.
 >
 > ⚠️ **Poznámka o úplnosti:** Tento kompas vznikl agregací stavu z deníku, ADR,
@@ -62,6 +62,7 @@
 
 ### Data, GDPR, bezpečnost
 - Field-level šifrování citlivých polí (AES-GCM 256, čl. 9 GDPR)
+- **Zabezpečený blind index (HMAC-SHA256):** E-mailové vyhledávací hashe (`email_hash`) povýšeny na HMAC s podporou bezpečnosti při rotaci šifrovacích klíčů (využití `oldestKeyHex` jako stabilní sůl) ⟶ *(PR #101, vyřešeno)*
 - **GDPR anonymizace** (SEC-6) — oprava constraintů, NULL→'' guard, **živě otestováno na produkci** ⟶ *(dříve GAP A3, vyřešeno)*
 - Audit log u citlivých zápisů
 - Záloha D1 (export do `backups/`, manuálně i cron) ⟶ *(dříve GAP A2, řešeno)*
@@ -76,6 +77,8 @@
 - **F3 — admin UI: otevírací doba + parametry slotů** (7 dní, toggle otevřeno/zavřeno, booking_settings, potvrzení/záloha) s klientskou validací, toast notifikace, demo režim (PR #48 merged)
 - **F4 — admin UI: výjimky a svátky** (holiday/vacation/adhoc/extra) s typem, datem, volitelným časem, poznámkou (PR #50 merged)
 - **F5 — frontend: výběr konkrétního času** v rezervačním formuláři: načíst `/api/availability`, render chip sloty, validace (F5+F6 pár) (PR #51 merged)
+- **F6 — kolizní zámek & Stripe záloha:** unikátní D1 zámek na `slot_start` zabraňující souběžné rezervaci, konfigurovatelná záloha v `booking_settings` a synchronizace Stripe Session (PR #101 merged)
+- **F7 — timezone stabilizace & QA:** vyřešeny a zafixovány timezone shift posuny na API hranicích při lokálním vývoji/testech (PR #101 merged)
 
 ### Admin „Virtual Office"
 - Admin SPA (design systém, router, 7 modulů, CF Access JWT auth)
@@ -154,14 +157,7 @@ Všechny níže uvedené prvky byly vyvinuty a jsou připraveny k použití. Jej
 - ✅ Admin UI „Obsah webu“ (vanilla modul, 4 záložky: texty, galerie+upload+reorder, hero, historie)
 - ✅ Web dynamicky renderuje obsah z API (progressive enhancement, fallback na hardcoded; napojena homepage galerie)
 - ✅ Audit trail — operátorka vidí kdo a kdy co změnil
-- 🟢 **Zbývá:** spustit migraci 0016 na produkci + provozní ověření uploadu na produkci
-- **Priorita:** 🔴 KRITICKÁ (bez toho nemohou operátoři spravovat web)
-- **Závislosti:** JWT (✅), R2 binding `MEDIA` (✅), admin SPA (✅)
-
-### Rezervační systém — zbývající fáze (ADR-004, architektura = Cesta 2: sloty za běhu)
-
-- **F6** — `POST /api/book` v2: kolizní zámek (UNIQUE na `slot_start`), konfigurovatelný tok (potvrzení/závaznost/záloha), přesný čas do kalendáře i e-mailu/SMS
-- **F7** — doladění: KV cache slotů, DST/časové pásmo, QA
+- ✅ **Migrace 0016 spuštěna na produkci** — obsahový modul aktivní
 
 ### GEO / AEO / SEO (z GAP analýzy)
 - 🟠 **B1** lokální landing stránky (mapa hotová, největší růst trafiku) — *dávkovat po stránkách*

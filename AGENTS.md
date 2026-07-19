@@ -1,7 +1,16 @@
-# CLAUDE.md — Bicom Písek (vývojový kontext)
+# AGENTS.md — Bicom Písek (vývojový kontext)
 
 ## Co to je
 Produkční web ordinace biorezonance. Cloudflare-first: Pages (HTML5+Tailwind+Vanilla ES6 SPA), Workers (V8), Workers AI (llama-3-8b), D1 `bicom-pisek-db` (kanonické schéma, migrace 0001–0026), R2 `bicom-multimedia`, KV, Queues (booking-jobs, social-jobs). Workeři: bicom-booking-consumer, bicom-social-consumer, bicom-cron-worker. Doména kanonická: bicom-pisek.cz (s pomlčkou). Plnohodnotné CMS (texty/SEO/FAQ/NAP/služby/hero/galerie) s workflow koncept→náhled→zveřejnit a pojmenovanými verzemi — viz [docs/CMS_GUIDE.md](docs/CMS_GUIDE.md).
+
+## 🧭 Kompas a architektura (GraphiFy)
+V tomto repozitáři je nainstalován vizualizační a sémantický nástroj **GraphiFy**. Slouží jako tvůj primární průvodce pro okamžité pochopení struktury repozitáře a vazeb mezi soubory.
+- **Kde najdeš graf:** Celý vygenerovaný graf, HTML report a přehled architektury je uložen ve složce [graphify-out/](file:///c:/Users/PC/Documents/GitHub/bicom-pisek-produkcni-repozit/graphify-out).
+- **Jak se ptát grafu (CLI):**
+  * `graphify query "<tvoje otázka>"` — Rychlé vyhledání sémantických souvislostí.
+  * `graphify explain "<koncept>"` — Hloubkové vysvětlení fungování konkrétní komponenty.
+  * `graphify path "<A>" "<B>"` — Nalezení nejkratší cesty a provázanosti mezi dvěma soubory.
+- **Pravidlo:** Vždy před začátkem práce na komplexnějším úkolu konzultuj `graphify-out/GRAPH_REPORT.md` a po každé modifikaci kódu spusť `graphify update .` pro aktualizaci grafu.
 
 ## Zdroj pravdy
 db/schema.sql (kanonické schéma) + db/seed/ + db/migrations/NNNN_*.sql (0001–0025). D1 má = repo.

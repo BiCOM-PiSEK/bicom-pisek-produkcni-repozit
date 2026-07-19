@@ -137,9 +137,6 @@ export async function onRequestPost({ request, env }) {
       if (!booking.calendar_event_id) {
         await env.BOOKING_QUEUE.send({
           bookingId,
-          name: clientName,
-          email: clientEmail,
-          phone: clientPhone,
           service: booking.service,
           preferred_date: booking.preferred_date,
           slot_start: booking.slot_start,

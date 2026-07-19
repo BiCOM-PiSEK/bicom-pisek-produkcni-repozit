@@ -1,304 +1,351 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * BICOM PÍSEK — Admin Middleware (Cloudflare Access JWT)
+ * BICOM PÍSEK — Admin Middleware (Password & Session Cookie)
  * ═══════════════════════════════════════════════════════════════
- * Ověřuje přístup na cestách /admin/*.
- * Primárně přes interní admin heslo (X-Admin-Password / cookie admin_auth).
- * Volitelně podporuje i historický Cloudflare Access JWT režim.
- * Identifikuje operátorku z DB (`operators`) a poskytuje `ctx.data.operator`.
+ * Ověřuje relaci administrátora pomocí podepsané cookie.
  * Poskytuje `ctx.data.operator` pro všechny admin handlery.
- *
- * V dev režimu (SECRET_CF_ACCESS_TEAM = undefined) povolí
- * přístup bez ověření s demo operátorkou.
  * ═══════════════════════════════════════════════════════════════
  */
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+// ─── INLINE LOGIN PAGE ─────────────────────────────────────────
+// Served directly from the middleware to bypass Cloudflare Pages
+// Pretty URLs and _redirects which caused infinite redirect loops.
 
-const ADMIN_PASSWORD_DASH_VARIANTS_REGEX = /[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g;
-const ADMIN_PASSWORD_PLUS_VARIANTS_REGEX = /[\uFF0B\uFE62\u207A\u208A\u2795]/g;
-const ADMIN_PASSWORD_AT_VARIANTS_REGEX = /[\uFF20\uFE6B]/g;
-const ADMIN_PASSWORD_ZERO_WIDTH_REGEX = /[\u200B-\u200D\u2060\uFEFF]/g;
-const ADMIN_PASSWORD_CZ_NUMBER_ROW_REGEX = /[ěščřžýáíéĚŠČŘŽÝÁÍÉ]/g;
-const ADMIN_PASSWORD_CZ_NUMBER_ROW_MAP = {
-  'ě': '2', 'š': '3', 'č': '4', 'ř': '5', 'ž': '6', 'ý': '7', 'á': '8', 'í': '9', 'é': '0',
-  'Ě': '2', 'Š': '3', 'Č': '4', 'Ř': '5', 'Ž': '6', 'Ý': '7', 'Á': '8', 'Í': '9', 'É': '0',
-};
-const JWKS_CACHE_TTL_MS = 10 * 60 * 1000;
-const jwksCache = new Map();
+const LOGIN_PAGE_HTML = `<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Přihlášení — Bicom Písek Virtual Office</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-alabaster: #FAF8F5;
+      --c-sage: #738A75;
+      --c-forest: #3A4A3C;
+      --c-forest-deep: #2E3E30;
+      --c-champagne: #C5A880;
+      --c-charcoal: #2B2B2B;
+      --c-white: #FFFFFF;
+      --c-error: #C45D4F;
+      --c-error-bg: #FDF2F0;
+      --font-head: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Montserrat", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--c-alabaster);
+      color: var(--c-charcoal);
+      font-family: var(--font-body);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(115,138,117,0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(197,168,120,0.03) 0%, transparent 40%);
+    }
+    .login-card {
+      background: var(--c-white); border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(58,74,60,0.06);
+      width: 100%; max-width: 400px; padding: 48px 36px;
+      border: 1px solid rgba(115,138,117,0.1);
+      transform: translateY(10px); opacity: 0;
+      animation: slideUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+    .login-logo { font-size: 3.5rem; text-align: center; margin-bottom: 8px;
+      filter: drop-shadow(0 4px 10px rgba(58,74,60,0.05)); }
+    .login-header { text-align: center; margin-bottom: 28px; }
+    .login-title { font-family: var(--font-head); font-size: 2.25rem;
+      color: var(--c-forest); margin: 0 0 4px 0; font-weight: 500; letter-spacing: -0.5px; }
+    .login-subtitle { font-size: 0.85rem; color: var(--c-sage); margin: 0; font-weight: 500; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px; color: var(--c-sage); margin-bottom: 8px; }
+    .form-input { width: 100%; height: 42px; padding: 0 16px; border-radius: 10px;
+      border: 1px solid rgba(115,138,117,0.2); font-family: var(--font-body);
+      font-size: 0.95rem; background: var(--c-alabaster); color: var(--c-charcoal);
+      transition: all 0.2s ease; }
+    .form-input:focus { outline: none; border-color: var(--c-sage);
+      background: var(--c-white); box-shadow: 0 0 0 3px rgba(115,138,117,0.15); }
+    .login-btn { width: 100%; height: 42px; border-radius: 10px;
+      background: var(--c-forest); color: var(--c-white); border: none;
+      font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(58,74,60,0.1);
+      display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .login-btn:hover { background: var(--c-forest-deep); transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(58,74,60,0.15); }
+    .login-btn:active { transform: translateY(0); }
+    .login-btn:disabled { opacity: 0.6; cursor: wait; }
+    .login-error { display: none; background: var(--c-error-bg); color: var(--c-error);
+      border: 1px solid rgba(196,93,79,0.15); padding: 12px; border-radius: 10px;
+      font-size: 0.85rem; margin-bottom: 20px; animation: shake 0.4s ease-in-out; font-weight: 500; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    .login-footer { text-align: center; margin-top: 28px; font-size: 0.7rem; color: var(--c-sage); }
+    .login-footer p { margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-logo">🔒</div>
+    <div class="login-header">
+      <h1 class="login-title">Bicom Písek</h1>
+      <p class="login-subtitle">Vstup do virtuální kanceláře</p>
+    </div>
+    <div class="login-error" id="error-message"></div>
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label" for="password">Přístupové heslo</label>
+        <input class="form-input" type="password" id="password" required autocomplete="current-password" autofocus placeholder="••••••••">
+      </div>
+      <button class="login-btn" type="submit" id="submit-btn">
+        <span>Přihlásit se</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </form>
+    <div class="login-footer"><p>&copy; 2026 BIO ONE LIFE s.r.o.</p></div>
+  </div>
+  <script>
+    const form = document.getElementById('login-form');
+    const pw = document.getElementById('password');
+    const err = document.getElementById('error-message');
+    const btn = document.getElementById('submit-btn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.querySelector('span').innerText = 'Ověřování...';
+      try {
+        const res = await fetch('/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw.value })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          const p = new URLSearchParams(window.location.search);
+          window.location.href = p.get('redirect_url') || '/admin/';
+        } else {
+          showErr(data.error || 'Nesprávné heslo.');
+        }
+      } catch (_) {
+        showErr('Nelze se spojit se serverem.');
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('span').innerText = 'Přihlásit se';
+      }
+    });
+    function showErr(t) { err.innerText = t; err.style.display = 'block'; pw.value = ''; pw.focus(); }
+  </script>
+</body>
+</html>`;
 
-/**
- * Middleware pro admin endpointy.
- * Cloudflare Pages Functions middleware — export onRequest.
- */
-export async function onRequest(context) {
-  const { request, env, next, data } = context;
 
-  // CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+function getCorsHeaders(origin) {
+  let allowedOrigin = 'https://bicom-pisek.cz';
+  if (origin) {
+    const isAllowed = origin === 'https://bicom-pisek.cz' ||
+                      origin === 'https://www.bicom-pisek.cz' ||
+                      origin.endsWith('.pages.dev') ||
+                      /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+                      /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
+    if (isAllowed) {
+      allowedOrigin = origin;
+    }
   }
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cf-Access-Jwt-Assertion',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
-  // Skip auth for static assets a pro samotný admin shell.
-  const url = new URL(request.url);
-  if (
-    url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/) ||
-    url.pathname === '/admin' ||
-    url.pathname === '/admin/' ||
-    url.pathname === '/admin/index.html'
-  ) {
-    return next();
-  }
+// ─── SESSION SIGNING ────────────────────────────────────────────
 
-  // Deep-link routy admin SPA (např. /admin/nastaveni) musí vrátit shell
-  // ještě před auth gate, jinak browser skončí na JSON 401/404 místo SPA.
-  const shellFallback = await handleSpaFallback(request, env, url);
-  if (shellFallback) {
-    return shellFallback;
-  }
-
-  const cookieHeader = request.headers.get('Cookie');
-  const adminPassword = normalizeAdminPassword(
-    request.headers.get('X-Admin-Password') ||
-    getCookieValue(cookieHeader, 'admin_auth') ||
-    ''
+async function createSessionToken(secret) {
+  const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  const payload = `${expires}`;
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
   );
-  const expectedAdminPassword = normalizeAdminPassword(env.SECRET_ADMIN_PASSWORD || env.SECRET_MAINTENANCE_PIN || '');
-
-  // Preferovaný režim: interní admin heslo.
-  if (expectedAdminPassword) {
-    if (!adminPassword || adminPassword !== expectedAdminPassword) {
-      return jsonError('Neoprávněný přístup — chybné nebo chybějící heslo.', 401);
-    }
-    const operator = await findDefaultOperator(env.DB);
-    if (!operator) {
-      return jsonError('Přístup zamítnut — nebyl nalezen aktivní operátor.', 403);
-    }
-    data.operator = operator;
-    const fallbackRes = await handleSpaFallback(request, env, url);
-    if (fallbackRes) return fallbackRes;
-    const response = await next();
-    return withCors(response);
-  }
-
-  // Legacy režim — pokud heslo není nastavené, zkusíme Cloudflare Access.
-  // Pokud ani ten není nastaven, povolíme fallback jen v lokálním vývoji.
-  const cfTeam = env.SECRET_CF_ACCESS_TEAM;
-  if (!cfTeam) {
-    const isProd = env.ENV === 'production' || (!url.hostname.includes('localhost') && !url.hostname.includes('127.0.0.1'));
-    if (isProd) {
-      return jsonError('Přístup zamítnut — chybí konfigurace admin hesla.', 403);
-    }
-
-    data.operator = {
-      id: 'dev-operator',
-      email: 'dev@bicompisek.cz',
-      name: 'Dev Režim',
-      role: 'admin',
-      isDev: true,
-    };
-    console.info('[admin-auth] Dev mode — no CF Access team configured');
-    const fallbackRes = await handleSpaFallback(request, env, url);
-    if (fallbackRes) return fallbackRes;
-    return next();
-  }
-
-  // Production mode — ověření JWT z Cloudflare Access
-  const jwtToken =
-    request.headers.get('Cf-Access-Jwt-Assertion') ||
-    getCookieValue(cookieHeader, 'CF_Authorization');
-
-  if (!jwtToken) {
-    return jsonError('Neoprávněný přístup — chybí autorizační token.', 401);
-  }
-
-  try {
-    // Ověření JWT
-    const payload = await verifyJWT(jwtToken, cfTeam, env.SECRET_CF_ACCESS_AUD);
-
-    if (!payload || !payload.email) {
-      return jsonError('Neplatný token — nelze identifikovat uživatele.', 403);
-    }
-
-    // Vyhledat operátorku v DB
-    const normalizedEmail = String(payload.email).trim().toLowerCase();
-    const operator = await findOperator(env.DB, normalizedEmail);
-
-    if (!operator) {
-      console.warn(`[admin-auth] Unknown operator: ${normalizedEmail}`);
-      return jsonError('Přístup zamítnut — váš e-mail není registrován.', 403);
-    }
-
-    // Nastavit kontext pro handlery
-    data.operator = operator;
-    data.jwtPayload = payload;
-
-  } catch (err) {
-    console.error('[admin-auth] JWT verification failed:', err);
-    return jsonError('Chyba ověření — zkuste se přihlásit znovu.', 401);
-  }
-
-  // SPA fallback rewrite po úspěšném ověření tokenu
-  const fallbackRes = await handleSpaFallback(request, env, url);
-  if (fallbackRes) return fallbackRes;
-
-  // Pokračuj ke handleru
-  const response = await next();
-
-  return withCors(response);
+  const signatureBuffer = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(payload)
+  );
+  const signatureHex = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  return `${payload}.${signatureHex}`;
 }
 
-// ─── JWT VERIFICATION ────────────────────────────────────────────
-
-/**
- * Ověří Cloudflare Access JWT.
- * @param {string} token   — JWT token
- * @param {string} team    — CF Access team domain (e.g., 'bicompisek')
- * @param {string} aud     — CF Access Application Audience (AUD) tag
- * @returns {Promise<Object|null>} — JWT payload nebo null
- */
-async function verifyJWT(token, team, aud) {
-  // Rozděl JWT
+async function verifySessionToken(token, secret) {
+  if (!token) return false;
   const parts = token.split('.');
-  if (parts.length !== 3) return null;
-  const [encodedHeader, encodedPayload, encodedSignature] = parts;
-  const header = parseJwtPart(encodedHeader);
-  const payload = parseJwtPart(encodedPayload);
-  if (!header || !payload) return null;
+  if (parts.length !== 2) return false;
+  const [payload, signatureHex] = parts;
+  
+  const expires = parseInt(payload, 10);
+  if (isNaN(expires) || expires < Date.now()) return false;
 
-  if (header.alg !== 'RS256' || !header.kid) {
-    console.warn(`[admin-auth] Unsupported JWT header: alg=${header.alg}, kid=${header.kid || 'missing'}`);
-    return null;
-  }
-
-  const jwk = await getCfAccessJwk(team, header.kid);
-  if (!jwk) {
-    console.warn('[admin-auth] Matching JWKS key not found.');
-    return null;
-  }
-
-  const signatureValid = await verifyRs256Signature(encodedHeader, encodedPayload, encodedSignature, jwk);
-  if (!signatureValid) {
-    console.warn('[admin-auth] Invalid JWT signature');
-    return null;
-  }
-
-  // Kontrola issuer
-  const expectedIss = `https://${team}.cloudflareaccess.com`;
-  if (payload.iss !== expectedIss) {
-    console.warn(`[admin-auth] Invalid issuer: ${payload.iss} vs ${expectedIss}`);
-    return null;
-  }
-
-  // Kontrola audience (podpora pro více AUD hodnot oddělených čárkou)
-  if (aud && payload.aud) {
-    const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-    const allowedAuds = aud.split(',').map(a => a.trim());
-    const hasValidAud = audArray.some(tokenAud => allowedAuds.includes(tokenAud));
-    if (!hasValidAud) {
-      console.warn('[admin-auth] Invalid audience');
-      return null;
-    }
-  }
-
-  // Kontrola expirace
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    console.warn('[admin-auth] Token expired');
-    return null;
-  }
-
-  // Kontrola "not before"
-  if (payload.nbf && payload.nbf > now + 60) {
-    console.warn('[admin-auth] Token not yet valid');
-    return null;
-  }
-
-  return payload;
-}
-
-async function getCfAccessJwk(team, kid) {
-  const cached = jwksCache.get(team);
-  const now = Date.now();
-  if (cached && cached.expiresAt > now) {
-    return cached.keysByKid.get(kid) || null;
-  }
-
-  const certsUrl = `https://${team}.cloudflareaccess.com/cdn-cgi/access/certs`;
-  const response = await fetch(certsUrl, { method: 'GET' });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch CF Access certs: ${response.status}`);
-  }
-
-  const body = await response.json();
-  const keys = Array.isArray(body?.keys) ? body.keys : [];
-  const keysByKid = new Map();
-  keys.forEach((key) => {
-    if (key?.kid) {
-      keysByKid.set(key.kid, key);
-    }
-  });
-
-  jwksCache.set(team, {
-    expiresAt: now + JWKS_CACHE_TTL_MS,
-    keysByKid,
-  });
-
-  return keysByKid.get(kid) || null;
-}
-
-async function verifyRs256Signature(encodedHeader, encodedPayload, encodedSignature, jwk) {
-  const publicKey = await crypto.subtle.importKey(
-    'jwk',
-    jwk,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['verify']
   );
-
-  const signingInput = `${encodedHeader}.${encodedPayload}`;
-  const encoder = new TextEncoder();
-  const signature = decodeBase64Url(encodedSignature);
+  
+  if (!/^[0-9a-fA-F]+$/.test(signatureHex)) return false;
+  const signatureBytes = new Uint8Array(
+    signatureHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))
+  );
+  
   return crypto.subtle.verify(
-    'RSASSA-PKCS1-v1_5',
-    publicKey,
-    signature,
-    encoder.encode(signingInput)
+    'HMAC',
+    key,
+    signatureBytes,
+    encoder.encode(payload)
   );
 }
 
-function parseJwtPart(encodedPart) {
-  try {
-    const json = new TextDecoder().decode(decodeBase64Url(encodedPart));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
+// ─── MIDDLEWARE EXPORT ──────────────────────────────────────────
 
-function decodeBase64Url(value) {
-  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+export async function onRequest(context) {
+  const { request, env, next, data } = context;
+
+  const origin = request.headers.get('Origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  // CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
-  return bytes;
+
+  const url = new URL(request.url);
+
+  // 1. POST /admin/login endpoint
+  if (url.pathname === '/admin/login' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      const expectedPassword = env.SECRET_ADMIN_PASSWORD || 'Bicom-@26';
+      
+      if (body.password === expectedPassword) {
+        const sessionToken = await createSessionToken(env.SECRET_SESSION_KEY || 'default-session-salt');
+        const headers = new Headers({
+          'Content-Type': 'application/json',
+          'Set-Cookie': `admin_session=${sessionToken}; Path=/admin; HttpOnly; SameSite=Lax; Secure`,
+          ...corsHeaders
+        });
+        return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+      } else {
+        return new Response(JSON.stringify({ ok: false, error: 'Nesprávné heslo.' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+    } catch (err) {
+      return new Response(JSON.stringify({ ok: false, error: 'Neplatný požadavek.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+  }
+
+  // 2. GET /admin/logout endpoint
+  if (url.pathname === '/admin/logout') {
+    const headers = new Headers({
+      'Set-Cookie': 'admin_session=; Path=/admin; HttpOnly; SameSite=Lax; Secure; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'Location': '/admin/login',
+      ...corsHeaders
+    });
+    return new Response(null, { status: 302, headers });
+  }
+
+  // 3. Skip auth for static assets
+  if (url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/)) {
+
+    return next();
+  }
+
+  // 3b. Serve login page directly (inline HTML — bypasses Pretty URLs & _redirects)
+  const isLoginPage = url.pathname === '/admin/login' || url.pathname === '/admin/login.html';
+  if (isLoginPage && request.method === 'GET') {
+    return new Response(LOGIN_PAGE_HTML, {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', ...corsHeaders }
+    });
+  }
+
+  // 4. Verify cookie-based session
+  const cookieHeader = request.headers.get('Cookie');
+  const sessionToken = getCookieValue(cookieHeader, 'admin_session');
+  const isSessionValid = await verifySessionToken(sessionToken, env.SECRET_SESSION_KEY || 'default-session-salt');
+
+  if (!isSessionValid) {
+    const acceptHeader = request.headers.get('Accept') || '';
+    const wantsHtml = acceptHeader.includes('text/html');
+    const isMainRoute = url.pathname === '/admin' || url.pathname === '/admin/';
+    
+    // Redirect browser page requests to login page
+    if (request.method === 'GET' && (wantsHtml || isMainRoute)) {
+      // Use only pathname for return URL to prevent recursive redirect_url nesting
+      const returnUrl = url.pathname;
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect_url', returnUrl);
+      
+      const newHeaders = new Headers(corsHeaders);
+      newHeaders.set('Location', loginUrl.toString());
+      return new Response(null, { status: 302, headers: newHeaders });
+    }
+
+    return jsonError('Neoprávněný přístup — relace vypršela nebo je neplatná.', 401, corsHeaders);
+  }
+
+  // 5. Populate operator context
+  let operator = null;
+  if (env.DB) {
+    try {
+      operator = await findOperator(env.DB, 'admin@bicom-pisek.cz');
+    } catch (err) {
+      console.error('[admin-auth] Operator DB lookup failed:', err);
+    }
+  }
+
+  if (!operator) {
+    operator = {
+      id: 'op_admin_box',
+      email: 'admin@bicom-pisek.cz',
+      name: 'Admin',
+      role: 'admin',
+    };
+  }
+
+  data.operator = operator;
+
+  // SPA fallback rewrite
+  const fallbackRes = await handleSpaFallback(request, env, url, corsHeaders);
+  if (fallbackRes) return fallbackRes;
+
+  const response = await next();
+
+  return corsResponse(response, corsHeaders);
 }
 
 // ─── DB LOOKUP ─────────────────────────────────────────────────
 
-/**
- * Vyhledá operátorku v tabulce operators dle e-mailu.
- * @param {D1Database} db
- * @param {string} email
- * @returns {Promise<Object|null>}
- */
 async function findOperator(db, email) {
   if (!db) return null;
 
@@ -315,105 +362,44 @@ async function findOperator(db, email) {
   }
 }
 
-/**
- * Najde výchozí aktivní operátorku (owner > admin) pro heslový login.
- * @param {D1Database} db
- * @returns {Promise<Object|null>}
- */
-async function findDefaultOperator(db) {
-  if (!db) return null;
-  try {
-    const row = await db
-      .prepare(`SELECT id, email, name, role
-                FROM operators
-                WHERE active = 1
-                ORDER BY CASE role WHEN 'owner' THEN 0 ELSE 1 END, created_at ASC
-                LIMIT 1`)
-      .first();
-    return row || null;
-  } catch (err) {
-    console.error('[admin-auth] DB default operator lookup failed:', err);
-    return null;
-  }
-}
-
 // ─── HELPERS ────────────────────────────────────────────────────
 
-/**
- * Extrahuje hodnotu cookie.
- * @param {string|null} cookieHeader
- * @param {string} name
- * @returns {string|null}
- */
 function getCookieValue(cookieHeader, name) {
   if (!cookieHeader) return null;
   const match = cookieHeader.match(new RegExp(`(?:^|;)\\s*${name}=([^;]*)`));
-  if (!match) return null;
-  try {
-    return decodeURIComponent(match[1]);
-  } catch {
-    return match[1];
-  }
+  return match ? match[1] : null;
 }
 
-/**
- * Normalizuje heslo z headeru/cookie/env tak, aby ručně psané varianty
- * (typografická pomlčka / full-width znaky) odpovídaly při porovnání.
- * @param {unknown} value
- * @returns {string}
- */
-function normalizeAdminPassword(value) {
-  return String(value ?? '')
-    .normalize('NFKC')
-    .replace(ADMIN_PASSWORD_ZERO_WIDTH_REGEX, '')
-    .replace(ADMIN_PASSWORD_DASH_VARIANTS_REGEX, '-')
-    .replace(ADMIN_PASSWORD_PLUS_VARIANTS_REGEX, '+')
-    .replace(ADMIN_PASSWORD_AT_VARIANTS_REGEX, '@')
-    .replace(ADMIN_PASSWORD_CZ_NUMBER_ROW_REGEX, (ch) => ADMIN_PASSWORD_CZ_NUMBER_ROW_MAP[ch] || ch)
-    .replace(/\s*([+-])\s*/g, '$1')
-    .trim();
-}
-
-/**
- * JSON error response.
- * @param {string} message
- * @param {number} status
- * @returns {Response}
- */
-function jsonError(message, status) {
-  const headers = {
-    'Content-Type': 'application/json',
-    ...CORS_HEADERS,
-  };
+function jsonError(message, status, corsHeaders = {}) {
   return new Response(
     JSON.stringify({ ok: false, error: message }),
     {
       status,
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
     }
   );
 }
 
-/** @param {Response} response */
-function withCors(response) {
-  const newHeaders = new Headers(response.headers);
-  Object.entries(CORS_HEADERS).forEach(([k, v]) => newHeaders.set(k, v));
-  return new Response(response.body, {
-    status: response.status,
-    headers: newHeaders,
-  });
+function corsResponse(response, corsHeaders) {
+  if (!response) return response;
+  const newResponse = new Response(response.body, response);
+  newResponse.headers.delete('Content-Encoding');
+  newResponse.headers.delete('Content-Length');
+  Object.entries(corsHeaders).forEach(([k, v]) => newResponse.headers.set(k, v));
+  return newResponse;
 }
 
 // ─── SPA FALLBACK ───────────────────────────────────────────────
 
-/**
- * Provede SPA fallback na /admin/index.html pro klientské routy.
- * @param {Request} request
- * @param {Object} env
- * @param {URL} url
- * @returns {Promise<Response|null>}
- */
-async function handleSpaFallback(request, env, url) {
+async function handleSpaFallback(request, env, url, corsHeaders) {
+  // Check if it's already an internal fallback request to prevent recursion
+  if (request.headers.has('X-SPA-Fallback')) {
+    return null;
+  }
+
   const acceptHeader = request.headers.get('Accept') || '';
   const apiHandlers = [
     '/admin/activity',
@@ -436,77 +422,20 @@ async function handleSpaFallback(request, env, url) {
   const isApiHandler = apiHandlers.some(path =>
     url.pathname === path || url.pathname === `${path}/`
   );
-  // Náhled veřejné stránky (F12) má vlastní handler — nepřepisovat na SPA.
   const isPreview = url.pathname.startsWith('/admin/preview');
   const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|svg|ico|woff2?)$/);
+  const isIndexHtml = url.pathname === '/admin/index.html';
+  const isMainRoute = url.pathname === '/admin' || url.pathname === '/admin/';
 
-  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset) {
-    console.info(`[admin-auth] SPA fallback rewrite to admin shell for: ${url.pathname}`);
-    const response = await fetchAdminShell(request, env);
-    if (!response) {
-      return jsonError('Admin shell se nepodařilo načíst.', 500);
-    }
-    return withCors(response);
+  if (isGet && wantsHtml && !isApiHandler && !isPreview && !isStaticAsset && !isIndexHtml && !isMainRoute) {
+    console.info(`[admin-auth] SPA fallback rewrite to /admin/ for: ${url.pathname}`);
+    const fallbackUrl = new URL('/admin/', request.url);
+    const fallbackRequest = new Request(fallbackUrl.toString(), request);
+    fallbackRequest.headers.set('X-SPA-Fallback', 'true');
+    const response = await env.ASSETS.fetch(fallbackRequest);
+    
+    return corsResponse(response, corsHeaders);
   }
   
   return null;
-}
-
-/**
- * Načte admin shell přes asset binding a dorovná případný interní redirect.
- * Cloudflare Pages někdy vrátí pro /admin/index.html redirect na /admin/,
- * což by po prostém přeposlání skončilo prázdnou stránkou.
- * @param {Request} request
- * @param {Object} env
- * @returns {Promise<Response|null>}
- */
-async function fetchAdminShell(request, env) {
-  const shellCandidates = ['/admin/', '/admin/index.html'];
-
-  for (const shellPath of shellCandidates) {
-    let response = await env.ASSETS.fetch(buildShellRequest(request, shellPath));
-
-    if (isRedirectResponse(response)) {
-      const redirectLocation = response.headers.get('Location');
-      if (redirectLocation) {
-        const redirectedUrl = new URL(redirectLocation, request.url);
-        response = await env.ASSETS.fetch(buildShellRequest(request, redirectedUrl.pathname));
-      }
-    }
-
-    if (response.ok && !isEmptyHtmlResponse(response)) {
-      const headers = new Headers(response.headers);
-      headers.delete('Location');
-      return new Response(response.body, {
-        status: 200,
-        headers,
-      });
-    }
-  }
-
-  return null;
-}
-
-/**
- * @param {Request} request
- * @param {string} shellPath
- */
-function buildShellRequest(request, shellPath) {
-  const shellUrl = new URL(shellPath, request.url);
-  const headers = new Headers(request.headers);
-  headers.set('Accept', 'text/html');
-  return new Request(shellUrl.toString(), {
-    method: 'GET',
-    headers,
-  });
-}
-
-/** @param {Response} response */
-function isRedirectResponse(response) {
-  return response.status >= 300 && response.status < 400;
-}
-
-/** @param {Response} response */
-function isEmptyHtmlResponse(response) {
-  return response.headers.get('Content-Length') === '0';
 }
