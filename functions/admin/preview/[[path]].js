@@ -13,7 +13,9 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-const PREVIEW_FLAG = '<script>window.__CMS_PREVIEW__=true;</script>';
+// Injektujeme preview příznak + přepsání URL na / aby SPA router webu
+// nezpůsobil 404 (vidí /admin/preview/ místo /).
+const PREVIEW_FLAG = '<script>window.__CMS_PREVIEW__=true;try{history.replaceState(null,"","/")}catch(_){}<\/script>';
 
 export async function onRequestGet({ env, params, request }) {
   // Vybrat cílovou statickou stránku (jen whitelist názvů .html v rootu).

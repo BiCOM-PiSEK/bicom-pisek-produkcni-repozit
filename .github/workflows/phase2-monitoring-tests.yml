@@ -40,7 +40,7 @@ jobs:
         run: npm test -- tests/menu.test.js
       
       - name: Run monitoring worker tests
-        run: npm test -- tests/monitoring/ --if-present
+        run: npm test -- tests/monitoring/
   
   frontend-performance-check:
     runs-on: ubuntu-latest

@@ -8,7 +8,7 @@
 
 ## 0. Workflow: koncept → náhled → zveřejnit (F12)
 
-Úpravy textů, kontaktu/patičky a hero bannerů se **neukládají rovnou na web**.
+Úpravy textů, galerií, kontaktu/patičky, služeb a hero bannerů se **neukládají rovnou na web**.
 Fungují jako **koncept**:
 
 1. Upravíte text a dáte **💾 Uložit koncept** — uloží se, ale na webu se zatím nic nezmění.
@@ -16,7 +16,33 @@ Fungují jako **koncept**:
 3. Když jste spokojeni, dáte **✅ Zveřejnit** — teprve teď se změna objeví na webu (do ~1 min).
 4. Nebo **↩︎ Zahodit koncept** — koncept se zruší a zůstane původní zveřejněná verze.
 
-Galerie se publikují okamžitě (bez konceptu).
+### Zpět/Vpřed + reset na zveřejněný stav
+
+V editorech textů, karet, FAQ, kontaktu/patičky, SEO/Landing i Hero jsou nově tlačítka:
+
+- **↶ Zpět** a **↷ Vpřed** — historie změn v aktuální relaci (max. 10 kroků).
+- **⟲ Reset na zveřejněný stav** — vrátí formulář na hodnoty, které jsou právě publikované na webu.
+
+Reset ani undo/redo samy nic nepublikují; stále platí **Uložit koncept → Zveřejnit**.
+
+### Visual Builder (interaktivní výběr bloků)
+
+U všech záložek s náhledem je tlačítko **🧩 Visual Builder**:
+
+1. Otevře zvětšený náhled stránky (v modalu).
+2. Kliknete přímo na blok na webu (text, galerie, FAQ, landing pole, kontakt, CTA, karta, formulář…).
+3. Vpravo se ukáže kompletní outline stránky včetně **editovatelných**, **mediálních**, **dynamických** a **zamčených** bloků.
+4. Filtry **Editovatelné / Média / Zamčené / Dynamické** pomohou najít přesně to, co chcete upravit.
+5. U jednoduchých textů, landing polí, kontaktu/NAP a hero polí lze upravit hodnotu rovnou v pravém inspektoru a dát **💾 Uložit koncept**.
+6. Panel **Nezveřejněné změny** ukazuje koncepty napříč texty, hero, galeriemi a službami. Vybraný podporovaný blok lze z inspektoru rovnou **✅ Zveřejnit blok** nebo **↩︎ Zahodit koncept**.
+7. Tlačítko **🎯 Najít v editoru** posune aktuální záložku adminu na odpovídající formulář, pokud blok potřebuje plný specializovaný editor.
+
+Zamčené bloky nejsou chyba načtení. Jsou to části šablony nebo funkční prvky (např. navigace, formulář, mapa,
+AI widget), které builder ukazuje kvůli orientaci v celé stránce. Pokud je uvnitř zamčeného bloku napojený text,
+obrázek nebo karta, má vlastní editovatelný blok. Mediální bloky jsou označené zvlášť a navádějí do galerie/hero
+workflow; přímá výměna z centrální media knihovny je připravená jako navazující krok.
+
+Visual Builder sám nic nepublikuje automaticky. I při inline úpravě stále platí workflow **uložit koncept → náhled → zveřejnit**.
 
 ### Pojmenované verze konceptu (F12-D)
 
@@ -39,7 +65,7 @@ vždy jen aktuální koncept přes **Zveřejnit**). Na položku lze uložit max.
 3. Nahoře jsou záložky: **Stránky** (texty + karty homepage), **Služby** (programy),
    **FAQ** (sdílené otázky na landing stránkách), **Footer & Kontakt** (NAP),
    **SEO** (titulky a popisy stránek pro Google/sdílení), **Landing** (texty stránek lokalit),
-   **Galerie**, **Hero bannery**, **Historie změn**.
+   **Galerie**, **Mediatéka**, **Hero bannery**, **Historie změn**.
 
 > **Služby:** záložka Služby = tabulka programů; „Upravit" otevře editor (název, popisy,
 > cena, ikona, viditelnost) s konceptem. Změny se promítnou do průvodce, rezervačního
@@ -66,20 +92,34 @@ kam na webu text patří. Klíče nemažte ani neměňte, pokud nevíte, kam pat
 
 ---
 
-## 3. Galerie
+## 3. Galerie (koncept → zveřejnit)
 
 Fotky jsou seskupené do **galerií** podle klíče (např. `ordinace`).
 
 - **Otevření:** vyberte galerii v rozbalovači, nebo napište klíč nové galerie a dejte **Otevřít**.
 - **Nahrání:** klikněte na pole *Nahrát obrázek* a vyberte jeden či více souborů.
   - Povolené formáty: **JPEG, PNG, WebP, GIF**, max **5 MB** na soubor.
-- **Popisek:** u každé fotky vyplňte *Popisek* (slouží i jako alternativní text pro přístupnost) a dejte **💾**.
-- **Pořadí:** šipkami **↑ / ↓** posouváte fotku v pořadí (tak se zobrazí i na webu).
-- **Smazání:** **🗑️** odstraní fotku z webu i z úložiště.
+- **Popisek/pořadí/smazání:** změny ukládají **koncept galerie** (na webu se zatím nic nezmění).
+- **✅ Zveřejnit:** propíše aktuální koncept galerie na web.
+- **↩︎ Zahodit koncept:** vrátí galerii na právě zveřejněný stav (včetně zahození nově nahraných obrázků v konceptu).
+- V náhledu lze použít **🧩 Visual Builder** a kliknout přímo na galerii na stránce.
 
 ---
 
-## 4. Hero bannery
+## 4. Mediatéka
+
+Záložka **Mediatéka** je centrální přehled assetů používaných v galeriích a hero workflow:
+
+- Ukazuje náhled assetu, galerii, URL, typ souboru a stav **Live/Koncept**.
+- URL lze zkopírovat pro použití v SEO nebo hero poli.
+- Tlačítko **Otevřít galerii** vás přesune do bezpečného konceptového workflow galerie.
+- Video je v UI připravené jako typ assetu, ale produkční streamování/výběr technologie se řeší zvlášť.
+
+Mediatéka sama nic nemaže ani nepublikuje; je to bezpečný přehled nad existujícími R2/galerijními assety.
+
+---
+
+## 5. Hero bannery
 
 Hero = velký úvodní pruh stránky (nadpis, podnadpis, tlačítko, obrázek pozadí).
 
@@ -90,14 +130,14 @@ Hero = velký úvodní pruh stránky (nadpis, podnadpis, tlačítko, obrázek po
 
 ---
 
-## 5. Historie změn
+## 6. Historie změn
 
 Záložka **Historie změn** ukazuje, **kdo**, **kdy** a **co** změnil (texty, galerie, hero).
 Slouží pro přehled a dohledatelnost — nic se odsud needituje.
 
 ---
 
-## 6. Když se něco pokazí
+## 7. Když se něco pokazí
 
 - **Web ukazuje starý obsah:** počkejte ~1 minutu (cache), pak obnovte stránku (Ctrl/Cmd+R).
 - **Fotka se nenahrála:** zkontrolujte formát a velikost (max 5 MB). Při mnoha uploadech za sebou
@@ -113,7 +153,7 @@ Slouží pro přehled a dohledatelnost — nic se odsud needituje.
 
 | Vrstva | Soubor(y) |
 |---|---|
-| DB migrace | `db/migrations/0016_cms_gallery_hero.sql` (+ `db/schema.sql`) |
+| DB migrace | `db/migrations/0016_cms_gallery_hero.sql`, `db/migrations/0029_gallery_drafts.sql` (+ `db/schema.sql`) |
 | Texty (admin) | `functions/admin/content.js` → `/admin/content` |
 | Galerie (admin) | `functions/admin/gallery.js` → `/admin/gallery` (upload do R2 `MEDIA`) |
 | Hero (admin) | `functions/admin/hero.js` → `/admin/hero` |
@@ -124,7 +164,8 @@ Slouží pro přehled a dohledatelnost — nic se odsud needituje.
 | Web klient | `public/assets/js/cms-client.js` |
 
 **Datový model:** texty využívají existující tabulku `content_blocks`, audit jde do existující
-`audit_log`. Nově jen `gallery_items` a `hero_config` (migrace 0016).
+`audit_log`. Galerie mají živá data v `gallery_items` a pracovní koncept v `gallery_drafts`;
+hero bannery v `hero_config`.
 
 **Bindingy (`wrangler.toml`):** D1 = `DB`, R2 = `MEDIA`, KV = `CACHE`.
 
@@ -153,6 +194,7 @@ A na stránce načíst klienta: `<script src="/assets/js/cms-client.js" defer></
 **Migrace na produkci:**
 ```bash
 wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0016_cms_gallery_hero.sql
+wrangler d1 execute bicom-pisek-db --remote --file=db/migrations/0029_gallery_drafts.sql
 ```
 
 ---

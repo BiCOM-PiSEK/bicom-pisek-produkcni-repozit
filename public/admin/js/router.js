@@ -100,6 +100,7 @@ const ROUTES = [
 
 // Prefix pro admin routes
 const BASE_PATH = '/admin';
+const MODULE_VERSION = '20260717-admin-hotfix-8';
 
 // Cache pro lazy-loaded moduly
 const moduleCache = new Map();
@@ -130,7 +131,7 @@ async function loadModule(moduleId) {
   }
 
   try {
-    const mod = await import(`./modules/${moduleId}.js`);
+    const mod = await import(`./modules/${moduleId}.js?v=${MODULE_VERSION}`);
     moduleCache.set(moduleId, mod);
     return mod;
   } catch (err) {

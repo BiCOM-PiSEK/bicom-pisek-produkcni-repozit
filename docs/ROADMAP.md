@@ -55,6 +55,7 @@
 - ✅ **F11** (PR #72, migrace 0016) — galerie (`gallery_items`) + hero (`hero_config`) + texty (`content_blocks`)
 - ✅ **F12** (PR #73, migrace 0017–0019) — workflow **koncept → náhled → zveřejnit** napříč texty/hero/službami; chráněný náhled `/admin/preview`; editovatelné homepage texty, karty, **služby**, **FAQ**, **NAP/footer**, **SEO meta**, **landing texty** 5 lokalit; `cms-client.js` `data-cms-*` progressive enhancement
 - ✅ **F12-D** (PR #74, migrace 0020) — **pojmenované verze konceptu** (`content_drafts`): uložit/načíst/přejmenovat/smazat snapshot konceptu napříč entitami (limit 20/položku)
+- ✅ **Visual Builder recovery + Mediatéka** — DOM manifest nově mapuje kompletní kostru stránky včetně strukturálních, akčních, mediálních, dynamických a zamčených bloků; homepage má regresní pojistku na široký outline, landing stránky už nejsou limitované starým ~36blokovým pohledem, admin má centrální přehled assetů nad existujícími galeriemi/R2 workflow a builder umí inline konceptové úpravy textů/kontaktu/landing/hero polí se souhrnem nezveřejněných změn
 - ✅ **Production Verification:** R2 upload, KV cache + fallback, migration atomicity
 - **Uživatelský návod:** [CMS_GUIDE.md](CMS_GUIDE.md)
 - **Status:** Operátoři mohou měnit obsah bez vývojáře ✅
