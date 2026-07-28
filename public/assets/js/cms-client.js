@@ -468,10 +468,14 @@
       var data = await getJSON(endpoint('gallery', key));
       var items = (data && data.items) || [];
       if (!items.length) return;
-      el.innerHTML = items.map(function (it) {
-        return '<div class="gallery-item"><img src="' + escAttr(it.image_url) +
-          '" alt="' + escAttr(it.caption || it.title || '') + '" loading="lazy"></div>';
-      }).join('');
+      if (window.GalleryUI && typeof window.GalleryUI.render === 'function') {
+        window.GalleryUI.render(el, items);
+      } else {
+        el.innerHTML = items.map(function (it) {
+          return '<div class="gallery-item"><img src="' + escAttr(it.image_url) +
+            '" alt="' + escAttr(it.caption || it.title || '') + '" loading="lazy"></div>';
+        }).join('');
+      }
       scheduleVisualMapSync();
     } catch (err) {
       console.warn('[cms] gallery "' + key + '" — ponechán fallback:', err.message);
