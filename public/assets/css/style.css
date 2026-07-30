@@ -236,7 +236,53 @@ header nav a.active {
   display: flex;
   align-items: center;
   padding-top: 100px;
-  background-radial: radial-gradient(circle at 80% 20%, rgba(197, 168, 128, 0.08) 0%, transparent 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dýchající mlha — jemné gradienty v pozadí hero sekce */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero::before {
+  width: 55vw;
+  height: 55vw;
+  right: -12vw;
+  top: -18vw;
+  background: radial-gradient(circle, rgba(197, 168, 128, 0.35), transparent 65%);
+  animation: heroDrift1 26s ease-in-out infinite alternate;
+}
+
+.hero::after {
+  width: 46vw;
+  height: 46vw;
+  left: -14vw;
+  bottom: -22vw;
+  background: radial-gradient(circle, rgba(115, 138, 117, 0.30), transparent 65%);
+  animation: heroDrift2 32s ease-in-out infinite alternate;
+}
+
+.hero .wrap,
+.hero-grid {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes heroDrift1 {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-6vw, 4vw) scale(1.15); }
+}
+
+@keyframes heroDrift2 {
+  from { transform: translate(0, 0) scale(1.1); }
+  to { transform: translate(5vw, -3vw) scale(0.95); }
 }
 
 .hero-grid {
