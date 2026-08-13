@@ -27,3 +27,8 @@ docs/audit/
 graphify-out/.*
 graphify-out/cache/
 
+# Netlify CLI local cache
+.netlify/
+
+# D1 export data (obsahují CMS obsah, nesmí do gitu)
+export/

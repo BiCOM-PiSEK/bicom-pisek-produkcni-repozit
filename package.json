@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler pages dev public --local --d1=DB --kv=CACHE --r2=MEDIA",
+    "netlify:dev": "netlify dev",
     "db:init:local": "wrangler d1 execute DB --local --file=db/schema.sql",
     "db:init:prod": "wrangler d1 execute bicom-pisek-db --remote --file=db/schema.sql",
     "db:migrate": "node scripts/check-d1-ledger-sync.js && npm run db:migrate:unsafe",
@@ -13,16 +14,19 @@
     "db:clean-demo": "wrangler d1 execute bicom-pisek-db --remote --command=\"DELETE FROM bookings WHERE name_enc LIKE 'DEMO_ENC::%'; DELETE FROM newsletter_subscribers WHERE email_enc LIKE 'DEMO_ENC::%'; DELETE FROM geo_leads WHERE id LIKE 'gl_demo%';\"",
     "db:diagnostics": "node scripts/db-diagnostics.js",
     "db:generate-jsonld": "node scripts/generate-service-jsonld.js",
+    "netlify:db:apply": "psql $NETLIFY_DATABASE_URL -f netlify/database/migrations/0000_initial_schema.sql",
     "seed": "node scripts/seed-services.js",
     "build": "node scripts/build-sitemap.js",
     "deploy": "wrangler pages deploy public",
     "deploy:cron": "wrangler deploy --config wrangler.cron-worker.toml",
     "deploy:booking": "wrangler deploy --config wrangler.booking-consumer.toml",
     "deploy:social": "wrangler deploy --config wrangler.social-consumer.toml",
-    "lint": "eslint functions public/assets/js",
+    "lint": "eslint --no-error-on-unmatched-pattern functions public/assets/js netlify/functions netlify/lib",
     "test": "vitest run"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@netlify/edge-functions": "^2.0.0",
     "eslint": "^9.0.0",
     "jsdom": "^22.1.0",
     "vitest": "^1.0.0",
@@ -31,4 +35,4 @@
   "dependencies": {
     "h3-js": "^4.4.0"
   }
-}
+}

@@ -47,11 +47,12 @@ export default [
       "coverage/**",
       "dist/**",
       ".wrangler/**",
+      "export/**",
     ],
   },
   js.configs.recommended,
   {
-    files: ["functions/**/*.js", "public/assets/js/**/*.js"],
+    files: ["functions/**/*.js", "netlify/functions/**/*.js", "netlify/lib/**/*.js", "public/assets/js/**/*.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",

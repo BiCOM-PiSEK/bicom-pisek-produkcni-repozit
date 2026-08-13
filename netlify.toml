@@ -1,0 +1,69 @@
+# netlify.toml
+# Bicom Písek — Netlify konfigurace (produkce/netlify-bicompisek větev)
+# Cílová doména: bicompisek.cz (bez pomlčky)
+# Cloudflare linie: bicom-pisek.cz (s pomlčkou) — nedotýkat se
+
+[build]
+  # Publish directory — stejný statický web jako na Cloudflare Pages
+  publish = "public"
+
+  # BUILD JE ZÁMĚRNĚ VYPNUTÝ:
+  # npm run build = scripts/build-sitemap.js, který přegeneruje sitemap.xml
+  # natvrdo na BASE_URL (bicom-pisek.cz), což by bylo špatné pro novou doménu.
+  # Sitemap se přepíše v Fázi 7 po potvrzení domény.
+  # command = ""  # (prázdný = žádný build)
+
+[build.environment]
+  # Pinujeme Node.js verzi konzistentně s CI (.github/workflows/ci.yml používá 20)
+  NODE_VERSION = "20"
+
+# ─── EDGE FUNCTIONS ──────────────────────────────────────────────────────────
+
+[[edge_functions]]
+  # Bezpečnostní guard: blokuje /admin/* dokud není admin auth připraven
+  # Fáze 0–3A: admin je blokován (vrací 404)
+  # Fáze 3B: tato sekce se upraví po nasazení admin-auth edge funkce
+  function = "platform-guard"
+  path = "/admin/*"
+
+[[edge_functions]]
+  # Bezpečnostní guard: blokuje /api/* dokud není backend připraven
+  # Fáze 0–2: API je blokováno (vrací 503)
+  # Fáze 3A: tato sekce se odstraní po nasazení API handlerů
+  function = "platform-guard"
+  path = "/api/*"
+
+# ─── REDIRECTY ───────────────────────────────────────────────────────────────
+
+# 301 redirect ze staré domény (SEO kontinuita)
+# Aktivní teprve po DNS cutoveru v Fázi 8
+[[redirects]]
+  from = "https://bicom-pisek.cz/*"
+  to = "https://bicompisek.cz/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.bicom-pisek.cz/*"
+  to = "https://bicompisek.cz/:splat"
+  status = 301
+  force = true
+
+# ─── NETLIFY FUNCTIONS ───────────────────────────────────────────────────────
+
+[functions]
+  # Adresář pro Netlify Serverless Functions (Node.js runtime)
+  # Bude naplněn v Fázích 3A, 3B, 4, 5
+  directory = "netlify/functions"
+
+  # Timeout pro komplexní API volání (Calendar, Stripe, AI)
+  # Výchozí Netlify timeout je 10 s — zvyšujeme na 26 s (max pro standard plán)
+  # Poznámka: background functions mají 15 minut
+
+# ─── POZNÁMKY PRO BUDOUCÍ FÁZE ───────────────────────────────────────────────
+# Fáze 1A: Netlify DB (Postgres) — provisioning přes Netlify dashboard nebo CLI
+# Fáze 3B: Nahradit platform-guard pro /admin/* za admin-auth edge funkci
+# Fáze 3A: Odstranit platform-guard pro /api/* (handlery jsou nasazeny)
+# Fáze 5:  Přidat [[scheduled_functions]] pro 7 cron úloh
+# Fáze 7:  Aktualizovat domain references v public/
+# Fáze 8:  DNS bicompisek.cz → Netlify
