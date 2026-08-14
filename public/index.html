@@ -467,10 +467,10 @@
         </div>
       </div>
       
-      <div class="map-container">
-        <!-- Mapy.cz Embed (Vladislavova 201, Písek) -->
-        <iframe src="https://frame.mapy.cz/zakladni?x=14.1482&amp;y=49.3088&amp;z=17&amp;source=addr&amp;id=10672728" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen loading="lazy" title="Mapa — Ordinace Bicom Písek"></iframe>
+      <div class="map-container" id="bicom-map-container" style="position:relative; min-height:350px;">
+        <div id="bicom-map" style="width:100%; height:100%; min-height:350px; border-radius:inherit;"></div>
       </div>
+
 
 
     </div>
@@ -582,6 +582,41 @@
     </button>
   </div>
 
+  <!-- Mapy.cz JS API -->
+  <script src="https://api.mapy.cz/loader.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof Loader !== 'undefined') {
+        Loader.load(null, { suggest: false }, function() {
+          try {
+            var center = SMap.Coords.fromWGS84(14.1482, 49.3088);
+            var mapContainer = document.getElementById('bicom-map');
+            if (!mapContainer) return;
+            var map = new SMap(mapContainer, center, 16);
+            map.addDefaultLayer(SMap.DEF_BASE).enable();
+            map.addDefaultControls();
+            
+            var sync = new SMap.Control.Sync();
+            map.addControl(sync);
+
+            var layer = new SMap.Layer.Marker();
+            map.addLayer(layer);
+            layer.enable();
+
+            var card = new SMap.Card();
+            card.getHeader().innerHTML = '<strong style="color:#2D3748;font-size:14px;">Bicom Písek</strong>';
+            card.getBody().innerHTML = '<p style="margin:4px 0;color:#4A5568;font-size:13px;">Vladislavova 201, 397 01 Písek</p><a href="https://mapy.cz/s/jonumebovo" target="_blank" rel="noopener" style="color:#3A4A3C;font-weight:600;font-size:12px;text-decoration:underline;">Otevřít na Mapy.cz &rarr;</a>';
+
+            var marker = new SMap.Marker(center, 'bicomMarker', { title: 'Bicom Písek — Ordinace biorezonance' });
+            marker.decorate(SMap.Marker.Feature.Card, card);
+            layer.addMarker(marker);
+          } catch (e) {
+            console.warn('[Mapy.cz] Init error:', e);
+          }
+        });
+      }
+    });
+  </script>
   <!-- Skripty -->
   <script src="/assets/js/performance-logger.js" defer></script>
   <script type="module" src="/assets/js/router.js"></script>
@@ -592,3 +627,4 @@
   <script src="/assets/js/cms-client.js" defer></script>
 </body>
 </html>
+
