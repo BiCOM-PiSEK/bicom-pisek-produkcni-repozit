@@ -82,3 +82,7 @@ export function stripTags(input, maxLength = 2000) {
   if (text.length > maxLength) text = text.slice(0, maxLength);
   return text.trim();
 }
+
+export const sanitizeHtml = sanitizeHTML;
+export default sanitizeHTML;
+
