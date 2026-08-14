@@ -1,40 +1,39 @@
 /**
- * iDoklad invoicing connector for Cloudflare Workers.
+ * iDoklad invoicing connector for Netlify Functions / Cloudflare Workers.
  *
- * Uses OAuth2 client_credentials flow with token caching in KV.
- * Uses only the Web Fetch API — no Node.js dependencies.
+ * Uses OAuth2 client_credentials flow with in-memory & Blobs token caching.
+ * Uses only the Web Fetch API — no heavy external dependencies.
  *
  * Required secrets:
- *   - SECRET_IDOKLAD_CLIENT_ID
- *   - SECRET_IDOKLAD_CLIENT_SECRET
- *
- * Required bindings:
- *   - CACHE (KV namespace for token caching)
+ *   - IDOKLAD_CLIENT_ID (nebo SECRET_IDOKLAD_CLIENT_ID)
+ *   - IDOKLAD_CLIENT_SECRET (nebo SECRET_IDOKLAD_CLIENT_SECRET)
  *
  * @module idoklad
  */
 
 import { fetchWithRetry } from './_fetch-retry.js';
+import { getBlob, setBlob } from '../blobs.js';
 
-const TOKEN_ENDPOINT = 'https://identity.idoklad.cz/server/connect/token';
+const TOKEN_ENDPOINT = 'https://identity.idoklad.cz/connect/token';
 const API_BASE = 'https://api.idoklad.cz/v3';
-const KV_TOKEN_KEY = 'idoklad_token';
+const BLOB_TOKEN_KEY = 'idoklad_token';
+
+let _memoryToken = null;
+let _memoryTokenExpiresAt = 0;
 
 export class IDokladConnector {
   /**
-   * @param {object} env - Cloudflare Worker environment bindings.
-   * @param {object} [kvCache] - KV namespace for caching tokens (defaults to env.CACHE).
+   * @param {object} [env=process.env] - Environment bindings.
    */
-  constructor(env, kvCache) {
-    this.clientId = env.SECRET_IDOKLAD_CLIENT_ID || '';
-    this.clientSecret = env.SECRET_IDOKLAD_CLIENT_SECRET || '';
-    this.kvCache = kvCache || env.CACHE || null;
+  constructor(env = process.env) {
+    this.clientId = env.IDOKLAD_CLIENT_ID || env.SECRET_IDOKLAD_CLIENT_ID || '';
+    this.clientSecret = env.IDOKLAD_CLIENT_SECRET || env.SECRET_IDOKLAD_CLIENT_SECRET || '';
     this.configured = Boolean(this.clientId) && Boolean(this.clientSecret);
   }
 
   /**
    * Obtain an access token via client_credentials grant.
-   * Checks KV cache first; if expired, requests a new token and caches it.
+   * Checks memory & Blobs cache first; if expired, requests a new token.
    *
    * @returns {Promise<string|null>} The access token or null if not configured.
    */
@@ -44,17 +43,24 @@ export class IDokladConnector {
       return null;
     }
 
-    // Try KV cache first
-    if (this.kvCache) {
-      try {
-        const cached = await this.kvCache.get(KV_TOKEN_KEY);
-        if (cached) return cached;
-      } catch (e) {
-        console.warn('[iDoklad] KV cache read error:', e.message);
-      }
+    // 1. Zkusíme in-memory cache
+    if (_memoryToken && Date.now() < _memoryTokenExpiresAt) {
+      return _memoryToken;
     }
 
-    // Request new token
+    // 2. Zkusíme Netlify Blobs cache
+    try {
+      const cached = await getBlob(BLOB_TOKEN_KEY, 'bicom-cache');
+      if (cached && cached.token && cached.expires_at > Date.now()) {
+        _memoryToken = cached.token;
+        _memoryTokenExpiresAt = cached.expires_at;
+        return _memoryToken;
+      }
+    } catch {
+      // Blobs fallback fail silent
+    }
+
+    // 3. Požádáme o nový token přes OAuth2 Client Credentials
     const body = new URLSearchParams({
       grant_type: 'client_credentials',
       client_id: this.clientId,
@@ -75,15 +81,17 @@ export class IDokladConnector {
 
     const data = await res.json();
     const token = data.access_token;
-    const ttl = (data.expires_in || 3600) - 60; // 60s safety margin
+    const expiresInSec = data.expires_in || 3600;
+    const expiresAt = Date.now() + (expiresInSec - 120) * 1000; // 2 min rezerva
 
-    // Cache in KV
-    if (this.kvCache && token) {
-      try {
-        await this.kvCache.put(KV_TOKEN_KEY, token, { expirationTtl: Math.max(ttl, 60) });
-      } catch (e) {
-        console.warn('[iDoklad] KV cache write error:', e.message);
-      }
+    _memoryToken = token;
+    _memoryTokenExpiresAt = expiresAt;
+
+    // Uložíme do Netlify Blobs
+    try {
+      await setBlob(BLOB_TOKEN_KEY, { token, expires_at: expiresAt }, 'bicom-cache');
+    } catch {
+      // Blobs fallback
     }
 
     return token;
@@ -95,129 +103,58 @@ export class IDokladConnector {
    * @param {object} customerData - Customer information.
    * @param {string} customerData.name - Customer name.
    * @param {string} customerData.email - Customer email.
-   * @param {string} customerData.street - Street address.
-   * @param {string} customerData.city - City.
-   * @param {string} customerData.postalCode - Postal code.
+   * @param {string} [customerData.street] - Street address.
+   * @param {string} [customerData.city] - City.
+   * @param {string} [customerData.postalCode] - Postal code.
    * @param {string} [customerData.ico] - Company identification number (IČO).
-   * @param {object[]} items - Invoice line items.
-   * @param {string} items[].name - Item name/description.
-   * @param {number} items[].unitPrice - Price per unit (excl. VAT).
-   * @param {number} items[].amount - Quantity.
-   * @param {string} [items[].vatRateType='ReducedFirst'] - VAT rate type.
+   * @param {object[]} [items] - Invoice line items.
    * @returns {Promise<object|null>} Created invoice data or null on failure.
    */
-  async createInvoice(customerData, items) {
+  async createInvoice(customerData, items = []) {
     const token = await this._getAccessToken();
     if (!token) return null;
 
+    const lineItems = items.length > 0 ? items : [
+      {
+        name: customerData.serviceName || 'Biorezonanční harmonizační sezení',
+        unitPrice: Number(customerData.priceCzk || 1200),
+        amount: 1,
+        vatRateType: 'Zero',
+      }
+    ];
+
     const invoicePayload = {
-      PurchaserName: customerData.name,
-      PurchaserEmail: customerData.email,
-      PurchaserStreet: customerData.street,
-      PurchaserCity: customerData.city,
-      PurchaserPostalCode: customerData.postalCode,
+      PurchaserName: customerData.name || 'Klient Bicom Písek',
+      PurchaserEmail: customerData.email || '',
+      PurchaserStreet: customerData.street || 'Písek',
+      PurchaserCity: customerData.city || 'Písek',
+      PurchaserPostalCode: customerData.postalCode || '39701',
       ...(customerData.ico ? { PurchaserIdentificationNumber: customerData.ico } : {}),
-      Items: items.map((item) => ({
-        Name: item.name,
-        UnitPrice: item.unitPrice,
-        Amount: item.amount,
-        VatRateType: item.vatRateType || 'ReducedFirst',
+      Items: lineItems.map((item) => ({
+        Name: item.name || item.Name,
+        UnitPrice: item.unitPrice || item.UnitPrice,
+        Amount: item.amount || item.Amount || 1,
+        PriceType: 1, // s DPH / bez DPH
+        VatRateType: 0, // Neplátce DPH / Zero
       })),
+      Description: `Rezervace Bicom: ${customerData.bookingId || ''}`,
+      PaymentOptionId: 1, // Převod / Hotovost
     };
 
     const res = await fetchWithRetry(`${API_BASE}/IssuedInvoices`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(invoicePayload),
     });
 
     if (!res || !res.ok) {
-      console.warn('[iDoklad] createInvoice failed:', res?.status);
+      console.warn('[iDoklad] Create invoice failed:', res?.status);
       return null;
     }
 
-    return res.json();
-  }
-
-  /**
-   * List issued invoices within a date range.
-   *
-   * @param {string} dateFrom - Start date in YYYY-MM-DD format.
-   * @param {string} dateTo - End date in YYYY-MM-DD format.
-   * @returns {Promise<object[]>} Array of invoice objects, or empty array on failure.
-   */
-  async getInvoices(dateFrom, dateTo) {
-    const token = await this._getAccessToken();
-    if (!token) return [];
-
-    const filter = `DateOfIssue~gte~${dateFrom}|DateOfIssue~lte~${dateTo}`;
-    const url = `${API_BASE}/IssuedInvoices?filter=${encodeURIComponent(filter)}`;
-
-    const res = await fetchWithRetry(url, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res || !res.ok) {
-      console.warn('[iDoklad] getInvoices failed:', res?.status);
-      return [];
-    }
-
-    const data = await res.json();
-    return data.Items || data.items || [];
-  }
-
-  /**
-   * Get aggregate statistics from invoices (all time or recent).
-   * Returns total revenue, invoice count, paid vs unpaid breakdown.
-   *
-   * @returns {Promise<object|null>} Stats object or null on failure.
-   */
-  async getStats() {
-    const token = await this._getAccessToken();
-    if (!token) return null;
-
-    // Fetch recent invoices (last 365 days) for stats
-    const now = new Date();
-    const yearAgo = new Date(now);
-    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-
-    const dateFrom = yearAgo.toISOString().slice(0, 10);
-    const dateTo = now.toISOString().slice(0, 10);
-
-    const invoices = await this.getInvoices(dateFrom, dateTo);
-
-    let totalRevenue = 0;
-    let paidCount = 0;
-    let unpaidCount = 0;
-    let paidRevenue = 0;
-    let unpaidRevenue = 0;
-
-    for (const inv of invoices) {
-      // iDoklad uses DocumentTotalWithVat or similar field
-      const amount = inv.DocumentTotalWithVat || inv.TotalWithVat || 0;
-      totalRevenue += amount;
-
-      // PaymentStatus: 1 = unpaid, 2 = partially paid, 3 = paid
-      if (inv.PaymentStatus === 3) {
-        paidCount++;
-        paidRevenue += amount;
-      } else {
-        unpaidCount++;
-        unpaidRevenue += amount;
-      }
-    }
-
-    return {
-      totalRevenue,
-      invoiceCount: invoices.length,
-      paidCount,
-      paidRevenue,
-      unpaidCount,
-      unpaidRevenue,
-    };
+    return await res.json();
   }
 }

@@ -1,25 +1,34 @@
-# 📌 Zbývající Secrets a Klíče k doplnění (Bicom Písek — Netlify Produkce)
+# 📌 Stav Secrets a Klíčů (Bicom Písek — Netlify Produkce)
 
-Tento soubor eviduje zbývající 3 klíče, které je potřeba vygenerovat a doplnit do Netlify Environment Variables před ostrým provozem:
+### ✅ Všechny potřebné API klíče a Secrets jsou kompletně nastaveny na Netlify!
+
+| Proměnná | Stav | Účel |
+| :--- | :---: | :--- |
+| `SUPABASE_URL` | ✅ Aktivní | Supabase PostgreSQL REST URL |
+| `SUPABASE_ANON_KEY` | ✅ Aktivní | Klientský přístup k Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Aktivní | Privátní backend přístup pro Netlify Functions |
+| `RESEND_API_KEY` | ✅ Aktivní | Odesílání potvrzení rezervací e-mailem |
+| `SECRET_GROQ_API_KEY` | ✅ Aktivní | AI Rádce & AI Copywriter (Llama 3.3 70B) |
+| `SECRET_GEMINI_API_KEY` | ✅ Aktivní | AI záložní model (Gemini 2.0 Flash) |
+| `SECRET_GOOGLE_MAPS_PLATFORM_API` | ✅ Aktivní | Google Maps Platform API |
+| `SECRET_GOOGLE_CALENDAR_CLIENT_EMAIL` | ✅ Aktivní | Google Calendar Service Account |
+| `SECRET_GOOGLE_CALENDAR_PRIVATE_KEY` | ✅ Aktivní | Google Calendar RSA Private Key |
+| `SECRET_GOOGLE_CALENDAR_ID` | ✅ Aktivní | ID kalendáře ordinace |
+| `SECRET_TELEGRAM_BOT_TOKEN` | ✅ Aktivní | Telegram bot token od @BotFather |
+| `SECRET_TELEGRAM_CHAT_ID` | ✅ Aktivní | Chat ID pro notifikace ordinace |
+| `IDOKLAD_CLIENT_ID` | ✅ Aktivní | iDoklad OAuth2 Client ID |
+| `IDOKLAD_CLIENT_SECRET` | ✅ Aktivní | iDoklad OAuth2 Client Secret |
+| `SECRET_MAPYCZ_API_KEY` | ✅ Aktivní | Mapy.cz Geocoding & Autocomplete proxy |
+| `STRIPE_PUBLISHABLE_KEY` | ✅ Aktivní | Stripe platební brána (veřejný klíč) |
+| `STRIPE_SECRET_KEY` | ✅ Aktivní | Stripe tajný klíč pro platby |
+| `GOSMS_CLIENT_ID` + `GOSMS_CLIENT_SECRET` | ✅ Aktivní | GoSMS API pro SMS připomínky |
+| `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` | ✅ Aktivní | Cloudflare Turnstile bot ochrana |
+| `SECRET_ADMIN_PASSWORD` | ✅ Aktivní | Přístupové heslo do Virtual Office |
+| `SECRET_SESSION_KEY` | ✅ Aktivní | 256-bit HMAC klíč pro podepisování relací |
+| `SECRET_ENCRYPTION_KEY` | ✅ Aktivní | 256-bit AES klíč pro GDPR šifrování dat |
+| `BASE_URL` | ✅ Aktivní | `https://bicompisek.cz` |
 
 ---
 
-### 1. `SECRET_TELEGRAM_BOT_TOKEN`
-- **Účel:** Odesílání okamžitých notifikací o nových rezervacích a týdenních reportů do mobilu administrátora.
-- **Aktuální stav:** Chat ID je nastaveno (`8737895841`), chybí API token bota.
-- **Kde získat:** V aplikaci Telegram kontaktujte `@BotFather`, zadejte příkaz `/newbot`, pojmenujte bota (např. *Bicom Písek Notifikace*) a zkopírujte vygenerovaný HTTP API Token (formát: `123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ`).
-- **Kam vložit:** Netlify Dashboard $\rightarrow$ Site configuration $\rightarrow$ Environment variables $\rightarrow$ `SECRET_TELEGRAM_BOT_TOKEN`.
-
----
-
-### 2. `IDOKLAD_CLIENT_ID` & `IDOKLAD_CLIENT_SECRET` (Volitelné)
-- **Účel:** Automatické vystavování daňových dokladů a faktur v iDokladu při dokončení terapie nebo online platbě.
-- **Aktuální stav:** Vypnuto / simulovaný režim.
-- **Kde získat:** V účtu [app.idoklad.cz](https://app.idoklad.cz) $\rightarrow$ Nastavení $\rightarrow$ Integrace / API $\rightarrow$ Nová aplikace.
-- **Kam vložit:** Netlify Dashboard $\rightarrow$ Environment variables $\rightarrow$ `IDOKLAD_CLIENT_ID` a `IDOKLAD_CLIENT_SECRET`.
-
----
-
-### 3. Rotace klíčů před oficiálním spuštěním
-- **Účel:** Po dokončení všech integračních testů a před veřejným otevřením domény `bicompisek.cz` zrotovat veškeré dočasné testovací tokeny (Stripe, heslo administrátora, šifrovací klíče).
-- **Termín:** Fáze 7 (před ostrým přepnutím DNS).
+### 🔄 Před-produkční rotace klíčů (Před ostrým spuštěním pro veřejnost)
+- [ ] Po dokončení finálních testů zrotovat dočasné testovací tokeny (např. Stripe test $\rightarrow$ live, nová hesla).
