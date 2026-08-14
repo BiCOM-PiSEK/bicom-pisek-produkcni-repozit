@@ -3,8 +3,15 @@
 ## Co to je
 Produkční web ordinace biorezonance. Cloudflare-first: Pages (HTML5+Tailwind+Vanilla ES6 SPA), Workers (V8), Workers AI (llama-3-8b), D1 `bicom-pisek-db` (kanonické schéma, migrace 0001–0026), R2 `bicom-multimedia`, KV, Queues (booking-jobs, social-jobs). Workeři: bicom-booking-consumer, bicom-social-consumer, bicom-cron-worker. Doména kanonická: bicom-pisek.cz (s pomlčkou). Plnohodnotné CMS (texty/SEO/FAQ/NAP/služby/hero/galerie) s workflow koncept→náhled→zveřejnit a pojmenovanými verzemi — viz [docs/CMS_GUIDE.md](docs/CMS_GUIDE.md).
 
+## 🌿 Architektonické větve projektu (Branch Isolation Protocol)
+V repozitáři existují **dva nezávislé architektonické směry**, které se **NESMÍ slučovat**:
+1. **`main` / `upstream` (Cloudflare-First):** Původní edge architektura pro `bicom-pisek.cz` (Cloudflare Pages + Workers + D1 + R2 + KV + Queues).
+2. **`produkce/netlify-bicompisek` (Netlify-First + Supabase):** Modernizovaná bezúdržbová architektura pro `bicompisek.cz` (Netlify Functions v2 + Netlify Blobs + Supabase PostgreSQL).
+⚠️ **Striktní zákaz mergování:** Jakýkoliv kódovací agent má přísný zákaz slučovat větev `produkce/netlify-bicompisek` zpět do `main` (nebo naopak), aby nedošlo k přepsání či poškození běžící Cloudflare produkce.
+
 ## 🧭 Kompas a architektura (GraphiFy)
 V tomto repozitáři je nainstalován vizualizační a sémantický nástroj **GraphiFy**. Slouží jako tvůj primární průvodce pro okamžité pochopení struktury repozitáře a vazeb mezi soubory.
+
 - **Kde najdeš graf:** Celý vygenerovaný graf, HTML report a přehled architektury je uložen ve složce [graphify-out/](file:///c:/Users/PC/Documents/GitHub/bicom-pisek-produkcni-repozit/graphify-out).
 - **Jak se ptát grafu (CLI):**
   * `graphify query "<tvoje otázka>"` — Rychlé vyhledání sémantických souvislostí.

@@ -4,7 +4,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const BASE_URL = 'https://bicom-pisek.cz';
+const BASE_URL = process.env.BASE_URL || 'https://bicompisek.cz';
 
 const STATIC_ROUTES = [
   '/',

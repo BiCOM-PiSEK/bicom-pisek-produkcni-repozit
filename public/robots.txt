@@ -22,4 +22,4 @@ Allow: /
 User-agent: SeznamBot
 Allow: /
 
-Sitemap: https://bicom-pisek.cz/sitemap.xml
+Sitemap: https://bicompisek.cz/sitemap.xml

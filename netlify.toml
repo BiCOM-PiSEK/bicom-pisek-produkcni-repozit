@@ -20,18 +20,10 @@
 # ─── EDGE FUNCTIONS ──────────────────────────────────────────────────────────
 
 [[edge_functions]]
-  # Bezpečnostní guard: blokuje /admin/* dokud není admin auth připraven
-  # Fáze 0–3A: admin je blokován (vrací 404)
-  # Fáze 3B: tato sekce se upraví po nasazení admin-auth edge funkce
-  function = "platform-guard"
+  # Ochrana administrátorské zóny a Virtual Office
+  function = "admin-auth"
   path = "/admin/*"
 
-[[edge_functions]]
-  # Bezpečnostní guard: blokuje /api/* dokud není backend připraven
-  # Fáze 0–2: API je blokováno (vrací 503)
-  # Fáze 3A: tato sekce se odstraní po nasazení API handlerů
-  function = "platform-guard"
-  path = "/api/*"
 
 # ─── REDIRECTY ───────────────────────────────────────────────────────────────
 

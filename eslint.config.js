@@ -35,6 +35,14 @@ const browserGlobals = {
   window: "readonly",
 };
 
+const nodeGlobals = {
+  ...browserGlobals,
+  process: "readonly",
+  Buffer: "readonly",
+  __dirname: "readonly",
+  __filename: "readonly",
+};
+
 export default [
   {
     linterOptions: {
@@ -52,7 +60,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ["functions/**/*.js", "netlify/functions/**/*.js", "netlify/lib/**/*.js", "public/assets/js/**/*.js"],
+    files: ["functions/**/*.js", "public/assets/js/**/*.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -65,4 +73,19 @@ export default [
       "no-useless-escape": "off",
     },
   },
+  {
+    files: ["netlify/**/*.js", "scripts/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: nodeGlobals,
+    },
+    rules: {
+      "no-control-regex": "off",
+      "no-empty": "off",
+      "no-unused-vars": "off",
+      "no-useless-escape": "off",
+    },
+  },
 ];
+
