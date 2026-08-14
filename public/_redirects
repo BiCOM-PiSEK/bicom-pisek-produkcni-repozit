@@ -26,8 +26,10 @@
 /api/chat               /.netlify/functions/chat                 200
 /api/newsletter         /.netlify/functions/newsletter           200
 /api/gallery            /.netlify/functions/gallery              200
-/api/health             /.netlify/functions/health               200
+/api/places/geocode     /.netlify/functions/places-geocode       200
+/api/places/suggest     /.netlify/functions/places-suggest       200
 /api/*                  /.netlify/functions/:splat               200
+
 
 # 3. Admin SPA HTML Navigation (prohlížečové routy)
 /admin                  /admin/index.html                        200
