@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import WebSocket from 'ws';
 
 let supabaseAdminInstance = null;
 let supabaseAnonInstance = null;
@@ -36,6 +37,10 @@ export function getSupabaseAdmin() {
         autoRefreshToken: false,
         persistSession: false,
       },
+      global: {
+        fetch: (...args) => fetch(...args),
+        WebSocket: WebSocket
+      }
     });
   }
 
@@ -65,6 +70,10 @@ export function getSupabaseClient() {
         autoRefreshToken: true,
         persistSession: false,
       },
+      global: {
+        fetch: (...args) => fetch(...args),
+        WebSocket: WebSocket
+      }
     });
   }
 
