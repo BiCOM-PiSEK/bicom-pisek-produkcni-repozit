@@ -11,8 +11,8 @@
 
 
 [build.environment]
-  # Pinujeme Node.js verzi konzistentně s CI (.github/workflows/ci.yml používá 20)
-  NODE_VERSION = "20"
+  # Používáme Node.js 22 s nativní podporou WebSocket pro Supabase SDK
+  NODE_VERSION = "22"
 
 # ─── EDGE FUNCTIONS ──────────────────────────────────────────────────────────
 
