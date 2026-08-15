@@ -14,6 +14,19 @@
 
 ---
 
+## Oprava mapy (Leaflet), chatbotu, admin identity a doplnění Netlify env secrets
+- **Datum:** 2026-08-15 12:50
+- **Agent:** Gemini/Antigravity
+- **Úkol:** Zprovoznění chybějící mapy se špendlíkem, oprava response formátu AI chatbotu, sjednocení identity správce v admin konzoli a bezpečné uložení všech produkčních proměnných na Netlify.
+- **Změny:**
+  - `public/index.html` — UPRAVEN: Nahrazeno nefunkční staré Mapy.cz Loader API za spolehlivou Leaflet + OpenStreetMap implementaci s custom špendlíkem a popupem v Quiet Luxury stylu.
+  - `netlify/functions/chat.js` — UPRAVEN: Doplněno pole `success: true` / `success: false` do odpovědí pro 100% kompatibilitu s klientským `chat-widget.js`.
+  - `netlify/lib/admin-auth.js` & `public/admin/index.html` — UPRAVENY: Změněn generický / prázdný název operátora na „Hlavní správce" a roli na „Administrátor".
+  - `netlify/lib/supabase.js` — UPRAVEN: Rozšířena detekce proměnných o `SUPABASE_SECRET_KEY` a `SUPABASE_PUBLISHABLE_KEY`.
+  - Netlify secrets — NASTAVENY: Bezpečně nahrány všechny proměnné (Groq, Telegram, iDoklad, Cloudflare, Google Maps, GSC JSON, Session/Encryption klíče).
+- **QA:** lint ✅ · syntax `node --check` ✅ · Netlify env vars ✅
+- **Pro orchestrátora:** Připraveno k pushnutí a automatickému sestavení na Netlify.
+
 ## Oprava AI Studia, D1, CodeRabbit review a spuštění GEO/SEO/AEO Marketing kaskády
 - **Datum:** 2026-06-28 20:40
 - **Agent:** Gemini/Antigravity

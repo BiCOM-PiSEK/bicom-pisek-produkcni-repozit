@@ -78,6 +78,7 @@ export default async function handler(request) {
 
     return new Response(
       JSON.stringify({
+        success: true,
         reply: cleanText,
         provider: result.provider,
         model: result.model,
@@ -88,6 +89,7 @@ export default async function handler(request) {
     console.error('[api/chat] Error:', err);
     return new Response(
       JSON.stringify({
+        success: false,
         reply: 'Omlouváme se, náš AI Rádce je momentálně nedostupný. Pro dotazy nás prosím kontaktujte přímo přes formulář nebo telefon.',
         error: err.message,
       }),

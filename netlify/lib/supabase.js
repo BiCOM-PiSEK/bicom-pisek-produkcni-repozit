@@ -22,12 +22,13 @@ export function getSupabaseAdmin() {
   if (!supabaseAdminInstance) {
     const url = getSupabaseUrl();
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                           process.env.SUPABASE_SECRET_KEY ||
                            process.env.SUPABASE_SERVICE_KEY || 
                            process.env.SUPABASE_KEY ||
                            process.env.SUPABASE_ANON_KEY;
 
     if (!serviceRoleKey) {
-      throw new Error('[supabase] Chybí SUPABASE_SERVICE_ROLE_KEY (nebo SUPABASE_KEY) v environment proměnných.');
+      throw new Error('[supabase] Chybí SUPABASE_SERVICE_ROLE_KEY (nebo SUPABASE_SECRET_KEY) v environment proměnných.');
     }
 
     supabaseAdminInstance = createClient(url, serviceRoleKey, {
@@ -51,6 +52,7 @@ export function getSupabaseClient() {
   if (!supabaseAnonInstance) {
     const url = getSupabaseUrl();
     const anonKey = process.env.SUPABASE_ANON_KEY || 
+                    process.env.SUPABASE_PUBLISHABLE_KEY ||
                     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
                     process.env.SUPABASE_KEY;
 

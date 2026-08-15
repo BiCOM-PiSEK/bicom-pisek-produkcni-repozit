@@ -152,8 +152,8 @@ export async function authenticateOperator(request) {
   // Výchozí fallback operátor
   return {
     id: result.operatorId || 'op_admin_box',
-    name: 'Admin Bicom Písek',
+    name: 'Hlavní správce',
     email: 'admin@bicom-pisek.cz',
-    role: 'admin',
+    role: 'Administrátor',
   };
 }

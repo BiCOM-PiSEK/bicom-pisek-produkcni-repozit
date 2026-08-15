@@ -24,6 +24,9 @@
   <meta property="twitter:description" content="Šetrná certifikovaná komplementární péče s respektem k vašemu příběhu. Zkuste bezbolestnou biorezonanci Bicom Optima v Písku.">
   <meta property="twitter:image" content="https://bicom-pisek.cz/assets/img/og.jpg">
 
+  <!-- Leaflet CSS (mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
   <!-- Favicon / Manifest -->
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -582,38 +585,50 @@
     </button>
   </div>
 
-  <!-- Mapy.cz JS API -->
-  <script src="https://api.mapy.cz/loader.js"></script>
+  <!-- Leaflet JS (mapa) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
     window.addEventListener('DOMContentLoaded', function() {
-      if (typeof Loader !== 'undefined') {
-        Loader.load(null, { suggest: false }, function() {
-          try {
-            var center = SMap.Coords.fromWGS84(14.1482, 49.3088);
-            var mapContainer = document.getElementById('bicom-map');
-            if (!mapContainer) return;
-            var map = new SMap(mapContainer, center, 16);
-            map.addDefaultLayer(SMap.DEF_BASE).enable();
-            map.addDefaultControls();
-            
-            var sync = new SMap.Control.Sync();
-            map.addControl(sync);
+      try {
+        var mapContainer = document.getElementById('bicom-map');
+        if (!mapContainer || typeof L === 'undefined') return;
 
-            var layer = new SMap.Layer.Marker();
-            map.addLayer(layer);
-            layer.enable();
-
-            var card = new SMap.Card();
-            card.getHeader().innerHTML = '<strong style="color:#2D3748;font-size:14px;">Bicom Písek</strong>';
-            card.getBody().innerHTML = '<p style="margin:4px 0;color:#4A5568;font-size:13px;">Vladislavova 201, 397 01 Písek</p><a href="https://mapy.cz/s/jonumebovo" target="_blank" rel="noopener" style="color:#3A4A3C;font-weight:600;font-size:12px;text-decoration:underline;">Otevřít na Mapy.cz &rarr;</a>';
-
-            var marker = new SMap.Marker(center, 'bicomMarker', { title: 'Bicom Písek — Ordinace biorezonance' });
-            marker.decorate(SMap.Marker.Feature.Card, card);
-            layer.addMarker(marker);
-          } catch (e) {
-            console.warn('[Mapy.cz] Init error:', e);
-          }
+        var center = [49.3088, 14.1482];
+        var map = L.map('bicom-map', {
+          center: center,
+          zoom: 16,
+          scrollWheelZoom: false
         });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19
+        }).addTo(map);
+
+        // Vlastní SVG ikona špendlíku v barvách Quiet Luxury
+        var bicomIcon = L.divIcon({
+          className: 'bicom-map-marker',
+          html: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.2 0 0 7.2 0 16c0 12 16 26 16 26s16-14 16-26C32 7.2 24.8 0 16 0z" fill="#3A4A3C"/><circle cx="16" cy="14" r="6" fill="#C5A880"/></svg>',
+          iconSize: [32, 42],
+          iconAnchor: [16, 42],
+          popupAnchor: [0, -38]
+        });
+
+        var marker = L.marker(center, { icon: bicomIcon, title: 'Bicom Písek — Ordinace biorezonance' }).addTo(map);
+
+        marker.bindPopup(
+          '<div style="font-family:Montserrat,system-ui,sans-serif;min-width:200px;">' +
+            '<strong style="color:#2D3748;font-size:14px;">Bicom Písek</strong>' +
+            '<p style="margin:4px 0;color:#4A5568;font-size:13px;">Vladislavova 201, 397 01 Písek</p>' +
+            '<a href="https://mapy.cz/s/jonumebovo" target="_blank" rel="noopener" style="color:#3A4A3C;font-weight:600;font-size:12px;text-decoration:underline;">Otevřít na Mapy.cz &rarr;</a>' +
+          '</div>',
+          { maxWidth: 280 }
+        ).openPopup();
+
+        // Re-enable scroll zoom po kliknutí na mapu
+        map.on('click', function() { map.scrollWheelZoom.enable(); });
+      } catch (e) {
+        console.warn('[Leaflet] Init error:', e);
       }
     });
   </script>
