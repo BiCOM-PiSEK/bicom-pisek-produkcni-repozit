@@ -21,9 +21,11 @@
 - **Změny:**
   - `public/index.html` — UPRAVEN: Nahrazeno nefunkční staré Mapy.cz Loader API za spolehlivou Leaflet + OpenStreetMap implementaci s custom špendlíkem a popupem v Quiet Luxury stylu.
   - `netlify/functions/chat.js` — UPRAVEN: Doplněno pole `success: true` / `success: false` do odpovědí pro 100% kompatibilitu s klientským `chat-widget.js`.
+  - `public/_headers` — UPRAVEN: Rozšířena Content-Security-Policy (CSP) o `https://unpkg.com` a `https://*.tile.openstreetmap.org`, aby prohlížeč neblokoval Leaflet skripty a mapové dlaždice.
+  - `public/assets/js/performance-logger.js` & `netlify/functions/perf-log.js` — UPRAVENY: Odstraněna re-queue smyčka zahlcující prohlížeč a vytvořen serverless handler pro `/api/_perf-log`.
   - `netlify/lib/admin-auth.js` & `public/admin/index.html` — UPRAVENY: Změněn generický / prázdný název operátora na „Hlavní správce" a roli na „Administrátor".
   - `netlify/lib/supabase.js` — UPRAVEN: Rozšířena detekce proměnných o `SUPABASE_SECRET_KEY` a `SUPABASE_PUBLISHABLE_KEY`.
-  - Netlify secrets — NASTAVENY: Bezpečně nahrány všechny proměnné (Groq, Telegram, iDoklad, Cloudflare, Google Maps, GSC JSON, Session/Encryption klíče).
+  - Netlify secrets — NASTAVENY: 21 produkčních proměnných zapsáno přímo do Netlify API.
 - **QA:** lint ✅ · syntax `node --check` ✅ · Netlify env vars ✅
 - **Pro orchestrátora:** Připraveno k pushnutí a automatickému sestavení na Netlify.
 

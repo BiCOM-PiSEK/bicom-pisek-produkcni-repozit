@@ -283,14 +283,10 @@ class PerformanceLogger {
       if (response.ok) {
         if (this.isDev) console.log(`[PerformanceLogger] Batch sent (${batch.length} events)`);
       } else {
-        console.warn(`[PerformanceLogger] Batch send failed: ${response.status}`);
-        // Re-queue failed batch
-        this.batchQueue.unshift(...batch);
+        if (this.isDev) console.warn(`[PerformanceLogger] Batch send failed: ${response.status}`);
       }
     } catch (error) {
-      console.warn(`[PerformanceLogger] Network error sending batch:`, error);
-      // Re-queue failed batch
-      this.batchQueue.unshift(...batch);
+      if (this.isDev) console.warn(`[PerformanceLogger] Network error sending batch:`, error);
     }
   }
 
