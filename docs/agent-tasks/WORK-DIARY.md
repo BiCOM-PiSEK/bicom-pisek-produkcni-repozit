@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-08-17 Public Web Redesign — Finální implementace & Produkční nasazení
+**Model:** Antigravity (Gemini 2.0 Pro)
+**Branch:** produkce/netlify-bicompisek
+**Status:** ✅ Hotovo — Vizuální redesign odeslán na Netlify (Live)
+
+### Co bylo implementováno
+- **Hero sekce:** Předěláno na dvou-sloupcový „Quiet Luxury" design (barvy `#3A4A3C`, `#C5A880`, `#F8FAF8`). Zaveden claim „Revoluční spojení moderní medicíny a biofyziky" a nová CTA tlačítka směřující k ceníku a rezervaci. Pozadí je čisté bez rušivých prvků.
+- **Odstranění nepotřebných bloků:** Kompletně vymazány HTML sekce pro „Certifikace" a „Časté dotazy (FAQ)", včetně souvisejících stylů a JS.
+- **Nový Ceník:** Integrovány dvě zjednodušené položky do ceníku:
+  1. *Vstupní konzultace, diagnostika a terapie* (2,5 hodiny) za 2 800 Kč
+  2. *Pravidelná kontrola a terapie* (1 hodina) za 1 200 Kč
+- **Rezervační formulář:** Zredukováno množství polí. Bylo kompletně smazáno doplňkové pole PSČ/Adresy (včetně auto-complete integrace na backend `api/places`), volba newsletteru a doplňkový notifikační kanál. Současně proběhlo odstranění nefunkčních bloků z HTML a JS kódu (`guide.js`).
+- **Patička a navigace:** Aktualizace adresy na `Vladislavova 201, Budova ADB Písek`, odstranění prázdných odkazů na Facebook/Instagram, úprava kontaktních údajů a dynamické generování aktuálního roku.
+- **Dynamická Galerie:** Integrace sekce galerie, která místo hardcodovaných obrázků asynchronně načítá data z Netlify endpointu (`/api/gallery`). V případě výpadku je k dispozici solidní statický fallback v DOMu.
+- **Hotfixes & Úklid:** Z interaktivního průvodce byly odstraněny zavádějící hardcodované hodnoty („Průměrný počet sezení: —" a „Orientační cena: —"). Aktualizován sémantický kompas (GraphiFy).
+- **Nasazení:** Kód byl auditován a následně commitnut a odeslán přes `git push origin produkce/netlify-bicompisek`, což iniciovalo produkční build na Netlify. Web je živý.
+
+---
+
 ## 2026-08-16 Public Web Redesign — Zadání úkolů & příprava podkladů
 **Model:** Gemini 3.7 Flash
 **Branch:** produkce/netlify-bicompisek

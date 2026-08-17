@@ -1,8 +1,8 @@
 # 📋 Public Web Redesign & Client Input Checklist (`bicompisek.cz`)
 
-> **Stav:** 🟡 Čeká na podklady a zadání od klienta / ordinace  
+> **Stav:** ✅ Hotovo (Vizuální a UX redesign úspěšně implementován a odeslán do produkce)  
 > **Architektura:** Netlify-First (`produkce/netlify-bicompisek`) — Public část webu  
-> **Poslední aktualizace:** 2026-08-16
+> **Poslední aktualizace:** 2026-08-17
 
 ---
 
@@ -62,9 +62,10 @@
 ---
 
 ## 🚀 Technické navazující úkoly pro agenta (po dodání podkladů)
-1. **Hero sekce:** Implementace nového Hero layoutu (buď video loop fallback, nebo čistý 2-sloupcový layout s novým sloganem a CTA).
-2. **Vymazání 2 bloků:** Čisté odstranění specifikovaných HTML sekcí a souvisejících CSS/JS selektorů.
-3. **Ceník:** Zavedení nového ceníku do HTML/CSS (přehledná struktura s kartami/tabulkou).
-4. **Rezervační formulář:** Zjednodušení polí, odstranění nepotřebných vstupů, oprava labelů.
-5. **Galerie:** Nasazení reálných fotografií z Cloudflare verze a optimalizace načítání.
-6. **Footer & SVG hotfixy:** Oprava SVG path v kontaktech, dynamický rok, linky na mapy a sítě.
+1. [x] **Hero sekce:** Implementace nového Hero layoutu (buď video loop fallback, nebo čistý 2-sloupcový layout s novým sloganem a CTA).
+2. [x] **Vymazání 2 bloků:** Čisté odstranění specifikovaných HTML sekcí a souvisejících CSS/JS selektorů.
+3. [x] **Ceník:** Zavedení nového ceníku do HTML/CSS (přehledná struktura s kartami/tabulkou).
+4. [x] **Rezervační formulář:** Zjednodušení polí, odstranění nepotřebných vstupů, oprava labelů.
+5. [x] **Galerie:** Nasazení reálných fotografií z Cloudflare verze a optimalizace načítání.
+6. [x] **Footer & SVG hotfixy:** Oprava SVG path v kontaktech, dynamický rok, linky na mapy a sítě.
+7. [x] **Finální ladění (Hotfixy):** Odstranění zavádějících informací o ceníku/sezeních z interaktivního průvodce. Zajištění čistého produkčního nasazení.
