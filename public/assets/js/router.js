@@ -92,9 +92,7 @@ async function resolveRoute() {
     } else if (path.startsWith("/sluzby/")) {
       const slug = path.split("/sluzby/")[1];
       await renderServiceDetail(slug);
-    } else if (path.startsWith("/magazin/")) {
-      const slug = path.split("/magazin/")[1];
-      await renderBlogDetail(slug);
+
     } else if (path === "/gdpr") {
       renderGdprPage();
     } else if (path === "/rezervace-potvrzena") {
@@ -297,67 +295,6 @@ async function renderServiceDetail(slug) {
 /**
  * Renders blog article subpage view.
  */
-async function renderBlogDetail(slug) {
-  if (mainEl) mainEl.style.display = "none";
-  subpageContainer.style.display = "block";
-  subpageContainer.innerHTML = `<div style="text-align:center; padding: 5rem 0;">Načítám článek...</div>`;
-
-  const articles = await fetchBlog();
-  const article = articles.find(a => a.slug === slug);
-
-  if (!article) {
-    render404Page();
-    return;
-  }
-
-  // Update SEO
-  document.title = `${escapeHtml(article.title)} | Bicom Písek Magazín`;
-  setMetaDescription(escapeHtml(article.excerpt || article.title));
-
-  const publishDate = article.published_at 
-    ? new Date(article.published_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" }) 
-    : '';
-
-  subpageContainer.innerHTML = `
-    <div style="margin-bottom: 2rem;">
-      <a href="/" class="btn btn-outline" style="padding: 0.5rem 1rem;" id="back-link">
-        &larr; Zpět na úvodní stránku
-      </a>
-    </div>
-    <article style="max-width: 800px; margin: 0 auto; animation: fadeIn 0.4s ease;">
-      <span style="font-size: 0.85rem; font-weight:600; text-transform: uppercase; color: var(--c-champagne); letter-spacing: 0.15em;">
-        Magazín / ${publishDate}
-      </span>
-      <h1 id="subpage-heading" tabindex="-1" style="font-size: clamp(2rem, 5vw, 3.5rem); margin-top: 0.5rem; margin-bottom: 2rem;">
-        ${escapeHtml(article.title)}
-      </h1>
-      
-      ${article.image_url ? `
-        <div style="border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(115,138,117,0.15); margin-bottom: 2.5rem; max-height: 400px; display: flex; justify-content:center; align-items:center; background-color: var(--c-mist);">
-          <img src="${escapeHtml(article.image_url)}" alt="${escapeHtml(article.title)}" style="width:100%; height:auto; object-fit:cover;">
-        </div>
-      ` : ''}
-
-      <div style="background-color: var(--c-white); border-radius: var(--radius); padding: var(--space); border: 1px solid rgba(115, 138, 117, 0.1); box-shadow: var(--shadow-sm); margin-bottom: 3rem;">
-        <p style="font-size: 1.15rem; line-height: 1.8; color: var(--c-forest); font-family: var(--font-head); font-style: italic; margin-bottom: 2rem; border-left: 3px solid var(--c-champagne); padding-left: 1.5rem;">
-          ${escapeHtml(article.excerpt || '')}
-        </p>
-        <div class="blog-article-content" style="line-height: 1.9; font-size: 1.05rem; color: var(--c-charcoal);">
-          ${renderMarkdown(article.content)}
-        </div>
-      </div>
-
-      <div style="text-align: center; border-top: 1px solid rgba(115,138,117,0.15); padding-top: 3rem;">
-        <h3 style="margin-bottom: 1.5rem;">Zaujalo vás toto téma?</h3>
-        <a href="/#rezervace" class="btn btn-primary" style="padding: 1rem 2.5rem;">
-          Objednat se na konzultaci
-        </a>
-      </div>
-    </article>
-  `;
-
-  document.getElementById("subpage-heading")?.focus();
-}
 
 /**
  * Renders GDPR privacy page.

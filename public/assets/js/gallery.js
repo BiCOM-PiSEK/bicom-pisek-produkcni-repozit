@@ -335,8 +335,22 @@
   ---------------------------------------------------------- */
   function init() {
     document.querySelectorAll('[data-cms-gallery]').forEach(function (root) {
+      var key = root.getAttribute('data-cms-gallery');
       var items = collectFromDom(root);
       if (items.length) render(root, items);
+
+      if (key) {
+        fetch('/api/gallery?key=' + encodeURIComponent(key))
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            if (data && data.items && data.items.length > 0) {
+              render(root, data.items);
+            }
+          })
+          .catch(function(err) {
+            console.warn('[Gallery] Chyba při načítání dynamické galerie:', err);
+          });
+      }
     });
   }
 

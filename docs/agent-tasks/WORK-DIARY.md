@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-08-16 Public Web Redesign — Zadání úkolů & příprava podkladů
+**Model:** Gemini 3.7 Flash
+**Branch:** produkce/netlify-bicompisek
+**Status:** 🟡 Pozastaveno do dodání podkladů — kompletní zadání uloženo v `docs/agent-tasks/PUBLIC-WEB-REDESIGN-TODO.md`
+
+### Co bylo provedeno
+- Vyhodnocení implementačního plánu vizuálního & UX auditu public části webu (`public/index.html`).
+- Sestavení strukturovaného checklistu a zadání úkolů pro uživatele/klientky:
+  - Specifikace nového ceníku a vymazání 2 bloků z public webu.
+  - Nový koncept Hero sekce (video/statika, slogan, CTA).
+  - Proškrtání a zjednodušení rezervačního formuláře (odstranění PSČ/GEO-marketingu).
+  - Seznam multimédií k vytvoření/dodání (videa/loop, ikony, certifikáty, blog fallbacky).
+  - Plán přenosu reálných fotek z Cloudflare verze (`bicom-pisek.cz`) do galerie Netlify verze (`bicompisek.cz`).
+  - Úpravy patičky (sociální sítě, mapy/recenze, právní doložka, dynamický rok).
+- Veškeré úkoly a specifikace byly uloženy do souboru [`docs/agent-tasks/PUBLIC-WEB-REDESIGN-TODO.md`](docs/agent-tasks/PUBLIC-WEB-REDESIGN-TODO.md).
+
+---
+
 ## 2026-06-25 Blok A — Hyper-responzivita — PR #93 squash-merged
 **Model:** Claude Sonnet 4.6
 **Branch:** css/blok-a-hyper-responzivita → squash do main (commit `0acee35`)

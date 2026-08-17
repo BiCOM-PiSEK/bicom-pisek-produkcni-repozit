@@ -66,9 +66,7 @@
           <li><a href="#hero" class="nav-link active">Úvod</a></li>
           <li><a href="#pruvodce" class="nav-link">Průvodce</a></li>
           <li><a href="#jak-metoda-funguje" class="nav-link">Jak to funguje</a></li>
-          <li><a href="#dukaz-bezpeci" class="nav-link">Důvěra &amp; Certifikace</a></li>
           <li><a href="#galerie" class="nav-link">Ordinace</a></li>
-          <li><a href="#magazin" class="nav-link">Magazín</a></li>
           <li><a href="#rezervace" class="nav-link">Rezervace</a></li>
           <li><a href="#kontakt" class="nav-link">Kontakt</a></li>
         </ul>
@@ -78,27 +76,24 @@
 
   <!-- 2. Hero Sekce -->
   <section class="hero" id="hero">
+    <div class="hero-bg-video">
+      <div class="hero-overlay"></div>
+      <video autoplay loop muted playsinline poster="/assets/img/hero-lifestyle.webp">
+        <source src="/assets/video/hero-ambient.webm" type="video/webm">
+        <source src="/assets/video/hero-ambient.mp4" type="video/mp4">
+        <img src="/assets/img/hero-lifestyle.webp" alt="Klidná a světlá ordinace s terapeutickým křeslem v Bicom Písek">
+      </video>
+    </div>
     <div class="wrap hero-grid">
       <div class="hero-content">
-        <span class="hero-tagline" data-cms-section="home-hero-tagline">Komplementární péče &amp; Biorezonance</span>
+        <span class="hero-tagline" data-cms-section="home-hero-tagline">Certifikovaná biorezonance · Písek · od roku 2023</span>
         <h1>Ulevte svému tělu <span class="accent">bez chemie</span></h1>
         <p class="hero-desc" data-cms-section="home-hero-desc">
           Biorezonanční metoda Bicom Optima v Písku. Citlivě, neinvazivně a s respektem k vašemu jedinečnému příběhu. Hledáme skutečné zátěže organismu a podporujeme přirozenou rovnováhu.
         </p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div class="hero-actions">
           <a href="#rezervace" class="btn btn-primary" data-cms-section="home-hero-cta-primary">Objednat se online</a>
-          <a href="#pruvodce" class="btn btn-outline" data-cms-section="home-hero-cta-secondary">Zjistit, co mě trápí</a>
-        </div>
-      </div>
-      <div class="hero-img-container">
-        <div class="hero-frame">
-          <div class="hero-illustration">
-            <video class="hero-image" autoplay loop muted playsinline poster="/assets/img/hero-lifestyle.webp">
-              <source src="/assets/video/hero-ambient.webm" type="video/webm">
-              <source src="/assets/video/hero-ambient.mp4" type="video/mp4">
-              <img src="/assets/img/hero-lifestyle.webp" alt="Klidná a světlá ordinace s terapeutickým křeslem v Bicom Písek" class="hero-image">
-            </video>
-          </div>
+          <a href="#cenik" class="btn btn-outline" data-cms-section="home-hero-cta-secondary">Naše služby a ceník</a>
         </div>
       </div>
     </div>
@@ -129,31 +124,18 @@
               <h3 id="guide-title">Vyberte téma výše</h3>
               <p id="guide-description">Klikněte na některé z tlačítek výše a zobrazte si podrobnosti o našich biorezonančních programech sestavených z katalogu služeb Bicom Písek.</p>
             </div>
-            <div class="guide-meta">
-              <div class="guide-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                </svg>
-                <span id="guide-sessions">Průměrný počet sezení: —</span>
-              </div>
-              <div class="guide-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                <span id="guide-price">Orientační cena: —</span>
-              </div>
-            </div>
+
             <div>
               <a href="#rezervace" class="btn btn-primary" id="guide-cta">Rezervovat konzultaci</a>
             </div>
           </div>
-          <div class="guide-placeholder-visual">
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 50C20 33.4315 33.4315 20 50 20C66.5685 20 80 33.4315 80 50C80 66.5685 66.5685 80 50 80C33.4315 80 20 66.5685 20 50Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M50 20V80" stroke="currentColor" opacity="0.3"/>
-              <path d="M20 50H80" stroke="currentColor" opacity="0.3"/>
-              <circle cx="50" cy="50" r="15" stroke="var(--c-champagne)" stroke-width="1.5"/>
-            </svg>
+          <div class="guide-placeholder-visual" style="overflow:hidden;">
+            <img
+              src="/assets/img/gallery/ordinace-02.webp"
+              alt="Přístroj Bicom Optima — certifikovaný zdravotnický prostředek pro biorezonanci"
+              style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;opacity:0.92;"
+              loading="lazy"
+            >
           </div>
         </div>
       </div>
@@ -213,49 +195,48 @@
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- 5. Důkaz & bezpečí (Certifikace) -->
-  <section id="dukaz-bezpeci">
-    <div class="wrap">
-      <h2 data-cms-section="home-dukaz-title">Důvěra a Bezpečí</h2>
-      <div class="guide-intro" data-cms-section="home-dukaz-intro">
-        <p>Provozujeme certifikovanou poradnu. Naším cílem je poskytovat služby na nejvyšší úrovni s maximálním respektem k vašemu bezpečí a soukromí.</p>
-      </div>
-
-      <div class="cert-grid" data-cms-list="home-cert-cards">
-        <div class="cert-card">
-          <div class="cert-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
-            </svg>
+    <!-- Vizualizace procesu sezéní -->
+    <div class="wrap" style="padding-top: 0;">
+      <div class="process-flow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:3rem;position:relative;">
+        <!-- Spojovací linka -->
+        <div aria-hidden="true" style="position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,var(--c-champagne),var(--c-sage));opacity:0.4;z-index:0;"></div>
+        <!-- Krok 1 -->
+        <div style="text-align:center;position:relative;z-index:1;">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--c-forest);border:2px solid var(--c-champagne);display:inline-flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C5A880" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <h3>ISO 13485</h3>
-          <p>Výroba přístrojů Bicom podléhá nejpřísnějším mezinárodním certifikacím řízení kvality pro zdravotnické prostředky.</p>
+          <p style="font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-champagne);margin-bottom:0.25rem;">1. Anaméza</p>
+          <p style="font-size:0.85rem;color:#555;margin:0;">Společně zmapujeme vaše potíže a celé pozadí stavu organismu</p>
         </div>
-        
-        <div class="cert-card">
-          <div class="cert-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-            </svg>
+        <!-- Krok 2 -->
+        <div style="text-align:center;position:relative;z-index:1;">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--c-forest);border:2px solid var(--c-champagne);display:inline-flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C5A880" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
-          <h3>Odborná certifikace</h3>
-          <p>Naše terapeutky jsou certifikovanými praktiky metody Bicom s rozsáhlým odborným školením v České republice.</p>
+          <p style="font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-champagne);margin-bottom:0.25rem;">2. Měření</p>
+          <p style="font-size:0.85rem;color:#555;margin:0;">Bicom Optima snímá elektromagnetické signály a lokalizuje zátěže</p>
         </div>
-
-        <div class="cert-card">
-          <div class="cert-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-            </svg>
+        <!-- Krok 3 -->
+        <div style="text-align:center;position:relative;z-index:1;">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--c-forest);border:2px solid var(--c-champagne);display:inline-flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C5A880" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
-          <h3>GDPR Compliance</h3>
-          <p>Osobní a citlivé údaje šifrujeme na úrovni databáze (field-level encryption) a zpracováváme v souladu s GDPR.</p>
+          <p style="font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-champagne);margin-bottom:0.25rem;">3. Terapie</p>
+          <p style="font-size:0.85rem;color:#555;margin:0;">Upravené signály vysíláme zpět a podporujeme autoregulaci těla</p>
+        </div>
+        <!-- Krok 4 -->
+        <div style="text-align:center;position:relative;z-index:1;">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--c-forest);border:2px solid var(--c-champagne);display:inline-flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C5A880" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <p style="font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-champagne);margin-bottom:0.25rem;">4. Výsledky</p>
+          <p style="font-size:0.85rem;color:#555;margin:0;">Postupná obnova rovnováhy, úbytek zátěží, pocit vitality</p>
         </div>
       </div>
     </div>
   </section>
+
 
   <!-- 5.5 Galerie naší ordinace -->
   <section id="galerie">
@@ -268,6 +249,10 @@
         <div class="gallery-featured">
           <button type="button" class="gallery-featured-item gallery-item" data-idx="0" aria-label="Zvětšit fotku: Pohled do světlé a harmonicky sladěné ordinace">
             <img class="gl-layer is-active" src="/assets/img/gallery/ordinace-01.webp" alt="Pohled do světlé a harmonicky sladěné ordinace" loading="lazy">
+            <img class="gl-layer" alt="" aria-hidden="true">
+          </button>
+          <button type="button" class="gallery-featured-item gallery-item" data-idx="2" aria-label="Zvětšit fotku: Přístroj Bicom Optima — certifikovaný zdravotnický prostředek">
+            <img class="gl-layer is-active" src="/assets/img/gallery/ordinace-02.webp" alt="Přístroj Bicom Optima — certifikovaný zdravotnický prostředek" loading="lazy">
             <img class="gl-layer" alt="" aria-hidden="true">
           </button>
           <button type="button" class="gallery-featured-item gallery-item" data-idx="1" aria-label="Zvětšit fotku: Vstupní prostor a recepce poradny">
@@ -296,18 +281,56 @@
     </div>
   </section>
 
-  <!-- 6. Magazín (Blog) -->
-  <section id="magazin">
-    <div class="wrap">
-      <h2 data-cms-section="home-magazin-title">Magazín &amp; Rady pro zdraví</h2>
-      <div class="guide-intro" data-cms-section="home-magazin-intro">
-        <p>Přečtěte si nejnovější příspěvky, tipy pro posílení imunity a příběhy z naší biorezonanční praxe.</p>
-      </div>
 
-      <div class="blog-grid" id="blog-grid">
-        <!-- Zde se dynamicky načtou články přes API /api/blog -->
-        <div style="grid-column: 1/-1; text-align: center; color: #888;">
-          Načítám nejnovější články...
+  <!-- 6. Ceník služeb -->
+  <section id="cenik">
+    <div class="wrap">
+      <h2 data-cms-section="home-cenik-title">Naše služby a ceník</h2>
+      <div class="guide-intro" data-cms-section="home-cenik-intro">
+        <p>Ceny našich terapií jsou plně transparentní. Pečlivě se věnujeme každému klientovi, abychom našli skutečné zátěže a obnovili vnitřní rovnováhu.</p>
+      </div>
+      
+      <div class="pricing-grid">
+        <!-- Vstupní terapie -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Vstupní terapie vč. anamnézy</h3>
+            <p class="duration">Délka: cca 2,5 hodiny</p>
+          </div>
+          <div class="pricing-price">
+            <span class="amount">2 800</span>
+            <span class="currency">Kč</span>
+          </div>
+          <div class="pricing-features">
+            <ul>
+              <li>Kompletní vstupní pohovor a anamnéza</li>
+              <li>Zmapování zátěží organismu</li>
+              <li>Základní harmonizační terapie</li>
+              <li>Sestavení individuálního plánu</li>
+            </ul>
+          </div>
+          <a href="#rezervace" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Objednat vstupní terapii</a>
+        </div>
+
+        <!-- Pravidelná terapie -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Pravidelná terapie</h3>
+            <p class="duration">Délka: cca 1 hodina</p>
+          </div>
+          <div class="pricing-price">
+            <span class="amount">1 200</span>
+            <span class="currency">Kč</span>
+          </div>
+          <div class="pricing-features">
+            <ul>
+              <li>Cílená terapie dle individuálního plánu</li>
+              <li>Průběžné vyhodnocování stavu</li>
+              <li>Podpora imunity a detoxikace</li>
+              <li>Harmonizace akutních potíží</li>
+            </ul>
+          </div>
+          <a href="#rezervace" class="btn btn-outline" style="width: 100%; margin-top: 1rem;">Objednat další sezení</a>
         </div>
       </div>
     </div>
@@ -353,48 +376,25 @@
           </div>
 
           <div class="form-group">
-            <label for="booking-service">Požadovaný program *</label>
+            <label for="booking-service">Požadovaná služba *</label>
             <select id="booking-service" class="form-control" required>
-              <option value="" disabled selected>Vyberte program...</option>
-              <option value="imunita-a-obranyschopnost">Imunita a obranyschopnost</option>
-              <option value="energie-a-vitalita">Energie &amp; Vitalita</option>
-              <option value="bolest-a-pohybovy-aparat">Bolest a pohybový aparát</option>
-              <option value="psychika-a-emocni-rovnovaha">Psychika a emoční rovnováha</option>
-              <option value="hormonalni-system">Hormonální systém</option>
-              <option value="metabolismus">Metabolismus</option>
-              <option value="organy-a-detoxikace">Orgány a detoxikace</option>
-              <option value="patogeny">Patogeny (zatížení viry/bakteriemi)</option>
-              <option value="prostredi-a-zateze">Prostředí a zátěže (elektrosmog)</option>
-              <option value="podpora-pri-onkologii">Podpora při onkologické léčbě</option>
-              <option value="prevence-a-rekonvalescence">Prevence a rekonvalescence</option>
+              <option value="" disabled selected>Vyberte službu...</option>
+              <option value="vstupni-terapie">Vstupní terapie vč. anamnézy (2,5 hod)</option>
+              <option value="pravidelna-terapie">Pravidelná terapie (1 hod)</option>
+              <option value="jine">Jiný dotaz / Nevím si rady</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="booking-date">Preferované datum *</label>
+            <label for="booking-date">Preferované datum (orientační) *</label>
             <input type="date" id="booking-date" class="form-control" required>
           </div>
 
-          <div class="form-group">
-            <label for="booking-address">Adresa (volitelné, Mapy.cz našeptávač)</label>
-            <input type="text" id="booking-address" class="form-control" placeholder="Např. Vladislavova 201, Písek" autocomplete="off">
-            <div id="booking-address-suggestions" class="booking-address-suggestions" style="display:none; position:relative; margin-top:6px;"></div>
-          </div>
 
-          <div id="booking-time-wrap" class="form-group" hidden>
-            <label for="booking-slots">Volný čas *</label>
-            <div id="booking-slots"></div>
-            <input type="hidden" id="booking-slot-start">
-          </div>
-
-          <div class="form-group">
-            <label for="booking-psc">PSČ (pro GEO-marketing)</label>
-            <input type="text" id="booking-psc" class="form-control" placeholder="39701">
-          </div>
 
           <div class="form-group form-full">
             <label for="booking-note">Poznámka k potížím (bude šifrováno)</label>
-            <textarea id="booking-note" class="form-control" placeholder="Stručně popište, s čím vám můžeme pomoci..."></textarea>
+            <textarea id="booking-note" class="form-control" placeholder="Zde můžete stručně popsat, s čím potřebujete pomoci..."></textarea>
           </div>
 
           <div class="form-group form-full form-checkbox">
@@ -425,14 +425,17 @@
           <div class="contact-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25g3 3 0 1 1 15 0Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
             </svg>
           </div>
           <div class="contact-details">
             <h3>Adresa ordinace</h3>
             <p><strong data-cms-nap="company">Bicom Písek</strong></p>
-            <p data-cms-nap="street">Vladislavova 201 (technologický park)</p>
-            <p><span data-cms-nap="zip">397 01</span> <span data-cms-nap="city">Písek</span></p>
+            <a href="https://mapy.cz/s/jonumebovo" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+              <p data-cms-nap="street" style="margin-bottom: 0;">Vladislavova 201 (Budova ADB Písek)</p>
+              <p style="margin-bottom: 0;"><span data-cms-nap="zip">397 01</span> <span data-cms-nap="city">Písek</span></p>
+              <p style="font-size: 0.82rem; color: var(--c-sage); margin-top: 0.25rem; margin-bottom: 0;">Otevřít v Mapy.cz →</p>
+            </a>
           </div>
         </div>
 
@@ -462,12 +465,7 @@
           </div>
         </div>
 
-        <div class="contact-item">
-          <div class="contact-details contact-details--offset">
-            <h3>Dojezdová spádovost</h3>
-            <p data-cms-nap="areas">Písek (ordinace) · Strakonice (20 min) · Milevsko (25 min) · Vodňany (20 min) · Protivín (12 min) · Blatná (25 min).</p>
-          </div>
-        </div>
+
       </div>
       
       <div class="map-container" id="bicom-map-container" style="position:relative; min-height:350px;">
@@ -485,6 +483,17 @@
       <div class="footer-brand">
         <h3 data-cms-nap="company">Bicom Písek</h3>
         <p data-cms-nap="brandDesc">Šetrná podpora rovnováhy vašeho organismu pomocí certifikované biorezonanční metody Bicom Optima.</p>
+        <div class="footer-social" style="display:flex;gap:0.75rem;margin-top:1.25rem;">
+          <a href="https://www.facebook.com/bicompisek" target="_blank" rel="noopener noreferrer" aria-label="Bicom Písek na Facebooku" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(223,229,223,0.25);color:#DFE5DF;transition:all 0.25s ease;" onmouseover="this.style.borderColor='#C5A880';this.style.color='#C5A880'" onmouseout="this.style.borderColor='rgba(223,229,223,0.25)';this.style.color='#DFE5DF'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/bicompisek" target="_blank" rel="noopener noreferrer" aria-label="Bicom Písek na Instagramu" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(223,229,223,0.25);color:#DFE5DF;transition:all 0.25s ease;" onmouseover="this.style.borderColor='#C5A880';this.style.color='#C5A880'" onmouseout="this.style.borderColor='rgba(223,229,223,0.25)';this.style.color='#DFE5DF'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://g.page/r/bicompisek/review" target="_blank" rel="noopener noreferrer" aria-label="Ohodnotit nás na Google" title="Google recenze" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(223,229,223,0.25);color:#DFE5DF;transition:all 0.25s ease;" onmouseover="this.style.borderColor='#C5A880';this.style.color='#C5A880'" onmouseout="this.style.borderColor='rgba(223,229,223,0.25)';this.style.color='#DFE5DF'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" opacity="0"/><path d="M12.545 10.239v1.814h2.545c-.1.675-.393 1.163-.826 1.506-.434.343-.997.545-1.72.545-1.374 0-2.497-1.128-2.497-2.497s1.123-2.497 2.497-2.497c.67 0 1.286.25 1.742.657l1.358-1.358C14.66 7.584 13.619 7.1 12.545 7.1c-2.36 0-4.273 1.913-4.273 4.273s1.913 4.273 4.273 4.273c2.458 0 4.09-1.728 4.09-4.158 0-.28-.027-.55-.077-.809h-4.013z"/></svg>
+          </a>
+        </div>
       </div>
       
       <div class="footer-links">
@@ -493,31 +502,19 @@
           <li><a href="#hero">Úvod</a></li>
           <li><a href="#pruvodce">Moje cesta</a></li>
           <li><a href="#jak-metoda-funguje">Jak to funguje</a></li>
-          <li><a href="#dukaz-bezpeci">Certifikace</a></li>
-          <li><a href="#magazin">Magazín</a></li>
           <li><a href="#rezervace">Rezervace</a></li>
         </ul>
       </div>
 
-      <div class="footer-links">
-        <h4>Lokality</h4>
-        <ul>
-          <li><a href="/biorezonance-pisek">Biorezonance Písek</a></li>
-          <li><a href="/biorezonance-strakonice">Biorezonance Strakonice</a></li>
-          <li><a href="/biorezonance-vodnany">Biorezonance Vodňany</a></li>
-          <li><a href="/biorezonance-milevsko">Biorezonance Milevsko</a></li>
-          <li><a href="/biorezonance-protivin">Biorezonance Protivín</a></li>
-          <li><a href="/biorezonance-blatna">Biorezonance Blatná</a></li>
-        </ul>
-      </div>
+
 
       <div class="footer-legal">
         <h4>Právní doložka</h4>
-        <p data-cms-nap="disclaimer">
+        <p data-cms-nap="disclaimer" style="font-size: 0.75rem; line-height: 1.4; color: rgba(223, 229, 223, 0.6);">
           Biorezonanční metoda Bicom Optima je doplňková (komplementární) metoda. Nenahrazuje standardní lékařskou péči, diagnostiku ani klinickou léčbu. Veškeré informace a poradenské programy jsou navrženy pro podporu přirozené autoregulace těla. Při zdravotních potížích se vždy poraďte se svým lékařem.
         </p>
-        <p style="margin-top: 1rem;" data-cms-nap="copyright">
-          &copy; 2026 Bicom Písek. Všechna práva vyhrazena.
+        <p style="margin-top: 1.25rem; font-size: 0.85rem; color: rgba(223, 229, 223, 0.8);" data-cms-nap="copyright">
+          &copy; <span id="footer-year">2026</span> Bicom Písek. Všechna práva vyhrazena.
         </p>
       </div>
     </div>
@@ -619,7 +616,7 @@
         marker.bindPopup(
           '<div style="font-family:Montserrat,system-ui,sans-serif;min-width:200px;">' +
             '<strong style="color:#2D3748;font-size:14px;">Bicom Písek</strong>' +
-            '<p style="margin:4px 0;color:#4A5568;font-size:13px;">Vladislavova 201, 397 01 Písek</p>' +
+            '<p style="margin:4px 0;color:#4A5568;font-size:13px;">Vladislavova 201 (Budova ADB Písek), 397 01 Písek</p>' +
             '<a href="https://mapy.cz/s/jonumebovo" target="_blank" rel="noopener" style="color:#3A4A3C;font-weight:600;font-size:12px;text-decoration:underline;">Otevřít na Mapy.cz &rarr;</a>' +
           '</div>',
           { maxWidth: 280 }
@@ -632,6 +629,14 @@
       }
     });
   </script>
+  <!-- Dynamický rok v copyrightu -->
+  <script>
+    (function() {
+      var el = document.getElementById('footer-year');
+      if (el) el.textContent = new Date().getFullYear();
+    })();
+  </script>
+
   <!-- Skripty -->
   <script src="/assets/js/performance-logger.js" defer></script>
   <script type="module" src="/assets/js/router.js"></script>

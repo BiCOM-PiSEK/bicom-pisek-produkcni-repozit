@@ -7,8 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const buttons = document.querySelectorAll(".guide-btn");
   const titleEl = document.getElementById("guide-title");
   const descEl = document.getElementById("guide-description");
-  const sessionsEl = document.getElementById("guide-sessions");
-  const priceEl = document.getElementById("guide-price");
   const ctaEl = document.getElementById("guide-cta");
   const formEl = document.getElementById("booking-form");
   const bookingDateEl = document.getElementById("booking-date");
@@ -56,8 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       titleEl.textContent = service.name;
       descEl.textContent = service.short_desc || "Tento program se zaměřuje na vyhodnocení zátěží a obnovu rovnováhy.";
-      sessionsEl.textContent = `Doporučený rozsah: ${service.sessions_typ || '3–6 sezení'}`;
-      priceEl.textContent = `Orientační cena: ${service.price_avg || '1200'} Kč / sezení`;
       
       // Update CTA link to go to dynamic SPA route
       ctaEl.setAttribute("href", `/sluzby/${service.slug}`);
@@ -514,15 +510,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const reminderEl = document.getElementById("booking-reminder-channel");
       const preferred_date = document.getElementById("booking-date").value;
 
-      // Validate: slot is required ONLY if actual slots exist (CR-1)
-      const hasAvailableSlots = Boolean(bookingSlotsEl?.querySelector('[data-slot-start]'));
-      if (hasAvailableSlots && !bookingSlotStartEl.value) {
-        showToast("Vyberte prosím čas", "error");
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        return;
-      }
-
       const data = {
         name: document.getElementById("booking-name").value,
         email: document.getElementById("booking-email").value,
@@ -530,9 +517,9 @@ document.addEventListener("DOMContentLoaded", () => {
         service: serviceSelect.value,
         serviceName: serviceName,
         preferred_date: preferred_date,
-        slot_start: bookingSlotStartEl.value || null,
-        psc: document.getElementById("booking-psc").value || null,
-        address: bookingAddressEl ? bookingAddressEl.value.trim() || null : null,
+        slot_start: null,
+        psc: null,
+        address: null,
         note: document.getElementById("booking-note").value || null,
         consent_processing: document.getElementById("booking-consent-processing").checked,
         consent_marketing: document.getElementById("booking-marketing").checked,
